@@ -163,7 +163,7 @@ wired to anything else" gap every prior PR's status table called out.
 | Appendix B SC-01 | "Unanticipated +200bp policy-rate shock" scenario, named outputs | `DemoRunConfig.policy_shock_bps` defaults to exactly this scenario; `test_policy_rate_path_length_and_known_shock` confirms the jump in the realized rate path matches the configured magnitude to `1e-9` |
 | AUD-08 (reused) | disclaimer and source tag on export | `test_evidence_bundle_carries_disclaimer_and_is_tagged_no_go` |
 
-This closes the single most-repeated limitation across PR-003 through PR-010's status entries ("each subsystem is still called standalone"). It does not mean the subsystems are wired together *generally* -- `run_demo` is one specific, hard-coded pipeline for one scenario and one option, not a general orchestration engine, scheduler, or the actual `MacroTimeEngine.advance_step()` loop calling out to pricing/hedging/risk at every step (section 02's steps 5-7 are still not implemented inside `MacroTimeEngine` itself).
+This closes the single most-repeated limitation across PR-003 through PR-010's status entries ("each subsystem is still called standalone"). It does not mean the subsystems are wired together *generally* -- `run_demo` is one specific, hard-coded pipeline for one scenario and one option, not a general orchestration engine or scheduler. (Update, PR-014: `MacroTimeEngine.advance_step()` itself now has real, working extension points for section 02's steps 3-7 via `econosim.step_hooks.StepHooks` -- see that section below. `run_demo` was not refactored to use them; the two remain separate, non-overlapping pieces of evidence.)
 
 10 new tests (238 total), ruff/mypy --strict clean, 97%/98% coverage, stable across repeated runs (~15s total suite, ~1s per demo run).
 
@@ -186,6 +186,18 @@ This is a genuine generalization, not a copy-paste: `Government.issue_bonds`/`re
 
 A deliberate bug was caught before any test ran: the first draft of `apply_labor_clearing_to_ledger` / `apply_goods_clearing_to_ledger` had buyer/sell semantics exactly swapped (households are *sellers* of labor but *buyers* of goods), caught by an exploratory scratch run, not by a test -- a reminder that "wrote a test that passed" and "the code is correct" are not the same claim until the test actually exercises the path that was wrong.
 
+## Evidenced today (PR-014: generalized step-hooks orchestration)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| Section 02's full event order, steps 1-8 | release -> shocks -> actions -> clear/settle -> financial step -> value/hedge -> portfolio risk -> commit, as reusable engine behavior, not a one-off script | `econosim.step_hooks.StepHooks` + `MacroTimeEngine.advance_step()`; `tests/unit/test_time_engine_hooks.py::test_full_hook_wiring_against_real_subsystems` wires all five slots to the real `market_clearing`, `stochastica.gbm`, `volterra.black_scholes` and `titan.risk_metrics` modules -- not mocks -- across 3 real steps |
+| Causal ordering of hook inputs | each hook only ever sees a `StepContext` built from already-known data | `test_hooks_receive_the_same_context_fields_advance_step_reports`; `test_hook_results_thread_into_the_next_hook` proves the threading order (actions -> settlement -> financial_step -> valuation -> risk) matches section 02's numbering exactly |
+| AUD-02 (extended) | state hash reflects everything that happened in a step | `test_state_hash_reflects_ledger_mutations_made_by_hooks`: a hook that posts a ledger transaction is proven to change `state_hash`, confirming the snapshot is taken after steps 3-7 run, not before |
+
+This directly closes the "called standalone" caveat repeated in every status update since PR-003: `MacroTimeEngine.advance_step()` now has real, working extension points for every step section 02 describes, exercised end to end against four different subsystems in one test. It does **not** ship an opinion about what those steps should compute for any given scenario -- `demo_run.py` (PR-011) remains the one concrete example of wiring choices for one scenario; `StepHooks` is the mechanism other scenarios would use, not a second copy of PR-011's pipeline.
+
+Without `hooks`, `MacroTimeEngine` behaves exactly as it did in PR-003 -- `test_no_hooks_leaves_all_new_fields_none` plus every original PR-003 test still passes unmodified, confirming this was a strictly additive change.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
@@ -195,7 +207,7 @@ A deliberate bug was caught before any test ran: the first draft of `apply_labor
 - No price discovery: wage and goods prices are supplied by the caller, not adjusted toward a market-clearing price (no tatonnement).
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
 - No portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
-- `orchestration.demo_run.run_demo` (PR-011) demonstrates every subsystem working together end to end, but it is one hard-coded pipeline for one scenario and one option, not a general orchestration engine. `MacroTimeEngine.advance_step()` itself still only does steps 1/2/8 of section 02's event order; steps 5-7 ("simulate financial step" / "value and hedge" / "compute portfolio risk") are not called from inside the macro step loop -- a caller has to do what `run_demo` does by hand.
+- `orchestration.demo_run.run_demo` (PR-011) remains one hard-coded pipeline for one scenario and one option -- it does not use `StepHooks` (PR-014) and was not refactored to. `StepHooks` provides the extension points (section 02's steps 3-7 are now genuinely callable from inside `MacroTimeEngine.advance_step()`), but no "reference scenario" ships wired through them for every macro step of a multi-step run; `test_full_hook_wiring_against_real_subsystems` is the closest thing, and it is a test, not a packaged example a user would run directly.
 - No GRU/LSTM, actor-critic or robust-policy hedging families (section 07's table) -- only the MLP family.
 - No risk-neutral calibration: `MarketSnapshot`'s `risk_free_rate`/`volatility` are supplied directly, not fit to an observed option-price surface.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
