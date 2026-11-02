@@ -177,12 +177,22 @@ This closes the single most-repeated limitation across PR-003 through PR-010's s
 
 This is a genuine generalization, not a copy-paste: `Government.issue_bonds`/`repay_bond` call `Bank.originate_loan`/`receive_repayment` directly, and `Household.repay_loan` was refactored to delegate to the same `Bank.receive_repayment` it always should have (previously it duplicated that logic inline) -- there is exactly one implementation of loan/bond accounting in this repository, exercised by both agent types.
 
+## Evidenced today (PR-013: labor and goods-market clearing)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| ECO-07 | goods-market price and quantity clearing, residuals tracked with documented tolerance | `econosim.market_clearing.clear_quantity_market` / `apply_goods_clearing_to_ledger`; `ClearingResult.clearing_residual` is always reported (signed excess demand), never silently discarded; `tests/unit/test_market_clearing.py::test_goods_clearing_charges_realized_not_desired_quantity` |
+| ECO-08 | labor supply, demand and rationing, no double counting of hours or paid wages | `apply_labor_clearing_to_ledger`; `test_labor_clearing_pays_realized_not_desired_hours`; the no-double-counting property is proven structurally for arbitrary buyer/seller mixes in `test_no_double_counting_sums_match_realized_total` (3 parametrized cases, oversupply and overdemand), not just asserted for one example |
+
+A deliberate bug was caught before any test ran: the first draft of `apply_labor_clearing_to_ledger` / `apply_goods_clearing_to_ledger` had buyer/sell semantics exactly swapped (households are *sellers* of labor but *buyers* of goods), caught by an exploratory scratch run, not by a test -- a reminder that "wrote a test that passed" and "the code is correct" are not the same claim until the test actually exercises the path that was wrong.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
-- No labor or goods-market clearing beyond direct bilateral consume/wages transfers -- still no quantity-based supply/demand matching or rationing (ECO-07, ECO-08).
 - `CentralBank` (PR-012) has no ledger-backed balance sheet: no reserve issuance, no open-market operations, no interbank settlement role. It only tracks a scalar policy rate.
+- Market clearing (PR-013) is a single-firm-vs-N-households case only: a general many-buyer/many-seller clearing *settled onto the ledger* would need a market-maker/clearing-account abstraction that does not exist. The pure quantity-matching math (`clear_quantity_market`) itself is fully general; only the ledger-execution helpers are restricted.
+- No price discovery: wage and goods prices are supplied by the caller, not adjusted toward a market-clearing price (no tatonnement).
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
 - No portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
 - `orchestration.demo_run.run_demo` (PR-011) demonstrates every subsystem working together end to end, but it is one hard-coded pipeline for one scenario and one option, not a general orchestration engine. `MacroTimeEngine.advance_step()` itself still only does steps 1/2/8 of section 02's event order; steps 5-7 ("simulate financial step" / "value and hedge" / "compute portfolio risk") are not called from inside the macro step loop -- a caller has to do what `run_demo` does by hand.

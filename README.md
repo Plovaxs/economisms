@@ -39,6 +39,11 @@ plus five agent types built on it (`prometheus.econosim.agents`):
 - `CentralBank` (`prometheus.econosim.policy_rate`) — a thin stateful
   wrapper around a mean-reverting policy-rate rule, not yet a ledger-backed
   agent with its own balance sheet.
+- `clear_quantity_market` (`prometheus.econosim.market_clearing`) —
+  quantity-based pro-rata rationing on the short side of a labor or goods
+  market, for one firm against N households; realized (not desired)
+  quantities are what actually get paid/charged on the ledger. No price
+  discovery: wages/prices are supplied, not adjusted toward clearing.
 - `Economy` — thin wiring over the above plus an integrity check.
 
 Every one of those behaviors is covered by a unit test, and the ledger's
@@ -248,7 +253,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 253 tests, should all pass (~16s, incl. MLP training)
+pytest                      # 265 tests, should all pass (~18s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -258,9 +263,10 @@ mypy src
 ```
 src/prometheus/
   core/           money, ledger, business-day calendar, RNG seed hierarchy
-  econosim/       household/firm/bank agents, Economy wiring, point-in-time
-                  macro data, deterministic shocks, macro time engine,
-                  policy-rate rule, macro-financial market link
+  econosim/       household/firm/bank/government agents, Economy wiring,
+                  point-in-time macro data, deterministic shocks, macro
+                  time engine, policy-rate rule + CentralBank,
+                  macro-financial market link, labor/goods-market clearing
   stochastica/    GBM, correlated multi-asset GBM, Heston path simulators,
                   piecewise-drift GBM for macro-conditioned paths
   volterra/       Black-Scholes pricing, Greeks, Monte Carlo + control variate
@@ -288,9 +294,9 @@ The blueprint is explicit that the first priority is *"not building the
 Transformer... making a constrained, correctly accounted toy economy and a
 trustworthy valuation/risk baseline,"* and lists PR-001 through PR-010 as
 that starting sequence (Appendix C). All ten now exist, tested, in this
-repository, plus two PRs beyond that list: section 16's own "Minimum v0.1
-demonstration script", and the government/central-bank agents ECONOSIM-X
-was still missing:
+repository, plus three PRs beyond that list: section 16's own "Minimum
+v0.1 demonstration script", the government/central-bank agents ECONOSIM-X
+was still missing, and quantity-based labor/goods-market clearing:
 
 | PR | Status | Scope |
 |----|--------|-------|
@@ -306,20 +312,22 @@ was still missing:
 | PR-010 Evidence export | done | model card, gate decision form, one-command disclaimer-carrying bundle |
 | PR-011 (beyond Appendix C) End-to-end demonstration run | done | section 16's "Minimum v0.1 demonstration script": economy -> shock -> GBM/Heston -> pricing -> hedge comparison -> P&L/CVaR -> evidence export, with invariant/valuation-tolerance/data-timing checks that can actually fail |
 | PR-012 (beyond Appendix C) Government and central-bank agents | done | `Government` (tax/transfer/bonds), `CentralBank` agent wrapper, a `Borrower` protocol so bank lending/repayment is genuinely polymorphic across household and government debt |
+| PR-013 (beyond Appendix C) Labor/goods-market clearing | done | quantity-based pro-rata rationing on the short side, with a structurally-proven no-double-counting property, settled onto the ledger via realized (not desired) quantities |
 
 **What this does and does not mean.** "Done" means: implemented, covered
-by passing tests (253 total, 97% line coverage), ruff/mypy --strict clean,
+by passing tests (265 total, 97% line coverage), ruff/mypy --strict clean,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-73 specific IDs across these 12 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
+75 specific IDs across these 13 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
 CHECKLIST_STATUS.md` reproduces that count) and states,
 explicitly and by category, everything that is not: no independent review
 of anything (MGR-*), no security/MLOps/CI/CD controls (SEC-*, MLO-*,
-CIQ-*), no API surface (API-*), no dashboard (UIX-*), no quantity-based
-labor/goods-market clearing, no central-bank balance sheet (reserve
-issuance, open-market operations), no neural (as opposed to rule-based)
-macro conditioning, and no *general* orchestration — PR-011 strings every
+CIQ-*), no API surface (API-*), no dashboard (UIX-*), no price discovery
+(wages/prices are supplied, not tâtonnement-adjusted), no central-bank
+balance sheet (reserve issuance, open-market operations), no neural (as
+opposed to rule-based) macro conditioning, and no *general* orchestration
+— PR-011 strings every
 subsystem together for one hard-coded scenario, but `MacroTimeEngine`
 itself still doesn't call pricing, hedging or risk from inside its own
 step loop. The actual, current gate status (generated from code, not
@@ -327,11 +335,11 @@ asserted) is `NO-GO`, matching the blueprint's own section 19 — see
 [`evidence/gate_report_r0.json`](./evidence/gate_report_r0.json).
 
 The next natural slice, if this continues, is making `MacroTimeEngine`
-itself call out to pricing/hedging/risk each step (generalizing PR-011's
-one-off pipeline into section 02's actual steps 5-7), adding quantity-based
-labor/goods-market clearing with rationing (ECO-07/ECO-08) now that
-`Government`/`CentralBank` exist to clear against, or starting the
-security/MLOps/governance categories needed to move past R0.
+itself call out to pricing/hedging/risk/market-clearing each step
+(generalizing PR-011's one-off pipeline into section 02's actual steps
+3-7), adding price discovery so wages/prices adjust toward clearing rather
+than being supplied, or starting the security/MLOps/governance categories
+needed to move past R0.
 
 ## License
 
