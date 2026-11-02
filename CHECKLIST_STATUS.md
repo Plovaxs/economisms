@@ -31,12 +31,24 @@ item, alongside the code — it is not a target to backfill in one pass.
 | VAL-07 | economic conservation under randomized transitions | same property test as LED-12 |
 | VAL-09 (partial) | deterministic CPU test mode, reference hashes | `EconomicState.state_hash()`; not yet wired to a pinned CI reference-hash fixture |
 
+## Evidenced today (PR-003)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| LED-11 (partial) | time-zone/holiday/business-day calendars | `core.calendar.BusinessDayCalendar`; `tests/unit/test_calendar.py`. Time-zone handling itself (not just business-day stepping) is explicitly out of scope. |
+| EXP-03 | random seed hierarchy across agent/market/training, order-independent replay | `core.seeds.SeedHierarchy`; `tests/unit/test_seeds.py::test_stream_identity_is_independent_of_request_order` |
+| ECO-13 | no hidden future variables in policy feature vector | `econosim.pit.PointInTimeStore.as_of` / `all_eligible_as_of` only ever expose `published_at <= t`; `tests/unit/test_pit.py`, `tests/unit/test_time_engine.py::test_point_in_time_data_is_not_visible_before_its_publication_step` |
+| ECO-14 | shocks to productivity/prices/policy, impulse-response reproducibility | `econosim.shocks.ShockGenerator`; `tests/unit/test_shocks.py::test_same_seed_reproduces_identical_shocks` |
+| DAT-07 (partial) | observation/publication timestamp tracking, point-in-time inclusion predicate | `econosim.pit.MacroObservation`/`PointInTimeStore`; full DAT ingestion (FRED-MD/QD, ALFRED, hashing) is not implemented |
+| R-03 mitigation (risk register) | release-time data view prevents lookahead leakage | same point-in-time tests as above, exercised across a multi-step replay in `test_time_engine.py` |
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
-- No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers, no shocks, no macro time engine (PR-003).
-- No stochastic finance, pricing, hedging, risk, optimization, data ingestion, API, MLOps, security, or any governance/compliance item (every category in sections 04-14 beyond ECO/LED/VAL above).
+- No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
+- Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
+- No stochastic finance, pricing, hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item (every category in sections 04-14 beyond ECO/LED/VAL/EXP-03/DAT-07(partial) above).
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 
 ## How to verify the evidence above yourself

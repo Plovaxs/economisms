@@ -40,6 +40,24 @@ total economy-wide equity equals exactly the sum of exogenous injections) is
 checked by a Hypothesis property test over randomized action sequences —
 see `tests/property/test_ledger_invariants.py`.
 
+Plus a **macro time engine** (`prometheus.econosim.time_engine`):
+
+- `BusinessDayCalendar` — weekend/holiday-aware date stepping.
+- `SeedHierarchy` — deterministic, order-independent named RNG streams from
+  one root seed, so replaying a simulation with the same seed reproduces
+  every stream's draws regardless of what order they're first requested in.
+- `PointInTimeStore` — macro observations keyed by both the period they
+  describe and when they were published; `as_of(t)` enforces the strict
+  `published_at <= t` inclusion rule, so a simulated step can never see a
+  data revision before it actually existed (the concrete mitigation for
+  R-03 in the risk register: lookahead leakage).
+- `ShockGenerator` — deterministic exogenous shocks tagged with the step
+  they arrive at, drawn from a seeded stream.
+- `MacroTimeEngine` — steps the clock one calendar month at a time (snapped
+  to the next business day), releasing only currently-eligible macro data
+  and drawing that step's shocks, then re-checks the ledger's accounting
+  identities and emits a content hash of the resulting state.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -69,8 +87,9 @@ mypy src
 
 ```
 src/prometheus/
-  core/         money, ledger (sector/account/transaction primitives)
-  econosim/     household, firm, bank agents; Economy wiring
+  core/         money, ledger, business-day calendar, RNG seed hierarchy
+  econosim/     household/firm/bank agents, Economy wiring, point-in-time
+                macro data, deterministic shocks, macro time engine
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -91,7 +110,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 |----|--------|-------|
 | PR-001 Repository foundations | done | package, lint/type config, test harness |
 | PR-002 Stock-flow ledger | done | double-entry journals, household/firm/bank, invariant tests |
-| PR-003 Macro time engine | not started | known-at releases, event schedule, deterministic shocks |
+| PR-003 Macro time engine | done | business-day calendar, seed hierarchy, point-in-time macro data, deterministic shocks |
 | PR-004 Stochastic reference | not started | GBM/Heston path solvers + numerical benchmarks |
 | PR-005 Pricing reference | not started | Black-Scholes, Greeks, Monte Carlo comparison |
 | PR-006 Risk reference | not started | P&L, historical VaR/ES, loss estimators |

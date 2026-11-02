@@ -6,7 +6,10 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "PROMETHEUS maintainers" }]
-dependencies = []
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
 
 [project.optional-dependencies]
 dev = [
