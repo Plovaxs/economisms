@@ -55,14 +55,31 @@ item, alongside the code — it is not a target to backfill in one pass.
 
 Not covered by PR-004: SDE-05 formal time-step convergence-rate estimation (only an informal Feller-ratio bias diagnostic exists), SDE-06..SDE-12 (regime switching, jumps, historical calibration, identifiability diagnostics, extreme-input fuzzing), Tier 2-4 of the model ladder (neural SDEs, macro-conditioned models, stress-robust policies).
 
+## Evidenced today (PR-005)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| PRI-01 | versioned instrument/payoff specifications | `volterra.instruments.EuropeanOption`; boundary tests in `tests/unit/test_black_scholes.py::test_option_rejects_invalid_fields` |
+| PRI-02 | Black-Scholes European call/put, analytical reference fixtures | `volterra.black_scholes.black_scholes_price`; `tests/unit/test_black_scholes.py::test_matches_known_textbook_reference_value` |
+| PRI-03 | put-call parity and bounds verification | `volterra.black_scholes.put_call_parity_residual`; `test_put_call_parity_holds_to_floating_point_precision`, `test_call_price_respects_lower_arbitrage_bound`, monotonicity-in-spot/strike tests |
+| PRI-06 | Monte Carlo pricer with standard errors | `volterra.monte_carlo.monte_carlo_price_vanilla`; `tests/unit/test_monte_carlo.py` |
+| PRI-07 | Delta/Gamma/Vega with method tagging, analytical vs. independent-method comparison | `volterra.black_scholes.black_scholes_greeks` vs `volterra.greeks_fd.finite_difference_greeks`; `tests/unit/test_greeks_fd.py` (parametrized across ITM/ATM/OTM, call and put) -- see caveat below |
+| PRI-12 | fail closed on invalid parameters | `MarketSnapshot`/`EuropeanOption` `__post_init__` validation (non-positive spot/vol/strike/maturity rejected) |
+| PRI-13 | numerical uncertainty required with every non-closed-form price | `MonteCarloResult` always carries `standard_error` and `n_paths`; there is no code path that returns a Monte Carlo price without them |
+| SDE-09 | explicit P/Q measure tagging on every pricing call | `volterra.market.MarketSnapshot` raises in `__post_init__` unless `measure == "Q"`; the Monte Carlo pricer always simulates with drift `r - q`, never a physical-measure `mu` |
+| VAL-05 (caveat) | AD vs. finite-difference Greek checks | Implemented as *analytical-formula* vs. *finite-difference*, not automatic differentiation vs. finite-difference as the ID's literal text says; both differentiate the same `black_scholes_price` function, so this does not independently verify the price formula itself, only the Greeks formulas derived from it |
+
+Not covered by PR-005: Heston/Fourier pricing (PRI-04), risk-neutral calibration (PRI-05), barrier/Asian options (PRI-08/09), portfolio-level Greeks aggregation (PRI-10), volatility-surface arbitrage checks (PRI-11), and all of PDE-01..PDE-12 (PINN/deep-BSDE solvers).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
 - No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
-- No pricing, hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
-- STOCHASTICA is not wired into the economy/ledger at all yet: market paths are simulated standalone, not driven by or feeding back into any agent's state. That link (section 02's "simulate financial step", steps 5-7 of the event order) is future work.
+- No hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
+- STOCHASTICA and VOLTERRA are not wired into the economy/ledger at all yet: market paths and option prices are computed standalone, not driven by or feeding back into any agent's state, position or hedge. That link (section 02's "simulate financial step" / "value and hedge", steps 5-7 of the event order) is future work (PR-006 onward).
+- No risk-neutral calibration: `MarketSnapshot`'s `risk_free_rate`/`volatility` are supplied directly, not fit to an observed option-price surface.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 
 ## How to verify the evidence above yourself

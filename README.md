@@ -71,6 +71,24 @@ not yet wired to the economy:
   matrix outright, but repairs (with a warning) one that is PSD except for
   floating-point-sized negative eigenvalues.
 
+Plus risk-neutral (Q) **derivatives pricing** (`prometheus.volterra`), also
+not yet wired to the economy:
+
+- `MarketSnapshot` — structurally requires `measure="Q"`; constructing one
+  tagged `"P"` raises immediately, so a physical-measure calibration can't
+  be fed into a pricing call by accident (SDE-09).
+- `black_scholes_price` / `black_scholes_greeks` — the closed form plus
+  delta/gamma/vega/theta/rho, matched against a central finite-difference
+  of the same price function (an independent formula check, not an
+  independent *pricer* check) and against put-call parity to floating-point
+  precision.
+- `monte_carlo_price_vanilla` — always simulates under Q (drift =
+  risk-free rate minus dividend yield, never a physical `mu`), always
+  returns a standard error alongside the price, and optionally applies a
+  control variate (the discounted terminal spot, whose risk-neutral mean is
+  known in closed form) — cuts the standard error by roughly 2-3x at the
+  tested settings.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -104,6 +122,7 @@ src/prometheus/
   econosim/     household/firm/bank agents, Economy wiring, point-in-time
                 macro data, deterministic shocks, macro time engine
   stochastica/  GBM, correlated multi-asset GBM, Heston path simulators
+  volterra/     Black-Scholes pricing, Greeks, Monte Carlo + control variate
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -126,7 +145,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-002 Stock-flow ledger | done | double-entry journals, household/firm/bank, invariant tests |
 | PR-003 Macro time engine | done | business-day calendar, seed hierarchy, point-in-time macro data, deterministic shocks |
 | PR-004 Stochastic reference | done | GBM, correlated multi-asset GBM, Heston (full-truncation Euler) + numerical benchmarks |
-| PR-005 Pricing reference | not started | Black-Scholes, Greeks, Monte Carlo comparison |
+| PR-005 Pricing reference | done | Black-Scholes, analytical + finite-difference Greeks, put-call parity, Monte Carlo + control variate |
 | PR-006 Risk reference | not started | P&L, historical VaR/ES, loss estimators |
 | PR-007 Deep hedge v0 | not started | MLP hedging policy, cost-aware delta baseline |
 | PR-008 First research benchmark | not started | held-out seeds, bootstrap CI, reproducer |
