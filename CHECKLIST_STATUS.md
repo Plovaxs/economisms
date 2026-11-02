@@ -120,6 +120,20 @@ The benchmark's actual finding in development (not asserted by any test, since i
 
 Not covered by PR-008: EXP-04 (immutable split IDs/holdout manifest as a first-class artifact), EXP-05 (leakage negative control), EXP-08/09 (multiple-testing correction, block bootstrap for serial dependence -- paths here are i.i.d. terminal outcomes, not an overlapping-horizon series), EXP-11 (formal compute-cost benchmarking), EXP-12 (OOD/distribution-shift evaluation), EXP-14 (independent reviewer rerun).
 
+## Evidenced today (PR-009)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| ECO-05 | central bank policy-rate rule baseline, known reaction-function scenarios reproduce coefficients | `econosim.policy_rate.PolicyRateRule`; `tests/unit/test_policy_rate.py::test_matches_exact_discrete_ou_closed_form_with_zero_shocks` (exact match to the closed-form discrete OU recursion, not just "close") |
+| ECO-14 (extended) | shocks to monetary policy, impulse-response fixture reproduces expected sign/range | `test_policy_rate_shock_adds_exactly_its_magnitude_before_next_reversion` -- exact, not just sign/range |
+| SDE-03 Tier 3 (partial, non-neural) | macro-conditioned market dynamics, no leakage from future releases | `econosim.macro_market_link.simulate_policy_rate_conditioned_market` + `stochastica.gbm.simulate_piecewise_drift_gbm_paths`; `tests/unit/test_piecewise_gbm.py::test_later_drift_cannot_affect_earlier_simulated_prices` and `test_macro_market_link.py::test_no_lookahead_from_future_policy_shocks` (bit-identical path prefixes despite a wildly different/later tail) |
+| SDE-01-style reference check (extended to piecewise drift) | empirical mean/variance match theory within CI | `stochastica.gbm.piecewise_gbm_terminal_moments` (exact closed form for a piecewise-constant-drift GBM, reduces exactly to the constant-drift formula when the path is flat); `tests/unit/test_piecewise_gbm.py::test_terminal_distribution_matches_piecewise_theory_within_ci` |
+| Full-chain integration | seeded shocks -> policy rate -> macro-conditioned market, end to end | `tests/unit/test_macro_market_link.py::test_integrates_with_the_seeded_shock_generator_from_pr003` and `test_terminal_distribution_matches_theory_for_a_policy_tightening_scenario` |
+
+Explicitly labeled, not overclaimed: this is a deterministic, rule-based (non-neural) v0 of STOCHASTICA's Tier 3. "Macro conditioned... Neural SDE with macroeconomic state" literally calls for a *neural* drift/diffusion network; what exists here is a hand-specified piecewise-constant mapping from policy rate to drift. The no-lookahead property Tier 3 requires is implemented and tested; the "improvement against Tier 1" comparison Tier 3 also calls for is not attempted (that would need a pre-registered benchmark in the style of PR-008, which has not been run for this).
+
+Not covered by PR-009: inflation/output-gap state or a full Taylor rule (the policy rate here only reacts to injected shocks plus mean reversion, not to any other macro variable), publication-lag-aware macro conditioning (the policy rate here is used immediately, not filtered through PointInTimeStore's as_of predicate), and wiring this into the Economy/MacroTimeEngine's own step loop (it is called as a standalone function, like every other subsystem so far).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).

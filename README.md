@@ -149,6 +149,26 @@ Plus a first **research benchmark** (`prometheus.experiments`):
   matrix it does *not* cover (only the hedge dimension is varied; no
   learned economy or neural-SDE market model exists yet).
 
+Plus a first **macro-financial link** (`prometheus.econosim.policy_rate`,
+`prometheus.econosim.macro_market_link`, and an extension to
+`prometheus.stochastica.gbm`) — explicitly a deterministic, non-neural v0
+of STOCHASTICA's eventual Tier 3 ("macro conditioned"), not a claim that
+Tier 3 itself is done:
+
+- `PolicyRateRule` — a mean-reverting central-bank rate process perturbed
+  by the deterministic `"policy_rate"` shocks already built in PR-003,
+  matching the exact closed-form discrete Ornstein-Uhlenbeck recursion to
+  floating-point precision when unperturbed.
+- `simulate_piecewise_drift_gbm_paths` / `piecewise_gbm_terminal_moments` —
+  a GBM variant whose drift changes period by period (here, driven by the
+  policy rate), checked against an exact closed-form reference that reduces
+  identically to the ordinary constant-drift GBM formula when the path is
+  flat.
+- The whole chain — seeded shocks → policy rate → macro-conditioned market
+  — is deterministic end to end and provably has no lookahead: a late
+  shock, or a wildly different late-period drift, leaves every earlier
+  simulated value bit-identical in testing.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -172,7 +192,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 176 tests, should all pass (~14s, incl. MLP training)
+pytest                      # 193 tests, should all pass (~14s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -191,6 +211,8 @@ src/prometheus/
                 simulator, CVaR-trained MLP hedging policy (PyTorch)
   experiments/  paired bootstrap CI, reproducibility manifest, the
                 delta-vs-MLP hedge benchmark
+  stochastica/  (extended) piecewise-drift GBM for macro-conditioned paths
+  econosim/     (extended) policy-rate rule, macro-financial market link
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -217,7 +239,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-006 Risk reference | done | historical/parametric VaR, tie-safe Expected Shortfall, drawdown, VaR-exception coverage test |
 | PR-007 Deep hedge v0 | done | BS delta + no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy |
 | PR-008 First research benchmark | done | paired bootstrap CI, reproducibility manifest, multi-seed delta-vs-MLP comparison |
-| PR-009 Macro-financial link | not started | policy-rate scenario into market conditional states |
+| PR-009 Macro-financial link | done | policy-rate rule, piecewise-drift GBM, macro-conditioned market simulation |
 | PR-010 Evidence export | not started | run manifest, model card, gate report |
 
 ## License

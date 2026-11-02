@@ -57,6 +57,67 @@ def terminal_moments(s0: float, mu: float, sigma: float, maturity: float) -> tup
     return float(mean), float(variance)
 
 
+def piecewise_gbm_terminal_moments(
+    s0: float, mu_path: list[float], sigma: float, dt: float
+) -> tuple[float, float]:
+    """Exact (mean, variance) of S_T for a GBM whose drift is piecewise
+    constant across equal-length periods: mu_path[t] applies over period t.
+    log(S_T/S0) is Gaussian with mean sum(mu_path)*dt - 0.5*sigma^2*T and
+    variance sigma^2*T (T = len(mu_path)*dt) -- the same lognormal
+    structure as constant-drift GBM with mu*T replaced by the time-integral
+    of drift, sum(mu_path)*dt. Reduces to terminal_moments() when every
+    entry of mu_path is equal."""
+    n_steps = len(mu_path)
+    if n_steps < 1:
+        raise ValueError("mu_path must be non-empty")
+    if s0 <= 0:
+        raise ValueError("s0 must be positive")
+    maturity = n_steps * dt
+    integrated_drift = sum(mu_path) * dt
+    mean = s0 * np.exp(integrated_drift)
+    variance = (s0**2) * np.exp(2 * integrated_drift) * (np.exp(sigma**2 * maturity) - 1.0)
+    return float(mean), float(variance)
+
+
+def simulate_piecewise_drift_gbm_paths(
+    s0: float,
+    mu_path: list[float],
+    sigma: float,
+    dt: float,
+    n_paths: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """A GBM path simulator whose drift is piecewise constant: mu_path[t]
+    applies over period t = [t*dt, (t+1)*dt). Returns shape
+    (n_paths, len(mu_path) + 1). Random draws are generated period by
+    period in chronological order, so a later entry of mu_path can never
+    influence an earlier period's simulated values -- a no-lookahead
+    guarantee that is tested explicitly, not merely asserted."""
+    n_steps = len(mu_path)
+    if n_steps < 1:
+        raise ValueError("mu_path must be non-empty")
+    if s0 <= 0:
+        raise ValueError("s0 must be positive")
+    if sigma < 0:
+        raise ValueError("sigma must be non-negative")
+    if n_paths < 1:
+        raise ValueError("n_paths must be >= 1")
+    if dt <= 0:
+        raise ValueError("dt must be positive")
+
+    sqrt_dt = np.sqrt(dt)
+    log_increments = np.empty((n_paths, n_steps))
+    for t in range(n_steps):
+        z = rng.standard_normal(n_paths)
+        log_increments[:, t] = (mu_path[t] - 0.5 * sigma**2) * dt + sigma * sqrt_dt * z
+
+    cumulative = np.cumsum(log_increments, axis=1)
+    paths = np.empty((n_paths, n_steps + 1))
+    paths[:, 0] = s0
+    paths[:, 1:] = s0 * np.exp(cumulative)
+    return paths
+
+
 def simulate_correlated_gbm_paths(
     s0: np.ndarray,
     mu: np.ndarray,
