@@ -21,7 +21,7 @@ it.
 ## What exists today (v0.1)
 
 A multi-sector, double-entry **stock-flow ledger** (`prometheus.core.ledger`)
-plus three agent types built on it (`prometheus.econosim.agents`):
+plus five agent types built on it (`prometheus.econosim.agents`):
 
 - `Money` — exact integer minor-unit currency values (no floating-point
   cent drift).
@@ -32,6 +32,13 @@ plus three agent types built on it (`prometheus.econosim.agents`):
 - `Household`, `Firm`, `Bank` — income, consumption, wages, loan
   origination, loan repayment and a bank leverage cap, each implemented as
   one balanced `Transaction`.
+- `Government` — taxes, transfers, and bond issuance/repayment through a
+  `Borrower` protocol shared with `Household`, so a bank's capital/leverage
+  limit constrains household and government borrowing *together*, not as
+  two separately-maintained mechanisms that could drift apart.
+- `CentralBank` (`prometheus.econosim.policy_rate`) — a thin stateful
+  wrapper around a mean-reverting policy-rate rule, not yet a ledger-backed
+  agent with its own balance sheet.
 - `Economy` — thin wiring over the above plus an integrity check.
 
 Every one of those behaviors is covered by a unit test, and the ledger's
@@ -241,7 +248,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 238 tests, should all pass (~15s, incl. MLP training)
+pytest                      # 253 tests, should all pass (~16s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -281,8 +288,9 @@ The blueprint is explicit that the first priority is *"not building the
 Transformer... making a constrained, correctly accounted toy economy and a
 trustworthy valuation/risk baseline,"* and lists PR-001 through PR-010 as
 that starting sequence (Appendix C). All ten now exist, tested, in this
-repository, plus one PR beyond that list implementing section 16's own
-"Minimum v0.1 demonstration script":
+repository, plus two PRs beyond that list: section 16's own "Minimum v0.1
+demonstration script", and the government/central-bank agents ECONOSIM-X
+was still missing:
 
 | PR | Status | Scope |
 |----|--------|-------|
@@ -297,18 +305,20 @@ repository, plus one PR beyond that list implementing section 16's own
 | PR-009 Macro-financial link | done | policy-rate rule, piecewise-drift GBM, macro-conditioned market simulation |
 | PR-010 Evidence export | done | model card, gate decision form, one-command disclaimer-carrying bundle |
 | PR-011 (beyond Appendix C) End-to-end demonstration run | done | section 16's "Minimum v0.1 demonstration script": economy -> shock -> GBM/Heston -> pricing -> hedge comparison -> P&L/CVaR -> evidence export, with invariant/valuation-tolerance/data-timing checks that can actually fail |
+| PR-012 (beyond Appendix C) Government and central-bank agents | done | `Government` (tax/transfer/bonds), `CentralBank` agent wrapper, a `Borrower` protocol so bank lending/repayment is genuinely polymorphic across household and government debt |
 
 **What this does and does not mean.** "Done" means: implemented, covered
-by passing tests (238 total, 97% line coverage), ruff/mypy --strict clean,
+by passing tests (253 total, 97% line coverage), ruff/mypy --strict clean,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-70 specific IDs across these 11 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
+73 specific IDs across these 12 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
 CHECKLIST_STATUS.md` reproduces that count) and states,
 explicitly and by category, everything that is not: no independent review
 of anything (MGR-*), no security/MLOps/CI/CD controls (SEC-*, MLO-*,
-CIQ-*), no API surface (API-*), no dashboard (UIX-*), no government/
-central-bank/labor-market agents, no neural (as opposed to rule-based)
+CIQ-*), no API surface (API-*), no dashboard (UIX-*), no quantity-based
+labor/goods-market clearing, no central-bank balance sheet (reserve
+issuance, open-market operations), no neural (as opposed to rule-based)
 macro conditioning, and no *general* orchestration — PR-011 strings every
 subsystem together for one hard-coded scenario, but `MacroTimeEngine`
 itself still doesn't call pricing, hedging or risk from inside its own
@@ -318,9 +328,10 @@ asserted) is `NO-GO`, matching the blueprint's own section 19 — see
 
 The next natural slice, if this continues, is making `MacroTimeEngine`
 itself call out to pricing/hedging/risk each step (generalizing PR-011's
-one-off pipeline into section 02's actual steps 5-7), adding the
-government/central-bank/labor-market agents ECONOSIM-X is still missing,
-or starting the security/MLOps/governance categories needed to move past R0.
+one-off pipeline into section 02's actual steps 5-7), adding quantity-based
+labor/goods-market clearing with rationing (ECO-07/ECO-08) now that
+`Government`/`CentralBank` exist to clear against, or starting the
+security/MLOps/governance categories needed to move past R0.
 
 ## License
 

@@ -167,11 +167,22 @@ This closes the single most-repeated limitation across PR-003 through PR-010's s
 
 10 new tests (238 total), ruff/mypy --strict clean, 97%/98% coverage, stable across repeated runs (~15s total suite, ~1s per demo run).
 
+## Evidenced today (PR-012: government and central-bank agents)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| ECO-06 | government taxes, transfers and expenditures; sectoral flows reconcile to counterpart accounts | `econosim.agents.Government.collect_tax` / `pay_transfer`; `tests/unit/test_government.py`; extended into the PR-002 Hypothesis property test (`tests/property/test_ledger_invariants.py`) so random tax/transfer/bond sequences are now part of the same conservation proof, not a separately-asserted claim |
+| ECO-05 (extended) | central bank policy-rate rule baseline, as a stateful agent | `econosim.policy_rate.CentralBank`; `tests/unit/test_central_bank.py::test_step_matches_the_same_closed_form_as_the_free_function` -- the agent wrapper is proven to be behaviorally identical to the pure function it wraps, not a parallel reimplementation that could drift |
+| ECO-09 (extended) | bank capital/leverage limits apply uniformly across borrower types | `econosim.agents.Borrower` protocol; `Bank.originate_loan`/`receive_repayment` now take any `Borrower`, not `Household` specifically; `tests/unit/test_government.py::test_government_and_household_borrowing_share_the_same_leverage_cap` and the full `tests/unit/test_borrower_protocol.py` (parametrized over household and government, same assertions, same code path) |
+
+This is a genuine generalization, not a copy-paste: `Government.issue_bonds`/`repay_bond` call `Bank.originate_loan`/`receive_repayment` directly, and `Household.repay_loan` was refactored to delegate to the same `Bank.receive_repayment` it always should have (previously it duplicated that logic inline) -- there is exactly one implementation of loan/bond accounting in this repository, exercised by both agent types.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
-- No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
+- No labor or goods-market clearing beyond direct bilateral consume/wages transfers -- still no quantity-based supply/demand matching or rationing (ECO-07, ECO-08).
+- `CentralBank` (PR-012) has no ledger-backed balance sheet: no reserve issuance, no open-market operations, no interbank settlement role. It only tracks a scalar policy rate.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
 - No portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
 - `orchestration.demo_run.run_demo` (PR-011) demonstrates every subsystem working together end to end, but it is one hard-coded pipeline for one scenario and one option, not a general orchestration engine. `MacroTimeEngine.advance_step()` itself still only does steps 1/2/8 of section 02's event order; steps 5-7 ("simulate financial step" / "value and hedge" / "compute portfolio risk") are not called from inside the macro step loop -- a caller has to do what `run_demo` does by hand.

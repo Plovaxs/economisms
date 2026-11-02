@@ -53,3 +53,22 @@ def simulate_policy_rate_path(
         current = rule.step(current, shocks)
         rates.append(current)
     return rates
+
+
+@dataclass(slots=True)
+class CentralBank:
+    """A thin agent wrapper around PolicyRateRule: tracks the current
+    policy rate as mutable state, advanced one macro step at a time. This
+    is NOT a ledger-backed agent -- it has no balance sheet (no reserve
+    issuance, no open-market operations); it exists so a simulation can
+    hold "the central bank" as one stateful object with the same add_*
+    pattern as econosim.economy.Economy's other agents, rather than
+    threading a bare float through caller code by hand."""
+
+    agent_id: str
+    rule: PolicyRateRule
+    current_rate: float
+
+    def step(self, shocks: list[Shock]) -> float:
+        self.current_rate = self.rule.step(self.current_rate, shocks)
+        return self.current_rate

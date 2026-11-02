@@ -1,15 +1,17 @@
 """Economy: wires agents to a shared ledger and tracks a simulation step.
 
-This is intentionally thin. The macro time engine (known-at event releases,
-shock scheduling, market-calendar stepping -- PR-003 in the roadmap) is not
-implemented yet; advance_step() here only increments a counter and asserts
-the ledger's accounting identities still hold.
+This is intentionally thin. Macro-step event ordering (known-at releases,
+shock scheduling, calendar stepping) lives in econosim.time_engine, which
+wraps an Economy rather than this class absorbing that responsibility
+itself; advance_step() here only increments a counter and asserts the
+ledger's accounting identities still hold.
 """
 
 from __future__ import annotations
 
 from prometheus.core.ledger import Ledger
-from prometheus.econosim.agents import Bank, Firm, Household
+from prometheus.econosim.agents import Bank, Firm, Government, Household
+from prometheus.econosim.policy_rate import CentralBank, PolicyRateRule
 
 
 class Economy:
@@ -20,6 +22,8 @@ class Economy:
         self.households: dict[str, Household] = {}
         self.firms: dict[str, Firm] = {}
         self.banks: dict[str, Bank] = {}
+        self.governments: dict[str, Government] = {}
+        self.central_banks: dict[str, CentralBank] = {}
 
     def add_household(self, agent_id: str) -> Household:
         household = Household(self.ledger, agent_id, currency=self.currency)
@@ -35,6 +39,21 @@ class Economy:
         bank = Bank(self.ledger, agent_id, currency=self.currency, max_leverage=max_leverage)
         self.banks[agent_id] = bank
         return bank
+
+    def add_government(self, agent_id: str) -> Government:
+        government = Government(self.ledger, agent_id, currency=self.currency)
+        self.governments[agent_id] = government
+        return government
+
+    def add_central_bank(
+        self, agent_id: str, rule: PolicyRateRule, initial_rate: float
+    ) -> CentralBank:
+        """Not ledger-backed (see policy_rate.CentralBank's docstring);
+        tracked here only so a simulation has one place to find it, the
+        same way it finds every other agent."""
+        central_bank = CentralBank(agent_id=agent_id, rule=rule, current_rate=initial_rate)
+        self.central_banks[agent_id] = central_bank
+        return central_bank
 
     def check_integrity(self) -> None:
         """Raise LedgerIdentityViolation if any sector is out of balance."""
