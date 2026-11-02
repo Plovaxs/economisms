@@ -149,6 +149,24 @@ Not covered by PR-009: inflation/output-gap state or a full Taylor rule (the pol
 
 Not covered by PR-010: AUD-01..07/09/10/12 (per-run immutable IDs wired into every subsystem's output, access-control logging, versioned figures/tables), MGR-01..14 (none of this has had independent review, by construction -- that's the point, not a gap to silently close), CMP-01..12 (no regulatory/standards mapping attempted).
 
+## Evidenced today (PR-011: orchestrated end-to-end demonstration run)
+
+Beyond Appendix C's ten starter PRs: section 16's "Minimum v0.1
+demonstration script" is implemented and tested, closing the "nothing is
+wired to anything else" gap every prior PR's status table called out.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| Section 16's demonstration script, literally | economy -> shock -> GBM/Heston -> pricing -> hedge comparison -> P&L/CVaR -> evidence export, one command | `orchestration.demo_run.run_demo`; `tests/unit/test_demo_run.py::test_all_report_fields_are_populated_on_a_valid_run` |
+| "...the run must be marked invalid rather than silently published" | invariant / valuation-tolerance / data-timing checks | all three implemented as named categories in `invalid_reasons`; `test_corrupted_ledger_is_caught_via_injected_economy` and `test_valuation_tolerance_check_can_actually_fail` both force a genuine failure (not just confirm the happy path), and the report is still fully populated up to the point of failure rather than crashing |
+| AUD-01/02 (extended) | immutable run ID, reproducible result hash, for an integration run rather than a single subsystem | `test_result_hash_reproducible_given_identical_config` |
+| Appendix B SC-01 | "Unanticipated +200bp policy-rate shock" scenario, named outputs | `DemoRunConfig.policy_shock_bps` defaults to exactly this scenario; `test_policy_rate_path_length_and_known_shock` confirms the jump in the realized rate path matches the configured magnitude to `1e-9` |
+| AUD-08 (reused) | disclaimer and source tag on export | `test_evidence_bundle_carries_disclaimer_and_is_tagged_no_go` |
+
+This closes the single most-repeated limitation across PR-003 through PR-010's status entries ("each subsystem is still called standalone"). It does not mean the subsystems are wired together *generally* -- `run_demo` is one specific, hard-coded pipeline for one scenario and one option, not a general orchestration engine, scheduler, or the actual `MacroTimeEngine.advance_step()` loop calling out to pricing/hedging/risk at every step (section 02's steps 5-7 are still not implemented inside `MacroTimeEngine` itself).
+
+10 new tests (238 total), ruff/mypy --strict clean, 97%/98% coverage, stable across repeated runs (~15s total suite, ~1s per demo run).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
@@ -156,7 +174,7 @@ Not covered by PR-010: AUD-01..07/09/10/12 (per-run immutable IDs wired into eve
 - No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
 - No portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
-- STOCHASTICA, VOLTERRA, TITAN and the new hedging subsystem are not wired into the economy/ledger or to each other at the orchestration level: a hedging simulation is a standalone script-level call (simulate paths, compute ratios, run the simulator), not something the Economy/MacroTimeEngine triggers each step. That link (section 02's "simulate financial step" / "value and hedge" / "compute portfolio risk", steps 5-7 of the event order) is future work.
+- `orchestration.demo_run.run_demo` (PR-011) demonstrates every subsystem working together end to end, but it is one hard-coded pipeline for one scenario and one option, not a general orchestration engine. `MacroTimeEngine.advance_step()` itself still only does steps 1/2/8 of section 02's event order; steps 5-7 ("simulate financial step" / "value and hedge" / "compute portfolio risk") are not called from inside the macro step loop -- a caller has to do what `run_demo` does by hand.
 - No GRU/LSTM, actor-critic or robust-policy hedging families (section 07's table) -- only the MLP family.
 - No risk-neutral calibration: `MarketSnapshot`'s `risk_free_rate`/`volatility` are supplied directly, not fit to an observed option-price surface.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.

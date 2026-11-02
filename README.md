@@ -169,6 +169,34 @@ Tier 3 itself is done:
   shock, or a wildly different late-period drift, leaves every earlier
   simulated value bit-identical in testing.
 
+Plus a first **orchestrated end-to-end run** (`prometheus.orchestration`),
+implementing section 16's "Minimum v0.1 demonstration script" literally —
+closing the single most-repeated limitation in every PR above ("called
+standalone, not wired to anything else"), for one specific scenario:
+
+```python
+from prometheus.orchestration.demo_run import DemoRunConfig, run_demo
+result = run_demo(DemoRunConfig())  # ~1s
+```
+
+This simulates a small closed economy and verifies its ledger; applies
+Appendix B's own SC-01 scenario (an unanticipated +200bp policy-rate
+shock) through `PolicyRateRule`; generates both a macro-conditioned GBM
+path and an independent Heston diagnostic; prices a European option under
+a separately-tagged Q-measure snapshot, cross-checked by an independent
+Monte Carlo run; trains and evaluates an MLP hedge against the delta
+baseline on the realized macro-conditioned paths; computes CVaR for both;
+and exports an evidence bundle. The blueprint's own instruction — *"If any
+invariant, valuation tolerance or data-timing check fails, the run must be
+marked invalid rather than silently published"* — is implemented as three
+named, independently-triggerable checks (`DemoRunResult.invalid_reasons`),
+not just a comment: tests force a genuine ledger corruption and a genuine
+valuation-tolerance breach and confirm the run reports itself invalid
+*while still returning a full report*, rather than crashing or looking
+clean. It is one specific hard-coded pipeline, not a general orchestration
+engine — `MacroTimeEngine` itself still doesn't call pricing/hedging/risk
+from inside its own step loop.
+
 Plus **evidence export** (`prometheus.evidence`), applying the same
 "cannot construct an invalid claim" discipline used everywhere else in this
 codebase to the paperwork itself:
@@ -213,7 +241,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 228 tests, should all pass (~14s, incl. MLP training)
+pytest                      # 238 tests, should all pass (~15s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -222,23 +250,24 @@ mypy src
 
 ```
 src/prometheus/
-  core/         money, ledger, business-day calendar, RNG seed hierarchy
-  econosim/     household/firm/bank agents, Economy wiring, point-in-time
-                macro data, deterministic shocks, macro time engine
-  stochastica/  GBM, correlated multi-asset GBM, Heston path simulators
-  volterra/     Black-Scholes pricing, Greeks, Monte Carlo + control variate
-  titan/        VaR, Expected Shortfall, drawdown, VaR-exception coverage
-  hedging/      BS delta / no-trade-band baselines, self-financing
-                simulator, CVaR-trained MLP hedging policy (PyTorch)
-  experiments/  paired bootstrap CI, reproducibility manifest, the
-                delta-vs-MLP hedge benchmark
-  stochastica/  (extended) piecewise-drift GBM for macro-conditioned paths
-  econosim/     (extended) policy-rate rule, macro-financial market link
-  evidence/     model card, gate decision form, evidence bundle export
-evidence/       generated (not hand-written) artifacts, e.g. gate_report_r0.json
+  core/           money, ledger, business-day calendar, RNG seed hierarchy
+  econosim/       household/firm/bank agents, Economy wiring, point-in-time
+                  macro data, deterministic shocks, macro time engine,
+                  policy-rate rule, macro-financial market link
+  stochastica/    GBM, correlated multi-asset GBM, Heston path simulators,
+                  piecewise-drift GBM for macro-conditioned paths
+  volterra/       Black-Scholes pricing, Greeks, Monte Carlo + control variate
+  titan/          VaR, Expected Shortfall, drawdown, VaR-exception coverage
+  hedging/        BS delta / no-trade-band baselines, self-financing
+                  simulator, CVaR-trained MLP hedging policy (PyTorch)
+  experiments/    paired bootstrap CI, reproducibility manifest, the
+                  delta-vs-MLP hedge benchmark
+  evidence/       model card, gate decision form, evidence bundle export
+  orchestration/  the end-to-end "minimum demonstration script" run
+evidence/         generated (not hand-written) artifacts, e.g. gate_report_r0.json
 tests/
-  unit/         one behavior per test, no randomness
-  property/     Hypothesis-based invariant tests
+  unit/           one behavior per test, no randomness
+  property/       Hypothesis-based invariant tests
 ```
 
 This mirrors (a small slice of) the reference repository layout in section
@@ -252,7 +281,8 @@ The blueprint is explicit that the first priority is *"not building the
 Transformer... making a constrained, correctly accounted toy economy and a
 trustworthy valuation/risk baseline,"* and lists PR-001 through PR-010 as
 that starting sequence (Appendix C). All ten now exist, tested, in this
-repository:
+repository, plus one PR beyond that list implementing section 16's own
+"Minimum v0.1 demonstration script":
 
 | PR | Status | Scope |
 |----|--------|-------|
@@ -266,28 +296,31 @@ repository:
 | PR-008 First research benchmark | done | paired bootstrap CI, reproducibility manifest, multi-seed delta-vs-MLP comparison |
 | PR-009 Macro-financial link | done | policy-rate rule, piecewise-drift GBM, macro-conditioned market simulation |
 | PR-010 Evidence export | done | model card, gate decision form, one-command disclaimer-carrying bundle |
+| PR-011 (beyond Appendix C) End-to-end demonstration run | done | section 16's "Minimum v0.1 demonstration script": economy -> shock -> GBM/Heston -> pricing -> hedge comparison -> P&L/CVaR -> evidence export, with invariant/valuation-tolerance/data-timing checks that can actually fail |
 
 **What this does and does not mean.** "Done" means: implemented, covered
-by passing tests (228 total, 97% line coverage), ruff/mypy --strict clean,
+by passing tests (238 total, 97% line coverage), ruff/mypy --strict clean,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-68 specific IDs across these 10 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
+70 specific IDs across these 11 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
 CHECKLIST_STATUS.md` reproduces that count) and states,
 explicitly and by category, everything that is not: no independent review
 of anything (MGR-*), no security/MLOps/CI/CD controls (SEC-*, MLO-*,
 CIQ-*), no API surface (API-*), no dashboard (UIX-*), no government/
 central-bank/labor-market agents, no neural (as opposed to rule-based)
-macro conditioning, and no subsystem wired to another at an orchestration
-level — each is still called standalone, script-style. The actual, current
-gate status (generated from code, not asserted) is `NO-GO`, matching the
-blueprint's own section 19 — see
+macro conditioning, and no *general* orchestration — PR-011 strings every
+subsystem together for one hard-coded scenario, but `MacroTimeEngine`
+itself still doesn't call pricing, hedging or risk from inside its own
+step loop. The actual, current gate status (generated from code, not
+asserted) is `NO-GO`, matching the blueprint's own section 19 — see
 [`evidence/gate_report_r0.json`](./evidence/gate_report_r0.json).
 
-The next natural slice, if this continues, is wiring ECONOSIM-X,
-STOCHASTICA, VOLTERRA, TITAN and the hedging subsystem into one orchestrated
-`MacroTimeEngine` step loop (closing the "called standalone" gap above),
-followed by the security/MLOps/governance categories needed to move past R0.
+The next natural slice, if this continues, is making `MacroTimeEngine`
+itself call out to pricing/hedging/risk each step (generalizing PR-011's
+one-off pipeline into section 02's actual steps 5-7), adding the
+government/central-bank/labor-market agents ECONOSIM-X is still missing,
+or starting the security/MLOps/governance categories needed to move past R0.
 
 ## License
 
