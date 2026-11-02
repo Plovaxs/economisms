@@ -89,6 +89,23 @@ not yet wired to the economy:
   known in closed form) — cuts the standard error by roughly 2-3x at the
   tested settings.
 
+Plus institutional-style **risk metrics** (`prometheus.titan`), also not
+yet wired to any position book:
+
+- `historical_var` / `parametric_var` — empirical and Gaussian VaR, each
+  declaring its convention (interpolation method / distributional
+  assumption) explicitly rather than silently defaulting.
+- `historical_expected_shortfall` — a tie/atom-safe quantile-integral
+  estimator that operates on order statistics (so a run of tied loss values
+  is handled correctly with no special-casing), checked against hand-worked
+  discrete examples and against the exact Gaussian ES formula for a
+  continuous reference.
+- `max_drawdown` — peak-to-trough decline in a cumulative P&L/value series.
+- `var_exception_coverage_test` — an exact two-sided binomial test of
+  whether observed VaR breaches match the expected rate; confirmed to pass
+  a correctly-calibrated model and flag (p < 1e-10) a badly miscalibrated
+  one in testing.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -123,6 +140,7 @@ src/prometheus/
                 macro data, deterministic shocks, macro time engine
   stochastica/  GBM, correlated multi-asset GBM, Heston path simulators
   volterra/     Black-Scholes pricing, Greeks, Monte Carlo + control variate
+  titan/        VaR, Expected Shortfall, drawdown, VaR-exception coverage
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -146,7 +164,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-003 Macro time engine | done | business-day calendar, seed hierarchy, point-in-time macro data, deterministic shocks |
 | PR-004 Stochastic reference | done | GBM, correlated multi-asset GBM, Heston (full-truncation Euler) + numerical benchmarks |
 | PR-005 Pricing reference | done | Black-Scholes, analytical + finite-difference Greeks, put-call parity, Monte Carlo + control variate |
-| PR-006 Risk reference | not started | P&L, historical VaR/ES, loss estimators |
+| PR-006 Risk reference | done | historical/parametric VaR, tie-safe Expected Shortfall, drawdown, VaR-exception coverage test |
 | PR-007 Deep hedge v0 | not started | MLP hedging policy, cost-aware delta baseline |
 | PR-008 First research benchmark | not started | held-out seeds, bootstrap CI, reproducer |
 | PR-009 Macro-financial link | not started | policy-rate scenario into market conditional states |

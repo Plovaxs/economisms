@@ -71,14 +71,26 @@ Not covered by PR-004: SDE-05 formal time-step convergence-rate estimation (only
 
 Not covered by PR-005: Heston/Fourier pricing (PRI-04), risk-neutral calibration (PRI-05), barrier/Asian options (PRI-08/09), portfolio-level Greeks aggregation (PRI-10), volatility-surface arbitrage checks (PRI-11), and all of PDE-01..PDE-12 (PINN/deep-BSDE solvers).
 
+## Evidenced today (PR-006)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| RISK-02 | historical VaR with definitional metadata | `titan.risk_metrics.historical_var`; declares its `alpha`/`interpolation` convention explicitly, no hidden default assumption |
+| RISK-03 | parametric VaR under explicit distribution | `titan.risk_metrics.parametric_var` (Gaussian); `tests/unit/test_risk_metrics.py::test_parametric_var_known_value` against a literature reference value |
+| RISK-04 | Expected Shortfall, tie/atom-safe estimator, discrete and continuous reference examples | `titan.risk_metrics.historical_expected_shortfall`; hand-worked discrete examples with and without ties (`test_expected_shortfall_discrete_worked_example_with_ties` is the one that would break under naive distinct-value tie handling), plus a continuous Gaussian reference check within 1% |
+| RISK-06 | historical drawdown | `titan.risk_metrics.max_drawdown`; hand-worked example |
+| RISK-08 | VaR exception and coverage tests, expected frequency and CI | `titan.risk_metrics.var_exception_coverage_test` (exact two-sided binomial test); tests confirm a correctly-calibrated model is not flagged and a badly miscalibrated one is |
+
+Not covered by PR-006: RISK-01 (position/snapshot linkage -- there is no position book yet), RISK-05 (covariance/shrinkage estimators), RISK-07 (factor exposure), RISK-09 (ES backtesting/proper scoring rules beyond the coverage test above), RISK-10..13 (stress scenarios, network contagion, concentration decomposition, stale-snapshot rejection), and all of OPT-01..12 (portfolio optimization).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
 - No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
-- No hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
-- STOCHASTICA and VOLTERRA are not wired into the economy/ledger at all yet: market paths and option prices are computed standalone, not driven by or feeding back into any agent's state, position or hedge. That link (section 02's "simulate financial step" / "value and hedge", steps 5-7 of the event order) is future work (PR-006 onward).
+- No hedging, portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
+- STOCHASTICA, VOLTERRA and TITAN are not wired into the economy/ledger or to each other at all yet: market paths, option prices and risk metrics are each computed standalone from plain arrays/floats the caller supplies, not driven by or feeding back into any agent's state, position book or hedge. That link (section 02's "simulate financial step" / "value and hedge" / "compute portfolio risk", steps 5-7 of the event order) is future work.
 - No risk-neutral calibration: `MarketSnapshot`'s `risk_free_rate`/`volatility` are supplied directly, not fit to an observed option-price surface.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 
