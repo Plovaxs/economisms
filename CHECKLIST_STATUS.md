@@ -83,14 +83,35 @@ Not covered by PR-005: Heston/Fourier pricing (PRI-04), risk-neutral calibration
 
 Not covered by PR-006: RISK-01 (position/snapshot linkage -- there is no position book yet), RISK-05 (covariance/shrinkage estimators), RISK-07 (factor exposure), RISK-09 (ES backtesting/proper scoring rules beyond the coverage test above), RISK-10..13 (stress scenarios, network contagion, concentration decomposition, stale-snapshot rejection), and all of OPT-01..12 (portfolio optimization).
 
+## Evidenced today (PR-007)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| HDG-01 | portfolio wealth/terminal loss with cash financing, self-financing assumption documented | `hedging.simulate.simulate_self_financing_hedge`; `tests/unit/test_hedging_simulate.py::test_self_financing_identity_matches_manual_recomputation` and the exact closed-form `test_zero_hedge_ratios_reduce_to_a_naked_short_option_position` |
+| HDG-02 | Black-Scholes model-consistent delta hedge, convergence under zero frictions | `hedging.baseline.black_scholes_delta_hedge_ratios`; `tests/unit/test_hedging_simulate.py::test_finer_discretization_reduces_hedging_error_under_zero_cost` (std of terminal loss strictly decreases at 10/50/250 steps) |
+| HDG-03 | cost-aware no-trade/threshold hedge vs. delta hedge | `hedging.baseline.apply_no_trade_band`; `test_no_trade_band_reduces_turnover`; empirically cuts turnover/cost by roughly 30% at a 0.1 band width in development |
+| HDG-04 | MLP hedging policy, bounded actions | `hedging.deep_hedge.HedgePolicyMLP` (tanh-bounded to [-1, 1]); `tests/unit/test_deep_hedge.py::test_generated_ratios_are_bounded_by_tanh_squashing` |
+| HDG-05 | causal observations, no future path information | hedge ratios at step t are built only from price_paths[:, t] and prior holdings; `tests/unit/test_hedging_baseline.py::test_delta_hedge_ratios_are_causal` (mutating only the terminal price leaves every earlier ratio unchanged) |
+| HDG-06 | transaction costs, cost ledger reconciles to holdings/cash changes | same self-financing simulator as HDG-01; the manual-recomputation test above is exactly this reconciliation |
+| HDG-08 | CVaR objective with correct loss definition | `hedging.deep_hedge._differentiable_cvar`, the same quantile-integral estimator as `titan.risk_metrics.historical_expected_shortfall`, reimplemented differentiably |
+| HDG-09 | detached test evaluation | all `test_deep_hedge.py` evaluation happens on a freshly simulated test-seed path set, never the training paths |
+| HDG-13 (partial) | reward-hacking / unfair-baseline checks | baseline and learned policies are evaluated through the identical `simulate_self_financing_hedge` function with identical cost rate and price paths -- structurally, not just by convention |
+| EXP-06 | untrained/random-policy negative control | `tests/unit/test_deep_hedge.py::test_trained_policy_vastly_outperforms_untrained_negative_control` (~10x CVaR gap observed in development; test asserts a conservative 2x) |
+| EXP-03 (partial) | deterministic training given a fixed seed | `tests/unit/test_deep_hedge.py::test_training_is_deterministic_given_a_fixed_seed` (identical objective history across two independent calls) |
+
+Deliberately not claimed: that the trained policy beats the delta baseline. It did, slightly, on one configuration explored during development -- but the blueprint's own central hypothesis (section 01) is explicit that such a result "can be positive, negative, or inconclusive; no improvement is assumed," so no test asserts it, and none should until a pre-registered comparison (EXP-01, not yet implemented) is run.
+
+Not covered by PR-007: HDG-07 (leverage/concentration/position constraints beyond the tanh bound), HDG-10 (policy risk diagnostics like gradient norms/action saturation), HDG-11 (out-of-family stress evaluation), HDG-12 (formal paired-significance P&L/CVaR/cost/turnover reporting), HDG-14 (RL agents), and GRU/LSTM or actor-critic/robust policy families from section 07's table.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
 - No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
-- No hedging, portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
-- STOCHASTICA, VOLTERRA and TITAN are not wired into the economy/ledger or to each other at all yet: market paths, option prices and risk metrics are each computed standalone from plain arrays/floats the caller supplies, not driven by or feeding back into any agent's state, position book or hedge. That link (section 02's "simulate financial step" / "value and hedge" / "compute portfolio risk", steps 5-7 of the event order) is future work.
+- No portfolio optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
+- STOCHASTICA, VOLTERRA, TITAN and the new hedging subsystem are not wired into the economy/ledger or to each other at the orchestration level: a hedging simulation is a standalone script-level call (simulate paths, compute ratios, run the simulator), not something the Economy/MacroTimeEngine triggers each step. That link (section 02's "simulate financial step" / "value and hedge" / "compute portfolio risk", steps 5-7 of the event order) is future work.
+- No GRU/LSTM, actor-critic or robust-policy hedging families (section 07's table) -- only the MLP family.
 - No risk-neutral calibration: `MarketSnapshot`'s `risk_free_rate`/`volatility` are supplied directly, not fit to an observed option-price surface.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 

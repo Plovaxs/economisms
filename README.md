@@ -106,6 +106,27 @@ yet wired to any position book:
   a correctly-calibrated model and flag (p < 1e-10) a badly miscalibrated
   one in testing.
 
+Plus **deep hedging and stochastic control** (`prometheus.hedging`), the
+first subsystem that uses PyTorch:
+
+- `black_scholes_delta_hedge_ratios` / `apply_no_trade_band` — a causal
+  (no-future-information) delta baseline and a cost-aware no-trade-band
+  variant that cuts turnover by roughly 30% at a 0.1 band width in testing.
+- `simulate_self_financing_hedge` — one shared, explicitly self-financing
+  P&L simulator used for *every* policy, baseline and learned alike, so
+  nothing can look better just by using a different accounting convention.
+  Checked against an exact closed form (a zero-hedge naked short position)
+  and against a brute-force manual recomputation.
+- `HedgePolicyMLP` / `train_deep_hedge` — a small MLP trained to minimize
+  CVaR of terminal loss plus a turnover penalty (Buehler et al., 2019),
+  differentiating straight through a PyTorch rollout that mirrors the
+  numpy simulator's accounting exactly. Training is deterministic given a
+  seed and beats an untrained policy by roughly 10x CVaR in testing.
+  **Not claimed**: that it beats delta hedging — it did, slightly, on one
+  configuration explored during development, but the blueprint's own
+  central hypothesis says such a result is not assumed in advance, so no
+  test asserts it.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -125,8 +146,11 @@ unchanged; nothing here moves that needle, nor is it meant to yet.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+# torch is a heavy dependency; the CPU-only wheel installs much faster and
+# smaller than letting pip resolve a CUDA build you likely don't need here.
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 35 tests, should all pass
+pytest                      # 156 tests, should all pass (~12s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -141,6 +165,8 @@ src/prometheus/
   stochastica/  GBM, correlated multi-asset GBM, Heston path simulators
   volterra/     Black-Scholes pricing, Greeks, Monte Carlo + control variate
   titan/        VaR, Expected Shortfall, drawdown, VaR-exception coverage
+  hedging/      BS delta / no-trade-band baselines, self-financing
+                simulator, CVaR-trained MLP hedging policy (PyTorch)
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -165,7 +191,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-004 Stochastic reference | done | GBM, correlated multi-asset GBM, Heston (full-truncation Euler) + numerical benchmarks |
 | PR-005 Pricing reference | done | Black-Scholes, analytical + finite-difference Greeks, put-call parity, Monte Carlo + control variate |
 | PR-006 Risk reference | done | historical/parametric VaR, tie-safe Expected Shortfall, drawdown, VaR-exception coverage test |
-| PR-007 Deep hedge v0 | not started | MLP hedging policy, cost-aware delta baseline |
+| PR-007 Deep hedge v0 | done | BS delta + no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy |
 | PR-008 First research benchmark | not started | held-out seeds, bootstrap CI, reproducer |
 | PR-009 Macro-financial link | not started | policy-rate scenario into market conditional states |
 | PR-010 Evidence export | not started | run manifest, model card, gate report |
