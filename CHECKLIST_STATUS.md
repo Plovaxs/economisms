@@ -42,13 +42,27 @@ item, alongside the code — it is not a target to backfill in one pass.
 | DAT-07 (partial) | observation/publication timestamp tracking, point-in-time inclusion predicate | `econosim.pit.MacroObservation`/`PointInTimeStore`; full DAT ingestion (FRED-MD/QD, ALFRED, hashing) is not implemented |
 | R-03 mitigation (risk register) | release-time data view prevents lookahead leakage | same point-in-time tests as above, exercised across a multi-step replay in `test_time_engine.py` |
 
+## Evidenced today (PR-004)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| SDE-01 | GBM path generator, empirical mean/variance match theory within CI | `stochastica.gbm.simulate_gbm_paths`; `tests/unit/test_gbm.py::test_terminal_distribution_matches_theory_within_confidence_interval` (standard-error-based interval, not a magic tolerance) |
+| SDE-02 | correlated multivariate asset simulator, PSD checks pass | `stochastica.gbm.simulate_correlated_gbm_paths` + `stochastica.correlated`; `tests/unit/test_gbm.py::test_correlated_gbm_recovers_approximate_asset_correlation` |
+| SDE-03 | Heston price/variance dynamics, nonnegative variance | `stochastica.heston.simulate_heston_paths`; `tests/unit/test_heston.py::test_variance_path_never_negative`, `test_terminal_variance_mean_matches_exact_cir_moment` (checked against the exact continuous-time CIR first moment) |
+| SDE-04 | variance discretization policy documented, convergence/positivity tests | full-truncation Euler, documented in `heston.py`'s module docstring; `tests/unit/test_heston.py::test_low_feller_ratio_hits_the_zero_floor_far_more_often` (bias/clamping diagnostic tied to the Feller ratio) |
+| VAL-04 | covariance symmetry/PSD validation, adversarial matrices rejected or repaired with warning | `stochastica.correlated.validate_and_repair_covariance`; `tests/unit/test_correlated.py` (asymmetric and materially non-PSD matrices rejected; a tiny-negative-eigenvalue matrix is repaired with a warning) |
+| VAL-06 (partial) | Heston variance scheme across parameter extremes, no hidden negative values | `tests/unit/test_heston.py::test_variance_path_never_negative` at a low-Feller, high-vol-of-vol parameter set; "silent clamps" are not hidden -- they are the documented, tested mechanism (full truncation), not a bug being masked |
+
+Not covered by PR-004: SDE-05 formal time-step convergence-rate estimation (only an informal Feller-ratio bias diagnostic exists), SDE-06..SDE-12 (regime switching, jumps, historical calibration, identifiability diagnostics, extreme-input fuzzing), Tier 2-4 of the model ladder (neural SDEs, macro-conditioned models, stress-robust policies).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
 - No deposit-instrument reconciliation across the household population (ECO-06, LED-08): household/firm deposit balances are not bank-custodied for non-loan flows in this model, so that check would not be a true invariant yet.
 - No government or central-bank agents, no labor or goods-market clearing beyond direct bilateral consume/wages transfers.
 - Shocks are drawn deterministically but are not yet *applied* to any agent state (no production function, no policy-rate transmission) -- they are logged and timestamped only; wiring a shock's magnitude into an actual economic effect is future work.
-- No stochastic finance, pricing, hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item (every category in sections 04-14 beyond ECO/LED/VAL/EXP-03/DAT-07(partial) above).
+- No pricing, hedging, risk, optimization, data ingestion (beyond the minimal point-in-time store above), API, MLOps, security, or any governance/compliance item.
+- STOCHASTICA is not wired into the economy/ledger at all yet: market paths are simulated standalone, not driven by or feeding back into any agent's state. That link (section 02's "simulate financial step", steps 5-7 of the event order) is future work.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 
 ## How to verify the evidence above yourself

@@ -58,6 +58,19 @@ Plus a **macro time engine** (`prometheus.econosim.time_engine`):
   and drawing that step's shocks, then re-checks the ledger's accounting
   identities and emits a content hash of the resulting state.
 
+Plus physical-measure **stochastic market dynamics** (`prometheus.stochastica`),
+not yet wired to the economy:
+
+- `simulate_gbm_paths` — exact lognormal-transition GBM (no discretization
+  bias to characterize), checked against closed-form terminal moments.
+- `simulate_correlated_gbm_paths` — multi-asset GBM with correlated shocks.
+- `simulate_heston_paths` — log-Euler price / full-truncation-Euler variance
+  Heston, guaranteed non-negative variance by construction, checked against
+  the CIR process's exact first moment.
+- `correlated.validate_and_repair_covariance` — rejects a non-PSD covariance
+  matrix outright, but repairs (with a warning) one that is PSD except for
+  floating-point-sized negative eigenvalues.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -90,6 +103,7 @@ src/prometheus/
   core/         money, ledger, business-day calendar, RNG seed hierarchy
   econosim/     household/firm/bank agents, Economy wiring, point-in-time
                 macro data, deterministic shocks, macro time engine
+  stochastica/  GBM, correlated multi-asset GBM, Heston path simulators
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -111,7 +125,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-001 Repository foundations | done | package, lint/type config, test harness |
 | PR-002 Stock-flow ledger | done | double-entry journals, household/firm/bank, invariant tests |
 | PR-003 Macro time engine | done | business-day calendar, seed hierarchy, point-in-time macro data, deterministic shocks |
-| PR-004 Stochastic reference | not started | GBM/Heston path solvers + numerical benchmarks |
+| PR-004 Stochastic reference | done | GBM, correlated multi-asset GBM, Heston (full-truncation Euler) + numerical benchmarks |
 | PR-005 Pricing reference | not started | Black-Scholes, Greeks, Monte Carlo comparison |
 | PR-006 Risk reference | not started | P&L, historical VaR/ES, loss estimators |
 | PR-007 Deep hedge v0 | not started | MLP hedging policy, cost-aware delta baseline |
