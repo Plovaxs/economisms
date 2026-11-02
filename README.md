@@ -127,6 +127,28 @@ first subsystem that uses PyTorch:
   central hypothesis says such a result is not assumed in advance, so no
   test asserts it.
 
+Plus a first **research benchmark** (`prometheus.experiments`):
+
+- `paired_bootstrap_difference` — a percentile bootstrap CI for the
+  difference between two policies evaluated on the *same* simulated paths.
+  The pairing is load-bearing, not cosmetic: a planted constant per-path
+  difference collapses to an exact-point CI in testing, which an unpaired
+  bootstrap would not do.
+- `RunManifest` / `compute_result_hash` — a reproducibility manifest whose
+  result hash is a canonical, key-order-independent hash of the full
+  per-seed results payload, confirmed identical across independent runs of
+  the same config; `run_id`/`created_at` are wall-clock-derived and
+  explicitly documented as *not* part of that reproducibility claim.
+- `run_hedge_benchmark` — compares the delta baseline against a trained MLP
+  policy across several independent held-out seeds, with a primary endpoint
+  fixed in advance (`PRIMARY_ENDPOINT`). At the one configuration explored
+  in development, the two were statistically indistinguishable (every
+  seed's CI included zero) — an inconclusive result, and one the blueprint's
+  own central hypothesis explicitly allows for. Every report also states,
+  in plain text, exactly which axes of the blueprint's full factorial
+  matrix it does *not* cover (only the hedge dimension is varied; no
+  learned economy or neural-SDE market model exists yet).
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -150,7 +172,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 156 tests, should all pass (~12s, incl. MLP training)
+pytest                      # 176 tests, should all pass (~14s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -167,6 +189,8 @@ src/prometheus/
   titan/        VaR, Expected Shortfall, drawdown, VaR-exception coverage
   hedging/      BS delta / no-trade-band baselines, self-financing
                 simulator, CVaR-trained MLP hedging policy (PyTorch)
+  experiments/  paired bootstrap CI, reproducibility manifest, the
+                delta-vs-MLP hedge benchmark
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -192,7 +216,7 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-005 Pricing reference | done | Black-Scholes, analytical + finite-difference Greeks, put-call parity, Monte Carlo + control variate |
 | PR-006 Risk reference | done | historical/parametric VaR, tie-safe Expected Shortfall, drawdown, VaR-exception coverage test |
 | PR-007 Deep hedge v0 | done | BS delta + no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy |
-| PR-008 First research benchmark | not started | held-out seeds, bootstrap CI, reproducer |
+| PR-008 First research benchmark | done | paired bootstrap CI, reproducibility manifest, multi-seed delta-vs-MLP comparison |
 | PR-009 Macro-financial link | not started | policy-rate scenario into market conditional states |
 | PR-010 Evidence export | not started | run manifest, model card, gate report |
 

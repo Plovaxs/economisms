@@ -103,6 +103,23 @@ Deliberately not claimed: that the trained policy beats the delta baseline. It d
 
 Not covered by PR-007: HDG-07 (leverage/concentration/position constraints beyond the tanh bound), HDG-10 (policy risk diagnostics like gradient norms/action saturation), HDG-11 (out-of-family stress evaluation), HDG-12 (formal paired-significance P&L/CVaR/cost/turnover reporting), HDG-14 (RL agents), and GRU/LSTM or actor-critic/robust policy families from section 07's table.
 
+## Evidenced today (PR-008)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| EXP-01 | pre-register primary endpoint and baseline comparison | `experiments.hedge_benchmark.PRIMARY_ENDPOINT` is a module-level constant fixed before any result is examined, not chosen post hoc |
+| EXP-02 (partial) | factorial economy/market/hedge matrix | only the hedge axis is varied (delta vs. MLP); explicitly documented as a partial slice, not the full 2x2x2, in both the module docstring and every report's `limitations` tuple |
+| EXP-03 (partial) | seed hierarchy, replay reconstructs results | each test seed independently reseeds path simulation and bootstrap resampling; `tests/unit/test_hedge_benchmark.py::test_result_hash_is_reproducible_across_independent_runs` |
+| EXP-06 | untrained/random-policy negative control | reused from PR-007 (`test_deep_hedge.py`) |
+| EXP-07 | paired confidence intervals respecting dependence | `experiments.bootstrap.paired_bootstrap_difference`; `tests/unit/test_bootstrap.py::test_paired_constant_shift_gives_a_degenerate_ci_at_the_exact_shift` demonstrates the pairing is load-bearing (a planted constant per-path difference collapses to an exact-point CI, which an unpaired bootstrap would not do) |
+| EXP-10 (partial) | effect size and economic significance jointly | each `SeedResult` carries both the raw CVaR values and the bootstrap point estimate/CI, not just a p-value-style verdict |
+| EXP-13 | no results excluded without transparent reason | `run_hedge_benchmark` always returns one `SeedResult` per requested seed; there is no filtering/selection step |
+| AUD-01/02 (partial) | immutable run ID, reproducible result hash | `experiments.manifest.RunManifest`; result_hash is a canonical sorted-key JSON hash of the full per-seed payload, reproducible given the same seeds/config, while `run_id`/`created_at` are explicitly documented as *not* part of that reproducibility claim |
+
+The benchmark's actual finding in development (not asserted by any test, since it is a result, not an infrastructure property): at the one configuration explored, the trained policy's and delta baseline's CVaR were statistically indistinguishable (every seed's bootstrap CI included zero) -- an inconclusive result, which is itself one of the three outcomes the blueprint's central hypothesis explicitly allows for.
+
+Not covered by PR-008: EXP-04 (immutable split IDs/holdout manifest as a first-class artifact), EXP-05 (leakage negative control), EXP-08/09 (multiple-testing correction, block bootstrap for serial dependence -- paths here are i.i.d. terminal outcomes, not an overlapping-horizon series), EXP-11 (formal compute-cost benchmarking), EXP-12 (OOD/distribution-shift evaluation), EXP-14 (independent reviewer rerun).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).
