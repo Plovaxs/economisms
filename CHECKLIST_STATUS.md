@@ -134,6 +134,21 @@ Explicitly labeled, not overclaimed: this is a deterministic, rule-based (non-ne
 
 Not covered by PR-009: inflation/output-gap state or a full Taylor rule (the policy rate here only reacts to injected shocks plus mean reversion, not to any other macro variable), publication-lag-aware macro conditioning (the policy rate here is used immediately, not filtered through PointInTimeStore's as_of predicate), and wiring this into the Economy/MacroTimeEngine's own step loop (it is called as a standalone function, like every other subsystem so far).
 
+## Evidenced today (PR-010)
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MLO-09 | model cards for intended use and limitations, CIs/failure modes/risk owner | `evidence.model_card.ModelCard`, structurally validated (cannot construct with a missing required section); `evidence.repository_status.build_deep_hedge_model_card` cards the actual PR-007 MLP policy with real, specific failure modes, not placeholder text |
+| DOC-06 | model card template and validation documentation | same `ModelCard` class, enforced at construction rather than documented as a convention to remember |
+| AUD-08 | simulation-vs-empirical disclaimer in exports, machine-readable source tag | `evidence.export.SIMULATION_DISCLAIMER` / `SOURCE_TAG`; `build_evidence_bundle` has no code path that omits either |
+| AUD-11 | one-command gate evidence bundle with manifest and reviewers | `evidence.export.build_evidence_bundle` / `export_evidence_bundle`; `evidence/gate_report_r0.json` in this repository is a real, generated (not hand-written) instance |
+| LCH-12 / section 19's gate decision form | signed GO/NO-GO record referencing every required gate and waiver | `evidence.gate_report.GateDecisionForm`: constructing one with `decision="GO"` or `"CONDITIONAL"` *without* naming `scientific_approval`, `security_ops_approval`, and a `sunset_date` raises -- there is no code path that produces an unsigned GO record |
+| Section 19's actual verdict, reproduced in code | `evidence.repository_status.current_repository_gate_report()` returns `decision="NO-GO"`, matching the blueprint's own section 19 verdict, generated from this repository's real state rather than copied from the PDF |
+
+`evidence/gate_report_r0.json` is committed to this repository as a real artifact, not a test fixture -- regenerate it with `python -c "from prometheus.evidence.repository_status import current_repository_gate_report; from prometheus.evidence.export import build_evidence_bundle, export_evidence_bundle; from pathlib import Path; export_evidence_bundle(build_evidence_bundle(None, [], current_repository_gate_report()), Path('evidence/gate_report_r0.json'))"` whenever the repository's scope or open findings change.
+
+Not covered by PR-010: AUD-01..07/09/10/12 (per-run immutable IDs wired into every subsystem's output, access-control logging, versioned figures/tables), MGR-01..14 (none of this has had independent review, by construction -- that's the point, not a gap to silently close), CMP-01..12 (no regulatory/standards mapping attempted).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No interest accrual/amortization (LED-05), no default/write-off path beyond a bare repayment reducer (LED-07, LED-10).

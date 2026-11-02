@@ -169,6 +169,27 @@ Tier 3 itself is done:
   shock, or a wildly different late-period drift, leaves every earlier
   simulated value bit-identical in testing.
 
+Plus **evidence export** (`prometheus.evidence`), applying the same
+"cannot construct an invalid claim" discipline used everywhere else in this
+codebase to the paperwork itself:
+
+- `ModelCard` — every mandatory section (section 16) is a required field;
+  omitting one raises at construction. Marking one `"APPROVED"` without
+  naming `independent_reviewer` raises too.
+- `GateDecisionForm` — mirrors section 16's gate decision form. Constructing
+  one with `decision="GO"` or `"CONDITIONAL"` *without* naming both
+  `scientific_approval` and `security_ops_approval`, and a `sunset_date`,
+  raises. There is no code path that produces an unsigned GO record.
+- `current_repository_gate_report()` — generates this repository's actual,
+  current gate status from code. It returns `decision="NO-GO"`, matching
+  the blueprint's own section 19 verdict — because no independent review of
+  anything here has happened yet, not because the code says so by default.
+  The real, generated artifact is committed at
+  [`evidence/gate_report_r0.json`](./evidence/gate_report_r0.json).
+- `build_evidence_bundle` — every bundle unconditionally carries a
+  simulation/non-advice disclaimer and a machine-readable source tag
+  (AUD-08); there is no way to export one without them.
+
 Run `cat CHECKLIST_STATUS.md` for exactly which blueprint checklist IDs
 (`ECO-*`, `LED-*`, `VAL-*`, ...) that evidence actually satisfies, and which
 of their explicit acceptance conditions are *not yet* met.
@@ -192,7 +213,7 @@ source .venv/bin/activate
 # smaller than letting pip resolve a CUDA build you likely don't need here.
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev]"
-pytest                      # 193 tests, should all pass (~14s, incl. MLP training)
+pytest                      # 228 tests, should all pass (~14s, incl. MLP training)
 ruff check src tests
 mypy src
 ```
@@ -213,6 +234,8 @@ src/prometheus/
                 delta-vs-MLP hedge benchmark
   stochastica/  (extended) piecewise-drift GBM for macro-conditioned paths
   econosim/     (extended) policy-rate rule, macro-financial market link
+  evidence/     model card, gate decision form, evidence bundle export
+evidence/       generated (not hand-written) artifacts, e.g. gate_report_r0.json
 tests/
   unit/         one behavior per test, no randomness
   property/     Hypothesis-based invariant tests
@@ -223,11 +246,13 @@ This mirrors (a small slice of) the reference repository layout in section
 (`stochastica/`, `volterra/`, `titan/`, `api/`, ...) will be added as the
 corresponding PRs land, not speculatively ahead of them.
 
-## Roadmap (per the blueprint's own Appendix C prioritization)
+## Status: Appendix C's starter roadmap is complete; the 374-item checklist is not
 
 The blueprint is explicit that the first priority is *"not building the
 Transformer... making a constrained, correctly accounted toy economy and a
-trustworthy valuation/risk baseline."* This repository follows that order:
+trustworthy valuation/risk baseline,"* and lists PR-001 through PR-010 as
+that starting sequence (Appendix C). All ten now exist, tested, in this
+repository:
 
 | PR | Status | Scope |
 |----|--------|-------|
@@ -240,7 +265,29 @@ trustworthy valuation/risk baseline."* This repository follows that order:
 | PR-007 Deep hedge v0 | done | BS delta + no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy |
 | PR-008 First research benchmark | done | paired bootstrap CI, reproducibility manifest, multi-seed delta-vs-MLP comparison |
 | PR-009 Macro-financial link | done | policy-rate rule, piecewise-drift GBM, macro-conditioned market simulation |
-| PR-010 Evidence export | not started | run manifest, model card, gate report |
+| PR-010 Evidence export | done | model card, gate decision form, one-command disclaimer-carrying bundle |
+
+**What this does and does not mean.** "Done" means: implemented, covered
+by passing tests (228 total, 97% line coverage), ruff/mypy --strict clean,
+and cross-checked against closed-form or exact references wherever one
+exists rather than an arbitrary tolerance. It does not mean the blueprint's
+374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
+68 specific IDs across these 10 PRs as evidenced (`grep -cE '^\| [A-Z]+-[0-9]+'
+CHECKLIST_STATUS.md` reproduces that count) and states,
+explicitly and by category, everything that is not: no independent review
+of anything (MGR-*), no security/MLOps/CI/CD controls (SEC-*, MLO-*,
+CIQ-*), no API surface (API-*), no dashboard (UIX-*), no government/
+central-bank/labor-market agents, no neural (as opposed to rule-based)
+macro conditioning, and no subsystem wired to another at an orchestration
+level — each is still called standalone, script-style. The actual, current
+gate status (generated from code, not asserted) is `NO-GO`, matching the
+blueprint's own section 19 — see
+[`evidence/gate_report_r0.json`](./evidence/gate_report_r0.json).
+
+The next natural slice, if this continues, is wiring ECONOSIM-X,
+STOCHASTICA, VOLTERRA, TITAN and the hedging subsystem into one orchestrated
+`MacroTimeEngine` step loop (closing the "called standalone" gap above),
+followed by the security/MLOps/governance categories needed to move past R0.
 
 ## License
 
