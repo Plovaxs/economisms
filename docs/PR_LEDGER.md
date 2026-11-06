@@ -2356,6 +2356,22 @@ source. `owner`/`environment` are required fields with no default,
 since nothing in this single-maintainer, un-deployed repo can honestly
 derive either from the code.
 
+Plus **simulation jobs benchmarked at small/medium/large scales**
+(REL-03, PR-106): reuses `cost_benchmark.benchmark_method_cost`
+(EXP-11), adding only a published `ScaleBudget` per scale and
+`check_scale_budgets`. Grounded in a real small/medium/large GBM
+benchmark — a throwaway warm-up call was found NECESSARY first
+(confirmed directly: without it, the very first timed call absorbed a
+one-time numpy/BLAS warm-up cost large enough to make "small" measure
+slower than "medium," which would have been a flaky, misleading test).
+With it, both the walltime and peak-memory curves are confirmed
+strictly increasing across all three scales. Writing this module's own
+test also caught a real bug: `zip(ordered, ordered[1:], strict=True)`
+crashes on any input since the two operands are deliberately one
+element apart in length; fixed to `strict=False`. Not covered: only
+GBM is benchmarked, not the full `econosim` loop or job-queue
+submission.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2666,13 +2682,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-103 (new ID, audit) Restored artifacts are readable and hash-consistent (REL-11) | implemented locally | pre-existing `recovery.snapshot`/`jobs.artifacts.ArtifactStore`, read against REL-11's own acceptance criterion; one new deliberate test confirms readability and an independently recomputed canonical-JSON content-hash match after a real backup/restore round trip |
 | PR-104 (new ID) Identity, approval, previous state and hash on every registry transition (AUD-06) | implemented locally | `evidence.model_registry.StateTransition` gains required `approved_by` and a promotion-required `content_hash` via a new required `ModelPackage` parameter on `promote_to_approved`; a full-lifecycle test confirms all four AUD-06 fields appear exactly where each applies |
 | PR-105 (new ID) Real, code-derived service inventory and dependency map (OPS-01) | implemented locally | `evidence.ops_inventory.ServiceComponent`/`discover_component_names`/`discover_dependencies`/`build_service_inventory`; parses real `.py` imports via `ast`, run against this repository's own source tree, surfacing a genuine stochastica/volterra package-level cycle |
+| PR-106 (new ID) Simulation jobs benchmarked at small/medium/large scales (REL-03) | implemented locally | `experiments.scale_benchmark.ScaleBudget`/`check_scale_budgets`/`walltimes_are_monotonically_increasing`; reuses `cost_benchmark` (EXP-11); grounded in a real small/medium/large GBM benchmark; found and fixed a real `zip(strict=True)` crash bug while writing its own test |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-176 distinct blueprint checklist IDs with some test evidence, including partial
+177 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2794,6 +2811,8 @@ PR-104 adds the first evidence for AUD-06, bringing the count from 174 to 175, c
 same way -- required approval and promotion-hash fields added to every registry transition.
 PR-105 adds the first evidence for OPS-01, bringing the count from 175 to 176, confirmed the
 same way -- a dependency map parsed from this repository's own real imports via ast.
+PR-106 adds the first evidence for REL-03, bringing the count from 176 to 177, confirmed the
+same way -- real small/medium/large GBM benchmark curves plus a published budget check.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

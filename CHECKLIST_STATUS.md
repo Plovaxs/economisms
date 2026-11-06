@@ -4338,6 +4338,41 @@ assign); no visualization of the dependency graph.
 See
 [`src/prometheus/evidence/ops_inventory.py`](./src/prometheus/evidence/ops_inventory.py).
 
+## Evidenced today (PR-106: simulation jobs benchmarked at small/medium/large scales -- REL-03)
+
+REL-03's own acceptance criterion is "time/memory curves and resource
+budget published." `experiments.scale_benchmark` reuses `experiments.
+cost_benchmark.benchmark_method_cost` (EXP-11) rather than reimplementing
+timing/memory measurement, adding only `ScaleBudget` (a named ceiling per
+scale, PUBLISHED before running anything, not fitted after the fact) and
+`check_scale_budgets`.
+
+Grounded in a REAL benchmark, not synthetic numbers: a genuine
+small/medium/large `stochastica.gbm.simulate_gbm_paths` run. A throwaway
+warm-up call was found NECESSARY before trusting the measurements --
+confirmed directly: without it, the very first timed call absorbed a
+one-time numpy/BLAS warm-up cost large enough to make "small" measure
+slower than "medium," which would have been a flaky, misleading test had
+it gone unnoticed. With the warm-up call, both the walltime and the peak-
+memory curve are confirmed strictly increasing across all three scales,
+checked as a real property of the measurements, not merely plotted.
+
+Writing this module's own test also caught a real bug before it shipped:
+`zip(ordered, ordered[1:], strict=True)` crashes with `ValueError` on any
+input, since the two operands are deliberately one element apart in
+length by construction -- `strict=True` was simply wrong here; fixed to
+`strict=False`.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-03 (first evidence) | benchmark simulation jobs at small/medium/large scales; time/memory curves and resource budget published | `experiments.scale_benchmark.ScaleBudget`/`check_scale_budgets`/`walltimes_are_monotonically_increasing`; 9 tests (`tests/unit/test_scale_benchmark.py`) grounded in a real GBM benchmark across 3 scales, including a genuine budget-violation case and the warm-up-call methodology note; stable across repeated reruns |
+
+Not covered: only one simulator (`stochastica.gbm`) is benchmarked; no
+other job type (e.g. the full `econosim` `StepHooks` loop, or a job-queue
+submission) is exercised at scale yet.
+See
+[`src/prometheus/experiments/scale_benchmark.py`](./src/prometheus/experiments/scale_benchmark.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
