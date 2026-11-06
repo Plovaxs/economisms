@@ -4403,6 +4403,31 @@ wiring it into a production publishing path.
 See
 [`src/prometheus/evidence/dataset_card.py`](./src/prometheus/evidence/dataset_card.py).
 
+## Evidenced today (PR-108: raw/normalized/features/artifacts storage layers with permission and immutability boundaries -- DAT-06)
+
+DAT-06's own acceptance criterion is "layer permissions and immutable
+boundaries tested" -- two SEPARATE boundaries, both enforced by code:
+`econosim.storage_layers.StorageLayer.write` raises `ImmutableWriteError`
+if a key is already written (confirmed per-key, not a blanket freeze: a
+second, different key can still be written to the same layer
+afterward), and `read_from` enforces that the four named layers form a
+strict pipeline -- `raw -> normalized -> features -> artifacts` -- where
+a layer may read directly only from the ONE layer immediately upstream
+of it, confirmed by a discriminating test that `features` cannot read
+directly from `raw`, skipping `normalized`, even though nothing stops
+it from knowing a `raw` key's name.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-06 (first evidence) | implement raw/normalized/features/artifacts storage layers; layer permissions and immutable boundaries tested | `econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; 10 tests (`tests/unit/test_storage_layers.py`) including the per-key (not blanket) immutability check and the skip-a-layer permission rejection |
+
+Not covered: this is an in-memory primitive, not a persisted storage
+backend (no actual files/database tables for the four layers); no
+existing data pipeline (`data_ingestion.worldbank`, etc.) is itself
+changed to route its data through these layers.
+See
+[`src/prometheus/econosim/storage_layers.py`](./src/prometheus/econosim/storage_layers.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

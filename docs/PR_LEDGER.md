@@ -2381,6 +2381,16 @@ Grounded in two real cases: a genuine simulated GBM path carded
 lineage stating the actual license the real observation carries. Not
 covered: no existing module attaches a card to its own output yet.
 
+Plus **raw/normalized/features/artifacts storage layers with
+permission and immutability boundaries** (DAT-06, PR-108): `write`
+raises `ImmutableWriteError` if a key is already written (per-key, not
+a blanket freeze); `read_from` enforces the four layers form a strict
+pipeline where a layer may read directly only from the one immediately
+upstream of it — confirmed by a discriminating test that `features`
+cannot skip past `normalized` to read `raw` directly. Not covered:
+in-memory only, no persisted backend; no existing pipeline routes
+through these layers yet.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2693,13 +2703,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-105 (new ID) Real, code-derived service inventory and dependency map (OPS-01) | implemented locally | `evidence.ops_inventory.ServiceComponent`/`discover_component_names`/`discover_dependencies`/`build_service_inventory`; parses real `.py` imports via `ast`, run against this repository's own source tree, surfacing a genuine stochastica/volterra package-level cycle |
 | PR-106 (new ID) Simulation jobs benchmarked at small/medium/large scales (REL-03) | implemented locally | `experiments.scale_benchmark.ScaleBudget`/`check_scale_budgets`/`walltimes_are_monotonically_increasing`; reuses `cost_benchmark` (EXP-11); grounded in a real small/medium/large GBM benchmark; found and fixed a real `zip(strict=True)` crash bug while writing its own test |
 | PR-107 (new ID) Dataset cards distinguishing synthetic from empirical data (DAT-14) | implemented locally | `evidence.dataset_card.DatasetCard`/`build_dataset_card`; grounded in a real GBM simulation and the same real captured World Bank fixture `test_worldbank_connector.py` uses, carrying its actual license string |
+| PR-108 (new ID) Raw/normalized/features/artifacts storage layers (DAT-06) | implemented locally | `econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; per-key immutability plus a strict read-permission pipeline, confirmed by a skip-a-layer rejection test |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-178 distinct blueprint checklist IDs with some test evidence, including partial
+179 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2825,6 +2836,8 @@ PR-106 adds the first evidence for REL-03, bringing the count from 176 to 177, c
 same way -- real small/medium/large GBM benchmark curves plus a published budget check.
 PR-107 adds the first evidence for DAT-14, bringing the count from 177 to 178, confirmed the
 same way -- dataset cards grounded in a real GBM simulation and a real World Bank fixture.
+PR-108 adds the first evidence for DAT-06, bringing the count from 178 to 179, confirmed the
+same way -- per-key immutable storage layers with a strict read-permission pipeline.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

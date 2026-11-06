@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "63b48c61d2e2e9076f7296f4e19a9455769c54f0e1ac8de045c97e8d67ad1b81",
+    "content_sha256": "064f7798f1a123ededf3c192022f16ba42eae1d0a5fc43e8e3c15acea14c90f1",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "9cab3e5f9c3e628259477e91affce7de67c7ed25b21ccf259c5b31638965c8cb",
+  "checklist_notes_sha256": "3c7f9124d9823018d9ab899590a41bdbb0bd927645586dcf7813794acf190e87",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3708,10 +3708,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4422,
+          "evidence_note": "`econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; 10 tests (`tests/unit/test_storage_layers.py`) including the per-key (not blanket) immutability check and the skip-a-layer permission rejection",
+          "id_column": "DAT-06 (first evidence)",
+          "requirement_note": "implement raw/normalized/features/artifacts storage layers; layer permissions and immutable boundaries tested"
+        }
+      ],
       "requirement": "Implement raw/normalized/features/artifacts storage layers",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8511,7 +8518,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 178,
-    "without_repository_notes": 196
+    "with_repository_notes": 179,
+    "without_repository_notes": 195
   }
 }
