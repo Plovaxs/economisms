@@ -4460,6 +4460,37 @@ library.
 See
 [`src/prometheus/econosim/schema_contracts.py`](./src/prometheus/econosim/schema_contracts.py).
 
+## Evidenced today (PR-110: retraining triggers with pre-registered thresholds -- MLO-13)
+
+MLO-13's own acceptance criterion is "thresholds and escalation
+recorded before deployment" -- enforced, not merely named.
+`evidence.retraining_trigger.RetrainingThreshold` is frozen (immutable
+once constructed, so it cannot be loosened after an unfavorable
+observation is seen) and `evaluate_retraining_trigger` rejects any
+monitoring observation dated EARLIER than the threshold's own
+`recorded_before_deployment_at`, confirmed by a dedicated test -- a
+threshold can never be back-dated to make an already-known outcome
+look anticipated.
+
+Demonstrated against `titan.risk_metrics.es_unconditional_calibration_test`
+(RISK-09, reused rather than reinvented) with REAL p-values, not
+fabricated numbers: a genuinely well-calibrated Expected Shortfall
+forecast (p-value 0.33, confirmed > the 0.05 threshold before trusting
+the "no escalation" assertion) does not escalate, and a genuinely
+miscalibrated one, understating tail severity (p-value ~3.6e-10,
+confirmed < the threshold), does.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MLO-13 (first evidence) | track model drift, calibration and retraining triggers; thresholds and escalation recorded before deployment | `evidence.retraining_trigger.RetrainingThreshold`/`RetrainingEscalation`/`evaluate_retraining_trigger`; 7 tests (`tests/unit/test_retraining_trigger.py`) grounded in a real well-calibrated and a real miscalibrated ES forecast via RISK-09's own test, plus the backdating rejection |
+
+Not covered: no existing module calls `evaluate_retraining_trigger` as
+part of its own run yet; only ES calibration is demonstrated (RISK-09's
+`var_exception_coverage_test`/`expected_shortfall_exceedance_residual_test`
+could equally be wired through the same trigger, but are not here).
+See
+[`src/prometheus/evidence/retraining_trigger.py`](./src/prometheus/evidence/retraining_trigger.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

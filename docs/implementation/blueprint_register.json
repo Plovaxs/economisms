@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "9675710121ba0fbd3bcbce2fd3191b77b84c718798d57d3f0307f4d85414cd1b",
+    "content_sha256": "9eabe5e650b07739ebfb8e20899a33fcdaf31d57217aad1098e212df28d0f9d9",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "02ee121fb8255e42c0b1da038161b4274b498979d1bfaee903f9ffd56671fb8c",
+  "checklist_notes_sha256": "5e2275d9c6f3f31a21a7192dc04c0f22c7d105735c0b2b5716b8141b6d074fd7",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5045,10 +5045,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MLO",
       "id": "MLO-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4485,
+          "evidence_note": "`evidence.retraining_trigger.RetrainingThreshold`/`RetrainingEscalation`/`evaluate_retraining_trigger`; 7 tests (`tests/unit/test_retraining_trigger.py`) grounded in a real well-calibrated and a real miscalibrated ES forecast via RISK-09's own test, plus the backdating rejection",
+          "id_column": "MLO-13 (first evidence)",
+          "requirement_note": "track model drift, calibration and retraining triggers; thresholds and escalation recorded before deployment"
+        }
+      ],
       "requirement": "Track model drift, calibration and retraining triggers",
       "source_pdf_page": 33,
       "source_rows": [
@@ -8525,7 +8532,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 180,
-    "without_repository_notes": 194
+    "with_repository_notes": 181,
+    "without_repository_notes": 193
   }
 }
