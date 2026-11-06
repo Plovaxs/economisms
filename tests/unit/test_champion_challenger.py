@@ -43,8 +43,12 @@ def _matched_hedge_outcomes() -> tuple[np.ndarray, np.ndarray]:
 
 def _approved_champion_entry() -> ModelRegistryEntry:
     entry = ModelRegistryEntry("delta_hedge")
-    entry.transition("evaluated", "alice", date(2026, 1, 1), "backtest complete")
-    entry.transition("approved", "alice", date(2026, 1, 2), "beats baseline")
+    entry.transition(
+        "evaluated", "alice", date(2026, 1, 1), "backtest complete", approved_by="alice"
+    )
+    entry.transition(
+        "approved", "alice", date(2026, 1, 2), "beats baseline", approved_by="carol"
+    )
     return entry
 
 
@@ -162,7 +166,7 @@ def test_a_champion_entry_that_was_staged_after_approval_still_counts() -> None:
     since its audit trail still shows it WAS approved."""
     champion_outcomes, challenger_outcomes = _matched_hedge_outcomes()
     entry = _approved_champion_entry()
-    entry.transition("staged", "bob", date(2026, 1, 3), "deployed to staging")
+    entry.transition("staged", "bob", date(2026, 1, 3), "deployed to staging", approved_by="bob")
     report = build_champion_challenger_report(
         build_model_package("delta_hedge", "v1", b"champion"),
         entry,

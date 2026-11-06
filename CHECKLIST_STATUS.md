@@ -4243,6 +4243,71 @@ no integration with `evidence.model_serving`'s rollback (a
 See
 [`src/prometheus/evidence/champion_challenger.py`](./src/prometheus/evidence/champion_challenger.py).
 
+## Evidenced today (PR-103: restored artifacts are readable and hash-consistent -- REL-11, audit)
+
+REL-11's own acceptance criterion is "restore artifacts are readable and
+hash-consistent." An audit (not new production code) found this already
+substantially satisfied by `recovery.snapshot.create_snapshot`/
+`restore_snapshot` (PR-048) and `jobs.artifacts.ArtifactStore.get`, which
+already re-verifies an artifact's content hash on every read via
+`audit_evidence_bundle` -- extensively exercised by 31 pre-existing tests
+(tampering, encryption, atomic restore, corruption), but none had ever
+stated the REL-11 claim explicitly in one place.
+
+One new, deliberate test,
+`test_rel_11_restored_artifacts_are_readable_and_hash_consistent`, states
+it directly: after a genuine `create_snapshot`/`restore_snapshot` round
+trip, the restored artifact is read by its own digest (readable) and this
+test INDEPENDENTLY recomputes `artifact_content_hash` on the returned body
+and confirms it matches that digest (hash-consistent) -- not merely "no
+exception was raised." Writing this test surfaced a genuine subtlety:
+an artifact here is content-addressed by a canonical-JSON hash of its
+*parsed* body, not a raw-byte file hash (an initial draft of this test
+computed `sha256` of the raw file bytes directly and failed, since
+re-serialization legitimately changes whitespace/formatting without
+changing meaning) -- confirmed, not assumed, before trusting the test.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-11 (first evidence, audit) | run backup restore and integrity validation; restore artifacts are readable and hash-consistent | pre-existing `recovery.snapshot`/`jobs.artifacts.ArtifactStore`, read against REL-11's own acceptance criterion; one new deliberate test (`tests/unit/test_recovery_snapshot.py`) |
+
+## Evidenced today (PR-104: identity, approval, previous state and hash on every registry transition -- AUD-06)
+
+AUD-06's own acceptance criterion is "identity, approval, previous state
+and hash recorded." `evidence.model_registry.StateTransition` already had
+`actor` (identity) and `from_state` (previous state) from MLO-08; this PR
+adds the two still-missing fields: `approved_by`, a separate REQUIRED
+field with no default (a silently-defaulted approver would not be a
+deliberate declaration -- the same reasoning this project applies to
+`measure`/`higher_is_better`/other no-default fields), and `content_hash`,
+optional in general (not every transition has a packaged artifact to hash
+yet) but made REQUIRED specifically on `promote_to_approved` -- the one
+transition AUD-06 names by name ("promotion transitions") -- via a new
+required `package: model_package.ModelPackage` (MLO-07) parameter, reused
+rather than reinvented. This registry deliberately does NOT itself enforce
+`approved_by != actor`, since doing so would need real authentication this
+repository does not have; that remains CIQ-08's own, separately unclaimed
+"two-person approval" item.
+
+A full-lifecycle test confirms all four AUD-06 fields are genuinely
+present where each applies: identity and previous state on every
+transition, a genuinely DIFFERENT approver on the promotion step, and a
+content hash that appears only once a package exists (correctly absent on
+the earlier `candidate -> evaluated` transition, present and matching on
+`evaluated -> approved`).
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| AUD-06 (first evidence) | capture all model registry and promotion transitions; identity, approval, previous state and hash recorded | `evidence.model_registry.StateTransition`'s `approved_by`/`content_hash` fields, `promote_to_approved`'s new required `package` parameter; a full-lifecycle test confirming all four named fields (`tests/unit/test_model_registry.py`) |
+
+Not covered: `approved_by != actor` is not enforced (would need real
+authentication); no transition other than the promotion to `approved`
+carries a `content_hash` (none of the others have a natural artifact to
+hash yet).
+See
+[`src/prometheus/evidence/model_registry.py`](./src/prometheus/evidence/model_registry.py),
+[`tests/unit/test_recovery_snapshot.py`](./tests/unit/test_recovery_snapshot.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

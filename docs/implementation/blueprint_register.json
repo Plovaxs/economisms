@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "f17b9deab53f7fac311e7d9f284f8a96e1aa60e6c0edb0ecc15e8dc934568315",
+    "content_sha256": "1cec7353c282dddf3a6d29f9f8782a0c7840b03a93ef6dcd9dc0a7f5e34fcc6e",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "95ae299c0aca91ba9b5927c870002b0f26991816d36e17adc81327327fe6ccf5",
+  "checklist_notes_sha256": "e81061f76c92bea9845a044ed61309642061e49cb6f31250767682fd4e337cb3",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6979,10 +6979,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "REL",
       "id": "REL-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4272,
+          "evidence_note": "pre-existing `recovery.snapshot`/`jobs.artifacts.ArtifactStore`, read against REL-11's own acceptance criterion; one new deliberate test (`tests/unit/test_recovery_snapshot.py`)",
+          "id_column": "REL-11 (first evidence, audit)",
+          "requirement_note": "run backup restore and integrity validation; restore artifacts are readable and hash-consistent"
+        }
+      ],
       "requirement": "Run backup restore and integrity validation",
       "source_pdf_page": 41,
       "source_rows": [
@@ -7441,10 +7448,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "AUD",
       "id": "AUD-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4301,
+          "evidence_note": "`evidence.model_registry.StateTransition`'s `approved_by`/`content_hash` fields, `promote_to_approved`'s new required `package` parameter; a full-lifecycle test confirming all four named fields (`tests/unit/test_model_registry.py`)",
+          "id_column": "AUD-06 (first evidence)",
+          "requirement_note": "capture all model registry and promotion transitions; identity, approval, previous state and hash recorded"
+        }
+      ],
       "requirement": "Capture all model registry and promotion transitions",
       "source_pdf_page": 43,
       "source_rows": [
@@ -8476,7 +8490,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 173,
-    "without_repository_notes": 201
+    "with_repository_notes": 175,
+    "without_repository_notes": 199
   }
 }

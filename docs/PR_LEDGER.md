@@ -2324,6 +2324,27 @@ price paths, compared on Expected Shortfall. Not covered: no
 persistence/multi-champion lookup; no integration with
 `model_serving`'s rollback.
 
+Plus **restored artifacts are readable and hash-consistent**
+(REL-11, PR-103, audit): already substantially satisfied by pre-existing
+`recovery.snapshot`/`jobs.artifacts.ArtifactStore` (31 pre-existing
+tests), but none had stated the claim explicitly. One new deliberate
+test does: after a genuine backup/restore round trip, the restored
+artifact is read by its own digest and this test independently
+recomputes its canonical-JSON content hash and confirms it matches —
+surfacing a genuine subtlety along the way (content-addressing here is
+a canonical-JSON hash of the parsed body, not a raw-byte file hash; an
+initial draft using raw bytes legitimately failed).
+
+Plus **identity, approval, previous state and hash on every registry
+transition** (AUD-06, PR-104): `StateTransition` already had `actor`
+and `from_state` from MLO-08; this adds a required `approved_by` (no
+default, and deliberately NOT enforced to differ from `actor`, since
+that would need real authentication this repository doesn't have — see
+CIQ-08) and `content_hash`, required specifically on `promote_to_approved`
+via a new required `ModelPackage` parameter (reused from MLO-07). A
+full-lifecycle test confirms all four fields appear exactly where they
+should, including a genuinely different approver on the promotion step.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2631,13 +2652,15 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-100 (new ID) Controlled model rollback with stale-cache purge (MLO-12) | implemented locally | `evidence.model_serving.ModelServingSlot`/`deploy`/`cached_predict`/`rollback_to`; a content-hash-keyed inference cache purged selectively on rollback; 6 tests confirm exact restoration, stale-entry purge and valid-entry preservation (via a compute-call counter) separately |
 | PR-101 (new ID) Early stopping that structurally forbids the test regime (MLO-06) | implemented locally | `experiments.early_stopping.EarlyStopper`/`EarlyStoppingDecision`/`NonValidationRegimeError`; reuses `holdout_manifest.Regime` (EXP-04); 11 tests including a real `HoldoutManifest`-driven simulated training loop and a genuine test-regime-date rejection |
 | PR-102 (new ID) Champion/challenger comparison with matched data (MLO-14) | implemented locally | `evidence.champion_challenger.ChampionChallengerReport`/`build_champion_challenger_report`/`ChampionNeverApprovedError`; reuses `model_registry`'s audit trail (MLO-08) and `paired_bootstrap_difference`; grounded in a real delta-hedge-vs-no-trade-band comparison on identical simulated paths, confirmed by 6 tests |
+| PR-103 (new ID, audit) Restored artifacts are readable and hash-consistent (REL-11) | implemented locally | pre-existing `recovery.snapshot`/`jobs.artifacts.ArtifactStore`, read against REL-11's own acceptance criterion; one new deliberate test confirms readability and an independently recomputed canonical-JSON content-hash match after a real backup/restore round trip |
+| PR-104 (new ID) Identity, approval, previous state and hash on every registry transition (AUD-06) | implemented locally | `evidence.model_registry.StateTransition` gains required `approved_by` and a promotion-required `content_hash` via a new required `ModelPackage` parameter on `promote_to_approved`; a full-lifecycle test confirms all four AUD-06 fields appear exactly where each applies |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-173 distinct blueprint checklist IDs with some test evidence, including partial
+175 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2753,6 +2776,10 @@ PR-101 adds the first evidence for MLO-06, bringing the count from 171 to 172, c
 same way -- early stopping that structurally forbids the test regime, reusing EXP-04.
 PR-102 adds the first evidence for MLO-14, bringing the count from 172 to 173, confirmed the
 same way -- a champion/challenger report grounded in a real delta-hedge-vs-no-trade-band comparison.
+PR-103 adds the first evidence for REL-11, bringing the count from 173 to 174, confirmed the
+same way -- an audit of pre-existing backup/restore code, made explicit by one new test.
+PR-104 adds the first evidence for AUD-06, bringing the count from 174 to 175, confirmed the
+same way -- required approval and promotion-hash fields added to every registry transition.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

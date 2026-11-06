@@ -11,7 +11,7 @@ from contextlib import closing
 import pytest
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from prometheus.evidence.integrity import INTEGRITY_KEY, seal_evidence_bundle
+from prometheus.evidence.integrity import INTEGRITY_KEY, artifact_content_hash, seal_evidence_bundle
 from prometheus.jobs.artifacts import ArtifactStore
 from prometheus.jobs.store import JobStore, LeaseLost, QueuePolicy
 from prometheus.jobs.worker import Worker
@@ -120,6 +120,41 @@ def test_snapshot_restore_replays_terminal_artifact_and_fences_even_unexpired_le
     ).run_once()
     assert done.job_id == active and done.status == "succeeded" and done.attempts == 2
     assert restored.verify_audit_chain() != recovered.current_audit_head_sha256
+
+
+def test_rel_11_restored_artifacts_are_readable_and_hash_consistent(state, tmp_path):
+    """REL-11: "run backup restore and integrity validation ... restore
+    artifacts are readable and hash-consistent." States that claim
+    explicitly rather than inferring it from the scattered assertions in
+    the test above: after a genuine create_snapshot/restore_snapshot
+    round trip, the restored artifact is read by its own content digest
+    (ArtifactStore.get re-verifies the hash on every read, via
+    `audit_evidence_bundle`) AND, independently of that internal check,
+    this test itself recomputes `artifact_content_hash` directly on the
+    returned body and confirms it still equals the very digest the
+    artifact was addressed by -- an artifact here is content-addressed
+    by a canonical-JSON hash of its parsed body, not a raw-byte file
+    hash (re-serializing changes whitespace/formatting but not meaning),
+    so that is the correct, and only correct, notion of "hash-consistent"
+    for this store."""
+    root, complete, active, queued, lease = state
+    output, created = snapshot(state, tmp_path)
+    destination = tmp_path / "restored"
+    restore_snapshot(
+        output, destination, key_file=root / "key", expected_sha256=created.snapshot_sha256
+    )
+
+    restored_jobs = JobStore(destination / "jobs.sqlite3")
+    completed_job = restored_jobs.get(complete, owner="alice")
+    artifact_digest = completed_job.artifact_sha256
+    assert artifact_digest is not None
+
+    restored_artifacts = ArtifactStore(destination / "artifacts")
+    body = restored_artifacts.get(artifact_digest)  # readable
+    assert isinstance(body, dict)
+
+    independent_digest = artifact_content_hash(body)
+    assert independent_digest == artifact_digest  # hash-consistent
 
 
 def test_encryption_nonce_varies_and_only_referenced_database_objects_are_included(state, tmp_path):
