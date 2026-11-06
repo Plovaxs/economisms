@@ -4428,6 +4428,38 @@ changed to route its data through these layers.
 See
 [`src/prometheus/econosim/storage_layers.py`](./src/prometheus/econosim/storage_layers.py).
 
+## Evidenced today (PR-109: schema contracts with quarantine, unit normalization and currency mapping -- DAT-10)
+
+DAT-10's own acceptance criterion is "contract failures quarantined and
+logged." `econosim.schema_contracts.validate_against_contract` never
+raises on a unit/currency mismatch and never silently drops the
+record either: it returns a `QuarantinedRecord` (the specific reason,
+and the actual vs. expected values) for the caller to log and
+investigate, confirmed by a discriminating test that a unit mismatch
+and a currency mismatch on an otherwise-correct unit are reported
+distinctly, not conflated into one generic failure.
+
+"Unit normalization" (`normalize_unit`) and "currency mapping"
+(`map_currency_code`) are both deliberately narrow and honest: unit
+normalization performs EXACT scale conversions (USD millions <-> USD
+billions, percent <-> fraction) via a fixed table, never currency
+exchange-rate conversion, which would need live, time-varying market
+data this repository does not have and will not fabricate; currency
+mapping only normalizes spelling to an ISO 4217 code (e.g. "US Dollar"
+-> "USD") against a small fixed set this project recognizes, and never
+converts an amount between currencies.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-10 (first evidence) | implement schema contracts, unit normalization and currency mapping; contract failures quarantined and logged | `econosim.schema_contracts.SchemaContract`/`QuarantinedRecord`/`validate_against_contract`/`normalize_unit`/`map_currency_code`; 14 tests (`tests/unit/test_schema_contracts.py`) including the distinct-reason discrimination between a unit and a currency mismatch |
+
+Not covered: no live currency exchange-rate conversion (deliberately,
+see above); the fixed unit/currency tables cover only the handful of
+units this repository's own examples use, not a general-purpose units
+library.
+See
+[`src/prometheus/econosim/schema_contracts.py`](./src/prometheus/econosim/schema_contracts.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

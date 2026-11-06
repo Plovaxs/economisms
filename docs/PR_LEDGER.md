@@ -2391,6 +2391,16 @@ cannot skip past `normalized` to read `raw` directly. Not covered:
 in-memory only, no persisted backend; no existing pipeline routes
 through these layers yet.
 
+Plus **schema contracts with quarantine, unit normalization and
+currency mapping** (DAT-10, PR-109): `validate_against_contract` never
+raises on a mismatch and never silently drops the record — it returns
+a `QuarantinedRecord` with the specific reason, confirmed to report a
+unit mismatch and a currency mismatch distinctly, not conflated.
+`normalize_unit` does exact scale conversion only (never currency
+exchange-rate conversion, which would need live market data this
+repository doesn't have and won't fabricate); `map_currency_code` only
+normalizes spelling to ISO 4217 codes, never converts an amount.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2704,13 +2714,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-106 (new ID) Simulation jobs benchmarked at small/medium/large scales (REL-03) | implemented locally | `experiments.scale_benchmark.ScaleBudget`/`check_scale_budgets`/`walltimes_are_monotonically_increasing`; reuses `cost_benchmark` (EXP-11); grounded in a real small/medium/large GBM benchmark; found and fixed a real `zip(strict=True)` crash bug while writing its own test |
 | PR-107 (new ID) Dataset cards distinguishing synthetic from empirical data (DAT-14) | implemented locally | `evidence.dataset_card.DatasetCard`/`build_dataset_card`; grounded in a real GBM simulation and the same real captured World Bank fixture `test_worldbank_connector.py` uses, carrying its actual license string |
 | PR-108 (new ID) Raw/normalized/features/artifacts storage layers (DAT-06) | implemented locally | `econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; per-key immutability plus a strict read-permission pipeline, confirmed by a skip-a-layer rejection test |
+| PR-109 (new ID) Schema contracts with quarantine, unit normalization and currency mapping (DAT-10) | implemented locally | `econosim.schema_contracts.SchemaContract`/`QuarantinedRecord`/`validate_against_contract`/`normalize_unit`/`map_currency_code`; exact unit-scale conversion only, no fabricated FX rates; 14 tests including the distinct unit-vs-currency mismatch discrimination |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-179 distinct blueprint checklist IDs with some test evidence, including partial
+180 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2838,6 +2849,8 @@ PR-107 adds the first evidence for DAT-14, bringing the count from 177 to 178, c
 same way -- dataset cards grounded in a real GBM simulation and a real World Bank fixture.
 PR-108 adds the first evidence for DAT-06, bringing the count from 178 to 179, confirmed the
 same way -- per-key immutable storage layers with a strict read-permission pipeline.
+PR-109 adds the first evidence for DAT-10, bringing the count from 179 to 180, confirmed the
+same way -- quarantine-based schema contracts plus exact unit normalization and currency mapping.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
