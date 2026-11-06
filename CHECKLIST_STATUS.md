@@ -4373,6 +4373,36 @@ submission) is exercised at scale yet.
 See
 [`src/prometheus/experiments/scale_benchmark.py`](./src/prometheus/experiments/scale_benchmark.py).
 
+## Evidenced today (PR-107: dataset cards distinguishing synthetic from empirical data -- DAT-14)
+
+DAT-14's own acceptance criterion is "every published result identifies
+data lineage and type." `evidence.dataset_card.DataType` is a closed,
+two-value vocabulary (`"synthetic"`/`"empirical"`) -- there is no third,
+ambiguous category a caller could use to avoid declaring which one
+applies -- and `build_dataset_card` has no default for `data_type` or
+`lineage`, so a published result's card can never be silently missing
+either.
+
+Grounded in two REAL cases, not labels applied to nothing: a genuine
+simulated GBM path (`stochastica.gbm.simulate_gbm_paths`) carded as
+`"synthetic"`, and a genuine, real captured World Bank API response (the
+SAME hermetic fixture `test_worldbank_connector.py` exercises) carded as
+`"empirical"`, with its lineage stating the ACTUAL license the real
+observation carries (`"CC-BY-4.0 (World Bank Open Data)"`), not a
+fabricated string.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-14 (first evidence) | document synthetic-vs-empirical labels and dataset cards; every published result identifies data lineage and type | `evidence.dataset_card.DatasetCard`/`build_dataset_card`; 8 tests (`tests/unit/test_dataset_card.py`) grounded in a real GBM simulation and a real captured World Bank response with its actual license |
+
+Not covered: no existing module (`service.reports`, `data_ingestion.
+worldbank`, etc.) is itself changed to attach a `DatasetCard` to its own
+output -- this PR adds the general-purpose card primitive and
+demonstrates it against two real data sources in tests, rather than
+wiring it into a production publishing path.
+See
+[`src/prometheus/evidence/dataset_card.py`](./src/prometheus/evidence/dataset_card.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

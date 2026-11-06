@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "10f98fadc95b5852df45d74d734e233d6f2bcf983d9da079e7d4c906de53d80a",
+    "content_sha256": "63b48c61d2e2e9076f7296f4e19a9455769c54f0e1ac8de045c97e8d67ad1b81",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "361ccae7e1207534c21854f0068b3a8d22df1deb311807d7ddb8f98576e274b2",
+  "checklist_notes_sha256": "9cab3e5f9c3e628259477e91affce7de67c7ed25b21ccf259c5b31638965c8cb",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3897,10 +3897,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-14",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4396,
+          "evidence_note": "`evidence.dataset_card.DatasetCard`/`build_dataset_card`; 8 tests (`tests/unit/test_dataset_card.py`) grounded in a real GBM simulation and a real captured World Bank response with its actual license",
+          "id_column": "DAT-14 (first evidence)",
+          "requirement_note": "document synthetic-vs-empirical labels and dataset cards; every published result identifies data lineage and type"
+        }
+      ],
       "requirement": "Document synthetic-vs-empirical labels and dataset cards",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8504,7 +8511,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 177,
-    "without_repository_notes": 197
+    "with_repository_notes": 178,
+    "without_repository_notes": 196
   }
 }
