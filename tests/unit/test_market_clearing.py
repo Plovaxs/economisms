@@ -1,6 +1,7 @@
 import pytest
 
 from prometheus.core.money import Money
+from prometheus.econosim.agents import InsufficientFundsError
 from prometheus.econosim.economy import Economy
 from prometheus.econosim.market_clearing import (
     apply_goods_clearing_to_ledger,
@@ -147,3 +148,34 @@ def test_zero_realized_quantity_posts_no_transaction() -> None:
     transactions = apply_labor_clearing_to_ledger(clearing, households, firm, Money(1000, "USD"))
     assert transactions == []
     assert hh1.cash_balance == cash_before
+
+
+def test_unfunded_aggregate_payroll_is_rejected_before_the_first_wage() -> None:
+    economy, firm, households = _funded_economy()
+    clearing = clear_quantity_market(
+        {firm.agent_id: 60_000.0}, {name: 30_000.0 for name in households}
+    )
+    before = economy.ledger.snapshot(0).state_hash(), economy.ledger.journal
+    with pytest.raises(InsufficientFundsError):
+        apply_labor_clearing_to_ledger(clearing, households, firm, Money(1))
+    assert (economy.ledger.snapshot(0).state_hash(), economy.ledger.journal) == before
+
+
+def test_later_unfunded_buyer_cannot_partially_settle_the_legacy_goods_market() -> None:
+    economy, firm, households = _funded_economy()
+    clearing = clear_quantity_market({"hh-1": 1.0, "hh-2": 200_000.0}, {firm.agent_id: 200_001.0})
+    before = economy.ledger.snapshot(0).state_hash(), economy.ledger.journal
+    with pytest.raises(InsufficientFundsError):
+        apply_goods_clearing_to_ledger(clearing, firm, households, Money(1))
+    assert (economy.ledger.snapshot(0).state_hash(), economy.ledger.journal) == before
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), True])
+def test_nonfinite_or_boolean_order_quantities_are_rejected(value) -> None:
+    with pytest.raises(ValueError):
+        clear_quantity_market({"buyer": value}, {"seller": 1.0})
+
+
+def test_aggregate_float_overflow_is_rejected() -> None:
+    with pytest.raises(ValueError):
+        clear_quantity_market({"b1": 1e308, "b2": 1e308}, {"s": 1.0})

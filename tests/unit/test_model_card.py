@@ -72,9 +72,7 @@ def test_invalid_approval_status_rejected() -> None:
 
 def test_approved_without_reviewer_rejected() -> None:
     with pytest.raises(ValueError):
-        ModelCard(
-            **_valid_card_kwargs(approval_status="APPROVED", independent_reviewer=None)
-        )
+        ModelCard(**_valid_card_kwargs(approval_status="APPROVED", independent_reviewer=None))
 
 
 def test_approved_with_named_reviewer_succeeds() -> None:
@@ -82,3 +80,14 @@ def test_approved_with_named_reviewer_succeeds() -> None:
         **_valid_card_kwargs(approval_status="APPROVED", independent_reviewer="Jane Reviewer")
     )
     assert card.independent_reviewer == "Jane Reviewer"
+
+
+@pytest.mark.parametrize("value", [True, float("nan"), float("inf"), 10**1000])
+def test_metric_values_must_be_finite_numbers(value):
+    with pytest.raises(ValueError, match="finite"):
+        ModelCard(**_valid_card_kwargs(primary_metrics={"risk": value}))
+
+
+def test_conditional_card_requires_a_named_reviewer():
+    with pytest.raises(ValueError, match="reviewer"):
+        ModelCard(**_valid_card_kwargs(approval_status="CONDITIONAL"))

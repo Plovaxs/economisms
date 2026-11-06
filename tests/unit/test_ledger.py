@@ -5,6 +5,8 @@ import pytest
 from prometheus.core.ledger import (
     AccountType,
     DuplicateAccountError,
+    DuplicateTransactionError,
+    EconomicState,
     EmptyTransactionError,
     Ledger,
     LedgerIdentityViolation,
@@ -15,7 +17,7 @@ from prometheus.core.ledger import (
     Side,
     UnknownAccountError,
 )
-from prometheus.core.money import Money
+from prometheus.core.money import CurrencyMismatchError, Money
 
 
 def _simple_ledger() -> tuple[Ledger, str, str]:
@@ -224,3 +226,64 @@ def test_journal_is_append_only_and_postings_immutable() -> None:
         txn.description = "tampered"  # type: ignore[misc]
     with pytest.raises(AttributeError):
         ledger.journal.append(txn)  # type: ignore[attr-defined]
+
+
+def test_later_currency_mismatch_cannot_partially_apply_earlier_postings() -> None:
+    ledger, a, b = _simple_ledger()
+    ledger.open_account("eur", Sector.FIRM, AccountType.ASSET, "EUR")
+    with pytest.raises(CurrencyMismatchError):
+        ledger.post(
+            [
+                Posting(a, Side.CREDIT, Money(100)),
+                Posting("eur", Side.DEBIT, Money(100)),
+            ]
+        )
+    assert ledger.account(a).balance == Money(0)
+    assert ledger.account("eur").balance == Money(0, "EUR")
+    assert ledger.journal == ()
+    valid = ledger.post([Posting(a, Side.CREDIT, Money(1)), Posting(b, Side.DEBIT, Money(1))])
+    assert valid.transaction_id == "txn-00000001"
+
+
+def test_rejected_transaction_does_not_consume_a_generated_id() -> None:
+    ledger, a, b = _simple_ledger()
+    with pytest.raises(LedgerImbalanceError):
+        ledger.post([Posting(a, Side.CREDIT, Money(100)), Posting(b, Side.DEBIT, Money(99))])
+    valid = ledger.post([Posting(a, Side.CREDIT, Money(1)), Posting(b, Side.DEBIT, Money(1))])
+    assert valid.transaction_id == "txn-00000001"
+
+
+def test_duplicate_ids_are_rejected_and_auto_ids_skip_explicit_collisions() -> None:
+    ledger, a, b = _simple_ledger()
+    postings = [Posting(a, Side.CREDIT, Money(1)), Posting(b, Side.DEBIT, Money(1))]
+    ledger.post(postings, transaction_id="txn-00000001")
+    before = ledger.snapshot(0).state_hash()
+    with pytest.raises(DuplicateTransactionError):
+        ledger.post(postings, transaction_id="txn-00000001")
+    assert ledger.snapshot(0).state_hash() == before
+    assert ledger.post(postings).transaction_id == "txn-00000002"
+
+
+def test_posting_on_a_corrupted_ledger_fails_before_further_mutation() -> None:
+    ledger, a, b = _simple_ledger()
+    ledger.account(a)._apply(Side.DEBIT, Money(1))
+    before = ledger.snapshot(0).state_hash()
+    with pytest.raises(LedgerIdentityViolation):
+        ledger.post([Posting(a, Side.CREDIT, Money(1)), Posting(b, Side.DEBIT, Money(1))])
+    assert ledger.snapshot(0).state_hash() == before
+    assert ledger.journal == ()
+
+
+def test_posting_side_must_be_an_enum_not_silently_interpreted_text() -> None:
+    with pytest.raises(ValueError, match="Side enum"):
+        Posting("account", "debit", Money(1))
+
+
+def test_state_balances_are_immutable_and_detached_from_input_mapping() -> None:
+    balances = {"a": Money(1)}
+    state = EconomicState(0, balances, 0)
+    original = state.state_hash()
+    balances["a"] = Money(2)
+    assert state.state_hash() == original
+    with pytest.raises(TypeError):
+        state.balances["a"] = Money(3)

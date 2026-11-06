@@ -85,3 +85,20 @@ def test_go_with_full_evidence_succeeds() -> None:
 def test_conditional_also_requires_full_evidence() -> None:
     with pytest.raises(ValueError):
         GateDecisionForm(**_valid_form_kwargs(decision="CONDITIONAL"))
+
+
+def test_boolean_approval_cannot_impersonate_a_named_approver():
+    with pytest.raises(ValueError, match="named text"):
+        GateDecisionForm(
+            **_valid_form_kwargs(
+                decision="GO",
+                scientific_approval=True,
+                security_ops_approval="Reviewer",
+                sunset_date=date(2026, 6, 1),
+            )
+        )
+
+
+def test_gate_sunset_cannot_precede_the_decision_date():
+    with pytest.raises(ValueError, match="precede"):
+        GateDecisionForm(**_valid_form_kwargs(sunset_date=date(2025, 1, 1)))

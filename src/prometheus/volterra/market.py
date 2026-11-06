@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from prometheus.numerics import require_finite
+
 
 @dataclass(frozen=True, slots=True)
 class MarketSnapshot:
@@ -22,6 +24,12 @@ class MarketSnapshot:
     measure: str = "Q"
 
     def __post_init__(self) -> None:
+        require_finite(
+            spot=self.spot,
+            risk_free_rate=self.risk_free_rate,
+            volatility=self.volatility,
+            dividend_yield=self.dividend_yield,
+        )
         if self.measure != "Q":
             raise ValueError(
                 f"VOLTERRA pricing requires a risk-neutral (Q) market snapshot, "

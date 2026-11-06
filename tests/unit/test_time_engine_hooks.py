@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from prometheus.core.calendar import BusinessDayCalendar
+from prometheus.core.ledger import LedgerIdentityViolation, Side
 from prometheus.core.money import Money
 from prometheus.econosim.economy import Economy
 from prometheus.econosim.market_clearing import (
@@ -194,6 +195,22 @@ def test_state_hash_reflects_ledger_mutations_made_by_hooks() -> None:
     result_a = engine_a.advance_step()
     result_b = engine_b.advance_step()
     assert result_a.state_hash != result_b.state_hash
+
+
+def test_hook_corruption_is_rejected_before_a_step_result_is_emitted() -> None:
+    economy, *_ = _funded_economy()
+
+    def corrupt(ctx: StepContext):
+        ctx.economy.ledger.account("firm-1:deposit")._apply(Side.DEBIT, Money(1))
+
+    engine = MacroTimeEngine(
+        economy,
+        BusinessDayCalendar(),
+        date(2026, 1, 1),
+        hooks=StepHooks(compute_actions=corrupt),
+    )
+    with pytest.raises(LedgerIdentityViolation):
+        engine.advance_step()
 
 
 @pytest.mark.parametrize("unset_slot", ["compute_actions", "value_and_hedge"])

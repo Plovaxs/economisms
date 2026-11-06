@@ -21,6 +21,36 @@ def test_paths_are_always_positive() -> None:
     assert np.all(paths > 0.0)
 
 
+def test_extreme_volatility_paths_stay_finite_even_if_underflow_to_zero() -> None:
+    """SDE-12 finding (see this module's own docstring): strict
+    positivity is a mathematical guarantee of the SDE, but NOT a
+    floating-point one -- at sigma=50, some simulated log-returns are
+    negative enough that exp() underflows to exactly 0.0 rather than
+    raising. This is not fixable (no discretization choice avoids
+    IEEE754's underflow boundary) and is not a silent NaN/Inf violation
+    either: the actual, always-true guarantee is finiteness, confirmed
+    here directly, with strict positivity confirmed separately to fail
+    at this boundary (not asserted away)."""
+    rng = np.random.default_rng(2)
+    paths = simulate_gbm_paths(100.0, 0.0, 50.0, 1.0, n_steps=10, n_paths=10_000, rng=rng)
+    assert np.all(np.isfinite(paths))
+    assert np.any(paths == 0.0)  # the underflow boundary is actually reached, not hypothetical
+
+
+def test_extreme_positive_drift_raises_a_clear_error_not_a_silent_inf() -> None:
+    """SDE-12 finding (see this module's own docstring): a large enough
+    POSITIVE drift over a long enough maturity overflows np.exp to
+    exactly inf for the upper tail of simulated paths -- a silent Inf
+    is exactly what SDE-12 prohibits (unlike the underflow-to-0.0 case
+    above, which IS a representable, legitimate value). This corrects
+    an earlier version of this module's own docstring, which had
+    claimed finiteness as an unconditional guarantee before broader
+    property-based testing found this counterexample."""
+    rng = np.random.default_rng(0)
+    with pytest.raises(ValueError, match="non-finite"):
+        simulate_gbm_paths(1.0, 5.0, 0.5, 142.0, n_steps=10, n_paths=200, rng=rng)
+
+
 def test_rejects_invalid_parameters() -> None:
     rng = np.random.default_rng(0)
     with pytest.raises(ValueError):
@@ -80,6 +110,19 @@ def test_correlated_gbm_recovers_approximate_asset_correlation() -> None:
     log_returns = np.log(paths[:, -1, :] / paths[:, 0, :])
     sample_corr = np.corrcoef(log_returns[:, 0], log_returns[:, 1])[0, 1]
     assert abs(sample_corr - 0.7) < 0.03
+
+
+def test_correlated_gbm_extreme_positive_drift_raises_a_clear_error() -> None:
+    """SDE-12 finding (see this module's own docstring): the same
+    overflow-to-inf issue found in `simulate_gbm_paths` applies equally
+    here, since both share the `s0 * exp(cumsum(...))` pattern."""
+    rng = np.random.default_rng(0)
+    s0 = np.array([1.0, 1.0])
+    mu = np.array([5.0, 5.0])
+    sigma = np.array([0.5, 0.5])
+    corr = np.eye(2)
+    with pytest.raises(ValueError, match="non-finite"):
+        simulate_correlated_gbm_paths(s0, mu, sigma, corr, 142.0, n_steps=10, n_paths=200, rng=rng)
 
 
 def test_correlated_gbm_rejects_mismatched_shapes() -> None:

@@ -34,15 +34,28 @@ class GateDecisionForm:
     sunset_date: date | None
 
     def __post_init__(self) -> None:
-        if not self.gate or not self.gate.strip():
+        if not isinstance(self.gate, str) or not self.gate.strip():
             raise ValueError("gate must not be empty")
         if not self.scope_prohibited:
             raise ValueError(
                 "scope_prohibited must explicitly list excluded operations "
                 "(e.g. live trading) -- it cannot be empty"
             )
-        if self.decision not in _VALID_DECISIONS:
+        if not isinstance(self.decision, str) or self.decision not in _VALID_DECISIONS:
             raise ValueError(f"decision must be one of {sorted(_VALID_DECISIONS)}")
+        for name, value in (
+            ("scientific_approval", self.scientific_approval),
+            ("security_ops_approval", self.security_ops_approval),
+            ("legal_compliance_assessment", self.legal_compliance_assessment),
+        ):
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"{name} requires named text or None")
+        if type(self.decided_at) is not date or (
+            self.sunset_date is not None and type(self.sunset_date) is not date
+        ):
+            raise ValueError("gate decision and sunset require calendar dates")
+        if self.sunset_date is not None and self.sunset_date < self.decided_at:
+            raise ValueError("sunset_date cannot precede decided_at")
         if self.decision in ("GO", "CONDITIONAL"):
             missing = [
                 name

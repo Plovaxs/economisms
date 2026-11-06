@@ -75,9 +75,9 @@ def build_deep_hedge_model_card(
         metric_uncertainty_note=(
             "Single training run, single held-out test-seed point estimate. See "
             "prometheus.experiments.hedge_benchmark for a multi-seed, paired-"
-            "bootstrap-CI comparison against the delta baseline -- at the one "
-            "configuration explored during development, the two were "
-            "statistically indistinguishable."
+            "bootstrap-CI comparison against the delta baseline. Historical "
+            "numbers from before PR-015 must be rerun after its financing "
+            "correction; no policy superiority is assumed."
         ),
         failure_modes=(
             "Not evaluated out-of-distribution: different volatility regime, jump "
@@ -104,15 +104,41 @@ def current_repository_gate_report() -> GateDecisionForm:
         artifact_version="0.1.0",
         scope_enabled=(
             "Local in-memory double-entry ledger simulation (PR-001/002)",
-            "Deterministic macro time engine: calendar, seeds, point-in-time "
-            "data, shocks (PR-003)",
-            "Classical GBM/Heston and macro-conditioned (non-neural) path "
-            "simulation (PR-004/009)",
+            "Deterministic macro time engine: calendar, seeds, point-in-time data, shocks (PR-003)",
+            "Classical GBM/Heston and macro-conditioned (non-neural) path simulation (PR-004/009)",
             "Black-Scholes/Monte Carlo pricing (PR-005)",
             "Historical/parametric VaR and Expected Shortfall (PR-006)",
-            "Delta and CVaR-trained MLP hedge simulation against synthetic "
-            "paths (PR-007)",
+            "Delta and CVaR-trained MLP hedge simulation against synthetic paths (PR-007)",
             "A first paired-bootstrap research benchmark (PR-008)",
+            "End-to-end demonstration and monthly StepHooks scenario with online "
+            "delta/MLP hedging, conditional portfolio risk and evidence export (PR-011/014/015)",
+            "Government taxes/transfers/bonds and a scalar central-bank policy-rate agent (PR-012)",
+            "Single-firm labor/goods quantity clearing with ledger settlement (PR-013)",
+            "Reproducible benchmark/retraining stress recipes and exact artifact "
+            "replay (PR-016/017)",
+            "Exact budget-feasible price discovery, inventory and atomic market "
+            "settlement (PR-018)",
+            "Publication-lagged price/output policy feedback coupled to market and hedge financing "
+            "with explicit opening/closing rate timing (PR-019)",
+            "Crossed retraining/shared macro-market banks across publication, payroll and "
+            "supply-shock scenarios with conditional-CVaR diagnostics (PR-020)",
+            "Matched current-rate feature ablation with independent macro training banks, "
+            "variable-rate differentiable accounting and optimization diagnostics (PR-021)",
+            "Synthetic instrument calibration, American/forward pricing and mixed position "
+            "valuation; portfolio, covariance, factor and network-risk modules (PR-022..040)",
+            "Ledger-backed central-bank/interbank operations, causal risk circuit breaker "
+            "and bank interest/write-off primitives (PR-026..043)",
+            "Empirical macro/market-mixture CVaR with paired nested resampling and "
+            "retained terminal-loss provenance (PR-044)",
+            "Detached whole-artifact checksum snapshots, strict metadata/fingerprint "
+            "validation, offline audit and complete 374-item traceability register (PR-045)",
+            "Allowlisted typed recipes, bounded local SQLite job queue, fenced Linux workers "
+            "and no-clobber quota-controlled artifact publication (PR-046)",
+            "Versioned authenticated ASGI research-job API, owner-derived read/write scopes, "
+            "bounded request admission, readiness, OpenAPI and typed SDK (PR-047)",
+            "Hash-locked CPU dependency/build profiles, two-snapshot wheel rebuild checks, "
+            "dependency SBOM and encrypted verified local snapshot/restore with lease fencing "
+            "(PR-048; no container/offsite/production acceptance)",
         ),
         scope_prohibited=(
             "Live trading, order routing, or any connection to a brokerage",
@@ -122,13 +148,14 @@ def current_repository_gate_report() -> GateDecisionForm:
         evidence_index=("CHECKLIST_STATUS.md", "README.md"),
         open_findings=(
             "No independent review of any module (MGR-07 not satisfied)",
-            "Of the blueprint's 374-item checklist, roughly 9 PRs' worth of IDs "
-            "are evidenced by passing tests; the large majority remain NOT "
-            "VERIFIED (see CHECKLIST_STATUS.md for the exact list)",
-            "No security, MLOps, data-governance, or compliance control "
-            "implemented",
-            "No economy/market/hedge subsystem is wired to another at the "
-            "orchestration level; each is called standalone",
+            "The blueprint's 374-item checklist remains NOT VERIFIED pending "
+            "review; CHECKLIST_STATUS.md distinguishes test evidence from full acceptance",
+            "A basic lint/type/test CI workflow exists; deployment security, model "
+            "lifecycle, data-governance and compliance controls remain unimplemented",
+            "Reference scenarios use synthetic single-asset GBM and separate economic/hedge "
+            "balance sheets; price and policy response rules are not empirically calibrated",
+            "Black-Scholes marks and conditional risk freeze the closing rate; no joint "
+            "stochastic-rate Q valuation or full dynamic-policy risk forecast is implemented",
         ),
         scientific_approval=None,
         security_ops_approval=None,

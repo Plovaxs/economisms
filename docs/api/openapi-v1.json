@@ -1,0 +1,4852 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "diagnostic_id": {
+                "type": "string"
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "request_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "request_id",
+              "diagnostic_id",
+              "field"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "Job": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attempts": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "cancel_requested": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "diagnostic_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "job_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "simulation",
+              "benchmark",
+              "study",
+              "economy",
+              "monetary",
+              "monetary_study",
+              "rate_study",
+              "mixture_study",
+              "monetary_operations"
+            ]
+          },
+          "recipe_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "resource_estimate": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "result_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "cancelled",
+              "failed",
+              "queued",
+              "running",
+              "succeeded",
+              "timed_out"
+            ]
+          },
+          "timeout_seconds": {
+            "type": "number"
+          },
+          "trace_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "trace_id",
+          "kind",
+          "status",
+          "created_at",
+          "updated_at",
+          "recipe_sha256",
+          "attempts",
+          "cancel_requested",
+          "timeout_seconds",
+          "resource_estimate",
+          "artifact_sha256",
+          "result_hash",
+          "error_code",
+          "diagnostic_id"
+        ],
+        "type": "object"
+      },
+      "Submission": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "consumption_propensity": {
+                    "type": "number"
+                  },
+                  "cost_rate": {
+                    "type": "number"
+                  },
+                  "cvar_alpha": {
+                    "type": "number"
+                  },
+                  "equity_risk_premium": {
+                    "type": "number"
+                  },
+                  "firm_goods_supply_per_step": {
+                    "type": "number"
+                  },
+                  "firm_labor_demand_per_step": {
+                    "type": "number"
+                  },
+                  "firm_seed_capital": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "goods_price": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "household_labor_supply_per_step": {
+                    "type": "number"
+                  },
+                  "initial_policy_rate": {
+                    "type": "number"
+                  },
+                  "n_steps": {
+                    "type": "integer"
+                  },
+                  "n_train_epochs": {
+                    "type": "integer"
+                  },
+                  "n_train_paths": {
+                    "type": "integer"
+                  },
+                  "option_maturity_years": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "option_type": {
+                    "enum": [
+                      "call",
+                      "put"
+                    ]
+                  },
+                  "policy_rate_mean_reversion": {
+                    "type": "number"
+                  },
+                  "policy_rate_neutral": {
+                    "type": "number"
+                  },
+                  "policy_shock_bps": {
+                    "type": "number"
+                  },
+                  "policy_shock_step": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "risk_eval_n_paths": {
+                    "type": "integer"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "spot0": {
+                    "type": "number"
+                  },
+                  "start_date": {
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "strike": {
+                    "type": "number"
+                  },
+                  "volatility": {
+                    "type": "number"
+                  },
+                  "wage_rate_per_hour": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "start_date",
+                  "n_steps",
+                  "initial_policy_rate",
+                  "policy_rate_neutral",
+                  "policy_rate_mean_reversion",
+                  "policy_shock_step",
+                  "policy_shock_bps",
+                  "equity_risk_premium",
+                  "volatility",
+                  "spot0",
+                  "strike",
+                  "option_maturity_years",
+                  "option_type",
+                  "cost_rate",
+                  "firm_labor_demand_per_step",
+                  "household_labor_supply_per_step",
+                  "wage_rate_per_hour",
+                  "goods_price",
+                  "firm_goods_supply_per_step",
+                  "consumption_propensity",
+                  "firm_seed_capital",
+                  "n_train_paths",
+                  "n_train_epochs",
+                  "cvar_alpha",
+                  "risk_eval_n_paths"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "simulation"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "batch_size": {
+                    "type": "integer"
+                  },
+                  "bootstrap_confidence": {
+                    "type": "number"
+                  },
+                  "cost_rate": {
+                    "type": "number"
+                  },
+                  "cvar_alpha": {
+                    "type": "number"
+                  },
+                  "initial_premium": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "learning_rate": {
+                    "type": "number"
+                  },
+                  "maturity": {
+                    "type": "number"
+                  },
+                  "mu": {
+                    "type": "number"
+                  },
+                  "n_bootstrap_resamples": {
+                    "type": "integer"
+                  },
+                  "n_eval_paths": {
+                    "type": "integer"
+                  },
+                  "n_steps": {
+                    "type": "integer"
+                  },
+                  "n_train_epochs": {
+                    "type": "integer"
+                  },
+                  "n_train_paths": {
+                    "type": "integer"
+                  },
+                  "option_type": {
+                    "enum": [
+                      "call",
+                      "put"
+                    ]
+                  },
+                  "risk_free_rate": {
+                    "type": "number"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "spot": {
+                    "type": "number"
+                  },
+                  "strike": {
+                    "type": "number"
+                  },
+                  "test_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "train_path_seed": {
+                    "type": "integer"
+                  },
+                  "turnover_penalty": {
+                    "type": "number"
+                  },
+                  "volatility": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "train_path_seed",
+                  "test_seeds",
+                  "n_steps",
+                  "n_train_paths",
+                  "n_train_epochs",
+                  "batch_size",
+                  "learning_rate",
+                  "turnover_penalty",
+                  "n_eval_paths",
+                  "n_bootstrap_resamples",
+                  "bootstrap_confidence",
+                  "cvar_alpha",
+                  "spot",
+                  "strike",
+                  "maturity",
+                  "option_type",
+                  "risk_free_rate",
+                  "mu",
+                  "volatility",
+                  "cost_rate",
+                  "initial_premium"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "benchmark"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "batch_size": {
+                    "type": "integer"
+                  },
+                  "bootstrap_confidence": {
+                    "type": "number"
+                  },
+                  "cost_rate": {
+                    "type": "number"
+                  },
+                  "cvar_alpha": {
+                    "type": "number"
+                  },
+                  "economic_margin": {
+                    "type": "number"
+                  },
+                  "initial_premium": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "learning_rate": {
+                    "type": "number"
+                  },
+                  "maturity": {
+                    "type": "number"
+                  },
+                  "mu": {
+                    "type": "number"
+                  },
+                  "n_bootstrap_resamples": {
+                    "type": "integer"
+                  },
+                  "n_eval_paths": {
+                    "type": "integer"
+                  },
+                  "n_steps": {
+                    "type": "integer"
+                  },
+                  "n_train_epochs": {
+                    "type": "integer"
+                  },
+                  "n_train_paths": {
+                    "type": "integer"
+                  },
+                  "option_type": {
+                    "enum": [
+                      "call",
+                      "put"
+                    ]
+                  },
+                  "primary_scenario": {
+                    "type": "string"
+                  },
+                  "risk_free_rate": {
+                    "type": "number"
+                  },
+                  "scenarios": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cost_rate": {
+                          "type": "number"
+                        },
+                        "mu": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "volatility": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "mu",
+                        "volatility",
+                        "cost_rate"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "spot": {
+                    "type": "number"
+                  },
+                  "strike": {
+                    "type": "number"
+                  },
+                  "test_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_seeds": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "path_seed": {
+                          "type": "integer"
+                        },
+                        "policy_seed": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "policy_seed",
+                        "path_seed"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "turnover_penalty": {
+                    "type": "number"
+                  },
+                  "volatility": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "training_seeds",
+                  "test_seeds",
+                  "scenarios",
+                  "primary_scenario",
+                  "economic_margin",
+                  "n_steps",
+                  "n_train_paths",
+                  "n_train_epochs",
+                  "batch_size",
+                  "learning_rate",
+                  "turnover_penalty",
+                  "n_eval_paths",
+                  "n_bootstrap_resamples",
+                  "bootstrap_confidence",
+                  "cvar_alpha",
+                  "spot",
+                  "strike",
+                  "maturity",
+                  "option_type",
+                  "risk_free_rate",
+                  "mu",
+                  "volatility",
+                  "cost_rate",
+                  "initial_premium"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "study"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "consumption_propensity": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "firm_capital": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "goods_ceiling": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "goods_floor": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "goods_reservation_price": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "goods_supply_slope": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "household_goods_cap": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "household_initial_cash": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "household_labor_capacity": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "initial_goods_price": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "initial_inventory": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "initial_wage": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "labor_reservation_wage": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "labor_supply_slope": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "max_labor_demand": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "max_price_evaluations": {
+                    "type": "integer"
+                  },
+                  "n_households": {
+                    "type": "integer"
+                  },
+                  "n_steps": {
+                    "type": "integer"
+                  },
+                  "payroll_cash_fraction": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "payroll_target": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "productivity": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "productivity_noise_std": {
+                    "type": "number"
+                  },
+                  "productivity_shock_multiplier": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "productivity_shock_step": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "quantity_tolerance": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "numerator": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "require_price_resolution": {
+                    "type": "boolean"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "start_date": {
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "wage_ceiling": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "wage_floor": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "start_date",
+                  "n_steps",
+                  "n_households",
+                  "firm_capital",
+                  "household_initial_cash",
+                  "payroll_target",
+                  "payroll_cash_fraction",
+                  "max_labor_demand",
+                  "household_labor_capacity",
+                  "labor_supply_slope",
+                  "labor_reservation_wage",
+                  "initial_wage",
+                  "wage_floor",
+                  "wage_ceiling",
+                  "initial_goods_price",
+                  "goods_floor",
+                  "goods_ceiling",
+                  "goods_reservation_price",
+                  "goods_supply_slope",
+                  "household_goods_cap",
+                  "consumption_propensity",
+                  "initial_inventory",
+                  "productivity",
+                  "productivity_shock_step",
+                  "productivity_shock_multiplier",
+                  "productivity_noise_std",
+                  "quantity_tolerance",
+                  "max_price_evaluations",
+                  "require_price_resolution"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "economy"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "economy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "consumption_propensity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "firm_capital": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_reservation_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_goods_cap": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_initial_cash": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "household_labor_capacity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_goods_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "initial_inventory": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_reservation_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_labor_demand": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_price_evaluations": {
+                        "type": "integer"
+                      },
+                      "n_households": {
+                        "type": "integer"
+                      },
+                      "n_steps": {
+                        "type": "integer"
+                      },
+                      "payroll_cash_fraction": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "payroll_target": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "productivity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_noise_std": {
+                        "type": "number"
+                      },
+                      "productivity_shock_multiplier": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_shock_step": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "quantity_tolerance": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "require_price_resolution": {
+                        "type": "boolean"
+                      },
+                      "seed": {
+                        "type": "integer"
+                      },
+                      "start_date": {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      "wage_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "wage_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "seed",
+                      "start_date",
+                      "n_steps",
+                      "n_households",
+                      "firm_capital",
+                      "household_initial_cash",
+                      "payroll_target",
+                      "payroll_cash_fraction",
+                      "max_labor_demand",
+                      "household_labor_capacity",
+                      "labor_supply_slope",
+                      "labor_reservation_wage",
+                      "initial_wage",
+                      "wage_floor",
+                      "wage_ceiling",
+                      "initial_goods_price",
+                      "goods_floor",
+                      "goods_ceiling",
+                      "goods_reservation_price",
+                      "goods_supply_slope",
+                      "household_goods_cap",
+                      "consumption_propensity",
+                      "initial_inventory",
+                      "productivity",
+                      "productivity_shock_step",
+                      "productivity_shock_multiplier",
+                      "productivity_noise_std",
+                      "quantity_tolerance",
+                      "max_price_evaluations",
+                      "require_price_resolution"
+                    ],
+                    "type": "object"
+                  },
+                  "hedge": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "batch_size": {
+                        "type": "integer"
+                      },
+                      "cost_rate": {
+                        "type": "number"
+                      },
+                      "cvar_alpha": {
+                        "type": "number"
+                      },
+                      "equity_risk_premium": {
+                        "type": "number"
+                      },
+                      "learning_rate": {
+                        "type": "number"
+                      },
+                      "n_train_epochs": {
+                        "type": "integer"
+                      },
+                      "n_train_paths": {
+                        "type": "integer"
+                      },
+                      "option_type": {
+                        "enum": [
+                          "call",
+                          "put"
+                        ]
+                      },
+                      "risk_eval_n_paths": {
+                        "type": "integer"
+                      },
+                      "spot0": {
+                        "type": "number"
+                      },
+                      "strike": {
+                        "type": "number"
+                      },
+                      "turnover_penalty": {
+                        "type": "number"
+                      },
+                      "volatility": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "spot0",
+                      "strike",
+                      "option_type",
+                      "volatility",
+                      "equity_risk_premium",
+                      "cost_rate",
+                      "cvar_alpha",
+                      "n_train_paths",
+                      "n_train_epochs",
+                      "batch_size",
+                      "learning_rate",
+                      "turnover_penalty",
+                      "risk_eval_n_paths"
+                    ],
+                    "type": "object"
+                  },
+                  "inflation_window_months": {
+                    "type": "integer"
+                  },
+                  "initial_rate": {
+                    "type": "number"
+                  },
+                  "payroll_rate_sensitivity": {
+                    "type": "number"
+                  },
+                  "policy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "inertia": {
+                        "type": "number"
+                      },
+                      "inflation_response": {
+                        "type": "number"
+                      },
+                      "inflation_target": {
+                        "type": "number"
+                      },
+                      "neutral_rate": {
+                        "type": "number"
+                      },
+                      "output_response": {
+                        "type": "number"
+                      },
+                      "rate_ceiling": {
+                        "type": "number"
+                      },
+                      "rate_floor": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "neutral_rate",
+                      "inflation_target",
+                      "inflation_response",
+                      "output_response",
+                      "inertia",
+                      "rate_floor",
+                      "rate_ceiling"
+                    ],
+                    "type": "object"
+                  },
+                  "potential_output": {
+                    "type": "number"
+                  },
+                  "publication_lag_months": {
+                    "type": "integer"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "economy",
+                  "policy",
+                  "hedge",
+                  "initial_rate",
+                  "publication_lag_months",
+                  "inflation_window_months",
+                  "potential_output",
+                  "payroll_rate_sensitivity"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "monetary"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "bootstrap_confidence": {
+                    "type": "number"
+                  },
+                  "economic_margin": {
+                    "type": "number"
+                  },
+                  "economy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "consumption_propensity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "firm_capital": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_reservation_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_goods_cap": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_initial_cash": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "household_labor_capacity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_goods_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "initial_inventory": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_reservation_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_labor_demand": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_price_evaluations": {
+                        "type": "integer"
+                      },
+                      "n_households": {
+                        "type": "integer"
+                      },
+                      "n_steps": {
+                        "type": "integer"
+                      },
+                      "payroll_cash_fraction": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "payroll_target": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "productivity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_noise_std": {
+                        "type": "number"
+                      },
+                      "productivity_shock_multiplier": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_shock_step": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "quantity_tolerance": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "require_price_resolution": {
+                        "type": "boolean"
+                      },
+                      "seed": {
+                        "type": "integer"
+                      },
+                      "start_date": {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      "wage_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "wage_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "seed",
+                      "start_date",
+                      "n_steps",
+                      "n_households",
+                      "firm_capital",
+                      "household_initial_cash",
+                      "payroll_target",
+                      "payroll_cash_fraction",
+                      "max_labor_demand",
+                      "household_labor_capacity",
+                      "labor_supply_slope",
+                      "labor_reservation_wage",
+                      "initial_wage",
+                      "wage_floor",
+                      "wage_ceiling",
+                      "initial_goods_price",
+                      "goods_floor",
+                      "goods_ceiling",
+                      "goods_reservation_price",
+                      "goods_supply_slope",
+                      "household_goods_cap",
+                      "consumption_propensity",
+                      "initial_inventory",
+                      "productivity",
+                      "productivity_shock_step",
+                      "productivity_shock_multiplier",
+                      "productivity_noise_std",
+                      "quantity_tolerance",
+                      "max_price_evaluations",
+                      "require_price_resolution"
+                    ],
+                    "type": "object"
+                  },
+                  "hedge": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "batch_size": {
+                        "type": "integer"
+                      },
+                      "cost_rate": {
+                        "type": "number"
+                      },
+                      "cvar_alpha": {
+                        "type": "number"
+                      },
+                      "equity_risk_premium": {
+                        "type": "number"
+                      },
+                      "learning_rate": {
+                        "type": "number"
+                      },
+                      "n_train_epochs": {
+                        "type": "integer"
+                      },
+                      "n_train_paths": {
+                        "type": "integer"
+                      },
+                      "option_type": {
+                        "enum": [
+                          "call",
+                          "put"
+                        ]
+                      },
+                      "risk_eval_n_paths": {
+                        "type": "integer"
+                      },
+                      "spot0": {
+                        "type": "number"
+                      },
+                      "strike": {
+                        "type": "number"
+                      },
+                      "turnover_penalty": {
+                        "type": "number"
+                      },
+                      "volatility": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "spot0",
+                      "strike",
+                      "option_type",
+                      "volatility",
+                      "equity_risk_premium",
+                      "cost_rate",
+                      "cvar_alpha",
+                      "n_train_paths",
+                      "n_train_epochs",
+                      "batch_size",
+                      "learning_rate",
+                      "turnover_penalty",
+                      "risk_eval_n_paths"
+                    ],
+                    "type": "object"
+                  },
+                  "inflation_window_months": {
+                    "type": "integer"
+                  },
+                  "initial_rate": {
+                    "type": "number"
+                  },
+                  "n_bootstrap_resamples": {
+                    "type": "integer"
+                  },
+                  "n_eval_paths": {
+                    "type": "integer"
+                  },
+                  "policy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "inertia": {
+                        "type": "number"
+                      },
+                      "inflation_response": {
+                        "type": "number"
+                      },
+                      "inflation_target": {
+                        "type": "number"
+                      },
+                      "neutral_rate": {
+                        "type": "number"
+                      },
+                      "output_response": {
+                        "type": "number"
+                      },
+                      "rate_ceiling": {
+                        "type": "number"
+                      },
+                      "rate_floor": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "neutral_rate",
+                      "inflation_target",
+                      "inflation_response",
+                      "output_response",
+                      "inertia",
+                      "rate_floor",
+                      "rate_ceiling"
+                    ],
+                    "type": "object"
+                  },
+                  "potential_output": {
+                    "type": "number"
+                  },
+                  "primary_scenario": {
+                    "type": "string"
+                  },
+                  "scenarios": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cost_multiplier": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "payroll_rate_sensitivity": {
+                          "type": "number"
+                        },
+                        "productivity_shock_factor": {
+                          "type": "number"
+                        },
+                        "publication_lag_months": {
+                          "type": "integer"
+                        },
+                        "volatility_multiplier": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "productivity_shock_factor",
+                        "publication_lag_months",
+                        "payroll_rate_sensitivity",
+                        "volatility_multiplier",
+                        "cost_multiplier"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "test_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_seeds": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "path_seed": {
+                          "type": "integer"
+                        },
+                        "policy_seed": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "policy_seed",
+                        "path_seed"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "training_seeds",
+                  "test_seeds",
+                  "scenarios",
+                  "primary_scenario",
+                  "economy",
+                  "policy",
+                  "hedge",
+                  "initial_rate",
+                  "inflation_window_months",
+                  "potential_output",
+                  "n_eval_paths",
+                  "n_bootstrap_resamples",
+                  "bootstrap_confidence",
+                  "economic_margin"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "monetary_study"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "bootstrap_confidence": {
+                    "type": "number"
+                  },
+                  "economic_margin": {
+                    "type": "number"
+                  },
+                  "economy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "consumption_propensity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "firm_capital": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_reservation_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_goods_cap": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_initial_cash": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "household_labor_capacity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_goods_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "initial_inventory": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_reservation_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_labor_demand": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_price_evaluations": {
+                        "type": "integer"
+                      },
+                      "n_households": {
+                        "type": "integer"
+                      },
+                      "n_steps": {
+                        "type": "integer"
+                      },
+                      "payroll_cash_fraction": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "payroll_target": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "productivity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_noise_std": {
+                        "type": "number"
+                      },
+                      "productivity_shock_multiplier": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_shock_step": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "quantity_tolerance": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "require_price_resolution": {
+                        "type": "boolean"
+                      },
+                      "seed": {
+                        "type": "integer"
+                      },
+                      "start_date": {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      "wage_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "wage_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "seed",
+                      "start_date",
+                      "n_steps",
+                      "n_households",
+                      "firm_capital",
+                      "household_initial_cash",
+                      "payroll_target",
+                      "payroll_cash_fraction",
+                      "max_labor_demand",
+                      "household_labor_capacity",
+                      "labor_supply_slope",
+                      "labor_reservation_wage",
+                      "initial_wage",
+                      "wage_floor",
+                      "wage_ceiling",
+                      "initial_goods_price",
+                      "goods_floor",
+                      "goods_ceiling",
+                      "goods_reservation_price",
+                      "goods_supply_slope",
+                      "household_goods_cap",
+                      "consumption_propensity",
+                      "initial_inventory",
+                      "productivity",
+                      "productivity_shock_step",
+                      "productivity_shock_multiplier",
+                      "productivity_noise_std",
+                      "quantity_tolerance",
+                      "max_price_evaluations",
+                      "require_price_resolution"
+                    ],
+                    "type": "object"
+                  },
+                  "hedge": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "batch_size": {
+                        "type": "integer"
+                      },
+                      "cost_rate": {
+                        "type": "number"
+                      },
+                      "cvar_alpha": {
+                        "type": "number"
+                      },
+                      "equity_risk_premium": {
+                        "type": "number"
+                      },
+                      "learning_rate": {
+                        "type": "number"
+                      },
+                      "n_train_epochs": {
+                        "type": "integer"
+                      },
+                      "n_train_paths": {
+                        "type": "integer"
+                      },
+                      "option_type": {
+                        "enum": [
+                          "call",
+                          "put"
+                        ]
+                      },
+                      "risk_eval_n_paths": {
+                        "type": "integer"
+                      },
+                      "spot0": {
+                        "type": "number"
+                      },
+                      "strike": {
+                        "type": "number"
+                      },
+                      "turnover_penalty": {
+                        "type": "number"
+                      },
+                      "volatility": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "spot0",
+                      "strike",
+                      "option_type",
+                      "volatility",
+                      "equity_risk_premium",
+                      "cost_rate",
+                      "cvar_alpha",
+                      "n_train_paths",
+                      "n_train_epochs",
+                      "batch_size",
+                      "learning_rate",
+                      "turnover_penalty",
+                      "risk_eval_n_paths"
+                    ],
+                    "type": "object"
+                  },
+                  "inflation_window_months": {
+                    "type": "integer"
+                  },
+                  "initial_rate": {
+                    "type": "number"
+                  },
+                  "max_gradient_norm": {
+                    "type": "number"
+                  },
+                  "n_bootstrap_resamples": {
+                    "type": "integer"
+                  },
+                  "n_eval_paths": {
+                    "type": "integer"
+                  },
+                  "policy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "inertia": {
+                        "type": "number"
+                      },
+                      "inflation_response": {
+                        "type": "number"
+                      },
+                      "inflation_target": {
+                        "type": "number"
+                      },
+                      "neutral_rate": {
+                        "type": "number"
+                      },
+                      "output_response": {
+                        "type": "number"
+                      },
+                      "rate_ceiling": {
+                        "type": "number"
+                      },
+                      "rate_floor": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "neutral_rate",
+                      "inflation_target",
+                      "inflation_response",
+                      "output_response",
+                      "inertia",
+                      "rate_floor",
+                      "rate_ceiling"
+                    ],
+                    "type": "object"
+                  },
+                  "potential_output": {
+                    "type": "number"
+                  },
+                  "primary_scenario": {
+                    "type": "string"
+                  },
+                  "rate_feature_scale": {
+                    "type": "number"
+                  },
+                  "scenarios": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cost_multiplier": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "payroll_rate_sensitivity": {
+                          "type": "number"
+                        },
+                        "productivity_shock_factor": {
+                          "type": "number"
+                        },
+                        "publication_lag_months": {
+                          "type": "integer"
+                        },
+                        "volatility_multiplier": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "productivity_shock_factor",
+                        "publication_lag_months",
+                        "payroll_rate_sensitivity",
+                        "volatility_multiplier",
+                        "cost_multiplier"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "test_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_macro_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_scenario": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "cost_multiplier": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "payroll_rate_sensitivity": {
+                        "type": "number"
+                      },
+                      "productivity_shock_factor": {
+                        "type": "number"
+                      },
+                      "publication_lag_months": {
+                        "type": "integer"
+                      },
+                      "volatility_multiplier": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "productivity_shock_factor",
+                      "publication_lag_months",
+                      "payroll_rate_sensitivity",
+                      "volatility_multiplier",
+                      "cost_multiplier"
+                    ],
+                    "type": "object"
+                  },
+                  "training_seeds": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "path_seed": {
+                          "type": "integer"
+                        },
+                        "policy_seed": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "policy_seed",
+                        "path_seed"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "training_seeds",
+                  "test_seeds",
+                  "scenarios",
+                  "primary_scenario",
+                  "economy",
+                  "policy",
+                  "hedge",
+                  "initial_rate",
+                  "inflation_window_months",
+                  "potential_output",
+                  "n_eval_paths",
+                  "n_bootstrap_resamples",
+                  "bootstrap_confidence",
+                  "economic_margin",
+                  "training_scenario",
+                  "training_macro_seeds",
+                  "rate_feature_scale",
+                  "max_gradient_norm"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "rate_study"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "bootstrap_confidence": {
+                    "type": "number"
+                  },
+                  "economic_margin": {
+                    "type": "number"
+                  },
+                  "economy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "consumption_propensity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "firm_capital": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_reservation_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "goods_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_goods_cap": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "household_initial_cash": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "household_labor_capacity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_goods_price": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "initial_inventory": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "initial_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_reservation_wage": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "labor_supply_slope": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_labor_demand": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "max_price_evaluations": {
+                        "type": "integer"
+                      },
+                      "n_households": {
+                        "type": "integer"
+                      },
+                      "n_steps": {
+                        "type": "integer"
+                      },
+                      "payroll_cash_fraction": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "payroll_target": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "productivity": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_noise_std": {
+                        "type": "number"
+                      },
+                      "productivity_shock_multiplier": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "productivity_shock_step": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "quantity_tolerance": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "denominator": {
+                                "minimum": 1,
+                                "type": "integer"
+                              },
+                              "numerator": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "numerator",
+                              "denominator"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      },
+                      "require_price_resolution": {
+                        "type": "boolean"
+                      },
+                      "seed": {
+                        "type": "integer"
+                      },
+                      "start_date": {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      "wage_ceiling": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      },
+                      "wage_floor": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minor_units": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "minor_units",
+                          "currency"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "seed",
+                      "start_date",
+                      "n_steps",
+                      "n_households",
+                      "firm_capital",
+                      "household_initial_cash",
+                      "payroll_target",
+                      "payroll_cash_fraction",
+                      "max_labor_demand",
+                      "household_labor_capacity",
+                      "labor_supply_slope",
+                      "labor_reservation_wage",
+                      "initial_wage",
+                      "wage_floor",
+                      "wage_ceiling",
+                      "initial_goods_price",
+                      "goods_floor",
+                      "goods_ceiling",
+                      "goods_reservation_price",
+                      "goods_supply_slope",
+                      "household_goods_cap",
+                      "consumption_propensity",
+                      "initial_inventory",
+                      "productivity",
+                      "productivity_shock_step",
+                      "productivity_shock_multiplier",
+                      "productivity_noise_std",
+                      "quantity_tolerance",
+                      "max_price_evaluations",
+                      "require_price_resolution"
+                    ],
+                    "type": "object"
+                  },
+                  "hedge": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "batch_size": {
+                        "type": "integer"
+                      },
+                      "cost_rate": {
+                        "type": "number"
+                      },
+                      "cvar_alpha": {
+                        "type": "number"
+                      },
+                      "equity_risk_premium": {
+                        "type": "number"
+                      },
+                      "learning_rate": {
+                        "type": "number"
+                      },
+                      "n_train_epochs": {
+                        "type": "integer"
+                      },
+                      "n_train_paths": {
+                        "type": "integer"
+                      },
+                      "option_type": {
+                        "enum": [
+                          "call",
+                          "put"
+                        ]
+                      },
+                      "risk_eval_n_paths": {
+                        "type": "integer"
+                      },
+                      "spot0": {
+                        "type": "number"
+                      },
+                      "strike": {
+                        "type": "number"
+                      },
+                      "turnover_penalty": {
+                        "type": "number"
+                      },
+                      "volatility": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "spot0",
+                      "strike",
+                      "option_type",
+                      "volatility",
+                      "equity_risk_premium",
+                      "cost_rate",
+                      "cvar_alpha",
+                      "n_train_paths",
+                      "n_train_epochs",
+                      "batch_size",
+                      "learning_rate",
+                      "turnover_penalty",
+                      "risk_eval_n_paths"
+                    ],
+                    "type": "object"
+                  },
+                  "inflation_window_months": {
+                    "type": "integer"
+                  },
+                  "initial_rate": {
+                    "type": "number"
+                  },
+                  "max_gradient_norm": {
+                    "type": "number"
+                  },
+                  "n_bootstrap_resamples": {
+                    "type": "integer"
+                  },
+                  "n_eval_paths": {
+                    "type": "integer"
+                  },
+                  "n_nested_resamples": {
+                    "type": "integer"
+                  },
+                  "policy": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "inertia": {
+                        "type": "number"
+                      },
+                      "inflation_response": {
+                        "type": "number"
+                      },
+                      "inflation_target": {
+                        "type": "number"
+                      },
+                      "neutral_rate": {
+                        "type": "number"
+                      },
+                      "output_response": {
+                        "type": "number"
+                      },
+                      "rate_ceiling": {
+                        "type": "number"
+                      },
+                      "rate_floor": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "neutral_rate",
+                      "inflation_target",
+                      "inflation_response",
+                      "output_response",
+                      "inertia",
+                      "rate_floor",
+                      "rate_ceiling"
+                    ],
+                    "type": "object"
+                  },
+                  "potential_output": {
+                    "type": "number"
+                  },
+                  "primary_scenario": {
+                    "type": "string"
+                  },
+                  "rate_feature_scale": {
+                    "type": "number"
+                  },
+                  "scenarios": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cost_multiplier": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "payroll_rate_sensitivity": {
+                          "type": "number"
+                        },
+                        "productivity_shock_factor": {
+                          "type": "number"
+                        },
+                        "publication_lag_months": {
+                          "type": "integer"
+                        },
+                        "volatility_multiplier": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "productivity_shock_factor",
+                        "publication_lag_months",
+                        "payroll_rate_sensitivity",
+                        "volatility_multiplier",
+                        "cost_multiplier"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "test_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_macro_seeds": {
+                    "items": {
+                      "type": "integer"
+                    },
+                    "type": "array"
+                  },
+                  "training_scenario": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "cost_multiplier": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "payroll_rate_sensitivity": {
+                        "type": "number"
+                      },
+                      "productivity_shock_factor": {
+                        "type": "number"
+                      },
+                      "publication_lag_months": {
+                        "type": "integer"
+                      },
+                      "volatility_multiplier": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "productivity_shock_factor",
+                      "publication_lag_months",
+                      "payroll_rate_sensitivity",
+                      "volatility_multiplier",
+                      "cost_multiplier"
+                    ],
+                    "type": "object"
+                  },
+                  "training_seeds": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "path_seed": {
+                          "type": "integer"
+                        },
+                        "policy_seed": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "policy_seed",
+                        "path_seed"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "training_seeds",
+                  "test_seeds",
+                  "scenarios",
+                  "primary_scenario",
+                  "economy",
+                  "policy",
+                  "hedge",
+                  "initial_rate",
+                  "inflation_window_months",
+                  "potential_output",
+                  "n_eval_paths",
+                  "n_bootstrap_resamples",
+                  "bootstrap_confidence",
+                  "economic_margin",
+                  "training_scenario",
+                  "training_macro_seeds",
+                  "rate_feature_scale",
+                  "max_gradient_norm",
+                  "n_nested_resamples"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "mixture_study"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "config": {
+                "additionalProperties": false,
+                "properties": {
+                  "bank_a_bond_holdings": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "bank_a_capital": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "bank_b_capital": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "contagion_check_every": {
+                    "type": "integer"
+                  },
+                  "discount_window_installment": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "discount_window_principal": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "discount_window_start_step": {
+                    "type": "integer"
+                  },
+                  "initial_policy_rate": {
+                    "type": "number"
+                  },
+                  "interbank_loan_installment": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "interbank_loan_principal": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "interbank_loan_start_step": {
+                    "type": "integer"
+                  },
+                  "interbank_transfer_amount": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "interbank_transfer_every": {
+                    "type": "integer"
+                  },
+                  "max_leverage": {
+                    "type": "number"
+                  },
+                  "n_steps": {
+                    "type": "integer"
+                  },
+                  "omo_rate_sensitivity": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "currency": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minor_units": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "minor_units",
+                      "currency"
+                    ],
+                    "type": "object"
+                  },
+                  "policy_rate_mean_reversion": {
+                    "type": "number"
+                  },
+                  "policy_rate_neutral": {
+                    "type": "number"
+                  },
+                  "policy_rate_shock_std": {
+                    "type": "number"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "start_date": {
+                    "format": "date",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "seed",
+                  "start_date",
+                  "n_steps",
+                  "bank_a_capital",
+                  "bank_b_capital",
+                  "bank_a_bond_holdings",
+                  "max_leverage",
+                  "initial_policy_rate",
+                  "policy_rate_neutral",
+                  "policy_rate_mean_reversion",
+                  "omo_rate_sensitivity",
+                  "discount_window_principal",
+                  "discount_window_start_step",
+                  "discount_window_installment",
+                  "interbank_transfer_every",
+                  "interbank_transfer_amount",
+                  "policy_rate_shock_std",
+                  "interbank_loan_start_step",
+                  "interbank_loan_principal",
+                  "interbank_loan_installment",
+                  "contagion_check_every"
+                ],
+                "type": "object"
+              },
+              "kind": {
+                "const": "monetary_operations"
+              },
+              "timeout_seconds": {
+                "minimum": 0.05,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "config"
+            ],
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ServiceToken": {
+        "bearerFormat": "opaque service token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Synthetic research only. Full recipes required; wire schema plus typed semantics resource validation. No live trading, order execution or payment endpoints.",
+    "title": "PROMETHEUS research jobs",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.1",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        },
+        "security": []
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "operationId": "listJobs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 1024,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "jobs": {
+                      "items": {
+                        "$ref": "#/components/schemas/Job"
+                      },
+                      "type": "array"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "jobs",
+                    "next_cursor"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      },
+      "post": {
+        "operationId": "submitJob",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9._:@-]{1,128}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Submission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "operationId": "getJob",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/artifact": {
+      "get": {
+        "operationId": "getArtifact",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}/cancel": {
+      "post": {
+        "operationId": "cancelJob",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "operationId": "openapi",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Structured error; no raw diagnostics"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ServiceToken": []
+    }
+  ]
+}

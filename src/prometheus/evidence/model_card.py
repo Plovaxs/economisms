@@ -6,11 +6,21 @@ card with a silently missing section.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
 
 _VALID_APPROVAL_STATES = {"NOT REVIEWED", "APPROVED", "REJECTED", "CONDITIONAL"}
+
+
+def is_finite_metric(value: object) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,18 +58,25 @@ class ModelCard:
             "approval_status": self.approval_status,
         }
         for name, value in required_text_fields.items():
-            if not value or not value.strip():
+            if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"model card field {name!r} must not be empty")
         if not self.failure_modes:
             raise ValueError("failure_modes must list at least one known limitation")
         if not self.primary_metrics:
             raise ValueError("primary_metrics must not be empty")
+        if not isinstance(self.primary_metrics, Mapping) or any(
+            not isinstance(key, str) or not key.strip() or not is_finite_metric(value)
+            for key, value in self.primary_metrics.items()
+        ):
+            raise ValueError("primary_metrics require named finite numeric values")
+        if self.independent_reviewer is not None and (
+            not isinstance(self.independent_reviewer, str) or not self.independent_reviewer.strip()
+        ):
+            raise ValueError("independent_reviewer must be a name or None")
         if self.approval_status not in _VALID_APPROVAL_STATES:
             raise ValueError(
                 f"approval_status must be one of {sorted(_VALID_APPROVAL_STATES)}, "
                 f"got {self.approval_status!r}"
             )
-        if self.approval_status == "APPROVED" and not self.independent_reviewer:
-            raise ValueError(
-                "approval_status cannot be 'APPROVED' without a named independent_reviewer"
-            )
+        if self.approval_status in ("APPROVED", "CONDITIONAL") and not self.independent_reviewer:
+            raise ValueError("approved/conditional status requires a named independent_reviewer")

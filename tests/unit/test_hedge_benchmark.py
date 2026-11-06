@@ -118,7 +118,11 @@ def test_empty_seed_list_rejected(trained_policy_result) -> None:
 
 def test_mean_point_estimate_matches_manual_average(trained_policy_result) -> None:
     report = _run(trained_policy_result, test_seeds=[5, 6, 7])
-    manual_mean = float(
-        np.mean([r.bootstrap.point_estimate for r in report.per_seed_results])
-    )
+    manual_mean = float(np.mean([r.bootstrap.point_estimate for r in report.per_seed_results]))
     assert report.mean_point_estimate() == pytest.approx(manual_mean)
+
+
+@pytest.mark.parametrize("seeds", [[100, 100], [True], [-1]])
+def test_duplicate_or_invalid_evaluation_seeds_are_rejected(trained_policy_result, seeds) -> None:
+    with pytest.raises(ValueError):
+        _run(trained_policy_result, test_seeds=seeds)

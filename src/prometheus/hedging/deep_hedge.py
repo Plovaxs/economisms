@@ -90,7 +90,7 @@ def _rollout(
 
         trade = target - holdings
         cost = cost_rate * trade.abs() * s_t
-        cash = cash * cash_accrual - trade * s_t - cost
+        cash = (cash - trade * s_t - cost) * cash_accrual
         holdings = target
         turnover = turnover + trade.abs()
 
@@ -200,3 +200,32 @@ def generate_policy_hedge_ratios(
             holdings = action
             ratios[:, t] = action.numpy()
     return ratios
+
+
+def evaluate_policy_action(
+    policy: HedgePolicyMLP,
+    spot: float,
+    remaining_fraction: float,
+    prev_holdings: float,
+    strike: float,
+) -> float:
+    """A single-state inference call, as opposed to
+    generate_policy_hedge_ratios' whole-path batch -- for a caller stepping
+    through a simulation one macro step at a time (see hedging.online and
+    orchestration.multi_step_run) rather than pre-generating a full price
+    path up front. Uses the exact same feature construction as training and
+    batch inference, so results agree with generate_policy_hedge_ratios
+    call for call (tested in test_deep_hedge.py)."""
+    if not math.isfinite(spot) or spot <= 0 or not math.isfinite(strike) or strike <= 0:
+        raise ValueError("spot and strike must be finite and positive")
+    if not math.isfinite(remaining_fraction) or not 0 <= remaining_fraction <= 1:
+        raise ValueError("remaining_fraction must be in [0, 1]")
+    if not math.isfinite(prev_holdings):
+        raise ValueError("prev_holdings must be finite")
+    policy.eval()
+    with torch.no_grad():
+        spot_tensor = torch.tensor([spot], dtype=torch.float32)
+        holdings_tensor = torch.tensor([prev_holdings], dtype=torch.float32)
+        features = _build_features(spot_tensor, remaining_fraction, holdings_tensor, strike)
+        action = policy(features)
+    return float(action.item())

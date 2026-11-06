@@ -36,7 +36,7 @@ class Money:
     def __post_init__(self) -> None:
         if not isinstance(self.minor_units, int) or isinstance(self.minor_units, bool):
             raise TypeError(f"minor_units must be int, got {type(self.minor_units)!r}")
-        if not self.currency:
+        if not isinstance(self.currency, str) or not self.currency:
             raise ValueError("currency must be a non-empty code")
 
     def _check_currency(self, other: Money) -> None:

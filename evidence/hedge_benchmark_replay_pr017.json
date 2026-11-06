@@ -1,0 +1,352 @@
+{
+  "benchmark": {
+    "accounting_convention": "trade-then-accrue-v1",
+    "config": {
+      "batch_size": 256,
+      "bootstrap_confidence": 0.95,
+      "cost_rate": 0.005,
+      "cvar_alpha": 0.9,
+      "initial_premium": 10.450583572185565,
+      "learning_rate": 0.01,
+      "maturity": 1.0,
+      "mu": 0.08,
+      "n_bootstrap_resamples": 1000,
+      "n_eval_paths": 2000,
+      "n_steps": 20,
+      "n_train_epochs": 80,
+      "n_train_paths": 2000,
+      "option_type": "call",
+      "risk_free_rate": 0.05,
+      "seed": 0,
+      "spot": 100.0,
+      "strike": 100.0,
+      "test_seeds": [
+        100,
+        200,
+        300
+      ],
+      "train_path_seed": 1,
+      "turnover_penalty": 0.001,
+      "volatility": 0.2
+    },
+    "decision_rule": "All per-seed confidence intervals exclude zero in the same direction",
+    "evaluation": {
+      "config": {
+        "accounting_convention": "trade-then-accrue-v1",
+        "bootstrap_confidence": 0.95,
+        "cost_rate": 0.005,
+        "cvar_alpha": 0.9,
+        "initial_premium": 10.450583572185565,
+        "maturity": 1.0,
+        "mu": 0.08,
+        "n_bootstrap_resamples": 1000,
+        "n_paths_per_seed": 2000,
+        "n_steps": 20,
+        "option_type": "call",
+        "policy_content_hash": "d85b3643343258691f2a4089bdba8c3f01fd67d20f08d1effc504f220cdf547c",
+        "risk_free_rate": 0.05,
+        "spot": 100.0,
+        "strike": 100.0,
+        "test_seeds": [
+          100,
+          200,
+          300
+        ],
+        "volatility": 0.2
+      },
+      "cvar_alpha": 0.9,
+      "limitations": [
+        "Only the hedge dimension is varied (delta baseline vs. MLP policy); the economy and market dimensions of the blueprint's factorial matrix (section 10) have no experimental arm implemented yet.",
+        "Evaluated under a single classical GBM market model at one fixed (strike, maturity, volatility) configuration, not a scenario grid.",
+        "No distribution-shift/out-of-distribution evaluation (EXP-12): training and every test seed draw from the same GBM parameterization.",
+        "The percentile bootstrap is used for confidence intervals, not a bias-corrected-and-accelerated (BCa) or block-bootstrap variant."
+      ],
+      "per_seed": [
+        {
+          "bootstrap": {
+            "ci_high": 0.20476540940213694,
+            "ci_low": -0.14790405401899132,
+            "confidence": 0.95,
+            "n_resamples": 1000,
+            "point_estimate": 0.03020548254486055
+          },
+          "delta_cvar": 4.084231877139749,
+          "delta_mean_cost": 0.9806539921745409,
+          "delta_mean_loss": 1.0322688733630363,
+          "delta_mean_turnover": 1.955488646492474,
+          "policy_cvar": 4.054026394594889,
+          "policy_mean_cost": 0.8200338110147123,
+          "policy_mean_loss": 0.8252310263046659,
+          "policy_mean_turnover": 1.6255483912006021,
+          "test_seed": 100
+        },
+        {
+          "bootstrap": {
+            "ci_high": 0.07982045437713918,
+            "ci_low": -0.30382888506691286,
+            "confidence": 0.95,
+            "n_resamples": 1000,
+            "point_estimate": -0.1079100747249182
+          },
+          "delta_cvar": 4.019151751480579,
+          "delta_mean_cost": 0.9737708781590267,
+          "delta_mean_loss": 0.9547226079061747,
+          "delta_mean_turnover": 1.9442956839830718,
+          "policy_cvar": 4.127061826205497,
+          "policy_mean_cost": 0.816069592249828,
+          "policy_mean_loss": 0.8239208602167052,
+          "policy_mean_turnover": 1.6192604942768811,
+          "test_seed": 200
+        },
+        {
+          "bootstrap": {
+            "ci_high": 0.015055646237210382,
+            "ci_low": -0.34547692979186057,
+            "confidence": 0.95,
+            "n_resamples": 1000,
+            "point_estimate": -0.17569149916394622
+          },
+          "delta_cvar": 4.021250472175499,
+          "delta_mean_cost": 0.9843532880093958,
+          "delta_mean_loss": 1.0161936606055544,
+          "delta_mean_turnover": 1.96395138878129,
+          "policy_cvar": 4.196941971339445,
+          "policy_mean_cost": 0.82350513962991,
+          "policy_mean_loss": 0.8680236817250055,
+          "policy_mean_turnover": 1.6329121314957737,
+          "test_seed": 300
+        }
+      ],
+      "primary_endpoint": "cvar_difference_delta_minus_policy",
+      "schema_version": 2
+    },
+    "limitations": [
+      "Only the hedge dimension is varied (delta baseline vs. MLP policy); the economy and market dimensions of the blueprint's factorial matrix (section 10) have no experimental arm implemented yet.",
+      "Evaluated under a single classical GBM market model at one fixed (strike, maturity, volatility) configuration, not a scenario grid.",
+      "No distribution-shift/out-of-distribution evaluation (EXP-12): training and every test seed draw from the same GBM parameterization.",
+      "The percentile bootstrap is used for confidence intervals, not a bias-corrected-and-accelerated (BCa) or block-bootstrap variant.",
+      "Only one training seed; confidence intervals condition on that trained policy.",
+      "Seed-wise percentile intervals are not a multiple-testing-adjusted pooled estimate.",
+      "Test paths/bootstrap use independent named RNG streams per evaluation seed."
+    ],
+    "policy_content_hash": "d85b3643343258691f2a4089bdba8c3f01fd67d20f08d1effc504f220cdf547c",
+    "schema_version": 1,
+    "training_data": {
+      "encoding": "row-major float64 little-endian",
+      "sha256": "51a322e29f8b8a73b15628d4b63a1bfff1ce237985f97e2758b85b82a181a789",
+      "shape": [
+        2000,
+        21
+      ]
+    },
+    "training_objective_history": [
+      37.647117614746094,
+      34.858116149902344,
+      29.10826873779297,
+      23.331302642822266,
+      16.496028900146484,
+      13.668601036071777,
+      12.626623153686523,
+      12.604660034179688,
+      13.734697341918945,
+      14.97065544128418,
+      14.898428916931152,
+      13.664847373962402,
+      13.622749328613281,
+      16.040969848632812,
+      12.484915733337402,
+      15.894240379333496,
+      13.012069702148438,
+      13.909478187561035,
+      10.812731742858887,
+      10.287853240966797,
+      10.652623176574707,
+      10.936849594116211,
+      11.089256286621094,
+      10.376646041870117,
+      11.70688247680664,
+      9.797947883605957,
+      11.200075149536133,
+      10.318219184875488,
+      10.457585334777832,
+      10.07072639465332,
+      9.28365707397461,
+      9.96915054321289,
+      9.862618446350098,
+      7.922132968902588,
+      8.64554500579834,
+      8.187336921691895,
+      8.254502296447754,
+      8.544464111328125,
+      8.239740371704102,
+      8.313811302185059,
+      7.835542678833008,
+      7.80730676651001,
+      7.052649974822998,
+      6.6704254150390625,
+      5.971150875091553,
+      7.712148189544678,
+      6.530021667480469,
+      6.408299446105957,
+      5.200254440307617,
+      5.822928428649902,
+      5.8770647048950195,
+      5.164090156555176,
+      5.063819885253906,
+      4.709891319274902,
+      4.3173065185546875,
+      5.271169662475586,
+      4.6643476486206055,
+      4.506725788116455,
+      4.351268291473389,
+      4.517968654632568,
+      4.199615955352783,
+      4.9108757972717285,
+      4.007736682891846,
+      4.773712635040283,
+      4.234033107757568,
+      4.105951309204102,
+      4.260237693786621,
+      3.9432425498962402,
+      4.546897888183594,
+      4.502771854400635,
+      4.211970329284668,
+      4.427024841308594,
+      4.106471538543701,
+      3.918646812438965,
+      3.593738317489624,
+      3.7068004608154297,
+      4.040716171264648,
+      4.2278289794921875,
+      4.287527084350586,
+      4.323659896850586
+    ],
+    "verdict": "inconclusive"
+  },
+  "disclaimer": "SIMULATED DATA -- RESEARCH ONLY. This artifact is generated by PROMETHEUS, a research and simulation platform. It is not financial advice, does not reflect real market or portfolio data unless explicitly labeled otherwise, and grants no permission for live trading. See the master specification, section 01 (scope) and section 12 (hard deployment boundary).",
+  "gate_report": {
+    "artifact_version": "0.1.0",
+    "decided_at": "2026-11-02",
+    "decision": "NO-GO",
+    "evidence_index": [
+      "CHECKLIST_STATUS.md",
+      "README.md"
+    ],
+    "gate": "R0",
+    "legal_compliance_assessment": null,
+    "open_findings": [
+      "No independent review of any module (MGR-07 not satisfied)",
+      "The blueprint's 374-item checklist remains NOT VERIFIED pending review; CHECKLIST_STATUS.md distinguishes test evidence from full acceptance",
+      "A basic lint/type/test CI workflow exists; deployment security, model lifecycle, data-governance and compliance controls remain unimplemented",
+      "Monthly orchestration uses synthetic single-asset GBM, exogenous prices and separate hedge accounts; conditional risk freezes holdings and rates"
+    ],
+    "scientific_approval": null,
+    "scope_enabled": [
+      "Local in-memory double-entry ledger simulation (PR-001/002)",
+      "Deterministic macro time engine: calendar, seeds, point-in-time data, shocks (PR-003)",
+      "Classical GBM/Heston and macro-conditioned (non-neural) path simulation (PR-004/009)",
+      "Black-Scholes/Monte Carlo pricing (PR-005)",
+      "Historical/parametric VaR and Expected Shortfall (PR-006)",
+      "Delta and CVaR-trained MLP hedge simulation against synthetic paths (PR-007)",
+      "A first paired-bootstrap research benchmark (PR-008)",
+      "End-to-end demonstration and monthly StepHooks scenario with online delta/MLP hedging, conditional portfolio risk and evidence export (PR-011/014/015)",
+      "Government taxes/transfers/bonds and a scalar central-bank policy-rate agent (PR-012)",
+      "Single-firm labor/goods quantity clearing with ledger settlement (PR-013)"
+    ],
+    "scope_prohibited": [
+      "Live trading, order routing, or any connection to a brokerage",
+      "Use of real (non-synthetic) market or portfolio data",
+      "Any claim of regulatory, model-risk, or security certification"
+    ],
+    "security_ops_approval": null,
+    "sunset_date": null
+  },
+  "model_cards": [
+    {
+      "approval_status": "NOT REVIEWED",
+      "content_hash": "d85b3643343258691f2a4089bdba8c3f01fd67d20f08d1effc504f220cdf547c",
+      "created_at": "2026-11-02",
+      "failure_modes": [
+        "Not evaluated out-of-distribution: different volatility regime, jump risk, or real market microstructure.",
+        "Trained and evaluated with a single random seed per call; objective_history shows convergence on that one training seed, not across seeds.",
+        "No formal verification that the tanh action bound [-1, 1] is appropriate outside a single-share-per-option vanilla setting.",
+        "Only the hedge dimension is varied (delta baseline vs. MLP policy); the economy and market dimensions of the blueprint's factorial matrix (section 10) have no experimental arm implemented yet.",
+        "Evaluated under a single classical GBM market model at one fixed (strike, maturity, volatility) configuration, not a scenario grid.",
+        "No distribution-shift/out-of-distribution evaluation (EXP-12): training and every test seed draw from the same GBM parameterization.",
+        "The percentile bootstrap is used for confidence intervals, not a bias-corrected-and-accelerated (BCa) or block-bootstrap variant.",
+        "Only one training seed; confidence intervals condition on that trained policy.",
+        "Seed-wise percentile intervals are not a multiple-testing-adjusted pooled estimate.",
+        "Test paths/bootstrap use independent named RNG streams per evaluation seed."
+      ],
+      "framework": "PyTorch 2.15.0+cpu",
+      "independent_reviewer": null,
+      "input_schema_summary": "Per path per step: (log(S_t / strike), fraction of time-to-maturity remaining in [0, 1], previous holding in [-1, 1]), each a float32 scalar. Output: a tanh-bounded target holding in [-1, 1].",
+      "intended_use": "Research demonstration of CVaR-based deep hedging (Buehler et al. 2019) on synthetic single-asset European-option GBM paths. Not calibrated to, or validated against, real market data.",
+      "license": "MIT",
+      "metric_uncertainty_note": "Metrics are unweighted means of per-seed estimates, not pooled CVaR. The evaluation section reports paired percentile intervals per seed. Only one policy was trained; these intervals do not cover retraining variability.",
+      "model_id": "prometheus-hedging-mlp-v0",
+      "model_type": "Feedforward MLP hedging policy (3 inputs, 2 hidden layers of 32 units, tanh-bounded scalar output)",
+      "primary_metrics": {
+        "mean_seed_cvar_0.9": 4.126010064046611,
+        "mean_seed_terminal_loss": 0.8390585227487923
+      },
+      "prohibited_use": "Any live trading, order routing, or real-money hedging decision. Any use outside the single-asset European vanilla call/put GBM setting it was trained on (not evaluated under Heston, jumps, multiple assets, or real market microstructure).",
+      "training_data_summary": "2000 synthetic GBM paths (prometheus.stochastica.gbm), physical-measure, seed=1; no empirical/historical data. Policy seed=0.",
+      "version": "0.1.0"
+    }
+  ],
+  "replay": {
+    "expected_hash": "25647e421b4db686afe2c7c7362c003692e0986c94c10889d389fb833aa7fe8b",
+    "matches": true,
+    "observed_hash": "25647e421b4db686afe2c7c7362c003692e0986c94c10889d389fb833aa7fe8b",
+    "runtime_changes": [
+      "source_sha256"
+    ],
+    "source_run_id": "pmth-benchmark-20261102T055402466070"
+  },
+  "run_manifest": {
+    "config": {
+      "batch_size": 256,
+      "bootstrap_confidence": 0.95,
+      "cost_rate": 0.005,
+      "cvar_alpha": 0.9,
+      "initial_premium": 10.450583572185565,
+      "learning_rate": 0.01,
+      "maturity": 1.0,
+      "mu": 0.08,
+      "n_bootstrap_resamples": 1000,
+      "n_eval_paths": 2000,
+      "n_steps": 20,
+      "n_train_epochs": 80,
+      "n_train_paths": 2000,
+      "option_type": "call",
+      "risk_free_rate": 0.05,
+      "seed": 0,
+      "spot": 100.0,
+      "strike": 100.0,
+      "test_seeds": [
+        100,
+        200,
+        300
+      ],
+      "train_path_seed": 1,
+      "turnover_penalty": 0.001,
+      "volatility": 0.2
+    },
+    "created_at": "2026-11-02T06:16:55.405742+00:00",
+    "result_hash": "25647e421b4db686afe2c7c7362c003692e0986c94c10889d389fb833aa7fe8b",
+    "run_id": "pmth-benchmark-20261102T061655405729",
+    "seed": 0
+  },
+  "runtime": {
+    "dependencies": {
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "torch": "2.15.0+cpu"
+    },
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "python": "3.14.7",
+    "source_sha256": "af0bdd7468624b239685430126204e78460bfa03ba2c40104c48a4085bb670eb"
+  },
+  "source_tag": "prometheus-simulation"
+}

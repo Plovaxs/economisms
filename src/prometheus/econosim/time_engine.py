@@ -132,6 +132,7 @@ class MacroTimeEngine:
         # Steps 3-7 (if any ran) may have posted new ledger transactions;
         # the snapshot/hash below is taken after them, not before, so it
         # reflects everything that happened this step.
+        self.economy.check_integrity()
         snapshot = self.economy.ledger.snapshot(self.economy.step_index)
         return StepResult(
             step=self.economy.step_index,

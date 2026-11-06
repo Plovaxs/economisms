@@ -23,11 +23,13 @@ explicitly out of scope here, not silently approximated.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
+from typing import Literal
 
 from prometheus.core.ledger import Transaction
-from prometheus.core.money import Money
-from prometheus.econosim.agents import Firm, Household
+from prometheus.core.money import CurrencyMismatchError, Money
+from prometheus.econosim.agents import Firm, Household, InsufficientFundsError
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,13 +48,15 @@ class ClearingResult:
 def clear_quantity_market(
     buy_orders: dict[str, float], sell_orders: dict[str, float]
 ) -> ClearingResult:
-    if any(q < 0 for q in buy_orders.values()):
-        raise ValueError("buy_orders quantities must be non-negative")
-    if any(q < 0 for q in sell_orders.values()):
-        raise ValueError("sell_orders quantities must be non-negative")
+    if any(isinstance(q, bool) or not math.isfinite(q) or q < 0 for q in buy_orders.values()):
+        raise ValueError("buy_orders quantities must be finite and non-negative")
+    if any(isinstance(q, bool) or not math.isfinite(q) or q < 0 for q in sell_orders.values()):
+        raise ValueError("sell_orders quantities must be finite and non-negative")
 
     total_demand = sum(buy_orders.values())
     total_supply = sum(sell_orders.values())
+    if not math.isfinite(total_demand) or not math.isfinite(total_supply):
+        raise ValueError("aggregate order quantity must be finite")
     total_realized = min(total_demand, total_supply)
 
     demand_fill_ratio = total_realized / total_demand if total_demand > 0 else 0.0
@@ -69,6 +73,63 @@ def clear_quantity_market(
         total_desired_supply=total_supply,
         clearing_residual=total_demand - total_supply,
     )
+
+
+def _settlement_plan(
+    clearing: ClearingResult,
+    households: dict[str, Household],
+    firm: Firm,
+    price: Money,
+    kind: Literal["labor", "goods"],
+) -> list[tuple[Household, Money]]:
+    """Preflight every legacy per-household posting, preserving its floor rounding and IDs."""
+    if not price.is_positive():
+        raise ValueError("unit price must be positive")
+    if price.currency != firm.currency:
+        raise CurrencyMismatchError(firm.currency, price.currency)
+    values = [
+        *clearing.realized_buy_quantities.values(),
+        *clearing.realized_sell_quantities.values(),
+        clearing.total_realized_quantity,
+        clearing.total_desired_demand,
+        clearing.total_desired_supply,
+    ]
+    if any(not math.isfinite(value) or value < 0 for value in values):
+        raise ValueError("clearing quantities must be finite and non-negative")
+    total = clearing.total_realized_quantity
+    for value in (
+        sum(clearing.realized_buy_quantities.values()),
+        sum(clearing.realized_sell_quantities.values()),
+        min(clearing.total_desired_demand, clearing.total_desired_supply),
+    ):
+        if not math.isclose(value, total, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("clearing quantities do not reconcile")
+    firm_side = (
+        clearing.realized_buy_quantities if kind == "labor" else clearing.realized_sell_quantities
+    )
+    household_side = (
+        clearing.realized_sell_quantities if kind == "labor" else clearing.realized_buy_quantities
+    )
+    if set(firm_side) != {firm.agent_id}:
+        raise ValueError("single-firm settlement requires this firm as the sole counterparty")
+    firm.ledger.check_identities(firm.currency)
+    plan = []
+    for household_id, realized in household_side.items():
+        if household_id not in households:
+            raise KeyError(f"unknown household_id in clearing result: {household_id!r}")
+        household = households[household_id]
+        if household.agent_id != household_id or household.ledger is not firm.ledger:
+            raise ValueError("household IDs and shared ledger must match the market")
+        if household.currency != firm.currency:
+            raise CurrencyMismatchError(firm.currency, household.currency)
+        amount = Money(int(realized * price.minor_units), price.currency)
+        if kind == "goods" and household.cash_balance < amount:
+            raise InsufficientFundsError(household_id, amount, household.cash_balance)
+        plan.append((household, amount))
+    wage_bill = Money(sum(amount.minor_units for _, amount in plan), price.currency)
+    if kind == "labor" and firm.cash_balance < wage_bill:
+        raise InsufficientFundsError(firm.agent_id, wage_bill, firm.cash_balance)
+    return plan
 
 
 def apply_labor_clearing_to_ledger(
@@ -88,16 +149,12 @@ def apply_labor_clearing_to_ledger(
     `clearing.realized_sell_quantities` -- the caller must have built
     `clearing` with households as sell_orders and the firm as the (single)
     buy_orders entry."""
-    transactions: list[Transaction] = []
-    for household_id, realized_hours in clearing.realized_sell_quantities.items():
-        if household_id not in households:
-            raise KeyError(f"unknown household_id in clearing result: {household_id!r}")
-        amount_minor = int(realized_hours * wage_rate_per_hour.minor_units)
-        if amount_minor <= 0:
-            continue
-        amount = Money(amount_minor, wage_rate_per_hour.currency)
-        transactions.append(firm.pay_wages(households[household_id], amount, step=step))
-    return transactions
+    plan = _settlement_plan(clearing, households, firm, wage_rate_per_hour, "labor")
+    return [
+        firm.pay_wages(household, amount, step=step)
+        for household, amount in plan
+        if amount.is_positive()
+    ]
 
 
 def apply_goods_clearing_to_ledger(
@@ -116,13 +173,9 @@ def apply_goods_clearing_to_ledger(
     `clearing.realized_buy_quantities` -- the caller must have built
     `clearing` with households as buy_orders and the firm as the (single)
     sell_orders entry."""
-    transactions: list[Transaction] = []
-    for household_id, realized_quantity in clearing.realized_buy_quantities.items():
-        if household_id not in households:
-            raise KeyError(f"unknown household_id in clearing result: {household_id!r}")
-        amount_minor = int(realized_quantity * price_per_unit.minor_units)
-        if amount_minor <= 0:
-            continue
-        amount = Money(amount_minor, price_per_unit.currency)
-        transactions.append(households[household_id].consume(firm, amount, step=step))
-    return transactions
+    plan = _settlement_plan(clearing, households, firm, price_per_unit, "goods")
+    return [
+        household.consume(firm, amount, step=step)
+        for household, amount in plan
+        if amount.is_positive()
+    ]

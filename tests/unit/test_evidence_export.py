@@ -1,5 +1,8 @@
 import json
 from datetime import date
+from pathlib import Path
+
+import pytest
 
 from prometheus.evidence.export import (
     SIMULATION_DISCLAIMER,
@@ -91,3 +94,27 @@ def test_export_serializes_dates_and_tuples_correctly(tmp_path) -> None:
     loaded = json.loads(out_path.read_text())
     assert loaded["gate_report"]["decided_at"] == "2026-01-01"
     assert loaded["gate_report"]["scope_prohibited"] == ["live trading"]
+
+
+@pytest.mark.parametrize("invalid", [float("nan"), float("inf"), object()])
+def test_invalid_export_preserves_existing_destination_and_leaves_no_tempfile(tmp_path, invalid):
+    path = tmp_path / "evidence.json"
+    path.write_text('{"previous": true}')
+    with pytest.raises((ValueError, TypeError)):
+        export_evidence_bundle({"loss": invalid}, path)
+    assert path.read_text() == '{"previous": true}'
+    assert list(tmp_path.iterdir()) == [path]
+
+
+def test_failed_atomic_replace_cleans_tempfile_and_preserves_destination(tmp_path, monkeypatch):
+    path = tmp_path / "evidence.json"
+    path.write_text('{"previous": true}')
+
+    def fail_replace(self, target):
+        raise OSError("simulated replace failure")
+
+    monkeypatch.setattr(Path, "replace", fail_replace)
+    with pytest.raises(OSError, match="replace failure"):
+        export_evidence_bundle({"replacement": True}, path)
+    assert path.read_text() == '{"previous": true}'
+    assert list(tmp_path.iterdir()) == [path]

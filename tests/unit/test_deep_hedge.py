@@ -1,8 +1,11 @@
 import numpy as np
 import pytest
+import torch
 
 from prometheus.hedging.deep_hedge import (
     HedgePolicyMLP,
+    _rollout,
+    evaluate_policy_action,
     generate_policy_hedge_ratios,
     train_deep_hedge,
 )
@@ -82,8 +85,14 @@ def test_trained_policy_vastly_outperforms_untrained_negative_control() -> None:
         train_result.policy, test_paths, dt, cfg["strike"], cfg["maturity"]
     )
     trained_result = simulate_self_financing_hedge(
-        test_paths, dt, cfg["strike"], "call", cfg["risk_free_rate"], cfg["cost_rate"],
-        cfg["initial_premium"], trained_ratios,
+        test_paths,
+        dt,
+        cfg["strike"],
+        "call",
+        cfg["risk_free_rate"],
+        cfg["cost_rate"],
+        cfg["initial_premium"],
+        trained_ratios,
     )
 
     untrained_policy = HedgePolicyMLP()
@@ -91,8 +100,14 @@ def test_trained_policy_vastly_outperforms_untrained_negative_control() -> None:
         untrained_policy, test_paths, dt, cfg["strike"], cfg["maturity"]
     )
     untrained_result = simulate_self_financing_hedge(
-        test_paths, dt, cfg["strike"], "call", cfg["risk_free_rate"], cfg["cost_rate"],
-        cfg["initial_premium"], untrained_ratios,
+        test_paths,
+        dt,
+        cfg["strike"],
+        "call",
+        cfg["risk_free_rate"],
+        cfg["cost_rate"],
+        cfg["initial_premium"],
+        untrained_ratios,
     )
 
     alpha = cfg["cvar_alpha"]
@@ -107,3 +122,66 @@ def test_rejects_batch_size_larger_than_available_paths() -> None:
     dt = cfg["maturity"] / 20
     with pytest.raises(ValueError):
         train_deep_hedge(_train_paths(), dt, **cfg)
+
+
+def test_single_step_inference_matches_batch_inference_exactly() -> None:
+    """evaluate_policy_action (single-state, for a step-by-step caller) must
+    agree with generate_policy_hedge_ratios (whole-path batch) call for
+    call -- same features, same network, same result."""
+    cfg = _training_setup()
+    dt = cfg["maturity"] / 20
+    result = train_deep_hedge(_train_paths(), dt, **cfg)
+
+    rng = np.random.default_rng(42)
+    test_paths = simulate_gbm_paths(
+        100.0, 0.08, 0.2, cfg["maturity"], n_steps=20, n_paths=4, rng=rng
+    )
+    batch_ratios = generate_policy_hedge_ratios(
+        result.policy, test_paths, dt, cfg["strike"], cfg["maturity"]
+    )
+
+    for i in range(4):
+        holdings = 0.0
+        for t in range(20):
+            remaining_fraction = max(cfg["maturity"] - t * dt, 1e-6) / cfg["maturity"]
+            action = evaluate_policy_action(
+                result.policy, test_paths[i, t], remaining_fraction, holdings, cfg["strike"]
+            )
+            assert action == pytest.approx(batch_ratios[i, t], abs=1e-6)
+            holdings = action
+
+
+def test_differentiable_accounting_matches_numpy_on_identical_actions() -> None:
+    paths = simulate_gbm_paths(100.0, 0.08, 0.2, 1.0, 4, 8, np.random.default_rng(81))
+    policy = HedgePolicyMLP()
+    ratios = generate_policy_hedge_ratios(policy, paths, 0.25, 100.0, 1.0)
+    numpy_result = simulate_self_financing_hedge(
+        paths, 0.25, 100.0, "call", 0.1, 0.01, 10.0, ratios
+    )
+    losses, turnover = _rollout(
+        policy,
+        torch.tensor(paths, dtype=torch.float32),
+        0.25,
+        100.0,
+        1.0,
+        "call",
+        0.1,
+        0.01,
+        10.0,
+    )
+    np.testing.assert_allclose(losses.detach().numpy(), numpy_result.terminal_loss, atol=3e-5)
+    np.testing.assert_allclose(turnover.detach().numpy(), numpy_result.total_turnover, atol=1e-6)
+
+
+@pytest.mark.parametrize(
+    ("spot", "remaining", "holdings", "strike"),
+    [
+        (0.0, 0.5, 0.0, 100.0),
+        (100.0, 1.1, 0.0, 100.0),
+        (100.0, 0.5, float("nan"), 100.0),
+        (100.0, 0.5, 0.0, float("inf")),
+    ],
+)
+def test_single_state_inference_rejects_invalid_features(spot, remaining, holdings, strike) -> None:
+    with pytest.raises(ValueError):
+        evaluate_policy_action(HedgePolicyMLP(), spot, remaining, holdings, strike)

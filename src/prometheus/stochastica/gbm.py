@@ -7,6 +7,35 @@ rather than an Euler discretization of S itself, so there is no time-
 discretization bias to characterize for this particular model -- SDE-01's
 "known distributions, reproducible path construction" is satisfied exactly,
 not approximately.
+
+SDE-12 ("no silent NaN, Inf or unbounded accepted paths") found that
+strict positivity -- a mathematical guarantee of the SDE, since S_t =
+S0*exp(...) is an exponential -- is NOT a floating-point guarantee at
+sufficiently extreme inputs: at a large enough `sigma*sqrt(dt)` product
+(confirmed directly at sigma=50 over even a handful of steps), a
+simulated log-return can be negative enough that `np.exp` underflows to
+exactly 0.0 rather than raising. This is not a bug to fix -- there is no
+discretization choice that avoids IEEE754 double precision's underflow
+boundary -- and 0.0 IS itself a representable, legitimate float, not a
+violation: paths remain STRICTLY positive only away from this extreme
+boundary, but they remain finite there.
+
+A SEPARATE finding, in the OPPOSITE direction, is a genuine violation,
+not a representable boundary case: a large enough POSITIVE drift over a
+long enough maturity (confirmed directly at mu=5, maturity=142) makes
+`np.exp` of the cumulative log-return OVERFLOW to `inf` for the upper
+tail of paths -- an `inf` silently returned, exactly what SDE-12's own
+text prohibits ("no silent ... Inf ... accepted paths"), discovered only
+by broader property-based testing after an earlier, narrower version of
+this module's own docstring claimed finiteness as an unconditional
+guarantee (it was not, for this reason). Every GBM-family path
+simulator below (`simulate_gbm_paths`, `simulate_piecewise_drift_gbm_paths`,
+`simulate_correlated_gbm_paths`) now checks its OWN output for
+non-finite values after simulating -- not a pre-check on the
+deterministic drift alone, since whether any individual random path
+actually overflows depends on the realized draws, not just
+mu/sigma/maturity -- and raises a clear `ValueError` naming the inputs
+rather than returning an array containing a silent `inf`.
 """
 
 from __future__ import annotations
@@ -14,6 +43,18 @@ from __future__ import annotations
 import numpy as np
 
 from prometheus.stochastica.correlated import correlated_normal_draws
+
+
+def _reject_non_finite_paths(paths: np.ndarray, context: str) -> None:
+    """See this module's docstring (SDE-12): raises rather than letting
+    a silently overflowed `inf` (or `nan`) escape in a returned path
+    array."""
+    if not np.all(np.isfinite(paths)):
+        raise ValueError(
+            f"{context} produced a non-finite (overflowing) simulated price for at "
+            "least one path/step -- this parameter combination has no computable "
+            "answer under float64"
+        )
 
 
 def simulate_gbm_paths(
@@ -45,6 +86,7 @@ def simulate_gbm_paths(
     paths = np.empty((n_paths, n_steps + 1))
     paths[:, 0] = s0
     paths[:, 1:] = s0 * np.exp(cumulative_log_returns)
+    _reject_non_finite_paths(paths, f"s0={s0}, mu={mu}, sigma={sigma}, maturity={maturity}")
     return paths
 
 
@@ -115,6 +157,7 @@ def simulate_piecewise_drift_gbm_paths(
     paths = np.empty((n_paths, n_steps + 1))
     paths[:, 0] = s0
     paths[:, 1:] = s0 * np.exp(cumulative)
+    _reject_non_finite_paths(paths, f"s0={s0}, mu_path (n={len(mu_path)}), sigma={sigma}")
     return paths
 
 
@@ -156,4 +199,5 @@ def simulate_correlated_gbm_paths(
         z = correlated_normal_draws(rng, n_paths, correlation)
         log_s = log_s + (mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z
         paths[:, t + 1, :] = np.exp(log_s)
+    _reject_non_finite_paths(paths, f"s0={s0}, mu={mu}, sigma={sigma}, maturity={maturity}")
     return paths

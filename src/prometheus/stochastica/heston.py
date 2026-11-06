@@ -19,6 +19,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from prometheus.numerics import require_finite
+
 
 @dataclass(frozen=True, slots=True)
 class HestonParams:
@@ -30,6 +32,9 @@ class HestonParams:
     v0: float
 
     def __post_init__(self) -> None:
+        require_finite(
+            mu=self.mu, kappa=self.kappa, theta=self.theta, xi=self.xi, rho=self.rho, v0=self.v0
+        )
         if self.kappa <= 0:
             raise ValueError("kappa must be positive")
         if self.theta <= 0:

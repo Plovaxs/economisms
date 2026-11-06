@@ -133,3 +133,169 @@ def var_exception_coverage_test(
         observed_exception_rate=n_exceptions / n,
         p_value=float(test_result.pvalue),
     )
+
+
+def _broadcast_forecast(forecast: np.ndarray | float, shape: tuple[int, ...]) -> np.ndarray:
+    return np.broadcast_to(np.asarray(forecast, dtype=float), shape)
+
+
+def quantile_score(
+    losses: np.ndarray, var_forecast: np.ndarray | float, alpha: float
+) -> np.ndarray:
+    """RISK-09: the pinball/quantile loss (Gneiting 2011) -- the strictly
+    consistent scoring function for a quantile forecast, whose expectation
+    is minimized exactly at the TRUE alpha-quantile (confirmed empirically
+    against a known Gaussian reference -- the minimizer over a grid of
+    candidate thresholds landed on the true quantile to within simulation
+    noise -- before being trusted here). `var_forecast` may be a single
+    constant threshold or a per-observation forecast array (the realistic
+    backtesting case, e.g. a rolling GARCH-based VaR series); either way
+    it is broadcast against `losses`.
+
+    Lower mean score indicates a better-calibrated VaR forecast -- this
+    RANKS competing VaR models, it is not itself a pass/fail test (pair it
+    with `var_exception_coverage_test` for a calibration verdict)."""
+    losses = _validate_losses(losses)
+    _validate_alpha(alpha)
+    var_forecast_arr = _broadcast_forecast(var_forecast, losses.shape)
+    indicator = (losses < var_forecast_arr).astype(float)
+    return np.asarray((losses - var_forecast_arr) * (alpha - indicator), dtype=float)
+
+
+@dataclass(frozen=True, slots=True)
+class ExceedanceResidualTestResult:
+    n_observations: int
+    n_exceedances: int
+    mean_residual: float
+    t_statistic: float
+    p_value: float
+
+
+def expected_shortfall_exceedance_residual_test(
+    losses: np.ndarray,
+    var_forecast: np.ndarray | float,
+    es_forecast: np.ndarray | float,
+) -> ExceedanceResidualTestResult:
+    """RISK-09: the McNeil & Frey (2000) Expected Shortfall backtest.
+    ES_alpha is defined as E[loss | loss > VaR_alpha] -- directly from
+    that definition, the "exceedance residual" loss - es_forecast, taken
+    only over observations where loss actually exceeds its var_forecast,
+    must average to zero under correct calibration. A one-sample t-test
+    of those residuals against zero is the diagnostic: a repeated-trial
+    simulation confirmed its false-positive rate matches its nominal
+    size under correct calibration, and that it reliably flags an ES
+    forecast deliberately understating tail severity. Like
+    `var_exception_coverage_test`, this is a diagnostic the caller
+    interprets, not an automatic gate.
+
+    `var_forecast`/`es_forecast` may be constants or per-observation
+    arrays (broadcast against `losses`), supporting both a fixed
+    threshold and a time-varying forecast series."""
+    losses = _validate_losses(losses)
+    var_forecast_arr = _broadcast_forecast(var_forecast, losses.shape)
+    es_forecast_arr = _broadcast_forecast(es_forecast, losses.shape)
+    exceeds = losses > var_forecast_arr
+    n_exceedances = int(np.sum(exceeds))
+    if n_exceedances < 2:
+        raise ValueError(
+            f"need at least 2 exceedances for a t-test, got {n_exceedances}"
+        )
+    residuals = losses[exceeds] - es_forecast_arr[exceeds]
+    t_result = stats.ttest_1samp(residuals, 0.0)
+    return ExceedanceResidualTestResult(
+        n_observations=losses.size,
+        n_exceedances=n_exceedances,
+        mean_residual=float(residuals.mean()),
+        t_statistic=float(t_result.statistic),
+        p_value=float(t_result.pvalue),
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class EsCalibrationResult:
+    n_observations: int
+    n_exceedances: int
+    statistic: float
+    bootstrap_standard_error: float
+    p_value: float
+
+
+def _es_calibration_statistic(
+    losses: np.ndarray, var_forecast_arr: np.ndarray, es_forecast_arr: np.ndarray, alpha: float
+) -> np.ndarray:
+    """Vectorized over a leading axis so the same code path handles both
+    the single observed statistic and a batch of bootstrap resamples.
+    `es_forecast_arr` divides each term INSIDE the sum (not the summed
+    total), the correct generalization when the ES forecast varies by
+    observation: E[loss_t * 1{loss_t>VaR_t}] = (1-alpha)*ES_t holds
+    PER OBSERVATION, so each term must be normalized by its own ES_t
+    before summing, not by one ES value applied to the aggregate."""
+    n = losses.shape[-1]
+    indicator = (losses > var_forecast_arr).astype(float)
+    normalized_tail = np.sum(losses * indicator / es_forecast_arr, axis=-1)
+    return np.asarray(normalized_tail / (n * (1.0 - alpha)) - 1.0, dtype=float)
+
+
+def es_unconditional_calibration_test(
+    losses: np.ndarray,
+    var_forecast: np.ndarray | float,
+    es_forecast: np.ndarray | float,
+    alpha: float,
+    rng: np.random.Generator,
+    n_bootstrap: int = 1000,
+) -> EsCalibrationResult:
+    """RISK-09: an Acerbi-Szekely (2014)-style unconditional ES
+    calibration statistic, usable even when there are zero VaR
+    exceedances in-sample (unlike the exceedance-residual test above,
+    which needs at least 2).
+
+    By definition E[loss * 1{loss > VaR_alpha}] = (1 - alpha) * ES_alpha,
+    so
+
+        Z = sum(loss * 1{loss > VaR_forecast}) / (n * (1-alpha) * ES_forecast) - 1
+
+    has expectation zero under correct calibration (a direct algebraic
+    consequence of the ES definition, not a result that needed deriving
+    from asymptotic theory). A repeated-trial simulation confirmed Z
+    concentrates near zero under correct calibration and is strongly
+    positive when the ES forecast understates tail severity, with no
+    special-casing needed when a sample happens to have zero
+    exceedances (the statistic is then exactly -1.0, a well-defined
+    "no evidence of tail loss, relative to a positive ES forecast"
+    reading, not a crash).
+
+    The p-value comes from a nonparametric bootstrap standard error (an
+    i.i.d. resample of the (loss, var_forecast, es_forecast) triples)
+    combined with a normal approximation -- confirmed, via a repeated-
+    trial simulation at a fixed nominal size, to produce a false-positive
+    rate close to that nominal size. `rng` must be supplied explicitly
+    (no hidden global random state)."""
+    losses = _validate_losses(losses)
+    _validate_alpha(alpha)
+    var_forecast_arr = _broadcast_forecast(var_forecast, losses.shape)
+    es_forecast_arr = _broadcast_forecast(es_forecast, losses.shape)
+    if np.any(es_forecast_arr == 0.0):
+        raise ValueError("es_forecast must be non-zero everywhere (it is used as a divisor)")
+    if n_bootstrap < 2:
+        raise ValueError("n_bootstrap must be at least 2")
+
+    n = losses.size
+    observed = float(_es_calibration_statistic(losses, var_forecast_arr, es_forecast_arr, alpha))
+
+    idx = rng.integers(0, n, size=(n_bootstrap, n))
+    boot_statistics = _es_calibration_statistic(
+        losses[idx], var_forecast_arr[idx], es_forecast_arr[idx], alpha
+    )
+    bootstrap_se = float(np.std(boot_statistics, ddof=1))
+    if bootstrap_se == 0.0:
+        p_value = 0.0 if observed != 0.0 else 1.0
+    else:
+        p_value = float(2.0 * stats.norm.sf(abs(observed / bootstrap_se)))
+
+    return EsCalibrationResult(
+        n_observations=n,
+        n_exceedances=int(np.sum(losses > var_forecast_arr)),
+        statistic=observed,
+        bootstrap_standard_error=bootstrap_se,
+        p_value=p_value,
+    )

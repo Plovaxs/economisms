@@ -69,13 +69,30 @@ def test_self_financing_identity_matches_manual_recomputation() -> None:
         target = ratios[:, t]
         trade = target - holdings
         cost = cost_rate * np.abs(trade) * s_t
-        cash = cash * accrual - trade * s_t - cost
+        cash = (cash - trade * s_t - cost) * accrual
         holdings = target
     s_terminal = paths[:, -1]
     payoff = np.maximum(s_terminal - strike, 0.0)
     manual_loss = -(cash + holdings * s_terminal - payoff)
 
     assert np.allclose(manual_loss, result.terminal_loss)
+
+
+def test_one_period_trade_is_financed_until_maturity() -> None:
+    # Buy half a share at 100, financing the 40 shortfall for one year.
+    # At 120, sell it for 60 and pay the call holder 20.
+    result = simulate_self_financing_hedge(
+        np.array([[100.0, 120.0]]),
+        1.0,
+        100.0,
+        "call",
+        0.1,
+        0.01,
+        10.0,
+        np.array([[0.5]]),
+    )
+    expected_wealth = (10.0 - 50.0 - 0.5) * np.exp(0.1) + 60.0 - 20.0
+    assert -result.terminal_loss[0] == pytest.approx(expected_wealth)
 
 
 def test_finer_discretization_reduces_hedging_error_under_zero_cost() -> None:

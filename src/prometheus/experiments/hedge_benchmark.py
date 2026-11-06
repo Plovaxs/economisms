@@ -14,10 +14,15 @@ thing, and this module does not claim otherwise anywhere in its output.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import hashlib
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import numpy as np
 
+from prometheus.core.seeds import SeedHierarchy
+from prometheus.evidence.repository_status import policy_content_hash
 from prometheus.experiments.bootstrap import BootstrapResult, paired_bootstrap_difference
 from prometheus.experiments.manifest import RunManifest, compute_result_hash, new_run_id, now_iso
 from prometheus.hedging.baseline import black_scholes_delta_hedge_ratios
@@ -52,6 +57,19 @@ class SeedResult:
     delta_cvar: float
     policy_cvar: float
     bootstrap: BootstrapResult
+    delta_mean_loss: float
+    policy_mean_loss: float
+    delta_mean_cost: float
+    policy_mean_cost: float
+    delta_mean_turnover: float
+    policy_mean_turnover: float
+    path_hash: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        if self.path_hash is None:
+            del payload["path_hash"]
+        return payload
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,6 +79,11 @@ class HedgeBenchmarkReport:
     cvar_alpha: float
     per_seed_results: tuple[SeedResult, ...]
     limitations: tuple[str, ...]
+
+    def result_payload(self) -> dict[str, Any]:
+        return _result_payload(
+            self.manifest.config, self.per_seed_results, self.cvar_alpha, self.limitations
+        )
 
     def mean_point_estimate(self) -> float:
         return float(np.mean([r.bootstrap.point_estimate for r in self.per_seed_results]))
@@ -74,6 +97,22 @@ class HedgeBenchmarkReport:
         signs = {np.sign(r.bootstrap.point_estimate) for r in self.per_seed_results}
         all_exclude = all(r.bootstrap.excludes_zero() for r in self.per_seed_results)
         return bool(all_exclude and len(signs) == 1)
+
+
+def _result_payload(
+    config: Mapping[str, Any],
+    results: tuple[SeedResult, ...],
+    cvar_alpha: float,
+    limitations: tuple[str, ...] = LIMITATIONS,
+) -> dict[str, Any]:
+    return {
+        "schema_version": 2,
+        "primary_endpoint": PRIMARY_ENDPOINT,
+        "config": dict(config),
+        "cvar_alpha": cvar_alpha,
+        "per_seed": [result.to_dict() for result in results],
+        "limitations": limitations,
+    }
 
 
 def run_hedge_benchmark(
@@ -93,10 +132,27 @@ def run_hedge_benchmark(
     bootstrap_confidence: float = 0.95,
     spot: float = 100.0,
     mu: float | None = None,
+    *,
+    simulation_volatility: float | None = None,
 ) -> HedgeBenchmarkReport:
     if not test_seeds:
         raise ValueError("test_seeds must be non-empty")
+    if len(set(test_seeds)) != len(test_seeds):
+        raise ValueError("test_seeds must be unique")
+    if any(type(seed) is not int or seed < 0 for seed in test_seeds):
+        raise ValueError("test_seeds must be non-negative integers")
 
+    path_volatility = volatility if simulation_volatility is None else simulation_volatility
+    if not np.isfinite(path_volatility) or path_volatility <= 0:
+        raise ValueError("simulation volatility must be finite and positive")
+    limitations = LIMITATIONS
+    if simulation_volatility is not None:
+        limitations = (
+            "One fixed synthetic GBM scenario; training distribution is caller-specified.",
+            "Delta uses declared pricing volatility, which can differ from realized volatility.",
+            "Premium and hedge financing conventions are identical across both policies.",
+            "Per-path paired percentile intervals condition on this one fitted policy/scenario.",
+        )
     dt = maturity / n_steps
     drift = risk_free_rate if mu is None else mu
 
@@ -105,9 +161,10 @@ def run_hedge_benchmark(
 
     per_seed_results: list[SeedResult] = []
     for test_seed in test_seeds:
-        path_rng = np.random.default_rng(test_seed)
+        streams = SeedHierarchy(test_seed)
+        path_rng = streams.stream("held-out-paths")
         test_paths = simulate_gbm_paths(
-            spot, drift, volatility, maturity, n_steps, n_paths_per_seed, path_rng
+            spot, drift, path_volatility, maturity, n_steps, n_paths_per_seed, path_rng
         )
 
         delta_ratios = black_scholes_delta_hedge_ratios(
@@ -138,7 +195,7 @@ def run_hedge_benchmark(
             policy_ratios,
         )
 
-        bootstrap_rng = np.random.default_rng(test_seed)
+        bootstrap_rng = streams.stream("paired-bootstrap")
         bootstrap = paired_bootstrap_difference(
             cvar_metric,
             delta_result.terminal_loss,
@@ -154,10 +211,23 @@ def run_hedge_benchmark(
                 delta_cvar=cvar_metric(delta_result.terminal_loss),
                 policy_cvar=cvar_metric(policy_result.terminal_loss),
                 bootstrap=bootstrap,
+                delta_mean_loss=float(delta_result.terminal_loss.mean()),
+                policy_mean_loss=float(policy_result.terminal_loss.mean()),
+                delta_mean_cost=float(delta_result.total_cost.mean()),
+                policy_mean_cost=float(policy_result.total_cost.mean()),
+                delta_mean_turnover=float(delta_result.total_turnover.mean()),
+                policy_mean_turnover=float(policy_result.total_turnover.mean()),
+                path_hash=(
+                    hashlib.sha256(test_paths.astype("<f8", copy=False).tobytes()).hexdigest()
+                    if simulation_volatility is not None
+                    else None
+                ),
             )
         )
 
     config = {
+        "accounting_convention": "trade-then-accrue-v1",
+        "policy_content_hash": policy_content_hash(training_result.policy),
         "strike": strike,
         "maturity": maturity,
         "option_type": option_type,
@@ -174,33 +244,21 @@ def run_hedge_benchmark(
         "spot": spot,
         "mu": drift,
     }
-    result_payload = {
-        "primary_endpoint": PRIMARY_ENDPOINT,
-        "config": config,
-        "per_seed": [
-            {
-                "test_seed": r.test_seed,
-                "delta_cvar": round(r.delta_cvar, 10),
-                "policy_cvar": round(r.policy_cvar, 10),
-                "point_estimate": round(r.bootstrap.point_estimate, 10),
-                "ci_low": round(r.bootstrap.ci_low, 10),
-                "ci_high": round(r.bootstrap.ci_high, 10),
-            }
-            for r in per_seed_results
-        ],
-    }
+    results = tuple(per_seed_results)
+    if simulation_volatility is not None:
+        config["simulation_volatility"] = simulation_volatility
     manifest = RunManifest(
         run_id=new_run_id(),
         created_at=now_iso(),
         seed=test_seeds[0],
         config=config,
-        result_hash=compute_result_hash(result_payload),
+        result_hash=compute_result_hash(_result_payload(config, results, cvar_alpha, limitations)),
     )
 
     return HedgeBenchmarkReport(
         manifest=manifest,
         primary_endpoint=PRIMARY_ENDPOINT,
         cvar_alpha=cvar_alpha,
-        per_seed_results=tuple(per_seed_results),
-        limitations=LIMITATIONS,
+        per_seed_results=results,
+        limitations=limitations,
     )

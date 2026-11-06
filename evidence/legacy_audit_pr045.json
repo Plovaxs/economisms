@@ -1,0 +1,11 @@
+{
+  "valid": true,
+  "artifact_integrity": "legacy_unsealed",
+  "content_sha256": "d5798d154d2e9333c0f897fb6b75976a7ee240c283d3ec94ed65320f4d5cdfe0",
+  "external_digest_matched": false,
+  "payload_kind": "monetary",
+  "result_hash": "69743a65c3ec661ed793d670d3880ccdf453325b5ff192199f58890f2d482b98",
+  "model_card_count": 1,
+  "gate_decision": "NO-GO",
+  "scope": "Checksum, metadata schema and declared fingerprint consistency; no numerical replay"
+}

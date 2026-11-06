@@ -16,8 +16,19 @@ Covers, with passing tests:
   ECO-09  loan demand, underwriting and bank capital limits (leverage cap);
             applies uniformly to household and government borrowing, since
             both go through Bank.originate_loan against the same capital
-  LED-06  (partial) loan/bond repayment reduces receivable/payable and
-            deposits; no write-off/recovery path yet
+  LED-05  interest accrual: Bank.accrue_interest capitalizes unpaid
+            interest directly into the loan balance each period (a
+            simplified convention -- see that method's own docstring for
+            what it deliberately does not attempt: a fixed-payment
+            amortization schedule)
+  LED-06  loan repayment reduces receivable/payable and deposits;
+            Bank.write_off_loan additionally extinguishes debt without
+            repayment, recognizing a realized loss on the bank's equity
+            and the accounting-correct debt-forgiveness gain on the
+            borrower's -- the single-creditor building block that
+            econosim.insolvency's multi-creditor waterfall (LED-07) calls
+            per creditor, once each claim's own paid/written-off split is
+            known
 
 Bank.originate_loan / Bank.receive_repayment are written against a
 structural Borrower protocol (agent_id, cash_account, loan_account), not
@@ -25,14 +36,18 @@ against Household specifically, so Government borrows and repays through
 the exact same code path and the exact same capital/leverage constraint --
 there is no separate, possibly-inconsistent "government debt" mechanism.
 
-Not implemented here (do not infer otherwise from the names above): interest
-accrual/amortization (LED-05), deposit-instrument reconciliation across the
-whole household population (ECO-06, LED-08) -- household and firm deposit
-balances are not yet bank-custodied for non-loan flows, so that check would
-not currently be a true invariant of this model -- a central bank's own
-ledger-backed balance sheet (see econosim.policy_rate.CentralBank, which is
-a rate-process wrapper only, not a ledger agent), and labor/goods-market
-clearing.
+Not implemented here (do not infer otherwise from the names above):
+deposit-instrument reconciliation across the whole household population
+(ECO-06, LED-08) -- household and firm deposit balances are not yet
+bank-custodied for non-loan flows, so that check would not currently be a
+true invariant of this model -- and labor/goods-market clearing (see
+econosim.market_clearing instead). A ledger-backed central bank now
+exists separately, in econosim.central_bank_ledger.CentralBankLedger;
+econosim.policy_rate.CentralBank remains a rate-process wrapper only,
+with no ledger agent of its own. The multi-creditor insolvency/loss
+waterfall with creditor-priority ranking (LED-07) now exists separately
+too, in econosim.insolvency -- it calls write_off_loan/receive_repayment
+per creditor rather than duplicating their postings.
 """
 
 from __future__ import annotations
@@ -45,13 +60,16 @@ from prometheus.core.money import Money
 
 class Borrower(Protocol):
     """Anything Bank.originate_loan / Bank.receive_repayment can lend to:
-    an asset account to receive/repay cash and a liability account to
-    record the debt. Household and Government both satisfy this
-    structurally -- no inheritance relationship is required."""
+    an asset account to receive/repay cash, a liability account to record
+    the debt, and an equity account (needed by accrue_interest/write_off_loan,
+    which move value without any cash changing hands). Household and
+    Government both satisfy this structurally -- no inheritance
+    relationship is required."""
 
     agent_id: str
     cash_account: str
     loan_account: str
+    equity_account: str
 
 
 class AgentError(Exception):
@@ -60,9 +78,7 @@ class AgentError(Exception):
 
 class InsufficientFundsError(AgentError):
     def __init__(self, agent_id: str, requested: Money, available: Money) -> None:
-        super().__init__(
-            f"{agent_id} cannot pay {requested!r}: only {available!r} available"
-        )
+        super().__init__(f"{agent_id} cannot pay {requested!r}: only {available!r} available")
         self.agent_id = agent_id
         self.requested = requested
         self.available = available
@@ -116,10 +132,11 @@ class Household:
     def receive_income(
         self, amount: Money, step: int = 0, description: str = "income"
     ) -> Transaction:
-        """Credit an exogenous income flow (e.g. wages from a firm not yet
-        modeled, or a government transfer) directly to equity and cash.
-        A full wage/labor market belongs to a later PR; this exists so tests
-        and demos can seed household wealth without bypassing the ledger."""
+        """Credit an explicit external endowment directly to equity and cash.
+
+        Wages and government transfers use their counterpart agents or the
+        market settlement modules; this method seeds simulation wealth.
+        """
         if amount.is_negative() or amount.is_zero():
             raise ValueError("income amount must be positive")
         postings = [
@@ -168,6 +185,19 @@ class Firm:
     @property
     def net_worth(self) -> Money:
         return self.ledger.account(self.equity_account).balance
+
+    def capitalize(self, amount: Money, step: int = 0) -> Transaction:
+        """An explicit exogenous opening capital injection, like Bank.capitalize."""
+        if not amount.is_positive():
+            raise ValueError("capitalization amount must be positive")
+        return self.ledger.post(
+            [
+                Posting(self.deposit_account, Side.DEBIT, amount),
+                Posting(self.equity_account, Side.CREDIT, amount),
+            ],
+            description=f"capitalize {self.agent_id}",
+            step=step,
+        )
 
     def pay_wages(self, household: Household, amount: Money, step: int = 0) -> Transaction:
         """Pay a household for labor: firm equity falls (wage expense),
@@ -281,6 +311,71 @@ class Bank:
         return self.ledger.post(
             postings,
             description=f"loan repayment {borrower.agent_id}->{self.agent_id}",
+            step=step,
+        )
+
+    def accrue_interest(
+        self, borrower: Borrower, annual_rate: float, dt: float, step: int = 0
+    ) -> Transaction:
+        """Capitalizing interest accrual (LED-05): unpaid interest compounds
+        directly into the loan balance each accrual -- a simplified
+        convention, not a fixed-payment/level-principal amortization
+        schedule. `annual_rate` is a simple annual rate; `dt` is the
+        accrual period in years (e.g. 1/12 for a monthly step). No cash
+        moves: the bank's receivable and equity (interest income) both
+        rise; the borrower's payable and equity (interest expense) both
+        move oppositely -- the same four-posting, two-sector pattern
+        `originate_loan` already uses, just without touching either
+        party's cash/reserves account."""
+        if annual_rate < 0:
+            raise ValueError("annual_rate must be non-negative")
+        if dt <= 0:
+            raise ValueError("dt must be positive")
+        principal = self.ledger.account(borrower.loan_account).balance
+        interest = Money(round(principal.minor_units * annual_rate * dt), principal.currency)
+        if not interest.is_positive():
+            raise ValueError(
+                f"accrued interest on {borrower.agent_id}'s {principal!r} balance at "
+                f"{annual_rate=} over {dt=} rounds to zero or less; nothing to accrue"
+            )
+        postings = [
+            Posting(self.loans_account, Side.DEBIT, interest),
+            Posting(self.equity_account, Side.CREDIT, interest),
+            Posting(borrower.loan_account, Side.CREDIT, interest),
+            Posting(borrower.equity_account, Side.DEBIT, interest),
+        ]
+        return self.ledger.post(
+            postings,
+            description=f"interest accrual {borrower.agent_id}->{self.agent_id}",
+            step=step,
+        )
+
+    def write_off_loan(self, borrower: Borrower, amount: Money, step: int = 0) -> Transaction:
+        """Loan write-off (LED-06): extinguishes `amount` of `borrower`'s
+        debt without repayment -- a realized credit loss on the bank's own
+        equity, and (the accounting-correct, if economically blunt,
+        counterpart) debt forgiveness raising the borrower's equity by the
+        same amount. Validated against the BORROWER's own outstanding
+        balance, not the bank's aggregate `loans_account` (which pools
+        every borrower together and so cannot answer "does THIS borrower
+        owe enough to write off")."""
+        if not amount.is_positive():
+            raise ValueError("write-off amount must be positive")
+        outstanding = self.ledger.account(borrower.loan_account).balance
+        if outstanding < amount:
+            raise ValueError(
+                f"{borrower.agent_id} owes only {outstanding!r} to {self.agent_id}, "
+                f"cannot write off {amount!r}"
+            )
+        postings = [
+            Posting(self.loans_account, Side.CREDIT, amount),
+            Posting(self.equity_account, Side.DEBIT, amount),
+            Posting(borrower.loan_account, Side.DEBIT, amount),
+            Posting(borrower.equity_account, Side.CREDIT, amount),
+        ]
+        return self.ledger.post(
+            postings,
+            description=f"write-off {borrower.agent_id}'s debt to {self.agent_id}",
             step=step,
         )
 

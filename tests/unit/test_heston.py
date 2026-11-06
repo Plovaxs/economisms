@@ -17,6 +17,19 @@ def test_rejects_invalid_params() -> None:
         HestonParams(mu=0.0, kappa=1.0, theta=0.04, xi=0.2, rho=0.0, v0=-0.01)
 
 
+def test_rejects_nan_and_inf_fields() -> None:
+    """VAL-13 ("perform NaN/Inf injection and solver fail-closed
+    tests... no invalid output promoted or silently cached"): an
+    ordinary `if kappa <= 0: raise` silently admits NaN (every
+    comparison involving NaN is False), so before `require_finite` was
+    added, `HestonParams(kappa=float("nan"), ...)` raised nothing and
+    the NaN propagated silently into pricing/simulation."""
+    with pytest.raises(ValueError, match="finite"):
+        HestonParams(mu=float("nan"), kappa=2.0, theta=0.04, xi=0.2, rho=-0.5, v0=0.04)
+    with pytest.raises(ValueError, match="finite"):
+        HestonParams(mu=0.0, kappa=float("inf"), theta=0.04, xi=0.2, rho=-0.5, v0=0.04)
+
+
 def test_feller_ratio_matches_definition() -> None:
     params = HestonParams(mu=0.0, kappa=2.0, theta=0.04, xi=0.2, rho=0.0, v0=0.04)
     assert params.feller_ratio() == pytest.approx(2 * 2.0 * 0.04 / 0.2**2)

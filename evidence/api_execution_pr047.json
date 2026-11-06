@@ -1,0 +1,233 @@
+{
+  "api_validation": {
+    "api_version": "1.0.0",
+    "artifact_audit": {
+      "artifact_integrity": "sha256_verified",
+      "content_sha256": "139b568a741fd6cbb6a1e1be0527dc15b083467d59a5adca7e97ec2ef6549c2b",
+      "external_digest_matched": true,
+      "gate_decision": "NO-GO",
+      "model_card_count": 1,
+      "payload_kind": "benchmark",
+      "result_hash": "2937b8194e9c7a5b62d925c332aa8b377bd7a4b3753f6f16897ce606f874e022",
+      "scope": "Checksum, metadata schema and declared fingerprint consistency; no numerical replay",
+      "valid": true
+    },
+    "audit_head_is_independently_trusted": false,
+    "cancelled_job": {
+      "artifact_sha256": null,
+      "attempts": 0,
+      "cancel_requested": true,
+      "created_at": "2026-11-03T10:44:46.431649+00:00",
+      "diagnostic_id": null,
+      "error_code": null,
+      "job_id": "70931156-a37a-42cc-ba0c-053956115665",
+      "kind": "benchmark",
+      "recipe_sha256": "5f1a8df2cf0d05589f8196014e6a72525c50e667e486ca1763282a163a1a4cf4",
+      "resource_estimate": {
+        "batch_size": 32,
+        "bootstrap_work": 4160,
+        "economic_work": 0,
+        "epochs": 3,
+        "eval_paths": 64,
+        "evaluation_work": 768,
+        "fitted_models": 1,
+        "households": 2,
+        "path_values": 768,
+        "resamples": 32,
+        "scenarios": 1,
+        "steps": 3,
+        "test_banks": 2,
+        "train_paths": 64,
+        "training_macro_banks": 0,
+        "training_replicates": 1,
+        "training_work": 288
+      },
+      "result_hash": null,
+      "status": "cancelled",
+      "timeout_seconds": 300.0,
+      "trace_id": "8c4e5cf6db944a878d5080b1bc2cc8e8",
+      "updated_at": "2026-11-03T10:44:46.436453+00:00"
+    },
+    "completed_job": {
+      "artifact_sha256": "139b568a741fd6cbb6a1e1be0527dc15b083467d59a5adca7e97ec2ef6549c2b",
+      "attempts": 1,
+      "cancel_requested": false,
+      "created_at": "2026-11-03T10:44:43.659301+00:00",
+      "diagnostic_id": null,
+      "error_code": null,
+      "job_id": "73897907-6092-4fda-a4e3-7948487c865c",
+      "kind": "benchmark",
+      "recipe_sha256": "a86fa61627c6c3070661060d44079f0d49b2de03d1fc7198f3d6ab108ac01da8",
+      "resource_estimate": {
+        "batch_size": 32,
+        "bootstrap_work": 4160,
+        "economic_work": 0,
+        "epochs": 3,
+        "eval_paths": 64,
+        "evaluation_work": 768,
+        "fitted_models": 1,
+        "households": 2,
+        "path_values": 768,
+        "resamples": 32,
+        "scenarios": 1,
+        "steps": 3,
+        "test_banks": 2,
+        "train_paths": 64,
+        "training_macro_banks": 0,
+        "training_replicates": 1,
+        "training_work": 288
+      },
+      "result_hash": "2937b8194e9c7a5b62d925c332aa8b377bd7a4b3753f6f16897ce606f874e022",
+      "status": "succeeded",
+      "timeout_seconds": 30.0,
+      "trace_id": "73e65bf5f1844875ad704387ae02b456",
+      "updated_at": "2026-11-03T10:44:45.813154+00:00"
+    },
+    "idempotent_retry_job_id": "73897907-6092-4fda-a4e3-7948487c865c",
+    "live_token_revocation_verified": true,
+    "local_state_directory": "/tmp/econs-pr047-api-qiw0ptzd",
+    "locally_observed_audit_head_sha256": "59cb7388210cfd78566d3d64cea23951c0ec52770f51da35836df9ca15a4171c",
+    "loopback_origin": "http://127.0.0.1:38281",
+    "no_tokens_or_raw_recipe_in_request_log": true,
+    "observed_structured_rejections": [
+      {
+        "code": "not_found",
+        "diagnostic_id": "b31ce0637dec419eae3b85e2abafd382",
+        "request_id": "0919e55e843b4eb4937eb71b01124860",
+        "status": 404
+      },
+      {
+        "code": "forbidden",
+        "diagnostic_id": "d4e0b2fb90bb4f838311e261073e245b",
+        "request_id": "8a6b59c82515458ab263d790632438d2",
+        "status": 403
+      },
+      {
+        "code": "artifact_pending",
+        "diagnostic_id": "9871a917304e4f1cb917c36cee11bf91",
+        "request_id": "0615eb4c99594ed0b8b0e217135481b3",
+        "status": 409
+      },
+      {
+        "code": "idempotency_conflict",
+        "diagnostic_id": "d8191794f16640cdb3dca65da77fe60d",
+        "request_id": "c8b0862d14544e448da4a0917cd32c54",
+        "status": 409
+      },
+      {
+        "code": "unauthorized",
+        "diagnostic_id": "6cb4cc79d5c24fbca4fc3b3c54548cc0",
+        "request_id": "d8f044dbda9c487c8ca02b363d95ae4c",
+        "status": 401
+      }
+    ],
+    "owner_scoped_cursor_traversal_verified": true,
+    "parent_torch_rng_unchanged": true,
+    "recipe": {
+      "batch_size": 32,
+      "bootstrap_confidence": 0.95,
+      "cost_rate": 0.005,
+      "cvar_alpha": 0.9,
+      "initial_premium": null,
+      "learning_rate": 0.01,
+      "maturity": 1.0,
+      "mu": 0.08,
+      "n_bootstrap_resamples": 32,
+      "n_eval_paths": 64,
+      "n_steps": 3,
+      "n_train_epochs": 3,
+      "n_train_paths": 64,
+      "option_type": "call",
+      "risk_free_rate": 0.05,
+      "seed": 0,
+      "spot": 100.0,
+      "strike": 100.0,
+      "test_seeds": [
+        100,
+        200
+      ],
+      "train_path_seed": 1,
+      "turnover_penalty": 0.001,
+      "volatility": 0.2
+    },
+    "replay_runtime_changes": [],
+    "request_log_event_count": 19,
+    "schema_version": 1,
+    "scope": "Local real-socket ASGI/typed-SDK/worker validation; no deployment approval",
+    "service_dependencies": {
+      "jsonschema": "4.26.0",
+      "uvicorn": "0.54.0"
+    },
+    "source_sha256": "635fb2536e6d0699c136bfed4c79bd6bb8dbf5156cbb1b5e5dcc037b3c407568",
+    "strict_replay_matches": true
+  },
+  "artifact_integrity": {
+    "algorithm": "sha256",
+    "canonicalization": "python-json-sorted-keys-default-separators-v1",
+    "content_sha256": "c975bfd03766d935311805c8bc193c275f8cc099f0e208a31db69b4ad825f85f",
+    "schema_version": 1
+  },
+  "disclaimer": "SIMULATED DATA -- RESEARCH ONLY. This artifact is generated by PROMETHEUS, a research and simulation platform. It is not financial advice, does not reflect real market or portfolio data unless explicitly labeled otherwise, and grants no permission for live trading. See the master specification, section 01 (scope) and section 12 (hard deployment boundary).",
+  "gate_report": {
+    "artifact_version": "0.1.0",
+    "decided_at": "2026-11-03",
+    "decision": "NO-GO",
+    "evidence_index": [
+      "CHECKLIST_STATUS.md",
+      "README.md"
+    ],
+    "gate": "R0",
+    "legal_compliance_assessment": null,
+    "open_findings": [
+      "No independent review of any module (MGR-07 not satisfied)",
+      "The blueprint's 374-item checklist remains NOT VERIFIED pending review; CHECKLIST_STATUS.md distinguishes test evidence from full acceptance",
+      "A basic lint/type/test CI workflow exists; deployment security, model lifecycle, data-governance and compliance controls remain unimplemented",
+      "Reference scenarios use synthetic single-asset GBM and separate economic/hedge balance sheets; price and policy response rules are not empirically calibrated",
+      "Black-Scholes marks and conditional risk freeze the closing rate; no joint stochastic-rate Q valuation or full dynamic-policy risk forecast is implemented"
+    ],
+    "scientific_approval": null,
+    "scope_enabled": [
+      "Local in-memory double-entry ledger simulation (PR-001/002)",
+      "Deterministic macro time engine: calendar, seeds, point-in-time data, shocks (PR-003)",
+      "Classical GBM/Heston and macro-conditioned (non-neural) path simulation (PR-004/009)",
+      "Black-Scholes/Monte Carlo pricing (PR-005)",
+      "Historical/parametric VaR and Expected Shortfall (PR-006)",
+      "Delta and CVaR-trained MLP hedge simulation against synthetic paths (PR-007)",
+      "A first paired-bootstrap research benchmark (PR-008)",
+      "End-to-end demonstration and monthly StepHooks scenario with online delta/MLP hedging, conditional portfolio risk and evidence export (PR-011/014/015)",
+      "Government taxes/transfers/bonds and a scalar central-bank policy-rate agent (PR-012)",
+      "Single-firm labor/goods quantity clearing with ledger settlement (PR-013)",
+      "Reproducible benchmark/retraining stress recipes and exact artifact replay (PR-016/017)",
+      "Exact budget-feasible price discovery, inventory and atomic market settlement (PR-018)",
+      "Publication-lagged price/output policy feedback coupled to market and hedge financing with explicit opening/closing rate timing (PR-019)",
+      "Crossed retraining/shared macro-market banks across publication, payroll and supply-shock scenarios with conditional-CVaR diagnostics (PR-020)",
+      "Matched current-rate feature ablation with independent macro training banks, variable-rate differentiable accounting and optimization diagnostics (PR-021)",
+      "Synthetic instrument calibration, American/forward pricing and mixed position valuation; portfolio, covariance, factor and network-risk modules (PR-022..040)",
+      "Ledger-backed central-bank/interbank operations, causal risk circuit breaker and bank interest/write-off primitives (PR-026..043)",
+      "Empirical macro/market-mixture CVaR with paired nested resampling and retained terminal-loss provenance (PR-044)",
+      "Detached whole-artifact checksum snapshots, strict metadata/fingerprint validation, offline audit and complete 374-item traceability register (PR-045)",
+      "Allowlisted typed recipes, bounded local SQLite job queue, fenced Linux workers and no-clobber quota-controlled artifact publication (PR-046)",
+      "Versioned authenticated ASGI research-job API, owner-derived read/write scopes, bounded request admission, readiness, OpenAPI and typed SDK (PR-047)"
+    ],
+    "scope_prohibited": [
+      "Live trading, order routing, or any connection to a brokerage",
+      "Use of real (non-synthetic) market or portfolio data",
+      "Any claim of regulatory, model-risk, or security certification"
+    ],
+    "security_ops_approval": null,
+    "sunset_date": null
+  },
+  "model_cards": [],
+  "run_manifest": null,
+  "runtime": {
+    "dependencies": {
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "torch": "2.15.0+cpu"
+    },
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "python": "3.14.7",
+    "source_sha256": "635fb2536e6d0699c136bfed4c79bd6bb8dbf5156cbb1b5e5dcc037b3c407568"
+  },
+  "source_tag": "prometheus-simulation"
+}

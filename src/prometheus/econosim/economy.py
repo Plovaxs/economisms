@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from prometheus.core.ledger import Ledger
 from prometheus.econosim.agents import Bank, Firm, Government, Household
+from prometheus.econosim.central_bank_ledger import CentralBankLedger
 from prometheus.econosim.policy_rate import CentralBank, PolicyRateRule
 
 
@@ -24,6 +25,7 @@ class Economy:
         self.banks: dict[str, Bank] = {}
         self.governments: dict[str, Government] = {}
         self.central_banks: dict[str, CentralBank] = {}
+        self.central_bank_ledgers: dict[str, CentralBankLedger] = {}
 
     def add_household(self, agent_id: str) -> Household:
         household = Household(self.ledger, agent_id, currency=self.currency)
@@ -54,6 +56,30 @@ class Economy:
         central_bank = CentralBank(agent_id=agent_id, rule=rule, current_rate=initial_rate)
         self.central_banks[agent_id] = central_bank
         return central_bank
+
+    def add_central_bank_ledger(
+        self,
+        agent_id: str,
+        rate_rule: PolicyRateRule | None = None,
+        initial_rate: float | None = None,
+    ) -> CentralBankLedger:
+        """A genuinely ledger-backed central bank (reserve issuance, OMO,
+        interbank settlement -- see econosim.central_bank_ledger).
+        Optionally pass `rate_rule`/`initial_rate` to get ONE object that
+        is both the policy-rate setter and the balance sheet (PR-041);
+        omit both for a balance-sheet-only agent, as before. Separate from
+        `add_central_bank`'s rate-only wrapper above either way -- a
+        simulation that wants a bare rate process with no balance sheet
+        still constructs that under its own agent_id."""
+        central_bank_ledger = CentralBankLedger(
+            self.ledger,
+            agent_id,
+            currency=self.currency,
+            rate_rule=rate_rule,
+            initial_rate=initial_rate,
+        )
+        self.central_bank_ledgers[agent_id] = central_bank_ledger
+        return central_bank_ledger
 
     def check_integrity(self) -> None:
         """Raise LedgerIdentityViolation if any sector is out of balance."""

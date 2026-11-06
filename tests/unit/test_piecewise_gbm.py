@@ -58,3 +58,14 @@ def test_later_drift_cannot_affect_earlier_simulated_prices() -> None:
 
     assert np.array_equal(paths_a[:, :7], paths_b[:, :7])
     assert not np.allclose(paths_a[:, -1], paths_b[:, -1])  # tails do diverge
+
+
+def test_extreme_positive_drift_raises_a_clear_error_not_a_silent_inf() -> None:
+    """SDE-12 finding (see `stochastica.gbm`'s own module docstring): a
+    large enough positive drift sustained over enough periods overflows
+    np.exp to inf for the upper tail of paths, the same issue found in
+    `simulate_gbm_paths` -- both share the `s0 * exp(cumsum(...))`
+    pattern."""
+    rng = np.random.default_rng(0)
+    with pytest.raises(ValueError, match="non-finite"):
+        simulate_piecewise_drift_gbm_paths(1.0, [5.0] * 150, 0.5, 1.0, 200, rng)

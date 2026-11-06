@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 import pytest
@@ -36,6 +37,24 @@ def test_option_rejects_invalid_fields() -> None:
         EuropeanOption(strike=0.0, maturity=1.0, option_type="call")
     with pytest.raises(ValueError):
         EuropeanOption(strike=100.0, maturity=-1.0, option_type="call")
+
+
+def test_market_snapshot_and_option_reject_nan_and_inf_fields() -> None:
+    """VAL-13 ("perform NaN/Inf injection and solver fail-closed
+    tests... no invalid output promoted or silently cached"): an
+    ordinary `if spot <= 0: raise` silently admits NaN (every
+    comparison involving NaN is False under IEEE754), so before
+    `require_finite` was added, `MarketSnapshot(spot=float("nan"), ...)`
+    raised nothing at all and the NaN propagated silently into every
+    downstream pricing formula."""
+    with pytest.raises(ValueError, match="finite"):
+        _standard_market(spot=float("nan"))
+    with pytest.raises(ValueError, match="finite"):
+        _standard_market(risk_free_rate=float("inf"))
+    with pytest.raises(ValueError, match="finite"):
+        EuropeanOption(strike=float("nan"), maturity=1.0, option_type="call")
+    with pytest.raises(ValueError, match="finite"):
+        EuropeanOption(strike=100.0, maturity=float("inf"), option_type="call")
 
 
 def test_matches_known_textbook_reference_value() -> None:
@@ -117,11 +136,50 @@ def test_gamma_and_vega_are_positive_and_shared_between_call_and_put() -> None:
 
 def test_put_call_delta_difference_is_discounted_one() -> None:
     """delta_call - delta_put = e^{-qT} is an exact identity."""
-    import math
-
     market = _standard_market(dividend_yield=0.02)
     option_params = (100.0, 1.0)
     call_delta = black_scholes_greeks(market, EuropeanOption(*option_params, "call")).delta
     put_delta = black_scholes_greeks(market, EuropeanOption(*option_params, "put")).delta
     expected = math.exp(-market.dividend_yield * option_params[1])
     assert (call_delta - put_delta) == pytest.approx(expected, abs=1e-9)
+
+
+def test_very_negative_rate_with_long_maturity_raises_a_clear_error_not_an_overflow_crash() -> None:
+    """SDE-12 finding (see this module's docstring): math.exp(-r*t) alone
+    overflows float64 at this rate/maturity -- the strike's risk-neutral
+    weight (norm.cdf(d2)) is nonzero here, so the discounted term is
+    genuinely unrepresentable, not just a spurious inf*0.0 artifact."""
+    market = _standard_market(risk_free_rate=-5.0, volatility=1.0)
+    option = EuropeanOption(strike=1.0, maturity=142.0, option_type="put")
+    with pytest.raises(ValueError, match="represent"):
+        black_scholes_price(market, option)
+    with pytest.raises(ValueError, match="represent"):
+        black_scholes_greeks(market, option)
+
+
+def test_near_zero_probability_term_with_huge_discount_factor_gives_zero_not_nan() -> None:
+    """SDE-12 finding (see this module's docstring): at this input, the
+    strike leg's discount factor alone overflows math.exp, but
+    norm.cdf(d2) has independently underflowed to exactly 0.0 -- the old
+    code's `k * math.exp(-r*t) * norm.cdf(d2)` computed `inf * 0.0 ==
+    nan` silently; the true contribution of a zero-probability term is
+    unambiguously 0, confirmed here directly rather than merely not
+    crashing."""
+    market = _standard_market(risk_free_rate=-4.90625, volatility=1.0)
+    option = EuropeanOption(strike=27.0, maturity=144.0, option_type="call")
+    price = black_scholes_price(market, option)
+    assert price == 0.0
+    greeks = black_scholes_greeks(market, option)
+    assert (greeks.delta, greeks.gamma, greeks.vega, greeks.theta, greeks.rho) == (
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    )
+
+
+def test_put_call_parity_residual_rejects_the_same_unrepresentable_input() -> None:
+    market = _standard_market(risk_free_rate=-5.0, volatility=1.0)
+    with pytest.raises(ValueError, match="represent"):
+        put_call_parity_residual(market, strike=1.0, maturity=142.0)

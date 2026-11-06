@@ -31,6 +31,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
+from types import MappingProxyType
 
 from prometheus.core.money import CurrencyMismatchError, Money
 
@@ -75,13 +76,17 @@ class EmptyTransactionError(LedgerError):
         super().__init__("a transaction must contain at least one posting")
 
 
+class DuplicateTransactionError(LedgerError):
+    def __init__(self, transaction_id: str) -> None:
+        super().__init__(f"transaction already exists: {transaction_id!r}")
+
+
 class LedgerImbalanceError(LedgerError):
     """Raised when a transaction's total debits do not equal total credits."""
 
     def __init__(self, currency: str, debits: int, credits: int) -> None:
         super().__init__(
-            f"transaction does not balance in {currency}: "
-            f"debits={debits} credits={credits}"
+            f"transaction does not balance in {currency}: debits={debits} credits={credits}"
         )
         self.currency = currency
         self.debits = debits
@@ -160,6 +165,12 @@ class Posting:
     amount: Money
 
     def __post_init__(self) -> None:
+        if not isinstance(self.account_id, str) or not self.account_id:
+            raise ValueError("posting account_id must be non-empty text")
+        if not isinstance(self.side, Side):
+            raise ValueError("posting side must be a Side enum")
+        if not isinstance(self.amount, Money):
+            raise ValueError("posting amount must be Money")
         if self.amount.is_negative() or self.amount.is_zero():
             raise ValueError(
                 f"posting amount must be strictly positive, got {self.amount!r}; "
@@ -200,6 +211,9 @@ class EconomicState:
     balances: Mapping[str, Money]
     journal_length: int
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "balances", MappingProxyType(dict(self.balances)))
+
     def state_hash(self) -> str:
         parts = [f"step={self.step}", f"journal_length={self.journal_length}"]
         for account_id in sorted(self.balances):
@@ -216,6 +230,7 @@ class Ledger:
     def __init__(self) -> None:
         self._accounts: dict[str, Account] = {}
         self._journal: list[Transaction] = []
+        self._transaction_ids: set[str] = set()
         self._next_seq = 0
 
     # -- account management --------------------------------------------
@@ -228,6 +243,12 @@ class Ledger:
         currency: str = "USD",
         name: str = "",
     ) -> Account:
+        if not isinstance(account_id, str) or not account_id:
+            raise ValueError("account_id must be non-empty text")
+        if not isinstance(sector, Sector) or not isinstance(account_type, AccountType):
+            raise ValueError("sector and account_type must be enum values")
+        if not isinstance(currency, str) or not currency:
+            raise ValueError("account currency must be non-empty text")
         if account_id in self._accounts:
             raise DuplicateAccountError(account_id)
         account = Account(
@@ -256,10 +277,6 @@ class Ledger:
         """Read-only view of the append-only transaction history."""
         return tuple(self._journal)
 
-    def _generate_id(self) -> str:
-        self._next_seq += 1
-        return f"txn-{self._next_seq:08d}"
-
     def post(
         self,
         postings: list[Posting],
@@ -274,9 +291,22 @@ class Ledger:
         rejected with the ledger left exactly as it was."""
         if not postings:
             raise EmptyTransactionError()
+        if transaction_id is not None and (
+            not isinstance(transaction_id, str) or not transaction_id
+        ):
+            raise ValueError("transaction_id must be non-empty text")
+        next_sequence = self._next_seq
+        if transaction_id is None:
+            next_sequence += 1
+            transaction_id = f"txn-{next_sequence:08d}"
+            while transaction_id in self._transaction_ids:
+                next_sequence += 1
+                transaction_id = f"txn-{next_sequence:08d}"
+        if transaction_id in self._transaction_ids:
+            raise DuplicateTransactionError(transaction_id)
 
         txn = Transaction(
-            transaction_id=transaction_id or self._generate_id(),
+            transaction_id=transaction_id,
             step=step,
             description=description,
             postings=tuple(postings),
@@ -285,17 +315,24 @@ class Ledger:
         for p in txn.postings:
             if p.account_id not in self._accounts:
                 raise UnknownAccountError(p.account_id)
+            account = self._accounts[p.account_id]
+            if account.currency != p.amount.currency:
+                raise CurrencyMismatchError(account.currency, p.amount.currency)
 
         for currency, (debits, credits) in txn.totals_by_currency().items():
             if debits != credits:
                 raise LedgerImbalanceError(currency, debits, credits)
 
         self._check_sector_balance(txn)
+        for currency in sorted({account.currency for account in self._accounts.values()}):
+            self.check_identities(currency)
 
         for p in txn.postings:
             self._accounts[p.account_id]._apply(p.side, p.amount)
 
         self._journal.append(txn)
+        self._transaction_ids.add(transaction_id)
+        self._next_seq = next_sequence
         return txn
 
     def _check_sector_balance(self, txn: Transaction) -> None:

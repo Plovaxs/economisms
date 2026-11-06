@@ -37,7 +37,16 @@ def simulate_self_financing_hedge(
     cost_rate: float,
     initial_premium: float,
     hedge_ratios: np.ndarray,
+    *,
+    funding_rates: np.ndarray | None = None,
 ) -> HedgeSimulationResult:
+    """Trade at each interval's opening, then accrue at its funding rate.
+
+    ``funding_rates`` optionally supplies one rate per interval (shape
+    ``(n_steps,)``) or per path/interval (``(n_paths, n_steps)``). It is a
+    realized funding schedule, never an input to hedge decisions. The
+    scalar rate retains the original constant-rate behavior when omitted.
+    """
     n_paths, n_plus_1 = price_paths.shape
     n_steps = n_plus_1 - 1
     if hedge_ratios.shape != (n_paths, n_steps):
@@ -54,7 +63,15 @@ def simulate_self_financing_hedge(
     total_cost = np.zeros(n_paths)
     total_turnover = np.zeros(n_paths)
     holdings_path = np.empty((n_paths, n_steps + 1))
-    cash_accrual = np.exp(risk_free_rate * dt)
+    if funding_rates is None:
+        cash_accrual = np.full((n_steps,), np.exp(risk_free_rate * dt))
+    else:
+        rates = np.asarray(funding_rates, dtype=float)
+        if rates.shape not in ((n_steps,), (n_paths, n_steps)) or not np.all(np.isfinite(rates)):
+            raise ValueError("funding_rates require finite interval or path/interval rates")
+        cash_accrual = np.exp(rates * dt)
+    if not np.all(np.isfinite(cash_accrual)):
+        raise ValueError("funding rates produce non-finite accrual")
 
     for t in range(n_steps):
         s_t = price_paths[:, t]
@@ -62,7 +79,9 @@ def simulate_self_financing_hedge(
         trade = target - holdings
         cost = cost_rate * np.abs(trade) * s_t
 
-        cash = cash * cash_accrual - trade * s_t - cost
+        # Trade at t, then finance the resulting cash over [t, t + dt].
+        accrual = cash_accrual[t] if cash_accrual.ndim == 1 else cash_accrual[:, t]
+        cash = (cash - trade * s_t - cost) * accrual
         holdings = target
 
         total_cost += cost

@@ -37,3 +37,37 @@ def test_step_applies_policy_rate_shocks() -> None:
     new_rate = central_bank.step([shock])
     assert new_rate == pytest.approx(0.05)
     assert central_bank.current_rate == pytest.approx(0.05)
+
+
+def test_economy_add_central_bank_ledger_tracks_it_by_id_and_opens_a_real_balance_sheet() -> None:
+    """Unlike add_central_bank (a bare rate wrapper), add_central_bank_ledger
+    constructs a ledger-backed agent whose accounts actually exist on the
+    shared Economy ledger."""
+    econ = Economy()
+    central_bank_ledger = econ.add_central_bank_ledger("cb")
+    assert econ.central_bank_ledgers["cb"] is central_bank_ledger
+    assert econ.ledger.account(central_bank_ledger.securities_holdings_account) is not None
+    assert central_bank_ledger.securities_holdings.is_zero()
+
+
+def test_economy_can_hold_both_central_bank_kinds_under_different_ids() -> None:
+    econ = Economy()
+    rule = PolicyRateRule(neutral_rate=0.03, mean_reversion_speed=0.5, dt=1 / 12)
+    rate_only = econ.add_central_bank("fed", rule, initial_rate=0.03)
+    ledger_backed = econ.add_central_bank_ledger("fed_balance_sheet")
+    assert econ.central_banks["fed"] is rate_only
+    assert econ.central_bank_ledgers["fed_balance_sheet"] is ledger_backed
+    assert rate_only.agent_id != ledger_backed.agent_id
+
+
+def test_economy_can_build_a_single_unified_central_bank_via_add_central_bank_ledger() -> None:
+    """add_central_bank_ledger's rate_rule/initial_rate kwargs, exercised
+    through the Economy factory method itself (PR-041), not just by
+    constructing CentralBankLedger directly."""
+    econ = Economy()
+    rule = PolicyRateRule(neutral_rate=0.03, mean_reversion_speed=0.5, dt=1 / 12)
+    unified = econ.add_central_bank_ledger("cb", rate_rule=rule, initial_rate=0.04)
+    assert econ.central_bank_ledgers["cb"] is unified
+    assert unified.tracks_policy_rate is True
+    assert unified.current_rate == 0.04
+    assert unified.step_rate([]) == pytest.approx(rule.step(0.04, []))
