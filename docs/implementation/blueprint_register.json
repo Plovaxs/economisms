@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "1cec7353c282dddf3a6d29f9f8782a0c7840b03a93ef6dcd9dc0a7f5e34fcc6e",
+    "content_sha256": "9baf1a5f4d7b616fcf65e83afc16fbc9becff25c0d219b887e1d8dfcfaca7bce",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "e81061f76c92bea9845a044ed61309642061e49cb6f31250767682fd4e337cb3",
+  "checklist_notes_sha256": "c1855211e301839b8bf7936912d5c272889d1f9a3a441eb09a809cd410be5e0e",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5593,10 +5593,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4332,
+          "evidence_note": "`evidence.ops_inventory.ServiceComponent`/`discover_component_names`/`discover_dependencies`/`build_service_inventory`; 9 tests (`tests/unit/test_ops_inventory.py`) run against this repository's own real source tree, including the genuine stochastica/volterra cycle finding",
+          "id_column": "OPS-01 (first evidence)",
+          "requirement_note": "create service inventory and dependency map; every production component has owner and environment"
+        }
+      ],
       "requirement": "Create service inventory and dependency map",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8490,7 +8497,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 175,
-    "without_repository_notes": 199
+    "with_repository_notes": 176,
+    "without_repository_notes": 198
   }
 }

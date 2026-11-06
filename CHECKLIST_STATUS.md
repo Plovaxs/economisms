@@ -4308,6 +4308,36 @@ See
 [`src/prometheus/evidence/model_registry.py`](./src/prometheus/evidence/model_registry.py),
 [`tests/unit/test_recovery_snapshot.py`](./tests/unit/test_recovery_snapshot.py).
 
+## Evidenced today (PR-105: a real, code-derived service inventory and dependency map -- OPS-01)
+
+OPS-01's own acceptance criterion is "every production component has
+owner and environment." `evidence.ops_inventory.discover_dependencies`
+is not hand-maintained prose that can silently drift from the real
+code: it parses every component's actual `.py` source files with the
+standard library's `ast` module and reports exactly which OTHER
+top-level `prometheus.*` components it imports from. Run against this
+repository's own real `src/prometheus` tree, it correctly finds all 14
+subpackages plus the standalone `numerics` module, and surfaces a
+genuine, non-obvious finding: `stochastica` and `volterra` have a real
+PACKAGE-level import cycle (`stochastica.convergence` prices via
+`volterra.heston_pricer` for a convergence study, while `volterra`
+separately imports several `stochastica` modules for its own pricers)
+-- confirmed directly against the source tree, not assumed to be
+acyclic. `owner`/`environment` are required, caller-supplied fields
+with no default (nothing in this single-maintainer, un-deployed repo
+can honestly derive either from the code itself).
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-01 (first evidence) | create service inventory and dependency map; every production component has owner and environment | `evidence.ops_inventory.ServiceComponent`/`discover_component_names`/`discover_dependencies`/`build_service_inventory`; 9 tests (`tests/unit/test_ops_inventory.py`) run against this repository's own real source tree, including the genuine stochastica/volterra cycle finding |
+
+Not covered: owner/environment are a single caller-supplied label
+applied uniformly (this repository has exactly one maintainer and no
+deployed environment, so there is honestly nothing more granular to
+assign); no visualization of the dependency graph.
+See
+[`src/prometheus/evidence/ops_inventory.py`](./src/prometheus/evidence/ops_inventory.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
