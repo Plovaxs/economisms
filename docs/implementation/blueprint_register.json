@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ab633205f052fe909a6fae61207e9642363b68dc35a5a81b30a8b91bd89a1c48",
+    "content_sha256": "8a8823dc55fa0ee3091d0dd4936ded865432e45824cf23844dd17c2e021d0c7a",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "34d043f7e7ad7fafa55db4e009216c8b2053d284df4eab1ecc2c2b6ff6961e84",
+  "checklist_notes_sha256": "f026064f07219b78db381acf4f3d94be4bf97aa6e794da56f5b413a8439b202f",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5790,10 +5790,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4980,
+          "evidence_note": "`evidence.data_health.measure_staleness`, plus the existing `evidence.inference_metrics.run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise against the real captured Kenneth French archive, and a real 0.3 failure rate against a genuinely flaky connector",
+          "id_column": "OPS-06 (first evidence)",
+          "requirement_note": "measure data staleness and failed ingest counts; alert exercise detects stale critical series"
+        }
+      ],
       "requirement": "Measure data staleness and failed ingest counts",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8630,7 +8637,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 195,
-    "without_repository_notes": 179
+    "with_repository_notes": 196,
+    "without_repository_notes": 178
   }
 }

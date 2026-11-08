@@ -4950,6 +4950,42 @@ scope `experiments.latency_benchmark`'s own "load report" already uses.
 See
 [`src/prometheus/evidence/inference_metrics.py`](./src/prometheus/evidence/inference_metrics.py).
 
+## Evidenced today (PR-124: data staleness and failed-ingest-count alerting -- OPS-06)
+
+A new `evidence.data_health.measure_staleness`. Deliberately takes a
+plain `Sequence[MacroObservation]` -- the same real tuple a connector's
+own fetch result already carries -- rather than reaching into
+`econosim.pit.PointInTimeStore`, whose own docstring is explicit that
+it deliberately has no "give me the latest value regardless of date"
+accessor so point-in-time discipline cannot be bypassed elsewhere.
+
+"Failed ingest counts," this item's other named measure, needed no new
+function: wrapping a real connector call in the ALREADY-EXISTING
+`evidence.inference_metrics.run_inference_benchmark` (OPS-05) already
+produces a real failure count, since an ingestion attempt is just
+another zero-argument callable that returns or raises. Confirmed
+against a genuinely flaky real connector, not a toy lambda: a transport
+that returns HTTP 503 three times then the real captured Kenneth French
+archive, run through `data_ingestion.french_factors.fetch_french_factors`,
+gives exactly a 0.3 failure rate.
+
+The acceptance criterion's own "alert exercise" is run for real: the
+real captured Kenneth French archive is fetched, and `measure_staleness`
+correctly reports `is_stale=False` when `as_of` is close to its real
+latest observation, and `is_stale=True` when `as_of` is far past it --
+not a synthetic, hand-typed observation set.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-06 (first evidence) | measure data staleness and failed ingest counts; alert exercise detects stale critical series | `evidence.data_health.measure_staleness`, plus the existing `evidence.inference_metrics.run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise against the real captured Kenneth French archive, and a real 0.3 failure rate against a genuinely flaky connector |
+
+Not covered: no scheduled job actually polls connectors on an interval
+and pages anyone; "critical series" is caller-designated (any
+`series_id` string), not drawn from a separately maintained criticality
+registry.
+See
+[`src/prometheus/evidence/data_health.py`](./src/prometheus/evidence/data_health.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

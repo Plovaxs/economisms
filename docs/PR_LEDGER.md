@@ -2592,6 +2592,20 @@ malformed one) and a real ASGI HTTP call against the same
 `ResearchService` endpoint REL-02 already measures, run through the
 identical function. Not covered: no dashboard/visualization of trends.
 
+Plus **data staleness and failed-ingest-count alerting** (OPS-06,
+PR-124): `evidence.data_health.measure_staleness` takes a plain
+`Sequence[MacroObservation]` rather than reaching into
+`PointInTimeStore`, whose own docstring deliberately forbids a
+"latest value regardless of date" accessor. "Failed ingest counts"
+needed no new function: wrapping a real connector call in the
+existing `run_inference_benchmark` already works, confirmed against a
+genuinely flaky transport (HTTP 503 three times then the real captured
+Kenneth French archive) giving exactly a 0.3 failure rate. The
+acceptance criterion's own "alert exercise" runs for real against that
+same real archive: not stale near its real latest observation, stale
+far past it. Not covered: no scheduled poller; "critical" is
+caller-designated.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2920,6 +2934,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-121 (new ID) Restricted-data-license scan composing through the existing release gate (DAT-13) | implemented locally | `evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, CI-enforced via the existing unconditional `pytest -q` step; confirmed by 7 new tests |
 | PR-122 (new ID) Job queue depth, runtime and cancellation metrics with warning/critical thresholds (OPS-04) | implemented locally | `evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`; grounded in a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock, reproducing exact queue depth, running count, cancellation count and runtime percentiles; confirmed by 15 tests |
 | PR-123 (new ID) Inference throughput, latency and failure rate per endpoint and model (OPS-05) | implemented locally | `evidence.inference_metrics.run_inference_benchmark`; exact 0%/50%/100% failure-rate discrimination, plus two real backends (a trained `HedgePolicyMLP` forward pass and a real HTTP call against `ResearchService`); confirmed by 11 tests |
+| PR-124 (new ID) Data staleness and failed-ingest-count alerting (OPS-06) | implemented locally | `evidence.data_health.measure_staleness`, plus the existing `run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise and a real 0.3 failure rate against a genuinely flaky connector; confirmed by 11 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3084,6 +3099,8 @@ PR-122 adds the first evidence for OPS-04, bringing the count from 193 to 194, c
 same way -- a real JobStore lifecycle with a deterministic clock reproducing exact queue metrics.
 PR-123 adds the first evidence for OPS-05, bringing the count from 194 to 195, confirmed the
 same way -- exact failure-rate discrimination across two real, genuinely different backends.
+PR-124 adds the first evidence for OPS-06, bringing the count from 195 to 196, confirmed the
+same way -- a real alert exercise against the real captured Kenneth French archive.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
