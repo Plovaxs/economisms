@@ -4986,6 +4986,43 @@ registry.
 See
 [`src/prometheus/evidence/data_health.py`](./src/prometheus/evidence/data_health.py).
 
+## Evidenced today (PR-125: high-severity numerical event monitoring with assigned ownership -- OPS-07)
+
+A new `evidence.numerical_event_monitor` module. `monitor_call` runs
+any zero-argument callable once: a raised exception becomes a
+`solver_failure` event, and a non-finite (NaN/Inf) value anywhere in a
+successful result becomes a `non_finite_result` event. Grounded
+against this repository's OWN real pricers and solvers, not only
+synthetic callables: a normal `black_scholes_price` call produces no
+event, while `stochastica.gbm.simulate_gbm_paths` called with the same
+extreme positive drift this repository's own `test_gbm.py` already
+confirms raises a clear `ValueError` produces a genuine `solver_failure`
+event carrying that real exception's own message.
+
+`monitor_pricing_deviation` compares two already-computed prices and
+reports a `pricing_deviation` event past a caller-chosen relative
+threshold. Confirmed against two real pricers for the SAME market and
+option: a real `volterra.monte_carlo.monte_carlo_price_vanilla` estimate
+(50,000 paths) agrees with the real closed-form `black_scholes_price`
+within 2% (no event), and firing a genuine event when compared against
+a deliberately wrong reference price instead.
+
+"Page assigned owner" is a required field with no default on every
+event -- the same "no silently-defaulted field" reasoning
+`evidence.ops_inventory.ServiceComponent`'s own `owner` already uses,
+so no event is ever reported with a fabricated or missing owner.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-07 (first evidence) | monitor unexpected NaN, solver failure and pricing deviation; high-severity numerical events page assigned owner | `evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner` |
+
+Not covered: no real paging/alerting integration exists -- "page" is
+the event's own required `owner` field, the same honest scope
+`evidence.queue_metrics`/`evidence.data_health`'s own "dashboard"/
+"alert" language already uses.
+See
+[`src/prometheus/evidence/numerical_event_monitor.py`](./src/prometheus/evidence/numerical_event_monitor.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

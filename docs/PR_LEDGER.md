@@ -2606,6 +2606,21 @@ same real archive: not stale near its real latest observation, stale
 far past it. Not covered: no scheduled poller; "critical" is
 caller-designated.
 
+Plus **high-severity numerical event monitoring with assigned
+ownership** (OPS-07, PR-125): `evidence.numerical_event_monitor`.
+`monitor_call` runs any zero-argument callable, classifying a raised
+exception as a `solver_failure` event and a non-finite result as
+`non_finite_result`, grounded against this repository's own real
+pricers: a normal `black_scholes_price` call is clean, while
+`simulate_gbm_paths` with the same extreme drift `test_gbm.py` already
+confirms raises a clear error produces a genuine `solver_failure`
+carrying that real message. `monitor_pricing_deviation` compares two
+real prices for the same market/option -- a real 50,000-path Monte
+Carlo estimate agrees with the real closed-form price within 2% (no
+event), and a deliberately wrong reference price fires a genuine
+event. `owner` is required with no default on every event. Not
+covered: no real paging integration.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2935,6 +2950,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-122 (new ID) Job queue depth, runtime and cancellation metrics with warning/critical thresholds (OPS-04) | implemented locally | `evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`; grounded in a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock, reproducing exact queue depth, running count, cancellation count and runtime percentiles; confirmed by 15 tests |
 | PR-123 (new ID) Inference throughput, latency and failure rate per endpoint and model (OPS-05) | implemented locally | `evidence.inference_metrics.run_inference_benchmark`; exact 0%/50%/100% failure-rate discrimination, plus two real backends (a trained `HedgePolicyMLP` forward pass and a real HTTP call against `ResearchService`); confirmed by 11 tests |
 | PR-124 (new ID) Data staleness and failed-ingest-count alerting (OPS-06) | implemented locally | `evidence.data_health.measure_staleness`, plus the existing `run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise and a real 0.3 failure rate against a genuinely flaky connector; confirmed by 11 tests |
+| PR-125 (new ID) High-severity numerical event monitoring with assigned ownership (OPS-07) | implemented locally | `evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`; confirmed by 14 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3101,6 +3117,8 @@ PR-123 adds the first evidence for OPS-05, bringing the count from 194 to 195, c
 same way -- exact failure-rate discrimination across two real, genuinely different backends.
 PR-124 adds the first evidence for OPS-06, bringing the count from 195 to 196, confirmed the
 same way -- a real alert exercise against the real captured Kenneth French archive.
+PR-125 adds the first evidence for OPS-07, bringing the count from 196 to 197, confirmed the
+same way -- a real extreme-drift GBM solver failure and a real Monte-Carlo-vs-closed-form check.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

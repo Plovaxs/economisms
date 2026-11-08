@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "8a8823dc55fa0ee3091d0dd4936ded865432e45824cf23844dd17c2e021d0c7a",
+    "content_sha256": "5b327e1758d2768b49a96cddfe5198ced557f0904a9ea4c24518398c3d2f2021",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "f026064f07219b78db381acf4f3d94be4bf97aa6e794da56f5b413a8439b202f",
+  "checklist_notes_sha256": "762eaa1bb7e08ef906f298320e7a6811be5374ecc3abb9bb64dff31ee0d7c0cd",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5814,10 +5814,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5017,
+          "evidence_note": "`evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`",
+          "id_column": "OPS-07 (first evidence)",
+          "requirement_note": "monitor unexpected NaN, solver failure and pricing deviation; high-severity numerical events page assigned owner"
+        }
+      ],
       "requirement": "Monitor unexpected NaN, solver failure and pricing deviation",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8637,7 +8644,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 196,
-    "without_repository_notes": 178
+    "with_repository_notes": 197,
+    "without_repository_notes": 177
   }
 }
