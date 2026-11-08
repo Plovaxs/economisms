@@ -4764,6 +4764,37 @@ gives no per-row vintage.
 See
 [`src/prometheus/data_ingestion/french_factors.py`](./src/prometheus/data_ingestion/french_factors.py).
 
+## Evidenced today (PR-119: external data source inventory and license catalog -- DAT-01)
+
+A new `data_ingestion.source_inventory` module, following the same
+ast-based, code-derived discovery pattern `evidence.ops_inventory`
+already uses for the service inventory (OPS-01). Rather than a second,
+hand-maintained catalog of source URLs and licenses that could silently
+drift from the connectors that actually make the request,
+`discover_data_sources`/`build_source_catalog` parse every module in
+`data_ingestion` with the standard library's `ast` module and read each
+connector's OWN already-declared `*_URL`/`*LICENSE` constants directly.
+Run against this repository's own real `data_ingestion` package, it is
+confirmed to find exactly the two real connectors (`worldbank`,
+`french_factors`) with their real URL and license strings, correctly
+excluding `transport` (shared infra, not a source) and `__init__`. A
+module declaring only one of a URL/license constant raises explicitly
+rather than being silently cataloged incomplete. "Approved" is a
+required, caller-supplied field with no default (the same reasoning
+`ops_inventory.ServiceComponent`'s `owner`/`environment` already use),
+so the catalog never claims an approval it was not deliberately told.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-01 (first evidence) | create inventory of each external data source and license; approved source catalog with allowed use and redistribution | `data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection |
+
+Not covered: `approved_by`/`allowed_use` are caller-supplied, not a
+real organizational approval record; "redistribution" terms are not
+independently parsed from each source's actual license text, only the
+license label already recorded in each connector.
+See
+[`src/prometheus/data_ingestion/source_inventory.py`](./src/prometheus/data_ingestion/source_inventory.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

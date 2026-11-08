@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ab7e8cbb26ce992509194762097f77ce1a500e2c6823c1cc5d3efd3c88d561d5",
+    "content_sha256": "ac84ffbec80f58d29494d65a83e20ded01dc844d60fa65ff703497494d9461ed",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "607c8e20ba1cac8d5de4fbab0f71cfe9567de5ae2bf4ce1ac63c72414e60c12f",
+  "checklist_notes_sha256": "8501047a83e2ff1416c6f203a85219a1a4c7f9b4b2ed47ed7a6eb72e8fd60d10",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3623,10 +3623,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4789,
+          "evidence_note": "`data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection",
+          "id_column": "DAT-01 (first evidence)",
+          "requirement_note": "create inventory of each external data source and license; approved source catalog with allowed use and redistribution"
+        }
+      ],
       "requirement": "Create inventory of each external data source and license",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8595,7 +8602,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 190,
-    "without_repository_notes": 184
+    "with_repository_notes": 191,
+    "without_repository_notes": 183
   }
 }

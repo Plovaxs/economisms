@@ -2512,6 +2512,23 @@ only the 3-factor "Research Data Factors" file is ingested, not French's
 other factor sets; like `worldbank.py`, every observation in one fetch
 shares a single dataset-level `published_at` approximation.
 
+Plus **external data source inventory and license catalog** (DAT-01,
+PR-119): `data_ingestion.source_inventory`, following the same
+ast-based, code-derived discovery pattern `evidence.ops_inventory`
+already uses for the service inventory. Rather than a second,
+hand-maintained catalog that could drift from the connectors that
+actually make the request, it parses every `data_ingestion` module
+with `ast` and reads each connector's OWN already-declared
+`*_URL`/`*LICENSE` constants directly. Run against this repository's
+real `data_ingestion` package, it finds exactly the two real
+connectors (`worldbank`, `french_factors`) with their real URL and
+license strings, correctly excluding `transport` and `__init__`; a
+module declaring only one of a URL/license constant raises explicitly.
+`approved_by`/`allowed_use` are required, caller-supplied fields with
+no default, so the catalog never claims an approval it was not
+deliberately told. Not covered: no real organizational approval
+record backs `approved_by` yet.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2835,6 +2852,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-116 (new ID) Unambiguous dataset provenance composed from four existing primitives (MLO-03) | implemented locally | `evidence.dataset_provenance.DatasetProvenance`/`build_dataset_provenance`/`ProvenanceMismatchError`; composes `ModelPackage`, `DatasetFingerprint`, `InputContract` and `HoldoutManifest`; model-mismatch and no-train-split rejections confirmed by 5 tests |
 | PR-117 (two new IDs) Checkpoint/resume and a per-epoch learning-curve/gradient log (MLO-04, MLO-05) | implemented locally | `hedging.deep_hedge.TrainingCheckpoint`/`EpochRecord`/`resume_from`, additive to the existing `train_deep_hedge`; a real split-training-run test confirms bit-for-bit exact final-weight reproduction after resume, plus a mismatched-seed rejection and a real gradient-norm log; also closed a pre-existing "put"-branch coverage gap |
 | PR-118 (new ID) Kenneth French factor ingestion with version tracking (DAT-05) | implemented locally | `data_ingestion.french_factors.fetch_french_factors`; a real captured Kenneth French Data Library response (4,812 monthly + 396 annual observations, vintage "202609") embedded hermetically and fed through `PointInTimeStore`; confirmed by 9 tests |
+| PR-119 (new ID) External data source inventory and license catalog (DAT-01) | implemented locally | `data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection; confirmed by 9 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -2989,6 +3007,8 @@ PR-117 adds the first evidence for MLO-04 and MLO-05, bringing the count from 18
 confirmed the same way -- checkpoint/resume reproduces training bit-for-bit, plus a real gradient log.
 PR-118 adds the first evidence for DAT-05, bringing the count from 189 to 190, confirmed the
 same way -- a real captured Kenneth French factor response, parsed and fed through PointInTimeStore.
+PR-119 adds the first evidence for DAT-01, bringing the count from 190 to 191, confirmed the
+same way -- an ast-derived source catalog finding both real connectors' actual URL/license strings.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
