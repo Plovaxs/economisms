@@ -4561,6 +4561,38 @@ in-process call with no real network latency.
 See
 [`src/prometheus/experiments/latency_benchmark.py`](./src/prometheus/experiments/latency_benchmark.py).
 
+## Evidenced today (PR-113: a long-horizon numerical-stability and memory-leak soak test -- REL-09)
+
+REL-09's own acceptance criterion is "extended soak test meets numerical
+and memory thresholds." `experiments.soak_test.run_soak_test` checks
+EVERY single returned array for finiteness across the whole horizon (not
+spot-checked), and samples traced memory at regular intervals, reporting
+`memory_growth_bytes` as the LAST sample minus the FIRST -- deliberately
+not the raw allocation at iteration zero, so a function that legitimately
+allocates once and then reuses that memory is not flagged as leaking
+merely for having a nonzero baseline.
+
+Grounded in a REAL long-horizon run, not a toy loop: 60 repeated, genuinely
+independent calls to `stochastica.gbm.simulate_gbm_paths` (a stateless
+function that should legitimately plateau in memory) confirm both
+numerical stability and a memory growth of ~3 KB against a 5 MB budget.
+Two discriminating cases confirm the checks are real, not tautological: a
+step function that DELIBERATELY retains every array it allocates is
+caught as exceeding the same 5 MB budget by table over 8x, and a single
+NaN injected at one specific iteration out of 60 otherwise-perfect ones is
+still detected, not averaged away.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-09 (first evidence) | test long-horizon simulator stability and memory leaks; extended soak test meets numerical and memory thresholds | `experiments.soak_test.SoakTestResult`/`run_soak_test`; 7 tests (`tests/unit/test_soak_test.py`) grounded in a real 60-iteration GBM soak run, a deliberate-leak discrimination case, and a single-bad-iteration detection case; stable across repeated reruns |
+
+Not covered: only GBM is soak-tested; no multi-hour/multi-day true
+"extended" run (this is a 60-iteration proxy, not a literal long-running
+production soak), and no `econosim.StepHooks` long-horizon loop is
+exercised yet.
+See
+[`src/prometheus/experiments/soak_test.py`](./src/prometheus/experiments/soak_test.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

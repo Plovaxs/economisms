@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "549d5c5c1c77652177ce014f9b82ddbca67e0e2cfbd3afc9f21516f8bac52ac2",
+    "content_sha256": "4e8a412acba10944bc4df7cf91425dea07fc3ef0a4b8761c3af5d92b196c313d",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "bcf6ff1da3780b958290054944e263fbd7679d3cebc65b79d3b8894d98beda1f",
+  "checklist_notes_sha256": "8709ac62fde6c771f5defb874a5e6f0b3f6507ca3e6035ecf74b7649ec980963",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6987,10 +6987,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "REL",
       "id": "REL-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4587,
+          "evidence_note": "`experiments.soak_test.SoakTestResult`/`run_soak_test`; 7 tests (`tests/unit/test_soak_test.py`) grounded in a real 60-iteration GBM soak run, a deliberate-leak discrimination case, and a single-bad-iteration detection case; stable across repeated reruns",
+          "id_column": "REL-09 (first evidence)",
+          "requirement_note": "test long-horizon simulator stability and memory leaks; extended soak test meets numerical and memory thresholds"
+        }
+      ],
       "requirement": "Test long-horizon simulator stability and memory leaks",
       "source_pdf_page": 41,
       "source_rows": [
@@ -8546,7 +8553,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 183,
-    "without_repository_notes": 191
+    "with_repository_notes": 184,
+    "without_repository_notes": 190
   }
 }

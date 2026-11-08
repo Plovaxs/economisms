@@ -2434,6 +2434,18 @@ machine; the published target (1.0s) is correspondingly generous and
 confirmed stable across repeated runs. Not covered: only one endpoint;
 not a deployed production reference.
 
+Plus **a long-horizon numerical-stability and memory-leak soak test**
+(REL-09, PR-113): `run_soak_test` checks every returned array for
+finiteness across the whole horizon and samples traced memory at
+regular intervals, reporting growth as the last sample minus the
+first (not the raw baseline). Grounded in a real 60-iteration GBM
+soak run (~3 KB growth against a 5 MB budget). Two discriminating
+cases: a step function that deliberately retains every array is
+caught exceeding the same budget by over 8x, and a single NaN injected
+at one iteration out of 60 is still detected. Not covered: a 60-iteration
+proxy, not a literal multi-hour production soak; no `StepHooks` loop
+exercised yet.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2751,13 +2763,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-110 (new ID) Retraining triggers with pre-registered thresholds (MLO-13) | implemented locally | `evidence.retraining_trigger.RetrainingThreshold`/`RetrainingEscalation`/`evaluate_retraining_trigger`; reuses RISK-09's `es_unconditional_calibration_test` with real well-calibrated (p=0.33) and miscalibrated (p≈3.6e-10) p-values, plus a backdating rejection |
 | PR-111 (new ID) Tamper-evident hash-chained log for access-control changes and privileged actions (AUD-07) | implemented locally | `evidence.tamper_evident_log.TamperEvidentLog`/`LogEntry`/`TamperEvidenceError`; reuses `jobs.store`'s own hash-chaining technique, generalized; a direct tamper and a forged-hash tamper are both caught, confirmed by 8 tests |
 | PR-112 (new ID) Real p95 load report for the metadata API (REL-02) | implemented locally | `experiments.latency_benchmark.LoadReport`/`build_load_report`/`meets_p95_target`; a real 120-request, concurrency-8 load test against `ResearchService`'s own ASGI `GET /v1/jobs` endpoint, confirmed stable across repeated runs |
+| PR-113 (new ID) Long-horizon numerical-stability and memory-leak soak test (REL-09) | implemented locally | `experiments.soak_test.SoakTestResult`/`run_soak_test`; a real 60-iteration GBM soak run plus a deliberate-leak and a single-bad-iteration discrimination case, confirmed by 7 tests, stable across repeated reruns |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-183 distinct blueprint checklist IDs with some test evidence, including partial
+184 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2893,6 +2906,8 @@ PR-111 adds the first evidence for AUD-07, bringing the count from 181 to 182, c
 same way -- a tamper-evident hash-chained log reusing jobs.store's own chaining technique.
 PR-112 adds the first evidence for REL-02, bringing the count from 182 to 183, confirmed the
 same way -- a real concurrent load test against ResearchService's own ASGI metadata endpoint.
+PR-113 adds the first evidence for REL-09, bringing the count from 183 to 184, confirmed the
+same way -- a real 60-iteration GBM soak test with deliberate-leak and bad-iteration discrimination.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
