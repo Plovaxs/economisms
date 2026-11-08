@@ -4530,6 +4530,37 @@ chain is backed by its own sqlite table, not reused here).
 See
 [`src/prometheus/evidence/tamper_evident_log.py`](./src/prometheus/evidence/tamper_evident_log.py).
 
+## Evidenced today (PR-112: a real p95 load report for the metadata API, with request mix and concurrency -- REL-02)
+
+REL-02's own acceptance criterion is "load report includes request mix
+and concurrency." `experiments.latency_benchmark.build_load_report`
+computes p50/p95/p99 from real, caller-supplied latency samples (never
+estimating a distribution shape), and REQUIRES `request_mix` and
+`concurrency` as named fields, since a load report stating only "p95 =
+X" with no record of how many requests of what kind, at what
+concurrency, produced that number would not be reproducible evidence.
+
+Grounded in a REAL measurement, not a synthetic latency array: a
+genuine `ResearchService` ASGI application's `GET /v1/jobs` metadata
+endpoint, hit at an actual concurrency of 8 simultaneous requests via
+`asyncio.gather`, over 15 batches (120 real requests total), timed
+individually per request (not a shared batch-duration figure). "Reference
+hardware" is honestly this machine, not a claimed production number; the
+published p95 target (1.0s) is correspondingly generous for an
+in-process, no-network ASGI call, confirmed stable across repeated runs
+before trusting it.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-02 (first evidence) | benchmark metadata API p95 against target on reference hardware; load report includes request mix and concurrency | `experiments.latency_benchmark.LoadReport`/`build_load_report`/`meets_p95_target`; 7 tests (`tests/unit/test_latency_benchmark.py`) including a real 120-request concurrent load test against `ResearchService`'s own ASGI application |
+
+Not covered: only the `GET /v1/jobs` metadata endpoint is benchmarked,
+not the full API surface; this machine is not a deployed production
+reference, and the published target is deliberately generous for an
+in-process call with no real network latency.
+See
+[`src/prometheus/experiments/latency_benchmark.py`](./src/prometheus/experiments/latency_benchmark.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

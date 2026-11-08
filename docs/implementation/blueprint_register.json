@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "d61b2b6bf34210c12bd37e818461fc728d3f24510550036452fb1cbe9c65c92b",
+    "content_sha256": "549d5c5c1c77652177ce014f9b82ddbca67e0e2cfbd3afc9f21516f8bac52ac2",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "341bbf7e2071d3bddc332b6f20832f6256a455b57dfeba8aa1aaaee07fa4e9b8",
+  "checklist_notes_sha256": "bcf6ff1da3780b958290054944e263fbd7679d3cebc65b79d3b8894d98beda1f",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6826,10 +6826,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "REL",
       "id": "REL-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4555,
+          "evidence_note": "`experiments.latency_benchmark.LoadReport`/`build_load_report`/`meets_p95_target`; 7 tests (`tests/unit/test_latency_benchmark.py`) including a real 120-request concurrent load test against `ResearchService`'s own ASGI application",
+          "id_column": "REL-02 (first evidence)",
+          "requirement_note": "benchmark metadata API p95 against target on reference hardware; load report includes request mix and concurrency"
+        }
+      ],
       "requirement": "Benchmark metadata API p95 against target on reference hardware",
       "source_pdf_page": 41,
       "source_rows": [
@@ -8539,7 +8546,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 182,
-    "without_repository_notes": 192
+    "with_repository_notes": 183,
+    "without_repository_notes": 191
   }
 }
