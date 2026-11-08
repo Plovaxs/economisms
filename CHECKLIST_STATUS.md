@@ -4918,6 +4918,38 @@ metrics-storage system polls `JobStore` on a schedule.
 See
 [`src/prometheus/evidence/queue_metrics.py`](./src/prometheus/evidence/queue_metrics.py).
 
+## Evidenced today (PR-123: inference throughput, latency and failure rate, per endpoint and model -- OPS-05)
+
+A new `evidence.inference_metrics` module. `run_inference_benchmark`
+takes any zero-argument callable and times `n_requests` real attempts,
+tallying failures by actually letting each attempt's own exception
+propagate rather than assuming what "failure" looks like. Confirmed
+discriminating, not just structurally plausible: an always-raising
+callable gives exactly `failure_rate == 1.0`, an always-succeeding one
+gives exactly `0.0`, and an alternating success/failure callable gives
+exactly `0.5` -- proving the loop keeps running through all
+`n_requests` rather than stopping at the first exception.
+
+Grounded in TWO genuinely different real backends, proving "per
+endpoint and model" is a real distinction rather than two string labels
+on the same mechanism: a real trained `hedging.deep_hedge.HedgePolicyMLP`
+forward pass (succeeding on its correct `(batch, 3)` input, and failing
+with a genuine `RuntimeError` from `nn.Linear`'s own shape check on a
+deliberately malformed `(batch, 5)` input -- a real failure, not a
+fabricated count), and a real ASGI HTTP call against the SAME
+`service.application.ResearchService` endpoint REL-02's own load
+report already measures, run through the identical function.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-05 (first evidence) | measure inference throughput, latency and failure rate; p50/p95/p99 trends shown per endpoint and model | `evidence.inference_metrics.run_inference_benchmark`/`InferenceReport`; exact 0%/50%/100% failure-rate discrimination, plus two real, genuinely different backends (a trained neural net forward pass and a real HTTP service call) |
+
+Not covered: "trends ... shown" (a dashboard/visualization) is a
+caller-facing concern outside this repository's scope, the same honest
+scope `experiments.latency_benchmark`'s own "load report" already uses.
+See
+[`src/prometheus/evidence/inference_metrics.py`](./src/prometheus/evidence/inference_metrics.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

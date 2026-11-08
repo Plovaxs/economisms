@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "1927ba8c714b0b7c97c09ead0d31d58f29f9ea83be9bcd273be4b640287990fa",
+    "content_sha256": "ab633205f052fe909a6fae61207e9642363b68dc35a5a81b30a8b91bd89a1c48",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "b79bf2d1d21a5ad6734b084e5931e5f91d6648ebd2a0d13219d6eb4e5f68ebb2",
+  "checklist_notes_sha256": "34d043f7e7ad7fafa55db4e009216c8b2053d284df4eab1ecc2c2b6ff6961e84",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5766,10 +5766,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4945,
+          "evidence_note": "`evidence.inference_metrics.run_inference_benchmark`/`InferenceReport`; exact 0%/50%/100% failure-rate discrimination, plus two real, genuinely different backends (a trained neural net forward pass and a real HTTP service call)",
+          "id_column": "OPS-05 (first evidence)",
+          "requirement_note": "measure inference throughput, latency and failure rate; p50/p95/p99 trends shown per endpoint and model"
+        }
+      ],
       "requirement": "Measure inference throughput, latency and failure rate",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8623,7 +8630,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 194,
-    "without_repository_notes": 180
+    "with_repository_notes": 195,
+    "without_repository_notes": 179
   }
 }
