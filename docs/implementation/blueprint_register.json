@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "2b4ff517cb9a3bf61c1a75b562a84e0ab2bafd5f4a7531afc303925a66ad2e74",
+    "content_sha256": "ab7e8cbb26ce992509194762097f77ce1a500e2c6823c1cc5d3efd3c88d561d5",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "3c86d352a81961c6cc4d4beaf81fca164fe7845237941310c54aad20bc7a9712",
+  "checklist_notes_sha256": "607c8e20ba1cac8d5de4fbab0f71cfe9567de5ae2bf4ce1ac63c72414e60c12f",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3691,10 +3691,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4757,
+          "evidence_note": "`data_ingestion.french_factors.fetch_french_factors`; a real captured response (4,812 monthly + 396 annual observations, vintage \"202609\") parsed and fed through `PointInTimeStore`",
+          "id_column": "DAT-05 (first evidence)",
+          "requirement_note": "build Kenneth French factor ingestion with version tracking; factors and methodological release notes versioned"
+        }
+      ],
       "requirement": "Build Kenneth French factor ingestion with version tracking",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8588,7 +8595,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 189,
-    "without_repository_notes": 185
+    "with_repository_notes": 190,
+    "without_repository_notes": 184
   }
 }

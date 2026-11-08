@@ -4736,6 +4736,34 @@ capability yet.
 See
 [`src/prometheus/hedging/deep_hedge.py`](./src/prometheus/hedging/deep_hedge.py).
 
+## Evidenced today (PR-118: Kenneth French factor ingestion with version tracking -- DAT-05)
+
+A new `data_ingestion.french_factors` connector, following the same
+transport-injected, hermetic-test pattern as `data_ingestion.worldbank`.
+A real round trip against the live Kenneth French Data Library was run
+before any production code was written, confirming the ZIP archive's
+exact structure: three free-text header lines (the second naming the
+CRSP database vintage this release was built from, e.g. "created using
+the 202609 CRSP database" -- the version-tracking signal this item
+asks for), a monthly `Mkt-RF,SMB,HML,RF` table keyed by `YYYYMM`, an
+"Annual Factors" marker, and an annual table of the same four factors
+keyed by `YYYY`. The real captured response is embedded in the test
+file as a base64 string literal (no live network call during `pytest`),
+and every row count, date, and value asserted against it was read back
+from the parser's own output, not invented.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-05 (first evidence) | build Kenneth French factor ingestion with version tracking; factors and methodological release notes versioned | `data_ingestion.french_factors.fetch_french_factors`; a real captured response (4,812 monthly + 396 annual observations, vintage "202609") parsed and fed through `PointInTimeStore` |
+
+Not covered: only the "Research Data Factors" (3-factor) file is
+ingested, not French's other factor sets (momentum, 5-factor, industry
+portfolios); like `worldbank.py`, every observation in one fetch shares
+a single dataset-level `published_at` approximation, since the source
+gives no per-row vintage.
+See
+[`src/prometheus/data_ingestion/french_factors.py`](./src/prometheus/data_ingestion/french_factors.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
