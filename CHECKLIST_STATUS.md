@@ -4876,6 +4876,48 @@ session had no need to risk).
 See
 [`src/prometheus/evidence/security_scan.py`](./src/prometheus/evidence/security_scan.py).
 
+## Evidenced today (PR-122: job queue depth, runtime and cancellation metrics with warning/critical thresholds -- OPS-04)
+
+A new `evidence.queue_metrics` module, grounded in this repository's own
+REAL job queue (`jobs.store.JobStore`) rather than a standalone,
+disconnected metrics toy. `compute_queue_metrics` takes a
+`Sequence[Job]` -- the same real, already-persisted job records
+`JobStore.list_jobs` returns -- and reports queue depth, running count,
+cancellation count, and median/p95 runtime (each TERMINAL job's
+`updated_ns - created_ns`), matching this item's literal three-part
+"queue depth, runtimes and cancellation count."
+
+Confirmed against a REAL `JobStore` lifecycle, not only hand-built `Job`
+fixtures: submit/claim/cancel/finish with a deterministic injected
+clock produces a queued job, a running job, a cancelled job, and two
+succeeded jobs with distinct real elapsed times (11s and 21s via the
+injected clock) -- `compute_queue_metrics` reports exactly the queue
+depth (1), running count (1), cancellation count (1), and runtime
+percentiles (median 11.0s, p95 20.0s, the correct linear-interpolated
+95th percentile of the three real terminal runtimes) that lifecycle
+actually produced, not assumed values.
+
+`classify_queue_health` implements the "warning/critical thresholds"
+half: `QueueThresholds` rejects a warning value set above its own
+critical value for either dimension, and classification is worst-of
+across queue depth and p95 runtime independently -- confirmed by a case
+where queue depth alone is only "warning" but runtime alone is
+"critical," and the worse one wins. An empty queue (`p95` is `None`)
+never contributes a severity, so "no data yet" is not treated as a
+runtime problem.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-04 (first evidence) | measure job queue depth, runtimes and cancellation count; metrics dashboard with warning/critical thresholds | `evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`/`QueueThresholds`; a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock reproduces exact queue depth, running count, cancellation count and runtime percentiles |
+
+Not covered: no real dashboard UI renders these metrics (OPS-04's
+"dashboard" is a structured, testable metrics contract here, the same
+honest scope `evidence.slo_definitions`/`experiments.latency_benchmark`
+already use for their own "dashboard"/"report" language); no live
+metrics-storage system polls `JobStore` on a schedule.
+See
+[`src/prometheus/evidence/queue_metrics.py`](./src/prometheus/evidence/queue_metrics.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

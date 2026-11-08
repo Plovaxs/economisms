@@ -2562,6 +2562,23 @@ workflow file: the new test rides the existing unconditional
 `pytest -q` CI step. Not covered: a fixed denylist, not a live license
 database.
 
+Plus **job queue depth, runtime and cancellation metrics with warning/
+critical thresholds** (OPS-04, PR-122): `evidence.queue_metrics`,
+grounded in this repository's own real job queue
+(`jobs.store.JobStore`) rather than a disconnected toy.
+`compute_queue_metrics` takes the same real `Job` records
+`JobStore.list_jobs` returns and reports queue depth, running count,
+cancellation count, and median/p95 runtime. Confirmed against a REAL
+`JobStore` lifecycle (submit/claim/cancel/finish) with a deterministic
+injected clock: a queued, a running, a cancelled, and two succeeded
+jobs with distinct real elapsed times (11s/21s) produce exactly the
+metrics that lifecycle actually produced, not assumed values.
+`classify_queue_health` is worst-of across queue depth and p95 runtime
+independently, confirmed by a case where each dimension alone gives a
+different severity and the worse one wins; an empty queue (`p95` is
+`None`) never contributes a severity. Not covered: no real dashboard
+UI, no scheduled poller.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2888,6 +2905,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-119 (new ID) External data source inventory and license catalog (DAT-01) | implemented locally | `data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection; confirmed by 9 tests |
 | PR-120 (new ID) Sandbox validator for untrusted uploaded dataset archives (SEC-08) | implemented locally | `data_ingestion.dataset_sandbox.validate_zip_archive`/`SandboxLimits`; zip-slip and decompression-bomb rejection grounded in real archives on both sides of the default 100x threshold, plus a 600-case Hypothesis fuzz test; confirmed by 20 tests |
 | PR-121 (new ID) Restricted-data-license scan composing through the existing release gate (DAT-13) | implemented locally | `evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, CI-enforced via the existing unconditional `pytest -q` step; confirmed by 7 new tests |
+| PR-122 (new ID) Job queue depth, runtime and cancellation metrics with warning/critical thresholds (OPS-04) | implemented locally | `evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`; grounded in a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock, reproducing exact queue depth, running count, cancellation count and runtime percentiles; confirmed by 15 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3048,6 +3066,8 @@ PR-120 adds the first evidence for SEC-08, bringing the count from 191 to 192, c
 same way -- zip-slip and decompression-bomb rejection grounded in real archives, plus a Hypothesis fuzz test.
 PR-121 adds the first evidence for DAT-13, bringing the count from 192 to 193, confirmed the
 same way -- a real zero-finding license scan of this repository's own tracked source tree.
+PR-122 adds the first evidence for OPS-04, bringing the count from 193 to 194, confirmed the
+same way -- a real JobStore lifecycle with a deterministic clock reproducing exact queue metrics.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

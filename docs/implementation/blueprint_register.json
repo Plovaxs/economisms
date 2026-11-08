@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "efd5c4051e365f5f78b33dcc122a38a7f09f68f355db5f0de355e9e903c5d098",
+    "content_sha256": "1927ba8c714b0b7c97c09ead0d31d58f29f9ea83be9bcd273be4b640287990fa",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "1e9e6c1e4d6e7312d36e348de6bb587b9d44f86a0f5ec037f58ee65faa5aae3d",
+  "checklist_notes_sha256": "b79bf2d1d21a5ad6734b084e5931e5f91d6648ebd2a0d13219d6eb4e5f68ebb2",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5742,10 +5742,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4911,
+          "evidence_note": "`evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`/`QueueThresholds`; a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock reproduces exact queue depth, running count, cancellation count and runtime percentiles",
+          "id_column": "OPS-04 (first evidence)",
+          "requirement_note": "measure job queue depth, runtimes and cancellation count; metrics dashboard with warning/critical thresholds"
+        }
+      ],
       "requirement": "Measure job queue depth, runtimes and cancellation count",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8616,7 +8623,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 193,
-    "without_repository_notes": 181
+    "with_repository_notes": 194,
+    "without_repository_notes": 180
   }
 }
