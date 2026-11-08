@@ -2,9 +2,9 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C059%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C067%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
-[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-185%2F374%20(49.5%25)-blue)](./CHECKLIST_STATUS.md)
+[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-186%2F374%20(49.7%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](./pyproject.toml)
 
@@ -50,11 +50,11 @@ and every PR states plainly what it does *not* cover.
 
 | | |
 |---|---|
-| Blueprint items evidenced | **185 / 374** (49.5%) across 29 categories |
+| Blueprint items evidenced | **186 / 374** (49.7%) across 29 categories |
 | Categories at 100% | API, ECO, LED, OPT, PRI, RISK, SDE |
-| Test suite | **2,059 / 2,059** passing |
+| Test suite | **2,067 / 2,067** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 114, each independently verified |
+| Pull requests | 115, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

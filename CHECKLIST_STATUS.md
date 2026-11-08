@@ -4621,6 +4621,40 @@ latency (error rate, availability, etc.).
 See
 [`src/prometheus/evidence/slo_definitions.py`](./src/prometheus/evidence/slo_definitions.py).
 
+## Evidenced today (PR-115: reproducible inference against approved reference outputs -- MLO-11)
+
+MLO-11's own acceptance criterion is "same reference inputs produce
+approved outputs." `evidence.reproducible_inference.InputContract`
+names exactly the features an inference function expects, in order,
+and `validate` rejects any input whose shape does not match -- not a
+Docker container (this repository has none and does not claim one),
+but the input-contract half the acceptance criterion also names
+explicitly, applied to a real model's own inference function.
+`verify_reproducible_inference` re-runs inference on each reference
+input TODAY and reports any case whose output no longer matches its
+own recorded `approved_output` exactly, rather than trusting that it
+still would.
+
+Grounded in a real, deterministically-seeded `HedgePolicyMLP` (the same
+policy class MLO-07's `model_package` demonstration uses), not a stub:
+reference outputs are recorded by actually running inference once, then
+confirmed reproducible on a SECOND, independently constructed
+same-seed policy instance. A discriminating test confirms a tampered
+approved output -- one that does not match what the model actually
+produces -- is caught, with the exact input and both values, not
+silently accepted; another confirms an input violating the contract's
+own feature count is rejected before inference ever runs.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MLO-11 (first evidence) | implement reproducible inference container and input contracts; same reference inputs produce approved outputs | `evidence.reproducible_inference.InputContract`/`ReferenceCase`/`ReproducibilityMismatch`/`verify_reproducible_inference`; 8 tests (`tests/unit/test_reproducible_inference.py`) grounded in a real `HedgePolicyMLP`, including a tampered-approved-output discrimination case |
+
+Not covered: "container" is interpreted as reproducible inference, not
+a literal Docker/OCI container (none exists in this repository); only
+`HedgePolicyMLP` is demonstrated, not every model type.
+See
+[`src/prometheus/evidence/reproducible_inference.py`](./src/prometheus/evidence/reproducible_inference.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

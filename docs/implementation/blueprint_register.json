@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "fbdbacd16aa2089f6685ee5c9e94cfec219a597a0c04cbc545d216bcb45dcd7c",
+    "content_sha256": "ce9c083d5f966bb06b59266b051753108f19268198527e6d8d9637470640449d",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "6856b40cd9f5d48c611507096f86408b227bebbd38a2ea25825841df7eb02371",
+  "checklist_notes_sha256": "1fae2217f7595fdf307ddb7727252dc62175372bc5d480cd332b385a5d5880c0",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5004,10 +5004,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MLO",
       "id": "MLO-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4650,
+          "evidence_note": "`evidence.reproducible_inference.InputContract`/`ReferenceCase`/`ReproducibilityMismatch`/`verify_reproducible_inference`; 8 tests (`tests/unit/test_reproducible_inference.py`) grounded in a real `HedgePolicyMLP`, including a tampered-approved-output discrimination case",
+          "id_column": "MLO-11 (first evidence)",
+          "requirement_note": "implement reproducible inference container and input contracts; same reference inputs produce approved outputs"
+        }
+      ],
       "requirement": "Implement reproducible inference container and input contracts",
       "source_pdf_page": 33,
       "source_rows": [
@@ -8560,7 +8567,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 185,
-    "without_repository_notes": 189
+    "with_repository_notes": 186,
+    "without_repository_notes": 188
   }
 }
