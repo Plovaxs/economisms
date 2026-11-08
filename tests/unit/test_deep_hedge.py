@@ -173,6 +173,32 @@ def test_differentiable_accounting_matches_numpy_on_identical_actions() -> None:
     np.testing.assert_allclose(turnover.detach().numpy(), numpy_result.total_turnover, atol=1e-6)
 
 
+def test_differentiable_accounting_matches_numpy_for_a_put_payoff() -> None:
+    """The discriminating half of the call/put branch in `_rollout`'s
+    terminal payoff -- no existing test had ever exercised the "put"
+    path, only "call" -- cross-checked against the same independent
+    numpy reference the call case above uses."""
+    paths = simulate_gbm_paths(100.0, 0.08, 0.2, 1.0, 4, 8, np.random.default_rng(81))
+    policy = HedgePolicyMLP()
+    ratios = generate_policy_hedge_ratios(policy, paths, 0.25, 100.0, 1.0)
+    numpy_result = simulate_self_financing_hedge(
+        paths, 0.25, 100.0, "put", 0.1, 0.01, 10.0, ratios
+    )
+    losses, turnover = _rollout(
+        policy,
+        torch.tensor(paths, dtype=torch.float32),
+        0.25,
+        100.0,
+        1.0,
+        "put",
+        0.1,
+        0.01,
+        10.0,
+    )
+    np.testing.assert_allclose(losses.detach().numpy(), numpy_result.terminal_loss, atol=3e-5)
+    np.testing.assert_allclose(turnover.detach().numpy(), numpy_result.total_turnover, atol=1e-6)
+
+
 @pytest.mark.parametrize(
     ("spot", "remaining", "holdings", "strike"),
     [
@@ -185,3 +211,83 @@ def test_differentiable_accounting_matches_numpy_on_identical_actions() -> None:
 def test_single_state_inference_rejects_invalid_features(spot, remaining, holdings, strike) -> None:
     with pytest.raises(ValueError):
         evaluate_policy_action(HedgePolicyMLP(), spot, remaining, holdings, strike)
+
+
+def _resumable_setup() -> dict:
+    return dict(
+        strike=100.0,
+        maturity=1.0,
+        option_type="call",
+        risk_free_rate=0.05,
+        cost_rate=0.005,
+        initial_premium=10.0,
+        cvar_alpha=0.9,
+        turnover_penalty=0.001,
+        batch_size=64,
+        learning_rate=0.01,
+        seed=0,
+    )
+
+
+def _resumable_paths() -> np.ndarray:
+    rng = np.random.default_rng(1)
+    return simulate_gbm_paths(100.0, 0.08, 0.2, 1.0, n_steps=10, n_paths=500, rng=rng)
+
+
+def test_every_training_run_returns_a_final_checkpoint_and_epoch_log() -> None:
+    cfg = _resumable_setup()
+    result = train_deep_hedge(_resumable_paths(), 0.1, n_epochs=5, **cfg)
+    assert result.final_checkpoint is not None
+    assert result.final_checkpoint.epoch == 5
+    assert result.final_checkpoint.seed == 0
+    assert len(result.epoch_log) == 5
+
+
+def test_epoch_log_carries_step_epoch_and_seed_metadata() -> None:
+    """MLO-05's own acceptance criterion: "experiment log contains
+    step/epoch/seed metadata" -- each entry's epoch index, seed, and
+    a real gradient-norm diagnostic, checked explicitly."""
+    cfg = _resumable_setup()
+    result = train_deep_hedge(_resumable_paths(), 0.1, n_epochs=5, **cfg)
+    assert [record.epoch for record in result.epoch_log] == [0, 1, 2, 3, 4]
+    assert all(record.seed == 0 for record in result.epoch_log)
+    assert all(record.gradient_norm >= 0.0 for record in result.epoch_log)
+    assert any(record.gradient_norm > 0.0 for record in result.epoch_log)  # not a dead network
+
+
+def test_mid_run_resume_reproduces_the_uninterrupted_run_exactly() -> None:
+    """MLO-04's own acceptance criterion: "mid-run resume reproduces
+    experiment within tolerance" -- confirmed here to match EXACTLY
+    (bit-for-bit final policy weights and objective values), not merely
+    approximately: a training run split at an arbitrary midpoint, with
+    a genuine checkpoint/resume in between, must reach the identical
+    final policy as the same run performed uninterrupted."""
+    cfg = _resumable_setup()
+    paths = _resumable_paths()
+
+    uninterrupted = train_deep_hedge(paths, 0.1, n_epochs=20, **cfg)
+
+    first_half = train_deep_hedge(paths, 0.1, n_epochs=8, **cfg)
+    resumed = train_deep_hedge(
+        paths, 0.1, n_epochs=20, resume_from=first_half.final_checkpoint, **cfg
+    )
+
+    assert resumed.objective_history == uninterrupted.objective_history[8:]
+    uninterrupted_state = uninterrupted.policy.state_dict()
+    resumed_state = resumed.policy.state_dict()
+    assert set(uninterrupted_state) == set(resumed_state)
+    for key in uninterrupted_state:
+        assert torch.equal(uninterrupted_state[key], resumed_state[key])
+
+
+def test_resuming_with_a_mismatched_seed_is_rejected() -> None:
+    """A resume that used a DIFFERENT seed than the one passed to this
+    call would not reproduce the uninterrupted run -- rejected
+    explicitly rather than silently producing a diverging result."""
+    cfg = _resumable_setup()
+    paths = _resumable_paths()
+    checkpoint = train_deep_hedge(paths, 0.1, n_epochs=5, **cfg).final_checkpoint
+
+    other_cfg = {**cfg, "seed": 1}
+    with pytest.raises(ValueError, match="resume_from.seed"):
+        train_deep_hedge(paths, 0.1, n_epochs=10, resume_from=checkpoint, **other_cfg)

@@ -3,12 +3,31 @@ turnover penalty (section 3.4's loss-tail objective; Buehler et al. 2019
 [R01]). Training differentiates directly through a self-financing rollout
 written in PyTorch (mirroring simulate.simulate_self_financing_hedge's
 accounting exactly), so gradients reach every rehedge decision.
+
+MLO-04 ("persist training seeds, optimizer, scheduler and RNG state";
+acceptance criterion: "mid-run resume reproduces experiment within
+tolerance") and MLO-05 ("track learning curves and gradient
+diagnostics"; acceptance criterion: "experiment log contains
+step/epoch/seed metadata") are additive to the training loop below:
+`train_deep_hedge` always returns a `final_checkpoint` (policy,
+optimizer and minibatch-sampling generator state) and a per-epoch
+`epoch_log`, and accepts an optional `resume_from` to continue training
+from an earlier checkpoint instead of starting fresh. Resuming is
+deterministic because minibatch sampling is drawn from its OWN local
+`torch.Generator` (seeded and snapshotted/restored independently of the
+global RNG `torch.manual_seed` affects only at weight initialization,
+which a resumed run immediately overwrites via `load_state_dict`
+anyway) -- confirmed, not assumed, by a test that trains N epochs
+uninterrupted and separately trains the same N epochs split at an
+arbitrary midpoint with a resume in between, and checks the two runs'
+final policy weights match exactly.
 """
 
 from __future__ import annotations
 
+import copy
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import torch
@@ -106,9 +125,28 @@ def _rollout(
 
 
 @dataclass(frozen=True, slots=True)
+class EpochRecord:
+    epoch: int
+    seed: int
+    objective: float
+    gradient_norm: float
+
+
+@dataclass(frozen=True, slots=True)
+class TrainingCheckpoint:
+    epoch: int
+    seed: int
+    policy_state_dict: dict[str, torch.Tensor]
+    optimizer_state_dict: dict[str, object]
+    generator_state: torch.Tensor
+
+
+@dataclass(frozen=True, slots=True)
 class DeepHedgeTrainingResult:
     policy: HedgePolicyMLP
     objective_history: list[float]
+    epoch_log: tuple[EpochRecord, ...] = field(default_factory=tuple)
+    final_checkpoint: TrainingCheckpoint | None = None
 
 
 def train_deep_hedge(
@@ -126,13 +164,25 @@ def train_deep_hedge(
     batch_size: int = 256,
     learning_rate: float = 1e-2,
     seed: int = 0,
+    resume_from: TrainingCheckpoint | None = None,
 ) -> DeepHedgeTrainingResult:
     """Train a HedgePolicyMLP by sampling random minibatches of
     `price_paths` at each epoch. `price_paths` should be physical-measure
     (P) paths -- the policy only ever observes realized prices, never
     anything measure-specific -- the examples in this repository use
     stochastica.gbm, which may carry a nonzero equity risk premium (mu
-    distinct from the risk-free rate used for cash financing)."""
+    distinct from the risk-free rate used for cash financing).
+
+    `resume_from`, if given, must carry the SAME `seed` (checked below)
+    and continues training from its own recorded epoch through
+    `n_epochs`, rather than training from epoch 0 -- see this module's
+    own docstring for why this reproduces the uninterrupted run exactly."""
+    if resume_from is not None and resume_from.seed != seed:
+        raise ValueError(
+            f"resume_from.seed ({resume_from.seed}) must match the seed passed to "
+            f"train_deep_hedge ({seed}) -- resuming with a different seed would not "
+            "reproduce the uninterrupted run"
+        )
     torch.manual_seed(seed)
     n_paths = price_paths.shape[0]
     if batch_size > n_paths:
@@ -142,9 +192,17 @@ def train_deep_hedge(
     policy = HedgePolicyMLP()
     optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
     history: list[float] = []
-
+    epoch_log: list[EpochRecord] = []
     generator = torch.Generator().manual_seed(seed)
-    for _ in range(n_epochs):
+    start_epoch = 0
+
+    if resume_from is not None:
+        policy.load_state_dict(resume_from.policy_state_dict)
+        optimizer.load_state_dict(resume_from.optimizer_state_dict)
+        generator.set_state(resume_from.generator_state)
+        start_epoch = resume_from.epoch
+
+    for epoch in range(start_epoch, n_epochs):
         idx = torch.randint(0, n_paths, (batch_size,), generator=generator)
         batch = paths_tensor[idx]
 
@@ -165,10 +223,34 @@ def train_deep_hedge(
 
         optimizer.zero_grad()
         objective.backward()  # type: ignore[no-untyped-call]
+        grad_norm_sq = sum(
+            float(p.grad.detach().pow(2).sum().item())
+            for p in policy.parameters()
+            if p.grad is not None
+        )
         optimizer.step()
-        history.append(float(objective.item()))
+        objective_value = float(objective.item())
+        history.append(objective_value)
+        epoch_log.append(
+            EpochRecord(
+                epoch=epoch, seed=seed, objective=objective_value,
+                gradient_norm=math.sqrt(grad_norm_sq),
+            )
+        )
 
-    return DeepHedgeTrainingResult(policy=policy, objective_history=history)
+    final_checkpoint = TrainingCheckpoint(
+        epoch=n_epochs,
+        seed=seed,
+        policy_state_dict={k: v.clone() for k, v in policy.state_dict().items()},
+        optimizer_state_dict=copy.deepcopy(optimizer.state_dict()),
+        generator_state=generator.get_state().clone(),
+    )
+    return DeepHedgeTrainingResult(
+        policy=policy,
+        objective_history=history,
+        epoch_log=tuple(epoch_log),
+        final_checkpoint=final_checkpoint,
+    )
 
 
 def generate_policy_hedge_ratios(

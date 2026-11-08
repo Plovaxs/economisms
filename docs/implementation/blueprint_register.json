@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "d05a4aa884026c4cb93857d7d2dafafc13beeb240295907e4f8d5e2ca95d4869",
+    "content_sha256": "2b4ff517cb9a3bf61c1a75b562a84e0ab2bafd5f4a7531afc303925a66ad2e74",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "1fb0bfeea536e1f41b65d72516747e1c728d8a53a9037f33b4892cb759156172",
+  "checklist_notes_sha256": "3c86d352a81961c6cc4d4beaf81fca164fe7845237941310c54aad20bc7a9712",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -4851,10 +4851,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MLO",
       "id": "MLO-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4729,
+          "evidence_note": "`hedging.deep_hedge.TrainingCheckpoint`/`resume_from`; a real split-training-run test confirming BIT-FOR-BIT exact final-weight reproduction, plus a mismatched-seed rejection",
+          "id_column": "MLO-04 (first evidence)",
+          "requirement_note": "persist training seeds, optimizer, scheduler and RNG state; mid-run resume reproduces experiment within tolerance"
+        }
+      ],
       "requirement": "Persist training seeds, optimizer, scheduler and RNG state",
       "source_pdf_page": 33,
       "source_rows": [
@@ -4868,10 +4875,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MLO",
       "id": "MLO-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4730,
+          "evidence_note": "`hedging.deep_hedge.EpochRecord`/`epoch_log`; confirmed to carry real epoch/seed/gradient-norm metadata, non-trivially",
+          "id_column": "MLO-05 (first evidence)",
+          "requirement_note": "track learning curves and gradient diagnostics; experiment log contains step/epoch/seed metadata"
+        }
+      ],
       "requirement": "Track learning curves and gradient diagnostics",
       "source_pdf_page": 33,
       "source_rows": [
@@ -8574,7 +8588,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 187,
-    "without_repository_notes": 187
+    "with_repository_notes": 189,
+    "without_repository_notes": 185
   }
 }

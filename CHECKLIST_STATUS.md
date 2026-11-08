@@ -4687,6 +4687,55 @@ actually constructs a `DatasetProvenance` as part of its own run yet.
 See
 [`src/prometheus/evidence/dataset_provenance.py`](./src/prometheus/evidence/dataset_provenance.py).
 
+## Evidenced today (PR-117: checkpoint/resume and a per-epoch learning-curve/gradient log for deep hedge training -- MLO-04, MLO-05)
+
+Both items extend `hedging.deep_hedge.train_deep_hedge` -- an existing,
+already-tested production training function -- ADDITIVELY: every new
+field has a default, so every pre-existing caller (`orchestration.*`,
+`experiments.hedge_benchmark`, `hedging.comparison`, and a direct
+2-positional-argument `DeepHedgeTrainingResult(policy, [0.0])`
+construction in `test_monetary_study.py`) is confirmed unaffected,
+re-running the full suite before and after.
+
+MLO-04's acceptance criterion is "mid-run resume reproduces experiment
+within tolerance." Every training run now returns a `TrainingCheckpoint`
+(policy/optimizer state dicts plus the minibatch-sampling generator's own
+state), and an optional `resume_from` continues training from its
+recorded epoch instead of epoch 0. This is deterministic because
+minibatch sampling is drawn from its own LOCAL `torch.Generator`,
+snapshotted and restored independently of the global RNG
+`torch.manual_seed` affects only at weight initialization (which a
+resumed run immediately overwrites via `load_state_dict` regardless) --
+confirmed, not assumed: a training run split at an arbitrary midpoint
+with a genuine checkpoint/resume in between reproduces the uninterrupted
+run's final policy weights EXACTLY (bit-for-bit via `torch.equal`), not
+merely "within tolerance." Resuming with a mismatched seed is rejected
+explicitly rather than silently diverging.
+
+MLO-05's acceptance criterion is "experiment log contains step/epoch/
+seed metadata." Every epoch now appends an `EpochRecord` (epoch index,
+seed, objective value, and a real gradient-norm diagnostic computed
+from the policy's own `.grad` tensors after `backward()`), confirmed
+non-trivial (not a dead network reporting zero gradients throughout).
+
+Re-verifying the full module's coverage after this change surfaced a
+genuine pre-existing gap, unrelated to this PR's own additions: no
+test had ever exercised `_rollout`'s "put" branch, only "call" -- closed
+with one new test, cross-checked against the same independent numpy
+reference the existing call-side test already uses.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MLO-04 (first evidence) | persist training seeds, optimizer, scheduler and RNG state; mid-run resume reproduces experiment within tolerance | `hedging.deep_hedge.TrainingCheckpoint`/`resume_from`; a real split-training-run test confirming BIT-FOR-BIT exact final-weight reproduction, plus a mismatched-seed rejection |
+| MLO-05 (first evidence) | track learning curves and gradient diagnostics; experiment log contains step/epoch/seed metadata | `hedging.deep_hedge.EpochRecord`/`epoch_log`; confirmed to carry real epoch/seed/gradient-norm metadata, non-trivially |
+
+Not covered: no learning-rate scheduler exists in this training loop to
+persist (Adam with a fixed learning rate only); no other training
+function in this repository (e.g. `hedging.rate_hedge`) has this
+capability yet.
+See
+[`src/prometheus/hedging/deep_hedge.py`](./src/prometheus/hedging/deep_hedge.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
