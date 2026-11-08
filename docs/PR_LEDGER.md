@@ -2446,6 +2446,16 @@ at one iteration out of 60 is still detected. Not covered: a 60-iteration
 proxy, not a literal multi-hour production soak; no `StepHooks` loop
 exercised yet.
 
+Plus **internal service SLO/SLI definitions, closing the loop with
+REL-02** (REL-01, PR-114): `ServiceLevelObjective` is structured,
+testable data, with `workload_assumption`/`approved_by` required and
+no default. The metadata API's SLO names the same endpoint and
+workload shape (concurrency 8) REL-02's own real load test exercises,
+and `slo_is_met` confirms a genuine `LoadReport` from that real test
+satisfies it — not a fabricated report built to pass; it also rejects
+being checked against a report for a different endpoint. Not covered:
+only one SLO defined; no broader sheet or non-latency SLIs.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2764,13 +2774,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-111 (new ID) Tamper-evident hash-chained log for access-control changes and privileged actions (AUD-07) | implemented locally | `evidence.tamper_evident_log.TamperEvidentLog`/`LogEntry`/`TamperEvidenceError`; reuses `jobs.store`'s own hash-chaining technique, generalized; a direct tamper and a forged-hash tamper are both caught, confirmed by 8 tests |
 | PR-112 (new ID) Real p95 load report for the metadata API (REL-02) | implemented locally | `experiments.latency_benchmark.LoadReport`/`build_load_report`/`meets_p95_target`; a real 120-request, concurrency-8 load test against `ResearchService`'s own ASGI `GET /v1/jobs` endpoint, confirmed stable across repeated runs |
 | PR-113 (new ID) Long-horizon numerical-stability and memory-leak soak test (REL-09) | implemented locally | `experiments.soak_test.SoakTestResult`/`run_soak_test`; a real 60-iteration GBM soak run plus a deliberate-leak and a single-bad-iteration discrimination case, confirmed by 7 tests, stable across repeated reruns |
+| PR-114 (new ID) Internal service SLO/SLI definitions (REL-01) | implemented locally | `evidence.slo_definitions.ServiceLevelObjective`/`slo_is_met`; closes the loop with REL-02, confirming a genuine `LoadReport` meets its own named SLO, plus a wrong-endpoint rejection; confirmed by 8 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-184 distinct blueprint checklist IDs with some test evidence, including partial
+185 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2908,6 +2919,8 @@ PR-112 adds the first evidence for REL-02, bringing the count from 182 to 183, c
 same way -- a real concurrent load test against ResearchService's own ASGI metadata endpoint.
 PR-113 adds the first evidence for REL-09, bringing the count from 183 to 184, confirmed the
 same way -- a real 60-iteration GBM soak test with deliberate-leak and bad-iteration discrimination.
+PR-114 adds the first evidence for REL-01, bringing the count from 184 to 185, confirmed the
+same way -- an SLO definition that closes the loop with REL-02's own real load report.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

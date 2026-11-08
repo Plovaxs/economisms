@@ -4593,6 +4593,34 @@ exercised yet.
 See
 [`src/prometheus/experiments/soak_test.py`](./src/prometheus/experiments/soak_test.py).
 
+## Evidenced today (PR-114: internal service SLO/SLI definitions, closing the loop with REL-02 -- REL-01)
+
+REL-01's own acceptance criterion is "approved SLO sheet contains
+workload assumptions." `evidence.slo_definitions.ServiceLevelObjective`
+is structured, testable DATA, not free prose an SLO "sheet" usually is
+-- `workload_assumption` and `approved_by` are both required with no
+default, since an SLO with no stated workload assumption or no named
+approver is not actually "approved" in any checkable sense.
+
+Closes the loop with REL-02 rather than restating it: the metadata API's
+SLO names the SAME endpoint and the SAME workload shape (concurrency 8)
+REL-02's own real load test exercises, and `slo_is_met` confirms a
+GENUINE `LoadReport` measured against the real `ResearchService` ASGI
+application satisfies it -- not a fabricated report built to pass.
+`slo_is_met` also rejects being checked against a report for a different
+endpoint, confirmed by a dedicated test, so an SLO can never be silently
+validated against the wrong measurement.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-01 (first evidence) | document explicit internal service SLO/SLI definitions; approved SLO sheet contains workload assumptions | `evidence.slo_definitions.ServiceLevelObjective`/`slo_is_met`; 8 tests (`tests/unit/test_slo_definitions.py`) including a real load-report-meets-its-own-SLO case reusing REL-02's methodology and a wrong-endpoint rejection |
+
+Not covered: only one SLO (the metadata API's p95) is defined; no
+broader "SLO sheet" covering every endpoint, nor any SLI besides
+latency (error rate, availability, etc.).
+See
+[`src/prometheus/evidence/slo_definitions.py`](./src/prometheus/evidence/slo_definitions.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
