@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "130052e1ca0877c649f8b4fe93594ec9562f8da183e96a4f926afea57eb5c11c",
+    "content_sha256": "efd5c4051e365f5f78b33dcc122a38a7f09f68f355db5f0de355e9e903c5d098",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "f4228725985fd903fcb4c249f1fb726d19f70fcb95f0de5c9c351622221884b2",
+  "checklist_notes_sha256": "1e9e6c1e4d6e7312d36e348de6bb587b9d44f86a0f5ec037f58ee65faa5aae3d",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3908,10 +3908,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4869,
+          "evidence_note": "`evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, enforced every CI run via the existing unconditional `pytest -q` step",
+          "id_column": "DAT-13 (first evidence)",
+          "requirement_note": "prevent licensed/raw data from entering public release; CI secret/license scan and publication approval pass"
+        }
+      ],
       "requirement": "Prevent licensed/raw data from entering public release",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8609,7 +8616,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 192,
-    "without_repository_notes": 182
+    "with_repository_notes": 193,
+    "without_repository_notes": 181
   }
 }

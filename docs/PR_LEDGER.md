@@ -2545,6 +2545,23 @@ covered: Zip Slip is not actually exploitable through this
 repository's current connectors today (none extract to disk); the
 validator is not yet wired into them.
 
+Plus **a restricted-data-license scan composing through the existing
+release gate** (DAT-13, PR-121): extends `evidence.security_scan`
+additively with `license_scan`, mirroring `secret_scan`'s exact
+structure but for restricted-redistribution data vendor names
+(Bloomberg Terminal, Refinitiv, FactSet, S&P Capital IQ, LSEG,
+Morningstar Direct) and no-redistribution marker phrases.
+`evaluate_release_gate` was already scanner-agnostic, so a real
+`license_scan` finding is confirmed to block the SAME gate
+`secret_scan` does, with zero new gating logic. A real self-check of
+this repository's own tracked `src/` tree (excluding
+`security_scan.py` itself, which must name the vendors it detects)
+finds zero restricted markers today -- every source this project
+actually uses is free/open. This is CI-enforced without touching any
+workflow file: the new test rides the existing unconditional
+`pytest -q` CI step. Not covered: a fixed denylist, not a live license
+database.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2870,6 +2887,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-118 (new ID) Kenneth French factor ingestion with version tracking (DAT-05) | implemented locally | `data_ingestion.french_factors.fetch_french_factors`; a real captured Kenneth French Data Library response (4,812 monthly + 396 annual observations, vintage "202609") embedded hermetically and fed through `PointInTimeStore`; confirmed by 9 tests |
 | PR-119 (new ID) External data source inventory and license catalog (DAT-01) | implemented locally | `data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection; confirmed by 9 tests |
 | PR-120 (new ID) Sandbox validator for untrusted uploaded dataset archives (SEC-08) | implemented locally | `data_ingestion.dataset_sandbox.validate_zip_archive`/`SandboxLimits`; zip-slip and decompression-bomb rejection grounded in real archives on both sides of the default 100x threshold, plus a 600-case Hypothesis fuzz test; confirmed by 20 tests |
+| PR-121 (new ID) Restricted-data-license scan composing through the existing release gate (DAT-13) | implemented locally | `evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, CI-enforced via the existing unconditional `pytest -q` step; confirmed by 7 new tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3028,6 +3046,8 @@ PR-119 adds the first evidence for DAT-01, bringing the count from 190 to 191, c
 same way -- an ast-derived source catalog finding both real connectors' actual URL/license strings.
 PR-120 adds the first evidence for SEC-08, bringing the count from 191 to 192, confirmed the
 same way -- zip-slip and decompression-bomb rejection grounded in real archives, plus a Hypothesis fuzz test.
+PR-121 adds the first evidence for DAT-13, bringing the count from 192 to 193, confirmed the
+same way -- a real zero-finding license scan of this repository's own tracked source tree.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

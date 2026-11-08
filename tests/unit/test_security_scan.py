@@ -4,6 +4,7 @@ from prometheus.evidence.security_scan import (
     ReleaseGateDecision,
     ScanFinding,
     evaluate_release_gate,
+    license_scan,
     secret_scan,
 )
 
@@ -65,6 +66,68 @@ def test_this_repositorys_own_real_source_tree_has_no_secret_findings() -> None:
     files = {str(path): path.read_text() for path in src_root.rglob("*.py")}
     assert len(files) > 100  # sanity: the real tree was actually read, not an empty directory
     assert secret_scan(files) == []
+
+
+def test_license_scan_finds_nothing_in_clean_files() -> None:
+    assert license_scan({"notes.md": "World Bank Open Data is CC-BY-4.0.\n"}) == []
+
+
+def test_license_scan_detects_a_restricted_vendor_name() -> None:
+    findings = license_scan({"notes.md": "Pulled a snapshot from the Bloomberg Terminal feed.\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "restricted-redistribution data vendor name"
+    assert findings[0].severity == "critical"
+    assert findings[0].location == "notes.md:1"
+
+
+def test_license_scan_detects_a_no_redistribution_phrase() -> None:
+    findings = license_scan({"data.txt": "Internal use only -- not for redistribution.\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "explicit no-redistribution marker phrase"
+
+
+def test_license_scan_reports_the_correct_line_number_past_the_first_line() -> None:
+    content = "line one\nline two\nSourced via Refinitiv feed.\n"
+    findings = license_scan({"f.md": content})
+    assert findings[0].location == "f.md:3"
+
+
+def test_license_scan_checks_every_file_in_the_mapping_independently() -> None:
+    files = {
+        "clean.md": "World Bank Open Data, CC-BY-4.0.\n",
+        "dirty.md": "Sourced from FactSet.\n",
+    }
+    findings = license_scan(files)
+    assert len(findings) == 1
+    assert findings[0].location.startswith("dirty.md:")
+
+
+def test_this_repositorys_own_real_source_tree_has_no_restricted_license_findings() -> None:
+    """A genuine self-check against this repository's actual src/ tree,
+    confirming DAT-13's acceptance criterion holds today: every external
+    data source this project actually uses (World Bank Open Data,
+    Kenneth French Data Library) is free/open, so a sweep finds zero
+    restricted-vendor or no-redistribution markers anywhere. Excludes
+    `evidence/security_scan.py` itself, whose own pattern definitions
+    must literally name the vendors they detect -- the same reason a
+    linter excludes its own rule-definition file from its own linting."""
+    src_root = pathlib.Path(__file__).resolve().parents[2] / "src"
+    files = {
+        str(path): path.read_text()
+        for path in src_root.rglob("*.py")
+        if path.name != "security_scan.py"
+    }
+    assert len(files) > 100  # sanity: the real tree was actually read, not an empty directory
+    assert license_scan(files) == []
+
+
+def test_a_license_scan_finding_blocks_the_release_gate_the_same_way_a_secret_does() -> None:
+    """Confirms the two scanners compose through the SAME gate, closing
+    DAT-13's "CI secret/license scan ... pass" loop end to end."""
+    finding = license_scan({"notes.md": "Sourced via Bloomberg Terminal.\n"})[0]
+    decision = evaluate_release_gate([finding])
+    assert decision.blocked is True
+    assert decision.unapproved_findings == (finding,)
 
 
 def test_finding_id_is_deterministic_for_identical_findings() -> None:

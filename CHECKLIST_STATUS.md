@@ -4838,6 +4838,44 @@ themselves. Only zip archives are covered, not other untrusted formats
 See
 [`src/prometheus/data_ingestion/dataset_sandbox.py`](./src/prometheus/data_ingestion/dataset_sandbox.py).
 
+## Evidenced today (PR-121: a restricted-data-license scan, composing through the existing release gate -- DAT-13)
+
+Extends `evidence.security_scan` (CIQ-05) additively with `license_scan`,
+mirroring `secret_scan`'s exact structure: a fixed, self-contained
+pattern set, this time for restricted-redistribution data vendor names
+(Bloomberg Terminal, Refinitiv/Thomson Reuters, FactSet, S&P Capital IQ,
+LSEG, Morningstar Direct) and explicit no-redistribution marker phrases,
+rather than hardcoded secrets. Because `evaluate_release_gate` was
+already deliberately scanner-agnostic (any `ScanFinding` sequence),
+`license_scan`'s findings block the SAME gate `secret_scan`'s do with
+zero new gating logic -- confirmed directly, not assumed, by a test
+feeding a real `license_scan` finding through `evaluate_release_gate`.
+
+A genuine self-check against this repository's own real `src/` tree
+(excluding `security_scan.py` itself, whose pattern definitions must
+literally name the vendors they detect) confirms DAT-13's acceptance
+criterion holds today: every external data source this project actually
+uses (World Bank Open Data, the Kenneth French Data Library) is
+free/open, so the sweep finds zero restricted-vendor or
+no-redistribution markers -- a genuine negative result, not an untested
+assumption. This is a CI-ENFORCED gate, not merely a function that
+exists: `pytest -q` already runs unconditionally in
+`.github/workflows/ci.yml` on every push and PR, and this new real-tree
+test is now part of that suite, so any future commit introducing a
+restricted-license marker fails CI without any workflow-file edit.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-13 (first evidence) | prevent licensed/raw data from entering public release; CI secret/license scan and publication approval pass | `evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, enforced every CI run via the existing unconditional `pytest -q` step |
+
+Not covered: the vendor-name/phrase denylist is fixed and self-contained,
+not a live license-terms database query; no actual CI workflow file was
+edited (the gate rides on the existing unconditional test step, which
+was already sufficient and avoided a `.github/workflows` change this
+session had no need to risk).
+See
+[`src/prometheus/evidence/security_scan.py`](./src/prometheus/evidence/security_scan.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

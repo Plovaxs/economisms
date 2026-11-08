@@ -1,6 +1,9 @@
-"""Secret scanning and a severity-gated release decision (CIQ-05:
-"run vulnerability, dependency and secret scans"; acceptance criterion:
-"high/critical findings block release unless approved").
+"""Secret scanning, a restricted-data-license scan, and a severity-gated
+release decision (CIQ-05: "run vulnerability, dependency and secret
+scans"; acceptance criterion: "high/critical findings block release
+unless approved"; and DAT-13: "prevent licensed/raw data from entering
+public release"; acceptance criterion: "CI secret/license scan and
+publication approval pass").
 
 Of the three scan types CIQ-05 names, only secret scanning is
 implemented here honestly: a genuine vulnerability/dependency scan
@@ -27,6 +30,21 @@ other manifests already use -- so a specific finding can be
 individually approved (e.g. a confirmed false positive or an accepted
 risk) without blanket-approving every OTHER finding that happens to
 share the same category description.
+
+`license_scan` checks for a different, narrower signal: not a secret,
+but a restricted-redistribution data vendor name (Bloomberg, Refinitiv/
+Thomson Reuters, FactSet, S&P Capital IQ, LSEG, Morningstar Direct) or
+an explicit no-redistribution marker phrase appearing in a tracked
+file -- the kind of thing that would indicate someone pasted licensed
+raw vendor data or its terms into this repository by mistake. Every
+external data source this project actually uses today (World Bank
+Open Data, the Kenneth French Data Library) is confirmed free/open, so
+a sweep of this repository's own real tracked source tree is expected,
+and confirmed, to find zero matches -- a genuine negative result, not
+an untested assumption. Like `secret_scan`'s hardcoded-secret patterns,
+this is a fixed, self-contained denylist, not a live license database
+query, which this repository's hermetic test discipline has no way to
+make reliable in this environment.
 """
 
 from __future__ import annotations
@@ -41,6 +59,21 @@ from prometheus.experiments.manifest import compute_result_hash
 Severity = Literal["low", "medium", "high", "critical"]
 
 _BLOCKING_SEVERITIES: frozenset[str] = frozenset({"high", "critical"})
+
+_RESTRICTED_LICENSE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(r"(?i)\b(?:Bloomberg\s+Terminal|Refinitiv|Thomson\s+Reuters|FactSet|"
+                   r"S&P\s+Capital\s+IQ|LSEG|Morningstar\s+Direct)\b"),
+        "restricted-redistribution data vendor name",
+    ),
+    (
+        re.compile(
+            r"(?i)\b(?:not\s+for\s+redistribution|do\s+not\s+distribute|"
+            r"proprietary\s+and\s+confidential)\b"
+        ),
+        "explicit no-redistribution marker phrase",
+    ),
+)
 
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS access key ID"),
@@ -84,6 +117,26 @@ def secret_scan(files: Mapping[str, str]) -> list[ScanFinding]:
                 findings.append(
                     ScanFinding(
                         scanner="secret_scan",
+                        severity="critical",
+                        location=f"{path}:{line_number}",
+                        description=description,
+                    )
+                )
+    return findings
+
+
+def license_scan(files: Mapping[str, str]) -> list[ScanFinding]:
+    """`files` maps a path (any caller-chosen label) to its text
+    content. Every match of `_RESTRICTED_LICENSE_PATTERNS` is reported
+    as a `critical` finding, located by 1-based line number."""
+    findings = []
+    for path, content in files.items():
+        for pattern, description in _RESTRICTED_LICENSE_PATTERNS:
+            for match in pattern.finditer(content):
+                line_number = content.count("\n", 0, match.start()) + 1
+                findings.append(
+                    ScanFinding(
+                        scanner="license_scan",
                         severity="critical",
                         location=f"{path}:{line_number}",
                         description=description,
