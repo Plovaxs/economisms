@@ -2410,6 +2410,19 @@ already-known outcome. Demonstrated against RISK-09's own
 well-calibrated forecast (p=0.33) doesn't escalate, a genuinely
 miscalibrated one (p≈3.6e-10) does.
 
+Plus **a tamper-evident hash-chained log for access-control changes
+and privileged actions** (AUD-07, PR-111): reuses the same
+hash-chaining technique `jobs.store.JobStore.verify_audit_chain`
+already established, generalized to any caller-supplied event since
+access-control changes have no natural home in that job-specific
+schema. There is deliberately no "edit" method; `verify` re-derives
+every hash from scratch rather than trusting stored values. "Tamper-
+evident" is proven: a direct tamper and a more sophisticated
+forged-hash tamper are both caught (the forged entry no longer chains
+from the preceding entry's real hash), and truncating the log changes
+the verified head. Not covered: `CredentialStore` itself isn't wired
+to write to this log yet; in-memory only.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2725,13 +2738,14 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-108 (new ID) Raw/normalized/features/artifacts storage layers (DAT-06) | implemented locally | `econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; per-key immutability plus a strict read-permission pipeline, confirmed by a skip-a-layer rejection test |
 | PR-109 (new ID) Schema contracts with quarantine, unit normalization and currency mapping (DAT-10) | implemented locally | `econosim.schema_contracts.SchemaContract`/`QuarantinedRecord`/`validate_against_contract`/`normalize_unit`/`map_currency_code`; exact unit-scale conversion only, no fabricated FX rates; 14 tests including the distinct unit-vs-currency mismatch discrimination |
 | PR-110 (new ID) Retraining triggers with pre-registered thresholds (MLO-13) | implemented locally | `evidence.retraining_trigger.RetrainingThreshold`/`RetrainingEscalation`/`evaluate_retraining_trigger`; reuses RISK-09's `es_unconditional_calibration_test` with real well-calibrated (p=0.33) and miscalibrated (p≈3.6e-10) p-values, plus a backdating rejection |
+| PR-111 (new ID) Tamper-evident hash-chained log for access-control changes and privileged actions (AUD-07) | implemented locally | `evidence.tamper_evident_log.TamperEvidentLog`/`LogEntry`/`TamperEvidenceError`; reuses `jobs.store`'s own hash-chaining technique, generalized; a direct tamper and a forged-hash tamper are both caught, confirmed by 8 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
 and cross-checked against closed-form or exact references wherever one
 exists rather than an arbitrary tolerance. It does not mean the blueprint's
 374-item checklist is anywhere near complete — `CHECKLIST_STATUS.md` lists
-181 distinct blueprint checklist IDs with some test evidence, including partial
+182 distinct blueprint checklist IDs with some test evidence, including partial
 implementations and IDs reused across slices. Table-row counts double-count
 those reused IDs; they are not a completion percentage. The separate risk-register
 entry R-03 is excluded; PR-021 adds partial HDG-10 evidence to PR-020's corrected count of 69.
@@ -2863,6 +2877,8 @@ PR-109 adds the first evidence for DAT-10, bringing the count from 179 to 180, c
 same way -- quarantine-based schema contracts plus exact unit normalization and currency mapping.
 PR-110 adds the first evidence for MLO-13, bringing the count from 180 to 181, confirmed the
 same way -- pre-registered retraining thresholds demonstrated against real RISK-09 p-values.
+PR-111 adds the first evidence for AUD-07, bringing the count from 181 to 182, confirmed the
+same way -- a tamper-evident hash-chained log reusing jobs.store's own chaining technique.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

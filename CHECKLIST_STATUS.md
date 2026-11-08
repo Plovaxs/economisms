@@ -4491,6 +4491,45 @@ could equally be wired through the same trigger, but are not here).
 See
 [`src/prometheus/evidence/retraining_trigger.py`](./src/prometheus/evidence/retraining_trigger.py).
 
+## Evidenced today (PR-111: a tamper-evident hash-chained log for access-control changes and privileged actions -- AUD-07)
+
+AUD-07's own acceptance criterion is "regular audit review confirms
+tamper-evident retention." `evidence.tamper_evident_log.TamperEvidentLog`
+reuses the SAME hash-chaining technique `jobs.store.JobStore.
+verify_audit_chain` already established for job-lifecycle events
+(confirmed directly by reading its own implementation before reusing
+the pattern), generalized to any caller-supplied event -- access-control
+changes and privileged actions have no natural home in a job-specific
+fixed schema, so this gives them the same tamper-evidence technique in
+their own right. There is deliberately no "edit" method: the only way
+an entry's content could ever differ from what `append` originally
+wrote is by modifying the stored data directly, bypassing the class --
+exactly what `verify` is built to catch, by RE-DERIVING every hash from
+scratch rather than trusting the stored values.
+
+"Tamper-evident" is proven, not assumed: one test directly replaces a
+stored entry's event (as an attacker editing history would); a second,
+more sophisticated test additionally forges a self-consistent hash for
+the tampered content (so the entry looks fine in isolation) -- both are
+caught, because the forged entry no longer chains correctly from the
+PRECEDING entry's real hash. A third test confirms truncating the log
+(another tamper vector) changes the verified head hash, so a caller
+comparing against a previously recorded head would notice.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| AUD-07 (first evidence) | keep access-control changes and privileged actions logged; regular audit review confirms tamper-evident retention | `evidence.tamper_evident_log.TamperEvidentLog`/`LogEntry`/`TamperEvidenceError`; 8 tests (`tests/unit/test_tamper_evident_log.py`) including a direct tamper, a forged-hash tamper, and a truncation case |
+
+Not covered: `service.auth.CredentialStore` itself is not changed to
+write to a `TamperEvidentLog` when credentials actually change -- this
+PR adds the general-purpose primitive and demonstrates it against
+realistic access-control/privileged-action event payloads in tests,
+rather than wiring it into the production credential store; no
+persistence (the log is in-memory only, same as `jobs.store`'s own
+chain is backed by its own sqlite table, not reused here).
+See
+[`src/prometheus/evidence/tamper_evident_log.py`](./src/prometheus/evidence/tamper_evident_log.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
