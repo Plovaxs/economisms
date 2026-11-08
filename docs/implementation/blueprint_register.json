@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ce9c083d5f966bb06b59266b051753108f19268198527e6d8d9637470640449d",
+    "content_sha256": "d05a4aa884026c4cb93857d7d2dafafc13beeb240295907e4f8d5e2ca95d4869",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "1fae2217f7595fdf307ddb7727252dc62175372bc5d480cd332b385a5d5880c0",
+  "checklist_notes_sha256": "1fb0bfeea536e1f41b65d72516747e1c728d8a53a9037f33b4892cb759156172",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -4827,10 +4827,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MLO",
       "id": "MLO-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 4683,
+          "evidence_note": "`evidence.dataset_provenance.DatasetProvenance`/`build_dataset_provenance`/`ProvenanceMismatchError`; 5 tests (`tests/unit/test_dataset_provenance.py`) grounded in real instances of all four composed primitives, including the model-mismatch and no-train-split rejections",
+          "id_column": "MLO-03 (first evidence)",
+          "requirement_note": "track dataset hash, feature contract and training cutoffs; model artifact includes unambiguous dataset provenance"
+        }
+      ],
       "requirement": "Track dataset hash, feature contract and training cutoffs",
       "source_pdf_page": 33,
       "source_rows": [
@@ -8567,7 +8574,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 186,
-    "without_repository_notes": 188
+    "with_repository_notes": 187,
+    "without_repository_notes": 187
   }
 }

@@ -4655,6 +4655,38 @@ a literal Docker/OCI container (none exists in this repository); only
 See
 [`src/prometheus/evidence/reproducible_inference.py`](./src/prometheus/evidence/reproducible_inference.py).
 
+## Evidenced today (PR-116: unambiguous dataset provenance composed from four existing primitives -- MLO-03)
+
+MLO-03's own acceptance criterion is "model artifact includes
+unambiguous dataset provenance." `evidence.dataset_provenance.
+DatasetProvenance` is deliberately a COMPOSITION, not a reinvention, of
+four primitives this project already built for other checklist items:
+`model_package.ModelPackage` (MLO-07, the model's own content hash),
+`dataset_fingerprint.DatasetFingerprint` (DAT-12, the dataset's content
+hash), `reproducible_inference.InputContract` (MLO-11, which already
+names a model's feature contract), and `holdout_manifest.HoldoutManifest`
+(EXP-04, whose locked date cutoffs already include the training cutoff
+this item names).
+
+"Unambiguous" is enforced, not merely claimed: `build_dataset_provenance`
+rejects a feature contract naming a DIFFERENT model than the package it
+is attached to (a provenance record assembled from mismatched pieces
+would be actively misleading, not just incomplete), confirmed by a
+dedicated test. `training_cutoff_date` is read directly from the
+manifest's own `"train"` split -- the LATEST end date among possibly
+several train-labeled splits, confirmed by a dedicated test -- rather
+than supplied as a separate, independently-typed date that could
+silently disagree with the locked manifest.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MLO-03 (first evidence) | track dataset hash, feature contract and training cutoffs; model artifact includes unambiguous dataset provenance | `evidence.dataset_provenance.DatasetProvenance`/`build_dataset_provenance`/`ProvenanceMismatchError`; 5 tests (`tests/unit/test_dataset_provenance.py`) grounded in real instances of all four composed primitives, including the model-mismatch and no-train-split rejections |
+
+Not covered: no existing training function (`train_deep_hedge`, etc.)
+actually constructs a `DatasetProvenance` as part of its own run yet.
+See
+[`src/prometheus/evidence/dataset_provenance.py`](./src/prometheus/evidence/dataset_provenance.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
