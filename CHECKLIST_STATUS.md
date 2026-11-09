@@ -5661,6 +5661,75 @@ PR (that is a follow-up wiring change, not a new primitive); "model
 serving" egress gating remains unclaimed since that subsystem makes no
 outbound call today.
 
+## Evidenced today (PR-149: risk acceptance register, machine-verified license inventory, threat model, and security patch-cadence -- GOV-12/GOV-09/SEC-01/SEC-15)
+
+Three small, independent pieces of real evidence, kept together in one
+PR because none is large enough to warrant its own:
+
+**GOV-12** ("maintain risk acceptance authority and expiration";
+acceptance: "every material exception has approver and sunset date") --
+new `evidence.risk_register.RiskException`/`RiskRegister`. This is
+deliberately a MORE GENERAL mechanism than `evidence.gate_report
+.GateDecisionForm` (already evidenced under LCH-12), which enforces
+approver + sunset date only for the single top-level release-gate
+decision; `RiskException` applies the identical enforced-at-construction
+pattern to ANY material exception. Demonstrated against two REAL,
+already-disclosed exceptions already in this repository rather than
+synthetic ones: PR-146's FRED-for-`home.treasury.gov` substitution and
+PR-148's "`AllowlistedTransport` built but not yet wired into any
+connector" gap -- both registered with real dates and a real sunset
+window, with `RiskRegister.active_as_of`/`inactive_as_of` confirmed to
+correctly partition them before and after expiration. `approver` names
+the project-maintainer role, not a fabricated second identity (see
+GOV-03's own honestly-open status below).
+
+**GOV-09** ("identify third-party intellectual property and attribution
+needs"; acceptance: "license inventory and notices approved by
+maintainer") -- new `evidence.license_inventory`, which parses this
+repository's REAL `pyproject.toml` dependency tables (`tomllib`, not a
+hand-maintained duplicate list) and queries REAL installed-package
+metadata (`importlib.metadata`'s `License-Expression`/`Classifier`
+fields) for each one -- machine-generated, not hand-typed, the same
+discipline `blueprint_register.json` already uses. `docs/LICENSE_INVENTORY.md`
+records the real captured result (numpy/scipy/torch/etc., all
+permissive or file-level-weak-copyleft, confirmed by a real test that
+every direct dependency's license is free of GPL/AGPL markers) plus the
+already-documented external data-source licenses collected in one place.
+
+**SEC-01** ("create threat model with assets, trust boundaries and
+misuse cases"; acceptance: "threat register reviewed and mapped to
+controls") -- new `docs/THREAT_MODEL.md`: real assets/trust-boundaries/
+misuse-cases tables for this repository's actual current architecture,
+each misuse case mapped to its real implementing control (or honestly
+marked unaddressed, e.g. no second-party code review, no live CVE feed).
+Mapped-to-controls half satisfied; the document states plainly that
+independent review of the threat model itself has not happened.
+
+**SEC-15 (first evidence)** -- `SECURITY.md` (originally published under
+PR-147's DOC-11) gained an explicit response-owner and patch-cadence
+section (the maintainer role, patched at the next available working
+session, no fabricated SLA), satisfying this item's "public security
+policy and response owner established" wording literally for the first
+time -- PR-147 published the policy document itself but had not yet
+credited SEC-15 specifically.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| GOV-12 (first evidence) | risk acceptance authority and expiration; every material exception has approver and sunset date | `evidence.risk_register.RiskException`/`RiskRegister`; 5 tests (`tests/unit/test_risk_register.py`) including two real, already-disclosed repository exceptions |
+| GOV-09 (first evidence) | third-party IP/attribution; license inventory approved by maintainer | `evidence.license_inventory`; `docs/LICENSE_INVENTORY.md`; 5 tests (`tests/unit/test_license_inventory.py`) including a real no-copyleft-dependency check |
+| SEC-01 (first evidence) | threat model with assets, trust boundaries, misuse cases | `docs/THREAT_MODEL.md` |
+| SEC-15 (first evidence) | vulnerability disclosure and patch cadence documented | `SECURITY.md` response-owner/patch-cadence section |
+
+Not covered: GOV-09's "approved by maintainer" is the project-maintainer
+role approving within this repository's own single-maintainer process
+(see `CONTRIBUTING.md`), not a separate second-party sign-off. SEC-01's
+threat model has not been independently reviewed. GOV-12's `approver`
+field names a role, not a fabricated additional named individual --
+GOV-03 ("assign accountable technical/scientific/security/risk owners;
+RACI register with named owners and deputies") remains explicitly
+unimplemented for the same honest reason: this repository has no second
+identity to name.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "8ede18b825729316390a9772102524c361ad94ac629860f7064f80e0c4724853",
+    "content_sha256": "a2b1bded49f157092fb66529cc1f4f00759e5b8ca18360a748fe4f03c4d1ac8a",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "53b40498d1da5660d67334573827fa49ffc8e483a06f39769952e584518fa7b0",
+  "checklist_notes_sha256": "14bca6f3f2f72d77e4fdab5b63da11638a3bffd583ad7356b57d183f7ea9953c",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -195,10 +195,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5719,
+          "evidence_note": "`evidence.license_inventory`; `docs/LICENSE_INVENTORY.md`; 5 tests (`tests/unit/test_license_inventory.py`) including a real no-copyleft-dependency check",
+          "id_column": "GOV-09 (first evidence)",
+          "requirement_note": "third-party IP/attribution; license inventory approved by maintainer"
+        }
+      ],
       "requirement": "Identify third-party intellectual property and attribution needs",
       "source_pdf_page": 19,
       "source_rows": [
@@ -246,10 +253,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5718,
+          "evidence_note": "`evidence.risk_register.RiskException`/`RiskRegister`; 5 tests (`tests/unit/test_risk_register.py`) including two real, already-disclosed repository exceptions",
+          "id_column": "GOV-12 (first evidence)",
+          "requirement_note": "risk acceptance authority and expiration; every material exception has approver and sunset date"
+        }
+      ],
       "requirement": "Maintain risk acceptance authority and expiration",
       "source_pdf_page": 19,
       "source_rows": [
@@ -5965,10 +5979,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5720,
+          "evidence_note": "`docs/THREAT_MODEL.md`",
+          "id_column": "SEC-01 (first evidence)",
+          "requirement_note": "threat model with assets, trust boundaries, misuse cases"
+        }
+      ],
       "requirement": "Create threat model with assets, trust boundaries and misuse cases",
       "source_pdf_page": 37,
       "source_rows": [
@@ -6237,10 +6258,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-15",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5721,
+          "evidence_note": "`SECURITY.md` response-owner/patch-cadence section",
+          "id_column": "SEC-15 (first evidence)",
+          "requirement_note": "vulnerability disclosure and patch cadence documented"
+        }
+      ],
       "requirement": "Document vulnerability disclosure and patch cadence",
       "source_pdf_page": 37,
       "source_rows": [
@@ -8826,7 +8854,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 223,
-    "without_repository_notes": 151
+    "with_repository_notes": 227,
+    "without_repository_notes": 147
   }
 }

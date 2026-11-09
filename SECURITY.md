@@ -48,6 +48,23 @@ honestly (the same evidence discipline the rest of this project runs on
 applies to security fixes: a fix ships with a regression test proving the
 vulnerable behavior is gone, not just a claim that it is).
 
+## Response owner and patch cadence (SEC-15)
+
+The project maintainer is the sole response owner for every report — see
+[CONTRIBUTING.md](./CONTRIBUTING.md) for what "maintainer" means in this
+single-maintainer repository (no second identity is fabricated here to
+imply a team that doesn't exist). Patch cadence, stated honestly rather
+than as a fabricated SLA: a confirmed vulnerability in this project's own
+code is fixed and merged to `main` (this repository has no separate
+release-branch cadence to patch against) at the next available working
+session; there is no guaranteed turnaround time. Dependency advisories are
+addressed by bumping the pinned version in `uv.lock` once a confirmed fix
+is available upstream — this repository does not currently run an
+automated live-CVE feed (see
+[docs/SECURITY_AND_DATA_HANDLING.md](./docs/SECURITY_AND_DATA_HANDLING.md)
+for why), so a dependency vulnerability is addressed when reported or
+discovered during a dependency bump, not necessarily proactively.
+
 ## Existing controls (what's already in place, and what isn't)
 
 - **Secret scanning**: [`prometheus.evidence.security_scan.secret_scan`](./src/prometheus/evidence/security_scan.py)
