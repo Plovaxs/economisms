@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C383%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C419%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-210%2F374%20(56.1%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -52,9 +52,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **210 / 374** (56.1%) across 29 categories |
 | Categories at 100% | API, AUD, ECO, LED, MLO, OPS, OPT, PRI, REL, RISK, SDE |
-| Test suite | **2,383 / 2,383** passing |
+| Test suite | **2,419 / 2,419** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 142, each independently verified |
+| Pull requests | 143, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -90,10 +90,12 @@ src/prometheus/
   volterra/        Black-Scholes, Heston & Merton pricers, barrier/Asian/American options, Greeks
   titan/           VaR, Expected Shortfall, factor exposure, stress testing, portfolio optimization
   hedging/         delta/no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy
-  macrocore/       classical forecasting baselines (persistence/AR/VAR) and rolling-origin backtests
+  macrocore/       classical forecasting baselines (persistence/AR/VAR), rolling-origin backtests,
+                   and a point-in-time-safe Q-MACRO regression benchmark (real Mkt-RF, h-months-ahead)
   recessionnet/    point-in-time-safe recession classification: real NBER labels, real factor
                    features, logistic/classical-MLP/hybrid-quantum model comparison
-  quantum/         differentiable quantum circuit layer (PennyLane) and hybrid classifier models
+  quantum/         differentiable quantum circuit layer (PennyLane) and hybrid classifier/regressor
+                   models shared by recessionnet and macrocore
   experiments/     bootstrap CIs, manifests, holdout splits, leakage diagnostics, benchmarks
   evidence/        model cards, gate reports, model registry, champion/challenger comparison
   service/         authenticated HTTP API, pricing/risk reports, deploy manifests

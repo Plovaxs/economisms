@@ -6,9 +6,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from prometheus.data_ingestion.monthly_matrix import MissingSeriesError
 from prometheus.econosim.pit import MacroObservation
 from prometheus.recessionnet.dataset import (
-    MissingSeriesError,
     RecessionDataset,
     build_recession_dataset,
     chronological_split,

@@ -25,6 +25,17 @@ comparison once one candidate overfits and another does not; model
 selection by a held-out VALIDATION set (never the test set itself,
 which would be exactly the leakage this project's whole `econosim.pit`
 discipline exists to prevent) is the standard, honest fix.
+
+Both functions take an optional `loss_fn` (default `BCEWithLogitsLoss`,
+preserving every pre-existing RECESSIONNET caller's behavior exactly)
+and, for early stopping, an optional `output_transform` applied before
+scoring validation performance (default `torch.sigmoid`, matching
+RECESSIONNET's probability-of-recession framing). Q-MACRO (PR-143)
+reuses both AS-IS for regression with `loss_fn=nn.MSELoss()` and
+`output_transform=None` (identity: a regression output needs no
+squashing) -- this loop has nothing classification-specific in it
+once the loss and output transform are pulled out as parameters, so
+reusing it is composition, not a second, half-related training loop.
 """
 
 from __future__ import annotations
@@ -64,6 +75,7 @@ def train_classifier(
     seed: int,
     n_epochs: int,
     learning_rate: float = 0.05,
+    loss_fn: nn.Module | None = None,
 ) -> TrainedModel:
     if n_epochs < 1:
         raise ValueError("n_epochs must be a positive integer")
@@ -73,7 +85,7 @@ def train_classifier(
     torch.manual_seed(seed)
     model = model_factory()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    loss_fn = nn.BCEWithLogitsLoss()
+    loss_module = loss_fn if loss_fn is not None else nn.BCEWithLogitsLoss()
 
     x = torch.tensor(features, dtype=torch.float32)
     y = torch.tensor(labels, dtype=torch.float32)
@@ -83,7 +95,7 @@ def train_classifier(
     for epoch in range(n_epochs):
         optimizer.zero_grad()
         logits = model(x)
-        loss = loss_fn(logits, y)
+        loss = loss_module(logits, y)
         loss.backward()
         optimizer.step()
         epoch_log.append(EpochLogEntry(epoch=epoch, loss=float(loss.item())))
@@ -107,9 +119,12 @@ class EarlyStoppedModel:
     """Training loss for every epoch actually run (stops early if
     `patience` epochs pass with no validation improvement)."""
     validation_log: tuple[tuple[int, float], ...]
-    """(epoch, validation_brier_score) for every epoch actually run."""
+    """(epoch, validation_score) for every epoch actually run --
+    mean squared error between `output_transform(model(x_val))` and
+    the true validation values (a Brier score when `output_transform`
+    is `torch.sigmoid`; plain MSE when it is the identity)."""
     selected_epoch: int
-    best_validation_brier: float
+    best_validation_score: float
     seed: int
     n_parameters: int
     train_seconds: float
@@ -126,13 +141,17 @@ def train_classifier_with_early_stopping(
     max_epochs: int,
     patience: int,
     learning_rate: float = 0.05,
+    loss_fn: nn.Module | None = None,
+    output_transform: Callable[[torch.Tensor], torch.Tensor] | None = None,
 ) -> EarlyStoppedModel:
     """Trains on (train_features, train_labels); after every epoch,
     scores the CURRENT model on (validation_features, validation_labels)
-    by Brier score and checkpoints it if that is the best validation
-    score seen so far. Stops once `patience` consecutive epochs pass
-    with no improvement, or at `max_epochs`, whichever comes first.
-    Returns the model restored to its best-validation checkpoint, never
+    by mean squared error (after `output_transform`, default
+    `torch.sigmoid` -- i.e. a Brier score, RECESSIONNET's original use
+    case) and checkpoints it if that is the best validation score seen
+    so far. Stops once `patience` consecutive epochs pass with no
+    improvement, or at `max_epochs`, whichever comes first. Returns
+    the model restored to its best-validation checkpoint, never
     whatever state training happened to end on."""
     if max_epochs < 1:
         raise ValueError("max_epochs must be a positive integer")
@@ -150,7 +169,8 @@ def train_classifier_with_early_stopping(
     torch.manual_seed(seed)
     model = model_factory()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    loss_fn = nn.BCEWithLogitsLoss()
+    loss_module = loss_fn if loss_fn is not None else nn.BCEWithLogitsLoss()
+    transform = output_transform if output_transform is not None else torch.sigmoid
 
     x_train = torch.tensor(train_features, dtype=torch.float32)
     y_train = torch.tensor(train_labels, dtype=torch.float32)
@@ -159,7 +179,7 @@ def train_classifier_with_early_stopping(
 
     epoch_log: list[EpochLogEntry] = []
     validation_log: list[tuple[int, float]] = []
-    best_validation_brier = float("inf")
+    best_validation_score = float("inf")
     best_state: dict[str, torch.Tensor] | None = None
     best_epoch = -1
     epochs_since_improvement = 0
@@ -167,20 +187,20 @@ def train_classifier_with_early_stopping(
     start = time.perf_counter()
     for epoch in range(max_epochs):
         optimizer.zero_grad()
-        loss = loss_fn(model(x_train), y_train)
+        loss = loss_module(model(x_train), y_train)
         loss.backward()
         optimizer.step()
         epoch_log.append(EpochLogEntry(epoch=epoch, loss=float(loss.item())))
 
         model.eval()
         with torch.no_grad():
-            validation_probs = torch.sigmoid(model(x_val)).numpy()
+            validation_predictions = transform(model(x_val)).numpy()
         model.train()
-        validation_brier = float(np.mean((validation_probs - y_val) ** 2))
-        validation_log.append((epoch, validation_brier))
+        validation_score = float(np.mean((validation_predictions - y_val) ** 2))
+        validation_log.append((epoch, validation_score))
 
-        if validation_brier < best_validation_brier:
-            best_validation_brier = validation_brier
+        if validation_score < best_validation_score:
+            best_validation_score = validation_score
             best_state = copy.deepcopy(model.state_dict())
             best_epoch = epoch
             epochs_since_improvement = 0
@@ -199,7 +219,7 @@ def train_classifier_with_early_stopping(
         epoch_log=tuple(epoch_log),
         validation_log=tuple(validation_log),
         selected_epoch=best_epoch,
-        best_validation_brier=best_validation_brier,
+        best_validation_score=best_validation_score,
         seed=seed,
         n_parameters=count_parameters(model),
         train_seconds=train_seconds,

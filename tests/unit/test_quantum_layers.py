@@ -6,7 +6,10 @@ import torch
 from prometheus.quantum.layers import QuantumDeviceSpec, QuantumLayer, make_device
 from prometheus.quantum.models import (
     ClassicalMatchedClassifier,
+    ClassicalMatchedRegressor,
     HybridQuantumClassifier,
+    HybridQuantumRegressor,
+    LinearRegressionModel,
     LogisticRegressionClassifier,
     base_rate_logit,
     count_parameters,
@@ -232,3 +235,41 @@ def test_hybrid_and_classical_matched_models_have_different_parameter_counts() -
     hybrid = HybridQuantumClassifier(input_dim=6, n_qubits=4, hidden_size=8)
     classical = ClassicalMatchedClassifier(input_dim=6, n_qubits=4, hidden_size=8)
     assert count_parameters(hybrid) != count_parameters(classical)
+
+
+def test_regressor_subclasses_have_identical_architecture_to_their_classifier_parents() -> None:
+    """LinearRegressionModel/ClassicalMatchedRegressor/HybridQuantumRegressor
+    exist purely as clearly-named subclasses with NO behavioral change
+    -- confirmed here by comparing parameter counts and forward output
+    shapes directly against their parent classes."""
+    assert count_parameters(LinearRegressionModel(5)) == count_parameters(
+        LogisticRegressionClassifier(5)
+    )
+    assert count_parameters(ClassicalMatchedRegressor(6, n_qubits=4)) == count_parameters(
+        ClassicalMatchedClassifier(6, n_qubits=4)
+    )
+    assert count_parameters(HybridQuantumRegressor(6, n_qubits=4)) == count_parameters(
+        HybridQuantumClassifier(6, n_qubits=4)
+    )
+
+    x = torch.randn(3, 6)
+    assert ClassicalMatchedRegressor(6, n_qubits=4)(x).shape == (3,)
+    torch.manual_seed(0)
+    assert HybridQuantumRegressor(6, n_qubits=4)(x).shape == (3,)
+
+
+def test_regressor_subclasses_are_genuinely_trainable_with_mse_loss() -> None:
+    torch.manual_seed(0)
+    model = HybridQuantumRegressor(6, n_qubits=4)
+    x = torch.randn(5, 6)
+    y = torch.randn(5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.05)
+    loss_fn = torch.nn.MSELoss()
+    first_loss = loss_fn(model(x), y).item()
+    for _ in range(20):
+        optimizer.zero_grad()
+        loss = loss_fn(model(x), y)
+        loss.backward()
+        optimizer.step()
+    last_loss = loss_fn(model(x), y).item()
+    assert last_loss < first_loss

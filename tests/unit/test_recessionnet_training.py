@@ -181,7 +181,7 @@ def test_early_stopping_restores_the_best_checkpoint_not_the_final_epoch() -> No
     with torch.no_grad():
         probs = torch.sigmoid(result.model(torch.tensor(vf, dtype=torch.float32))).numpy()
     recomputed_brier = float(np.mean((probs - vl) ** 2))
-    assert recomputed_brier == pytest.approx(result.best_validation_brier, abs=1e-6)
+    assert recomputed_brier == pytest.approx(result.best_validation_score, abs=1e-6)
     # And it must genuinely differ from the final (worse, overfit) epoch's loss trajectory --
     # otherwise "restoring the checkpoint" would be a no-op.
     assert result.selected_epoch < len(result.epoch_log) - 1

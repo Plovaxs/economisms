@@ -35,7 +35,7 @@ about the original 374-item register.
 | FP-02 | VERIFIED-BY-TEST (closed PR-060) | PR-055 built the schema mechanism only ("no REAL external dataset has been licensed or ingested yet"); PR-060 closes that gap for the three fields that generalize across sources: `data_ingestion.worldbank` ingests a REAL dataset (World Bank Open Data, CC-BY-4.0, confirmed live) with a real `raw_hash` (SHA256 of the actual fetched bytes) and a real `published_at` (the API's own `lastupdated` field), all flowing through `econosim.pit.MacroObservation` end to end. `vintage_at` specifically remains unpopulated for this one source -- World Bank's bulk indicator API has no true per-observation vintage concept the way ALFRED does, a source-specific limitation, not a gap in the schema itself (which has carried `vintage_at` since PR-055 and would populate it for a source that provides one). |
 | FP-03 | VERIFIED-BY-TEST (PR-055) | `econosim.pit.build_feature_vector`/`require_eligible` raise `FutureDataError` (fail closed on the WHOLE request) rather than silently returning partial data, confirmed by `test_build_feature_vector_rejects_unavailable_features_instead_of_partial_data`. Builds on the pre-existing `PointInTimeStore.as_of`/`all_eligible_as_of` predicate (already tested since the original PR-003), now additionally gated on an `asof_eligible_at` internal-ingestion-lag field, not just source `published_at`. |
 | FP-04 | VERIFIED-BY-TEST (PR-056) | `macrocore.baselines` implements Persistence, AR(p) (standing in for "ARIMA" -- see its module docstring for the deliberate scope cut against a full differenced/MA Box-Jenkins ARIMA) and VAR(p), all OLS-fit with closed-form Gaussian forecast intervals; `macrocore.evaluation`'s rolling-origin backtest harness runs all three reproducibly (fixed seed, deterministic OLS) through `econosim.pit`'s point-in-time store end to end, with MAE/RMSE/CRPS/coverage reported via `summarize_scores`. |
-| FP-05 | NOT VERIFIED | MACROCORE (shared temporal encoder) does not exist. |
+| FP-05 | PARTIAL (PR-143) | FP-05's full scope -- a shared Transformer encoder forecasting GDP, rates AND unemployment across multiple horizons -- still does not exist; no real GDP/CPI/unemployment series are ingested anywhere in this repository (DAT-02..04 remain unimplemented). What PR-143 adds, honestly scoped to "rates" only: `macrocore.quantum_benchmark.run_qmacro_benchmark` regresses h-months-ahead Mkt-RF (market excess return -- the classic equity-premium-predictability task) from real trailing Kenneth French factor history (DAT-05), comparing naive persistence, AR(3) (genuinely refit at every real test month), linear regression, a parameter-matched classical MLP and a hybrid quantum regressor, all three learned models selected by early stopping on a real validation split (never the test set) -- the same PR-142 methodology applied to RECESSIONNET, reused here from the start. Real result: AR(3)/MLP/quantum land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), with no statistically significant difference among them. Remains PARTIAL, not VERIFIED-BY-TEST, because this is Q-MACRO's narrow "matched regression benchmark" deliverable, not FP-05's own multihorizon GDP/rate/unemployment ask. |
 | FP-06 | VERIFIED-BY-TEST (PR-139, corrected PR-141, methodology corrected PR-142) | `recessionnet` now exists end to end: real point-in-time-safe features (Kenneth French monthly factors, DAT-05, trailing 6-month windows) and real labels (the actual NBER business-cycle chronology, confirmed live against nber.org, with real announcement dates for the six recessions 1980 onward used by a SEPARATE point-in-time leakage test -- see `recessionnet.labels`'s flagship `test_as_of_does_not_leak_the_great_recession_before_it_was_announced`). `run_recessionnet_benchmark` trains and evaluates four candidate architectures (base rate, logistic regression, a parameter-matched classical MLP, and a hybrid quantum classifier built on the new `prometheus.quantum` primitives) on a strict chronological split (train < 2000, test >= 2000), reporting Brier score, ROC-AUC and a fitted calibration slope/intercept for every model -- "calibrated probabilities" exactly as worded, not just a bare accuracy number. PR-141 fixed a genuine angle-embedding gradient-dead-zone bug (AUC ~0.61 to ~0.70). PR-142 then diagnosed and fixed a SECOND, more consequential problem: a diagnostic training-curve trace showed the quantum model (493 parameters) and classical MLP (same width) overfitting badly past epoch ~20-60 at PR-139's fixed 150/300-epoch budget, while logistic regression (25 parameters) never overfit in that range -- comparing all three at one fixed epoch count was not a fair comparison once capacity differs this much. `run_recessionnet_benchmark_with_early_stopping` selects each model's stopping point by a VALIDATION split (1988-1999, carved out of the training era, never the test set), then scores the selected checkpoint once on the untouched 2000+ test set. Real result at seed=0: quantum Brier ~0.087 vs its best classical challenger's ~0.083 -- genuinely close, not the robust loss PR-139's fixed-budget evaluation showed. Across 5 seeds checked by hand, 4/5 are statistically inconclusive (CI includes zero) and 1/5 favors classical by a small margin; none favor quantum significantly. The honest final finding: once evaluated fairly, this task shows no significant quantum advantage AND no significant quantum disadvantage against logistic regression/classical MLP -- a materially different, more defensible conclusion than PR-139/141's "quantum is robustly worse," reached by fixing the evaluation methodology rather than by re-running until a result looked better. |
 | FP-07 | NOT VERIFIED | INFLATIONCAST does not exist. |
 | FP-08 | NOT VERIFIED | No shared-vs-independent encoder ablation; no encoder exists. |
@@ -56,41 +56,58 @@ about the original 374-item register.
 | FP-23 | VERIFIED-BY-TEST (pre-existing, reconfirmed PR-056) | `pytest -q` (1480 tests as of PR-056), `ruff check`, and `mypy --strict` all pass from a clean checkout, confirmed after every PR including this one. |
 | FP-24 | Ongoing discipline, not a one-time check | This file and `README.md` are the running record that no module is declared complete on the strength of either blueprint document alone -- every row above states exactly what evidence (or absence of it) backs its status. |
 
-Current FP score (updated PR-139): 9 fully VERIFIED-BY-TEST (FP-02 as of
-PR-060, FP-03, FP-04, FP-06 and FP-20 as of PR-139, FP-09, FP-12 as of
-PR-058, FP-14, FP-23), 1 PARTIAL (FP-11, narrowed by PR-057's audit),
-13 NOT VERIFIED (FP-16 moved here from PARTIAL after an audit found no
-TITAN output actually carries horizon+units+cost together), and FP-24
-itself (which is a standing discipline this file and README.md follow
-on every PR, not a single check to complete once). This is a
-documentary snapshot, not a completion percentage, matching the
-addendum's own "0/24 verified" starting convention -- five of the ten
-named subsystems (MACROCORE, INFLATIONCAST, CONTAGION-GNN,
-VOLTERRA-GEN, POLICYLAB-RL) still do not exist in this repository;
-RECESSIONNET (PR-139) is the first. FP-04's classical baselines remain
-the reference point those still-missing subsystems' eventual learned
+Current FP score (updated PR-143): 9 fully VERIFIED-BY-TEST (FP-02 as of
+PR-060, FP-03, FP-04, FP-06 and FP-20 as of PR-139 (corrected PR-141/
+142), FP-09, FP-12 as of PR-058, FP-14, FP-23), 2 PARTIAL (FP-05 as of
+PR-143, narrow "rates"-only Q-MACRO contact; FP-11, narrowed by
+PR-057's audit), 12 NOT VERIFIED (FP-16 moved here from PARTIAL after
+an audit found no TITAN output actually carries horizon+units+cost
+together), and FP-24 itself (which is a standing discipline this file
+and README.md follow on every PR, not a single check to complete
+once). This is a documentary snapshot, not a completion percentage,
+matching the addendum's own "0/24 verified" starting convention --
+four of the ten named subsystems (INFLATIONCAST, CONTAGION-GNN,
+VOLTERRA-GEN, POLICYLAB-RL) still do not exist in this repository at
+all; RECESSIONNET (PR-139) and now a narrow slice of MACROCORE
+(PR-143) are the first two. FP-04's classical baselines remain the
+reference point those still-missing subsystems' eventual learned
 models must beat (section 09/E01).
 
 PR-139 also added a sibling `prometheus.quantum` package (not itself
 an FP-NN item, nor a 374-item blueprint category -- it is shared
-infrastructure RECESSIONNET consumes as one of its four candidate
-architectures) answering the user-supplied "PROMETHEUS-X Quantum Deep
-Learning Integration Blueprint"'s own Q0/Q1/Q-RECESSION gates: an
+infrastructure RECESSIONNET and now Q-MACRO consume as one of several
+candidate architectures) answering the user-supplied "PROMETHEUS-X
+Quantum Deep Learning Integration Blueprint"'s own Q0/Q1 gates: an
 isolated `quantum` optional dependency (PennyLane 0.45.1 +
 PennyLane-Lightning 0.45.0, confirmed to resolve cleanly against this
 repository's existing torch/numpy/scipy pins with the full classical
-suite unaffected), a tested differentiable quantum circuit layer, and
-a hybrid quantum classifier benchmarked -- honestly, not favorably --
-against logistic regression and a parameter-matched classical MLP.
-The real result on this repository's actual chronological 2000+
-holdout: the hybrid quantum classifier's test Brier score (about
-0.156) is robustly WORSE than logistic regression's (about 0.076)
-across every seed checked (0-4), with a paired bootstrap CI for
-(quantum - best classical) that excludes zero on the "quantum is
-worse" side every time. This is reported as exactly what it is -- a
-clear negative result for this architecture/data/budget combination,
-not a quantum advantage -- consistent with the blueprint's own stated
-research ethos ("a negative or inconclusive result is valid").
+suite unaffected) and a tested differentiable quantum circuit layer.
+PR-139's ORIGINAL benchmark found the hybrid quantum classifier
+robustly WORSE than logistic regression; PR-141 fixed a real angle-
+embedding bug (test AUC 0.61 to 0.70) and PR-142 then found and fixed
+a methodology problem -- a fixed epoch budget let the higher-capacity
+quantum/MLP models overfit while logistic regression did not. Once
+corrected with validation-selected early stopping, the FINAL,
+currently-standing RECESSIONNET finding is: no significant quantum
+advantage AND no significant quantum disadvantage against logistic
+regression or a parameter-matched classical MLP (4 of 5 seeds checked
+are statistically inconclusive; 1 of 5 favors classical by a small
+margin; none favor quantum). See PR-139/141/142's own `docs/PR_LEDGER.md`
+entries for the full progression -- this summary states only the
+current, corrected conclusion, not the superseded intermediate ones.
+
+PR-143 extends the same `prometheus.quantum` primitives to Q-MACRO
+(the blueprint's other P0 engine, a regression task) via
+`macrocore.quantum_benchmark` and `macrocore.regression_dataset`,
+applying PR-142's early-stopping methodology from the start rather
+than repeating PR-139's original mistake. See FP-05's row above for
+the real result: AR(3), a classical MLP and the hybrid quantum
+regressor all land within a tight band, all clearly ahead of naive
+persistence, with no statistically significant difference among the
+three -- the same "neither better nor worse" finding RECESSIONNET
+reached once evaluated fairly, now independently reproduced on a
+genuinely different task (regression vs. classification) and target
+series (Mkt-RF level vs. a binary recession label).
 
 ---
 

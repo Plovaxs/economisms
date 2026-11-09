@@ -46,6 +46,17 @@ highly nonlinear, entangled transform; its classical substitute is an
 ordinary `Linear(n_qubits, n_qubits)` with `n_qubits * (n_qubits + 1)`
 parameters) -- both counts are reported by `count_parameters` so this
 is visible and auditable in any benchmark report, not glossed over.
+
+`LinearRegressionModel`, `ClassicalMatchedRegressor` and
+`HybridQuantumRegressor` are zero-behavior-change subclasses of the
+three architectures above, used by Q-MACRO's regression benchmark
+(`macrocore.quantum_benchmark`): nothing in any of these forward
+passes is actually specific to classification (no sigmoid is ever
+applied inside `forward` -- that happens outside, in whatever loss or
+evaluation code consumes the raw output), so reusing the identical
+architecture for a regression target trained with `nn.MSELoss` needed
+no new code, only names that do not misdescribe what the model is
+being used for.
 """
 
 from __future__ import annotations
@@ -125,3 +136,26 @@ class HybridQuantumClassifier(nn.Module):
 
 def count_parameters(model: nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+class LinearRegressionModel(LogisticRegressionClassifier):
+    """Identical to `LogisticRegressionClassifier` (`Linear(input_dim,
+    1)`, no nonlinearity) -- a separate name purely so Q-MACRO's
+    regression benchmark (`macrocore.quantum_benchmark`) does not label
+    its model after a classification concept it isn't using. Trained
+    with `nn.MSELoss` instead of `BCEWithLogitsLoss`, this IS ordinary
+    OLS linear regression at convergence, exactly as
+    `LogisticRegressionClassifier` IS logistic regression under its
+    own loss."""
+
+
+class ClassicalMatchedRegressor(ClassicalMatchedClassifier):
+    """Identical architecture to `ClassicalMatchedClassifier` -- see
+    `LinearRegressionModel`'s docstring for why a separate name exists
+    with no behavioral change."""
+
+
+class HybridQuantumRegressor(HybridQuantumClassifier):
+    """Identical architecture to `HybridQuantumClassifier` -- see
+    `LinearRegressionModel`'s docstring for why a separate name exists
+    with no behavioral change."""

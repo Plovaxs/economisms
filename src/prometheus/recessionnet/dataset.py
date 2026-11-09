@@ -41,6 +41,7 @@ from datetime import date
 
 import numpy as np
 
+from prometheus.data_ingestion.monthly_matrix import build_monthly_series_matrix
 from prometheus.econosim.pit import MacroObservation
 from prometheus.recessionnet.labels import RecessionPeriod, is_recession_month
 
@@ -74,31 +75,6 @@ class RecessionDataset:
             raise ValueError("features width must equal window * len(series_ids)")
 
 
-class MissingSeriesError(ValueError):
-    """Raised when a requested series is missing a value for a month
-    another requested series does have -- building a feature matrix
-    with silently-absent columns would be worse than failing loudly."""
-
-
-def _build_monthly_matrix(
-    observations: Sequence[MacroObservation], series_ids: Sequence[str]
-) -> tuple[list[date], np.ndarray]:
-    by_month: dict[date, dict[str, float]] = {}
-    for obs in observations:
-        if obs.series_id in series_ids:
-            by_month.setdefault(obs.observation_at, {})[obs.series_id] = obs.value
-
-    months = sorted(by_month)
-    matrix = np.zeros((len(months), len(series_ids)))
-    for i, month in enumerate(months):
-        row = by_month[month]
-        for j, series_id in enumerate(series_ids):
-            if series_id not in row:
-                raise MissingSeriesError(f"{series_id!r} has no observation for {month}")
-            matrix[i, j] = row[series_id]
-    return months, matrix
-
-
 def build_recession_dataset(
     observations: Sequence[MacroObservation],
     series_ids: Sequence[str],
@@ -112,7 +88,7 @@ def build_recession_dataset(
     if horizon < 1:
         raise ValueError("horizon must be a positive integer")
 
-    months, matrix = _build_monthly_matrix(observations, series_ids)
+    months, matrix = build_monthly_series_matrix(observations, series_ids)
     n_months = len(months)
     recessions_tuple = tuple(recessions)
 

@@ -2969,6 +2969,77 @@ better. Not covered: this early-stopping path is not yet wired into
 fixed-epoch benchmark; multi-seed aggregation remains ad hoc (five
 seeds checked by hand, not wired into the benchmark function itself).
 
+Plus **Q-MACRO: a hybrid quantum regressor vs. AR(3)/MLP/persistence
+for h-months-ahead Mkt-RF regression** (PR-143), the user-supplied
+quantum blueprint's second P0 engine and ECONOSIM-X/PROMETHEUS-X
+addendum FP-05's own minimal "matched regression benchmark"
+deliverable (FP-05's FULL scope -- a shared Transformer encoder across
+GDP, rates and unemployment -- is NOT attempted; no real GDP/CPI/
+unemployment series exist anywhere in this repository).
+
+This repository has no real macro series beyond the Kenneth French
+factors (DAT-05), so Q-MACRO's regression target here is real
+market data: h-months-ahead Mkt-RF (market excess return), the
+classic equity-premium-predictability regression studied extensively
+in empirical asset pricing (Welch & Goyal 2008; Campbell & Thompson
+2008) -- "rates" is the one FP-05 keyword this honestly touches.
+
+- `prometheus.data_ingestion.monthly_matrix` (new): `recessionnet.
+  dataset`'s private multi-series matrix builder, promoted to a
+  shared, public module once `macrocore.regression_dataset` needed
+  the identical logic -- a real refactor (the old private copy and
+  its test import were both removed, not left as a compatibility
+  shim).
+- `macrocore.regression_dataset` (new): structurally mirrors
+  `recessionnet.dataset.RecessionDataset` (same windowed-feature
+  convention, same fixed data-independent feature scaling) plus
+  `most_recent_target_values` -- the target series' own realized
+  value at the decision month, needed for a persistence baseline and
+  MASE's naive-error denominator, which RECESSIONNET's binary label
+  had no equivalent of.
+- `recessionnet.training`'s two training functions gained an optional
+  `loss_fn` (default `BCEWithLogitsLoss`, every existing caller
+  unaffected) and, for early stopping, an optional `output_transform`
+  (default `torch.sigmoid`) -- nothing in either loop was actually
+  classification-specific once those two were pulled out as
+  parameters, so Q-MACRO reuses both AS-IS with `nn.MSELoss()` and an
+  identity transform, rather than a second, half-related loop.
+- `quantum.models.LinearRegressionModel` / `ClassicalMatchedRegressor`
+  / `HybridQuantumRegressor`: zero-behavior-change subclasses of the
+  RECESSIONNET classifier architectures (no `forward` pass among them
+  was ever actually classification-specific -- no sigmoid is applied
+  inside any of them), renamed only so a regression benchmark does
+  not mislabel its own models.
+- `macrocore.quantum_benchmark.run_qmacro_benchmark`: five candidates
+  -- naive persistence, AR(3) (`macrocore.baselines.fit_autoregression`,
+  already evidenced for FP-04) genuinely REFIT at every real test
+  decision month using only history available as of that month (the
+  one candidate with a true rolling-origin protocol here -- refitting
+  a neural network from scratch at every origin would be
+  prohibitively expensive, a real, disclosed asymmetry), linear
+  regression, a parameter-matched classical MLP and the hybrid
+  quantum regressor, the last three selected by validation-set early
+  stopping from the start -- PR-142's methodology correction applied
+  on day one, not repeated as a mistake first.
+- **The real result**: AR(3), the classical MLP and the hybrid
+  quantum regressor all land within a tight band (MAE ~0.034, MASE
+  ~0.62), all clearly beating naive persistence (MASE ~0.89) -- real,
+  modest out-of-sample equity-premium predictability, consistent with
+  the empirical asset-pricing literature's own general finding -- and
+  the paired bootstrap CI for quantum-vs-best-classical includes zero
+  at every one of 5 seeds checked by hand. **No significant
+  difference among the sophisticated candidates on this task** --
+  independently reproducing RECESSIONNET's own corrected "neither
+  better nor worse" finding on a genuinely different task (regression,
+  not classification) and a different target series.
+- `orchestration.qmacro_run`: a CLI demo mirroring
+  `orchestration.recessionnet_run`'s structure and transport-injection
+  pattern exactly, reusing its `load_real_ff3_observations` directly
+  rather than duplicating the real fetch logic.
+- Not covered: Q-STOCHASTICA, Q-VOLTERRA, Q-TITAN, Q-POLICY (the
+  blueprint's remaining three engines); PR-AUC/CRPS probabilistic
+  scoring; multi-seed aggregation remains ad hoc.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3316,6 +3387,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-140 (addendum tooling, no new 374-item ID) A runnable RECESSIONNET demo CLI | implemented locally | `orchestration.recessionnet_run`, matching this repo's own `economy_run.py`/`benchmark_run.py` CLI convention: live-fetches the real French factor series, runs the full PR-139 benchmark, and prints/exports a JSON summary with a run manifest; `main`'s `transport` is injectable so the CLI itself is hermetically tested (no network call during `pytest`); confirmed by 13 tests, 99% coverage (only the standard `if __name__` guard uncovered, same as every other orchestration script here) |
 | PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` scaled its encoder output by pi before angle embedding; under a single-qubit RX gate, d&lt;Z&gt;/d(theta) = -sin(theta), zero at theta=0 and +/-pi, peak at +/-pi/2 -- a saturating `tanh` encoder was pushing most inputs toward the zero-gradient +/-pi extreme. Diagnosed directly from PR-139's own calibration-slope diagnostic (~0.10, i.e. barely discriminating) rather than guessed; fixed by rescaling to pi/2. Real result after the fix: test-set AUC improved from ~0.61 to ~0.70 and calibration slope from ~0.10 to ~0.22, but the quantum model still loses clearly to logistic regression (AUC ~0.86) at a 300-epoch budget, and is statistically indistinguishable from it (not better) at a shorter 150-epoch budget -- both outcomes now locked in as regression tests rather than one being silently left stale; confirmed by 1 new test plus 2 existing tests updated to the corrected real numbers |
 | PR-142 (addendum methodology fix, no new 374-item ID) Early-stopping, validation-selected model comparison for RECESSIONNET | implemented locally | A diagnostic training-curve trace found the hybrid quantum and classical-MLP models (493 parameters) overfitting past epoch ~20-60 at PR-139's fixed epoch budget while logistic regression (25 parameters) did not -- a fixed-epoch comparison was unfair once capacity differs this much. `training.train_classifier_with_early_stopping` and `evaluation.run_recessionnet_benchmark_with_early_stopping` select each model's stopping epoch by a validation split carved out of the training era (1988-1999), never the test set; real seed=0 result: quantum Brier (~0.087) now sits close to its best classical challenger's (~0.083), and 4 of 5 seeds checked by hand are statistically inconclusive rather than a robust quantum loss; confirmed by 14 new tests, 99-100% coverage |
+| PR-143 (addendum, FP-05 partial) Q-MACRO: hybrid quantum regressor vs. AR(3)/MLP/persistence for h-months-ahead Mkt-RF | implemented locally | New `macrocore.regression_dataset`/`macrocore.quantum_benchmark` plus `quantum.models.{LinearRegressionModel,ClassicalMatchedRegressor,HybridQuantumRegressor}` (zero-behavior-change subclasses reusing the RECESSIONNET architectures for a regression target); AR(3) genuinely refit at every real test month, three learned models selected by early stopping from the start (PR-142's methodology, not repeated as a mistake); real result: AR(3)/MLP/quantum all land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), no significant difference among them across 5 seeds checked; confirmed by 36 new tests, 99-100% coverage |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3531,6 +3603,10 @@ regression did not, which was not a fair comparison. Validation-selected early s
 (never the test set) reverses the earlier "quantum is robustly worse" conclusion to "neither
 model is significantly better than the other" on this task -- a correction to the evaluation
 methodology, not the model, reached before being satisfied with the earlier result.
+PR-143 strengthens the PARTIAL FP-05 addendum row (not a new 374-item ID): Q-MACRO's hybrid
+quantum regressor vs. AR(3)/classical-MLP/persistence for h-months-ahead Mkt-RF, applying
+PR-142's early-stopping methodology from the start. Independently reproduces RECESSIONNET's
+own "neither better nor worse" finding on a genuinely different task (regression) and target.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
