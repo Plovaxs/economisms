@@ -15,6 +15,7 @@ from prometheus.orchestration.recessionnet_run import (
     RecessionNetRunConfig,
     _verdict,
     load_real_ff3_observations,
+    load_real_ff3_observations_or_cached,
     main,
     run_recessionnet_demo,
 )
@@ -89,9 +90,21 @@ def test_config_rejects_a_negative_seed() -> None:
         RecessionNetRunConfig(seed=-1)
 
 
-def test_config_rejects_non_positive_n_epochs() -> None:
-    with pytest.raises(ValueError, match="n_epochs"):
-        RecessionNetRunConfig(n_epochs=0)
+def test_config_rejects_non_positive_max_epochs() -> None:
+    with pytest.raises(ValueError, match="max_epochs"):
+        RecessionNetRunConfig(max_epochs=0)
+
+
+def test_config_rejects_non_positive_patience() -> None:
+    with pytest.raises(ValueError, match="patience"):
+        RecessionNetRunConfig(patience=0)
+
+
+def test_config_rejects_a_validation_split_not_before_the_test_split() -> None:
+    with pytest.raises(ValueError, match="validation_split_date"):
+        RecessionNetRunConfig(
+            validation_split_date=date(2005, 1, 1), test_split_date=date(2000, 1, 1)
+        )
 
 
 def test_config_rejects_non_positive_window() -> None:
@@ -122,6 +135,78 @@ def test_load_real_ff3_observations_unwraps_a_scripted_response() -> None:
     assert len(transport.calls) == 1
 
 
+def test_load_or_cached_returns_live_data_and_tags_it_as_live_on_success() -> None:
+    transport = _ScriptedTransport(_small_synthetic_zip(n_months=3))
+    observations, data_source = load_real_ff3_observations_or_cached(transport)
+    assert data_source == "live"
+    assert len(observations) == 3 * 4
+
+
+def test_load_or_cached_falls_back_to_the_snapshot_on_a_bad_http_status(tmp_path) -> None:
+    """The scenario this whole fallback exists for: a live fetch
+    fails (here, a non-200 response -> FrenchFactorsResponseError),
+    and the CLI must not hard-fail -- it falls back to the committed
+    offline snapshot instead."""
+    from prometheus.data_ingestion.french_factors import save_ff3_snapshot
+    from prometheus.data_ingestion.transport import HttpResponse as _HttpResponse
+
+    class _AlwaysFailsTransport:
+        def get(self, url: str, params: dict[str, str]) -> _HttpResponse:
+            return _HttpResponse(status_code=503, body=b"")
+
+    good_transport = _ScriptedTransport(_small_synthetic_zip(n_months=5))
+    good_observations = load_real_ff3_observations(good_transport)
+    from prometheus.data_ingestion.french_factors import FrenchFactorsFetchResult
+
+    snapshot_path = tmp_path / "snapshot.csv"
+    save_ff3_snapshot(
+        FrenchFactorsFetchResult(
+            observations=tuple(good_observations),
+            raw_hash="0" * 64,
+            database_vintage="999901",
+            methodological_notes="synthetic",
+        ),
+        snapshot_path,
+    )
+
+    observations, data_source = load_real_ff3_observations_or_cached(
+        _AlwaysFailsTransport(), cache_path=snapshot_path
+    )
+    assert data_source == "cached_snapshot_fallback"
+    assert len(observations) == len(good_observations)
+
+
+def test_load_or_cached_falls_back_on_a_network_error(tmp_path) -> None:
+    from prometheus.data_ingestion.french_factors import (
+        FrenchFactorsFetchResult,
+        save_ff3_snapshot,
+    )
+    from prometheus.data_ingestion.transport import HttpRequestError
+
+    class _NetworkDownTransport:
+        def get(self, url: str, params: dict[str, str]) -> HttpResponse:
+            raise HttpRequestError("simulated network failure")
+
+    good_transport = _ScriptedTransport(_small_synthetic_zip(n_months=3))
+    good_observations = load_real_ff3_observations(good_transport)
+    snapshot_path = tmp_path / "snapshot.csv"
+    save_ff3_snapshot(
+        FrenchFactorsFetchResult(
+            observations=tuple(good_observations),
+            raw_hash="1" * 64,
+            database_vintage="999901",
+            methodological_notes="synthetic",
+        ),
+        snapshot_path,
+    )
+
+    observations, data_source = load_real_ff3_observations_or_cached(
+        _NetworkDownTransport(), cache_path=snapshot_path
+    )
+    assert data_source == "cached_snapshot_fallback"
+    assert len(observations) == len(good_observations)
+
+
 def test_verdict_is_inconclusive_when_the_bootstrap_ci_includes_zero() -> None:
     from types import SimpleNamespace
 
@@ -145,27 +230,24 @@ def test_verdict_is_quantum_better_when_the_ci_excludes_zero_below() -> None:
 
 
 def test_run_recessionnet_demo_matches_the_real_observed_result() -> None:
-    """Locks in the actual, already-verified empirical finding for this
-    exact configuration (window=6, horizon=6, seed=0, 150 epochs, split
-    2000-01-01): at this epoch budget the hybrid quantum classifier is
-    NOT significantly worse than its best classical challenger (the CI
-    for quantum-minus-classical squared error includes zero, barely:
-    [-0.0009, 0.0325]) -- "inconclusive," not "classical wins," after
-    PR-141 fixed an angle-embedding scaling bug (encoder output was
-    scaled by pi, saturating most inputs into the embedded RX gate's
-    zero-gradient region at +/-pi; fixed to pi/2, the peak-sensitivity
-    region). At a longer 300-epoch budget (this module's
-    `test_run_recessionnet_demo_matches_a_longer_run_result`, and the
-    CLI's own default), the gap reopens and clearly favors the
-    classical model again -- a real training-stability difference
-    between the two epoch budgets, not a flaky test. Training is
-    fully deterministic given a fixed seed (confirmed separately in
-    `test_recessionnet_training.py`), so both are legitimate
-    regression checks, not flaky assertions on a stochastic outcome."""
-    config = RecessionNetRunConfig(seed=0, n_epochs=150, bootstrap_resamples=200)
+    """Locks in the real, reproducible seed=0 finding for this CLI's
+    default configuration (window=6, horizon=6, validation split
+    1988-01-01, test split 2000-01-01, early stopping with
+    max_epochs=500/patience=20 -- PR-144's methodology, matching
+    Q-MACRO's CLI from the start rather than this module's own earlier,
+    superseded fixed-epoch behavior): the hybrid quantum classifier's
+    Brier score (~0.087) sits close to its best classical challenger's
+    (classical_matched_mlp, ~0.083), and the paired bootstrap CI
+    includes zero -- "inconclusive," the same honest finding
+    `test_recessionnet_evaluation.py`'s equivalent end-to-end test
+    already locks in directly against `run_recessionnet_benchmark_
+    with_early_stopping`. Training is fully deterministic given a
+    fixed seed, so this is a legitimate regression check."""
+    config = RecessionNetRunConfig(seed=0, max_epochs=500, patience=20, bootstrap_resamples=200)
     result = run_recessionnet_demo(_REAL_OBSERVATIONS, config)
 
     assert result.n_train_samples > 0
+    assert result.n_validation_samples > 0
     assert result.n_test_samples > 0
     assert result.n_train_positive > 0
     assert result.n_test_positive > 0
@@ -175,24 +257,10 @@ def test_run_recessionnet_demo_matches_the_real_observed_result() -> None:
         "classical_matched_mlp",
         "hybrid_quantum",
     }
+    assert result.report.best_classical_challenger == "classical_matched_mlp"
+    assert result.report.metrics["hybrid_quantum"].brier_score == pytest.approx(0.0874, abs=0.01)
     assert result.verdict == "inconclusive"
     assert result.report.quantum_vs_best_classical.excludes_zero() is False
-
-
-def test_run_recessionnet_demo_matches_a_longer_run_result() -> None:
-    """At a longer, more realistic training budget (this module's own
-    CLI default of 300 epochs), the gap between the hybrid quantum
-    classifier and logistic regression reopens and is again
-    statistically clear, in the classical model's favor -- the same
-    qualitative finding as before PR-141's encoding fix, now on a
-    genuinely corrected architecture rather than one confounded by a
-    gradient-dead-zone bug."""
-    config = RecessionNetRunConfig(seed=0, n_epochs=300, bootstrap_resamples=200)
-    result = run_recessionnet_demo(_REAL_OBSERVATIONS, config)
-
-    assert result.verdict == "classical_better"
-    assert result.report.quantum_vs_best_classical.excludes_zero() is True
-    assert result.report.quantum_vs_best_classical.point_estimate > 0
 
 
 def test_main_writes_output_and_prints_a_json_summary(tmp_path, capsys) -> None:
@@ -201,10 +269,12 @@ def test_main_writes_output_and_prints_a_json_summary(tmp_path, capsys) -> None:
     exit_code = main(
         [
             "--seed", "0",
-            "--n-epochs", "5",
+            "--max-epochs", "5",
+            "--patience", "3",
             "--window", "2",
             "--horizon", "1",
-            "--split-date", "2000-01-01",
+            "--validation-split-date", "1999-08-01",
+            "--test-split-date", "2000-01-01",
             "--bootstrap-resamples", "20",
             "--output", str(output_path),
         ],
@@ -215,6 +285,7 @@ def test_main_writes_output_and_prints_a_json_summary(tmp_path, capsys) -> None:
     printed = json.loads(capsys.readouterr().out)
     saved = json.loads(output_path.read_text())
     assert printed == saved
+    assert saved["data_source"] == "live"
     assert saved["verdict"] in {"quantum_better", "classical_better", "inconclusive"}
     assert saved["run_manifest"]["model_id"] == "recessionnet-hybrid-quantum-v1"
     assert set(saved["models"]) == {
@@ -227,11 +298,11 @@ def test_main_writes_output_and_prints_a_json_summary(tmp_path, capsys) -> None:
 
 def test_main_rejects_an_invalid_split_date(capsys) -> None:
     with pytest.raises(SystemExit):
-        main(["--split-date", "not-a-date"], transport=_ScriptedTransport(b""))
+        main(["--validation-split-date", "not-a-date"], transport=_ScriptedTransport(b""))
     assert "invalid" in capsys.readouterr().err.lower()
 
 
 def test_main_rejects_an_invalid_config_value(capsys) -> None:
     with pytest.raises(SystemExit):
-        main(["--n-epochs", "0"], transport=_ScriptedTransport(b""))
-    assert "n_epochs" in capsys.readouterr().err
+        main(["--max-epochs", "0"], transport=_ScriptedTransport(b""))
+    assert "max_epochs" in capsys.readouterr().err

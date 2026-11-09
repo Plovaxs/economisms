@@ -29,12 +29,14 @@ dataset-level `lastupdated` field.
 from __future__ import annotations
 
 import calendar
+import csv
 import hashlib
 import io
 import re
 import zipfile
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 from typing import Literal
 
 from prometheus.data_ingestion.transport import HttpTransport
@@ -162,3 +164,58 @@ def fetch_french_factors(
         database_vintage=vintage,
         methodological_notes=header_text,
     )
+
+
+def save_ff3_snapshot(result: FrenchFactorsFetchResult, path: Path) -> None:
+    """Writes a real fetch's monthly observations to a small CSV
+    snapshot at `path`, for `load_cached_ff3_snapshot` to read back
+    later as an offline fallback. Called DELIBERATELY to refresh the
+    bundled snapshot committed at `data_cache/ff3_monthly_snapshot.csv`
+    -- never automatically after a live fetch, so a live demo's
+    fallback behavior stays predictable rather than silently
+    overwritten mid-run by whatever happened to be live that day."""
+    by_month: dict[date, dict[str, float]] = {}
+    for obs in result.observations:
+        if obs.frequency != "M":
+            continue
+        factor = obs.series_id.removeprefix("FF3_")
+        by_month.setdefault(obs.observation_at, {})[factor] = obs.value
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["date", *_FACTOR_NAMES])
+        for month in sorted(by_month):
+            row = by_month[month]
+            writer.writerow([month.strftime("%Y%m"), *(row[name] for name in _FACTOR_NAMES)])
+
+
+def load_cached_ff3_snapshot(path: Path) -> list[MacroObservation]:
+    """Loads a snapshot written by `save_ff3_snapshot` -- a production
+    OFFLINE FALLBACK for `orchestration.recessionnet_run`/`qmacro_run`
+    when a live fetch fails (no network, source down), so a live demo
+    does not hard-fail on a connectivity problem. Not used by the
+    hermetic test suite, which embeds its own independent fixture
+    (`tests/fixtures/ff3_monthly_real.csv`) rather than depending on
+    this production cache file. The reconstructed observations have no
+    `raw_hash` (the snapshot stores parsed values, not the original
+    raw bytes) -- an honest provenance gap versus a genuine live fetch,
+    disclosed via the dataclass default rather than fabricated."""
+    observations: list[MacroObservation] = []
+    with path.open() as f:
+        for row in csv.DictReader(f):
+            year, month = int(row["date"][:4]), int(row["date"][4:6])
+            observation_at = date(year, month, calendar.monthrange(year, month)[1])
+            for factor_name in _FACTOR_NAMES:
+                observations.append(
+                    MacroObservation(
+                        series_id=f"FF3_{factor_name}",
+                        observation_at=observation_at,
+                        published_at=observation_at,
+                        value=float(row[factor_name]),
+                        source_url=FRENCH_FACTORS_URL,
+                        source_license=FRENCH_SOURCE_LICENSE,
+                        frequency="M",
+                    )
+                )
+    return observations

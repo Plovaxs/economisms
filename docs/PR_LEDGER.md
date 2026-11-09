@@ -3040,6 +3040,35 @@ in empirical asset pricing (Welch & Goyal 2008; Campbell & Thompson
   blueprint's remaining three engines); PR-AUC/CRPS probabilistic
   scoring; multi-seed aggregation remains ad hoc.
 
+Plus **offline-fallback data and switching RECESSIONNET's CLI to
+early stopping** (PR-144), prompted directly by the user flagging that
+this is for an actual final-project demo and it has to run live.
+Two real reliability gaps, both closed:
+
+1. Both orchestration CLIs made a live network call every invocation
+   with no fallback -- a venue's bad wifi or a slow Dartmouth server
+   could kill a live demo outright. `french_factors.save_ff3_snapshot`/
+   `load_cached_ff3_snapshot` add a committed, real snapshot
+   (`data_cache/ff3_monthly_snapshot.csv`, the same real data already
+   used throughout, re-saved from an actual fetch) that
+   `load_real_ff3_observations_or_cached` falls back to on any
+   `HttpRequestError`/`FrenchFactorsResponseError`/`OSError`. Verified
+   end to end under a SIMULATED outage (a transport returning HTTP
+   503): the CLI still exits 0 with a complete report, tagged
+   `"data_source": "cached_snapshot_fallback"` rather than silently
+   hiding which path was actually used.
+2. `orchestration.recessionnet_run` had never been updated to use
+   PR-142's early-stopping methodology -- a gap PR-142's own ledger
+   entry explicitly disclosed. It still used the superseded fixed-
+   epoch `run_recessionnet_benchmark`. Switched to
+   `run_recessionnet_benchmark_with_early_stopping`, matching
+   `qmacro_run`'s CLI (which already used it from the start). Real
+   effect: the CLI's own wall-clock time roughly halved (~17s to
+   ~7-13s across several rehearsal runs) and its result changed from
+   the superseded "classical wins" finding to the already-validated
+   "inconclusive" one -- confirmed live, multiple times, not asserted
+   from a single lucky run.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3388,6 +3417,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` scaled its encoder output by pi before angle embedding; under a single-qubit RX gate, d&lt;Z&gt;/d(theta) = -sin(theta), zero at theta=0 and +/-pi, peak at +/-pi/2 -- a saturating `tanh` encoder was pushing most inputs toward the zero-gradient +/-pi extreme. Diagnosed directly from PR-139's own calibration-slope diagnostic (~0.10, i.e. barely discriminating) rather than guessed; fixed by rescaling to pi/2. Real result after the fix: test-set AUC improved from ~0.61 to ~0.70 and calibration slope from ~0.10 to ~0.22, but the quantum model still loses clearly to logistic regression (AUC ~0.86) at a 300-epoch budget, and is statistically indistinguishable from it (not better) at a shorter 150-epoch budget -- both outcomes now locked in as regression tests rather than one being silently left stale; confirmed by 1 new test plus 2 existing tests updated to the corrected real numbers |
 | PR-142 (addendum methodology fix, no new 374-item ID) Early-stopping, validation-selected model comparison for RECESSIONNET | implemented locally | A diagnostic training-curve trace found the hybrid quantum and classical-MLP models (493 parameters) overfitting past epoch ~20-60 at PR-139's fixed epoch budget while logistic regression (25 parameters) did not -- a fixed-epoch comparison was unfair once capacity differs this much. `training.train_classifier_with_early_stopping` and `evaluation.run_recessionnet_benchmark_with_early_stopping` select each model's stopping epoch by a validation split carved out of the training era (1988-1999), never the test set; real seed=0 result: quantum Brier (~0.087) now sits close to its best classical challenger's (~0.083), and 4 of 5 seeds checked by hand are statistically inconclusive rather than a robust quantum loss; confirmed by 14 new tests, 99-100% coverage |
 | PR-143 (addendum, FP-05 partial) Q-MACRO: hybrid quantum regressor vs. AR(3)/MLP/persistence for h-months-ahead Mkt-RF | implemented locally | New `macrocore.regression_dataset`/`macrocore.quantum_benchmark` plus `quantum.models.{LinearRegressionModel,ClassicalMatchedRegressor,HybridQuantumRegressor}` (zero-behavior-change subclasses reusing the RECESSIONNET architectures for a regression target); AR(3) genuinely refit at every real test month, three learned models selected by early stopping from the start (PR-142's methodology, not repeated as a mistake); real result: AR(3)/MLP/quantum all land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), no significant difference among them across 5 seeds checked; confirmed by 36 new tests, 99-100% coverage |
+| PR-144 (demo reliability, no new ID) Offline-fallback data + switched RECESSIONNET's CLI to early stopping | implemented locally | `french_factors.save_ff3_snapshot`/`load_cached_ff3_snapshot` plus a committed real snapshot at `data_cache/ff3_monthly_snapshot.csv`; `orchestration.recessionnet_run`/`qmacro_run` try a live fetch first and fall back to this snapshot on any network/response failure (confirmed end to end under a simulated outage, exit 0, `data_source: "cached_snapshot_fallback"`), tagging which path was used in the output rather than hiding it; `recessionnet_run` also switched from the superseded fixed-epoch benchmark to `run_recessionnet_benchmark_with_early_stopping` (PR-142's methodology, matching Q-MACRO's CLI from the start), cutting its own wall-clock time roughly in half (~17s to ~7-13s); confirmed by 7 new/updated tests, 99% coverage, and multiple live rehearsal runs |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3607,6 +3637,11 @@ PR-143 strengthens the PARTIAL FP-05 addendum row (not a new 374-item ID): Q-MAC
 quantum regressor vs. AR(3)/classical-MLP/persistence for h-months-ahead Mkt-RF, applying
 PR-142's early-stopping methodology from the start. Independently reproduces RECESSIONNET's
 own "neither better nor worse" finding on a genuinely different task (regression) and target.
+PR-144 adds no new 374-item ID -- demo-reliability hardening: an offline-fallback data
+snapshot for both orchestration CLIs (verified under a simulated network outage) and
+switching recessionnet_run to the early-stopping methodology qmacro_run already used,
+roughly halving its wall-clock time and correcting its result to the already-validated
+"inconclusive" finding.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

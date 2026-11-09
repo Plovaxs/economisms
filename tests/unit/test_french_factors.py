@@ -17,8 +17,11 @@ from datetime import date
 import pytest
 
 from prometheus.data_ingestion.french_factors import (
+    FRENCH_SOURCE_LICENSE,
     FrenchFactorsResponseError,
     fetch_french_factors,
+    load_cached_ff3_snapshot,
+    save_ff3_snapshot,
 )
 from prometheus.data_ingestion.transport import HttpResponse
 from prometheus.econosim.pit import FutureDataError, PointInTimeStore, require_eligible
@@ -404,3 +407,62 @@ def _make_zip(content: str, inner_name: str = "F-F_Research_Data_Factors.csv") -
     with zipfile.ZipFile(buffer, "w") as archive:
         archive.writestr(inner_name, content)
     return buffer.getvalue()
+
+
+def test_snapshot_round_trip_preserves_every_real_monthly_value(tmp_path) -> None:
+    """The production offline-fallback path (PR-144): save a real
+    fetch's monthly observations, load them back, and confirm every
+    value survives exactly -- this is what `orchestration.
+    recessionnet_run`/`qmacro_run` fall back to when a live fetch
+    fails during a demo."""
+    transport = _ScriptedTransport(_REAL_ZIP_BYTES)
+    result = fetch_french_factors(transport, frequency="monthly")
+
+    snapshot_path = tmp_path / "ff3_monthly_snapshot.csv"
+    save_ff3_snapshot(result, snapshot_path)
+    reloaded = load_cached_ff3_snapshot(snapshot_path)
+
+    assert len(reloaded) == len(result.observations)
+    original_by_key = {(o.series_id, o.observation_at): o.value for o in result.observations}
+    reloaded_by_key = {(o.series_id, o.observation_at): o.value for o in reloaded}
+    assert original_by_key == reloaded_by_key
+    assert all(o.series_id.startswith("FF3_") for o in reloaded)
+    assert all(o.source_license == FRENCH_SOURCE_LICENSE for o in reloaded)
+    assert all(o.raw_hash is None for o in reloaded)  # honest provenance gap, not fabricated
+
+
+def test_save_snapshot_creates_parent_directories(tmp_path) -> None:
+    transport = _ScriptedTransport(_REAL_ZIP_BYTES)
+    result = fetch_french_factors(transport, frequency="monthly")
+    nested_path = tmp_path / "nested" / "dir" / "snapshot.csv"
+    save_ff3_snapshot(result, nested_path)
+    assert nested_path.exists()
+
+
+def test_save_snapshot_excludes_annual_rows_from_a_mixed_fetch_result() -> None:
+    """`save_ff3_snapshot` only ever writes MONTHLY rows, even if
+    handed a result that happens to include annual observations --
+    the cached snapshot is specifically the monthly fallback
+    `load_cached_ff3_snapshot`'s own reader expects."""
+    from prometheus.data_ingestion.french_factors import FrenchFactorsFetchResult
+
+    monthly_transport = _ScriptedTransport(_REAL_ZIP_BYTES)
+    monthly_result = fetch_french_factors(monthly_transport, frequency="monthly")
+    annual_transport = _ScriptedTransport(_REAL_ZIP_BYTES)
+    annual_result = fetch_french_factors(annual_transport, frequency="annual")
+
+    mixed = FrenchFactorsFetchResult(
+        observations=monthly_result.observations[:8] + annual_result.observations[:4],
+        raw_hash=monthly_result.raw_hash,
+        database_vintage=monthly_result.database_vintage,
+        methodological_notes=monthly_result.methodological_notes,
+    )
+
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "mixed_snapshot.csv"
+        save_ff3_snapshot(mixed, path)
+        reloaded = load_cached_ff3_snapshot(path)
+        assert len(reloaded) == 8  # only the 2 real months x 4 factors, annual rows excluded

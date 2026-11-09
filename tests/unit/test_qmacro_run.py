@@ -192,6 +192,7 @@ def test_main_writes_output_and_prints_a_json_summary(tmp_path, capsys) -> None:
     printed = json.loads(capsys.readouterr().out)
     saved = json.loads(output_path.read_text())
     assert printed == saved
+    assert saved["data_source"] == "live"
     assert saved["verdict"] in {"quantum_better", "classical_better", "inconclusive"}
     assert saved["run_manifest"]["model_id"] == "qmacro-hybrid-quantum-v1"
     assert set(saved["models"]) == {

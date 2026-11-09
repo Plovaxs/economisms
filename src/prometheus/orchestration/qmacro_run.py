@@ -8,9 +8,13 @@ baseline (`macrocore.quantum_benchmark.run_qmacro_benchmark`).
 
 Mirrors `orchestration.recessionnet_run`'s own structure and its
 `transport`-injection pattern for the same reason: one real network
-call happens inside `load_real_ff3_observations` (reused directly from
-that module, not duplicated), so `main`'s `transport` parameter lets
-`tests/unit/test_qmacro_run.py` exercise the full CLI hermetically.
+call happens inside `load_real_ff3_observations_or_cached` (reused
+directly from that module, not duplicated), so `main`'s `transport`
+parameter lets `tests/unit/test_qmacro_run.py` exercise the full CLI
+hermetically. The same function's offline-fallback behavior (a
+committed snapshot at `data_cache/ff3_monthly_snapshot.csv` when a
+live fetch fails) applies here too, for the same reason: a live demo
+should not die on a bad wifi moment.
 """
 
 from __future__ import annotations
@@ -31,7 +35,10 @@ from prometheus.macrocore.regression_dataset import (
     chronological_split,
     extract_target_history,
 )
-from prometheus.orchestration.recessionnet_run import load_real_ff3_observations
+from prometheus.orchestration.recessionnet_run import (
+    DataSource,
+    load_real_ff3_observations_or_cached,
+)
 
 DEFAULT_FEATURE_SERIES_IDS: tuple[str, ...] = ("FF3_Mkt-RF", "FF3_SMB", "FF3_HML", "FF3_RF")
 DEFAULT_TARGET_SERIES_ID = "FF3_Mkt-RF"
@@ -126,10 +133,11 @@ def run_qmacro_demo(
     )
 
 
-def _summary_payload(result: QMacroDemoResult) -> dict[str, Any]:
+def _summary_payload(result: QMacroDemoResult, data_source: DataSource) -> dict[str, Any]:
     report = result.report
     bootstrap = report.quantum_vs_best_classical
     return {
+        "data_source": data_source,
         "dataset": {
             "n_train": result.n_train_samples,
             "n_validation": result.n_validation_samples,
@@ -196,9 +204,9 @@ def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None =
         parser.error(str(exc))
 
     real_transport = transport if transport is not None else UrllibTransport()
-    observations = load_real_ff3_observations(real_transport)
+    observations, data_source = load_real_ff3_observations_or_cached(real_transport)
     result = run_qmacro_demo(observations, config)
-    payload = _summary_payload(result)
+    payload = _summary_payload(result, data_source)
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(payload, indent=2))
