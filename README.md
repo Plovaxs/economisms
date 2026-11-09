@@ -2,9 +2,9 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C461%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C523%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
-[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-227%2F374%20(60.7%25)-blue)](./CHECKLIST_STATUS.md)
+[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-240%2F374%20(64.2%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](./pyproject.toml)
 
@@ -24,7 +24,10 @@ combines four subsystems behind one evidence discipline:
   access, deterministic shocks, and a macro time engine;
 - **classical and stochastic-volatility market models** — GBM, Heston,
   Merton jump-diffusion, regime-switching, with Monte Carlo and
-  closed-form pricers for European, American, barrier and Asian options;
+  closed-form pricers for European, American, barrier and Asian options,
+  plus a neural SDE trained on real macro data and benchmarked against
+  classical baselines with proper scoring rules and real-event OOD
+  evaluation;
 - **institutional risk analytics** — VaR, Expected Shortfall, factor
   exposure, stress testing, portfolio optimization and covariance
   shrinkage; and
@@ -50,11 +53,11 @@ and every PR states plainly what it does *not* cover.
 
 | | |
 |---|---|
-| Blueprint items evidenced | **227 / 374** (60.7%) across 29 categories |
-| Categories at 100% | API, AUD, DOC, ECO, LED, MLO, OPS, OPT, PRI, REL, RISK, SDE |
-| Test suite | **2,461 / 2,461** passing |
+| Blueprint items evidenced | **240 / 374** (64.2%) across 29 categories |
+| Categories at 100% | API, AUD, DOC, ECO, LED, MLO, NSD, OPS, OPT, PRI, REL, RISK, SDE |
+| Test suite | **2,523 / 2,523** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 149, each independently verified |
+| Pull requests | 150, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -95,6 +98,8 @@ src/prometheus/
                    macro data, macro time engine, central bank, market clearing,
                    step-hooks orchestration, data quality monitoring
   stochastica/     GBM, Heston, Merton jump-diffusion, regime-switching, historical calibration
+  neural_sde/      drift/diffusion network trained on real macro data, proper scoring rules,
+                   multi-seed/multi-solver sensitivity, real-event OOD evaluation, model card
   volterra/        Black-Scholes, Heston & Merton pricers, barrier/Asian/American options, Greeks
   titan/           VaR, Expected Shortfall, factor exposure, stress testing, portfolio optimization
   hedging/         delta/no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy

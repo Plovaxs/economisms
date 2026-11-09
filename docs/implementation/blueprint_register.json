@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "a2b1bded49f157092fb66529cc1f4f00759e5b8ca18360a748fe4f03c4d1ac8a",
+    "content_sha256": "b747e06aed9abd2e03acdcdc92a61da6eef59418c46b1e3c93ff6f776fffb193",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "14bca6f3f2f72d77e4fdab5b63da11638a3bffd583ad7356b57d183f7ea9953c",
+  "checklist_notes_sha256": "1ca7eb5a3832fa18ae3791b081eb23e21122c0de93b455de1007d874014967c6",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -1737,10 +1737,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5774,
+          "evidence_note": "`neural_sde.design.NeuralSDEDesignSpec`/`design_record_text`",
+          "id_column": "NSD-01 (first evidence)",
+          "requirement_note": "neural drift/diffusion architecture design record"
+        }
+      ],
       "requirement": "Specify neural drift and diffusion architecture",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1754,10 +1761,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5775,
+          "evidence_note": "`neural_sde.integration`; `torch.autograd.gradcheck` (float64) on a toy case",
+          "id_column": "NSD-02 (first evidence)",
+          "requirement_note": "differentiable stochastic integration, autograd-consistent"
+        }
+      ],
       "requirement": "Implement differentiable stochastic integration path",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1771,10 +1785,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5776,
+          "evidence_note": "`neural_sde.model`'s Cholesky parameterization; every sampled eigenvalue checked across 4 state-dim combinations x 200 random inputs",
+          "id_column": "NSD-03 (first evidence)",
+          "requirement_note": "diffusion PSD by construction"
+        }
+      ],
       "requirement": "Enforce diffusion PSD/covariance construction",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1788,10 +1809,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5777,
+          "evidence_note": "substituted with tested architectural boundedness/finiteness, see narrative above",
+          "id_column": "NSD-04 (first evidence, disclosed reinterpretation)",
+          "requirement_note": "variance/price positivity by construction"
+        }
+      ],
       "requirement": "Control variance and price positivity by construction",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1805,10 +1833,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5778,
+          "evidence_note": "`neural_sde.dataset.build_transition_dataset` reads only through `econosim.pit.build_feature_vector`; a direct future-data request is rejected by test",
+          "id_column": "NSD-05 (first evidence)",
+          "requirement_note": "regime-conditioned model, known-at time checked"
+        }
+      ],
       "requirement": "Implement regime-conditioned model with known-at time",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1822,10 +1857,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5779,
+          "evidence_note": "`neural_sde.dataset.FittedScaler` is frozen with no `fit`/`fit_transform` method reachable post-construction",
+          "id_column": "NSD-06 (first evidence)",
+          "requirement_note": "train-only preprocessing/imputation"
+        }
+      ],
       "requirement": "Implement train-only preprocessing and imputation",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1839,10 +1881,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5780,
+          "evidence_note": "`neural_sde.benchmark.benchmark_report`; GARCH(1,1) substitutes for Heston, see narrative above",
+          "id_column": "NSD-07 (first evidence, disclosed substitution)",
+          "requirement_note": "compare vs. GBM/Heston/simple ML"
+        }
+      ],
       "requirement": "Compare neural SDE with GBM/Heston and simple ML models",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1856,10 +1905,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5781,
+          "evidence_note": "`neural_sde.scoring.gaussian_log_score`/`marginal_crps_report`; CRPS cross-checked against brute-force numerical integration",
+          "id_column": "NSD-08 (first evidence)",
+          "requirement_note": "proper scoring rules (CRPS/log score)"
+        }
+      ],
       "requirement": "Measure distribution fit with proper scoring rules",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1873,10 +1929,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5782,
+          "evidence_note": "`neural_sde.scoring.moment_diagnostics` with bootstrap CIs, validated against a known-skew lognormal sample",
+          "id_column": "NSD-09 (first evidence)",
+          "requirement_note": "tail/skew/vol-persistence moment diagnostics"
+        }
+      ],
       "requirement": "Measure return tails, skew, volatility persistence",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1890,10 +1953,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5783,
+          "evidence_note": "`neural_sde.benchmark.multi_seed_multi_solver_sensitivity`; real run: within-scheme seed std ~15.6-16.0 vs. cross-scheme std at matched seed ~1.37",
+          "id_column": "NSD-10 (first evidence)",
+          "requirement_note": "multi-seed/multi-solver sensitivity"
+        }
+      ],
       "requirement": "Implement multi-seed, multi-solver sensitivity study",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1907,10 +1977,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5784,
+          "evidence_note": "`neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +5.58 vs. baseline +29.97 log-score degradation",
+          "id_column": "NSD-11 (first evidence)",
+          "requirement_note": "unseen macroeconomic shock OOD evaluation"
+        }
+      ],
       "requirement": "Evaluate unseen macroeconomic shocks and drift",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1924,10 +2001,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5785,
+          "evidence_note": "`neural_sde.training._check_integrity`/`TrainingIntegrityError`; both an injected-NaN case and an organically-exploding-learning-rate case",
+          "id_column": "NSD-12 (first evidence)",
+          "requirement_note": "training fails on loss/gradient/NaN integrity violations"
+        }
+      ],
       "requirement": "Test exploding/vanishing gradients and numerical NaNs",
       "source_pdf_page": 24,
       "source_rows": [
@@ -1941,10 +2025,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "NSD",
       "id": "NSD-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5786,
+          "evidence_note": "`neural_sde.registry.ModelCard`/`model_card_from_trained_model`, training range read from the real data actually used, not hand-typed",
+          "id_column": "NSD-13 (first evidence)",
+          "requirement_note": "model version/training-range/limitations card"
+        }
+      ],
       "requirement": "Register model version, training range and limitations",
       "source_pdf_page": 24,
       "source_rows": [
@@ -8854,7 +8945,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 227,
-    "without_repository_notes": 147
+    "with_repository_notes": 240,
+    "without_repository_notes": 134
   }
 }
