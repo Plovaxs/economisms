@@ -5586,6 +5586,41 @@ fixed assumption, not a measured per-value release timestamp.
 See
 [`src/prometheus/data_ingestion/treasury_yield_curve.py`](./src/prometheus/data_ingestion/treasury_yield_curve.py).
 
+## Evidenced today (PR-147: published documentation closing 11 of 12 DOC items -- DOC-01/02/03/04/05/07/08/09/10/11/12)
+
+Nine new documents (`docs/DATA_DICTIONARY.md`, `PROBLEM_STATEMENT.md`,
+`MATHEMATICAL_APPENDIX.md`, `SUBSYSTEM_INTERFACES.md`, `EXPERIMENT_GUIDE.md`,
+`RESULTS_AND_LIMITATIONS.md`, `SECURITY_AND_DATA_HANDLING.md`,
+`OPERATIONS_RUNBOOK.md`) plus three repository-root files
+(`CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`) and a README
+addition (the exact one-command smoke-test replay call). Every claim in
+every new document is grounded in and cites a real module, a real test
+file, or a real previously-evidenced checklist item already in this
+repository -- no new code, no new test, nothing invented for the
+occasion; this PR is pure, source-cited documentation.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DOC-01 | clear environment setup and one-command smoke test | README Quickstart + the explicit `prometheus.orchestration.replay --require-integrity` smoke-test call; this exact sequence (bootstrap, `uv sync --locked`, lint, type check, test, replay) already runs on a clean GitHub Actions VM on every push (`.github/workflows/ci.yml`), not merely a claim that it would work |
+| DOC-02 | research problem statement and falsifiable hypotheses | `docs/PROBLEM_STATEMENT.md`; states H1/H2/H3 as specific pre-stated claims against named primary metrics (Brier score; MAE/MASE; real-holiday discrimination), citing the real PRs that tested each one, including H1/H2's real non-support outcomes |
+| DOC-03 | full mathematical notation and assumptions appendix | `docs/MATHEMATICAL_APPENDIX.md`; every equation and disclosed numerical-boundary finding copied from the implementing module's own docstring (`volterra.black_scholes`, `stochastica.{gbm,heston,jump_diffusion,regime_switching}`, `core.ledger`), not re-derived independently |
+| DOC-04 | subsystems interfaces and simulation event-order spec | `docs/SUBSYSTEM_INTERFACES.md`; the step 3-7 table and data-flow diagram are read directly from `econosim.step_hooks.StepHooks`/`StepContext` and `MacroTimeEngine.advance_step()`, not inferred |
+| DOC-05 | data dictionary, feature definitions and known-at logic | `docs/DATA_DICTIONARY.md`; every field table copied from the real dataclass (`econosim.pit.MacroObservation`, `core.money.Money`, `evidence.model_card.ModelCard`, `experiments.holdout_manifest.DataSplit`) plus the real `PointInTimeStore.as_of` eligibility predicate a reader needs to reproduce a backdated feature row |
+| DOC-07 (partial) | experiment guide and seed/split protocol | `docs/EXPERIMENT_GUIDE.md`; six real numbered protocol steps each citing the exact module/PR that established it (`holdout_manifest`, `early_stopping`, `dataset_fingerprint`, `core.seeds`, `bootstrap`); "independent run matches selected report within tolerance" is the already-evidenced CIQ-03 deterministic reference replay's own guarantee, cited rather than re-demonstrated here |
+| DOC-08 (partial) | operational runbooks and rollback process | `docs/OPERATIONS_RUNBOOK.md`; indexes the three real drilled runbooks (`evidence.runbook_catalog`, DRI-02/03/04) and `recovery.snapshot`'s restore drill; explicitly discloses that `evidence.model_registry`'s state machine supports invalidation (retire from any state) but NOT a one-step backward "rollback" transition (`is_allowed_transition` rejects it by design) -- the stronger LCH-10 versioned-rollback claim is named as still open, not implied covered |
+| DOC-09 | system security and data-handling guide | `docs/SECURITY_AND_DATA_HANDLING.md`; documents the real `service.auth` token flow, `service.client`'s no-redirect/TLS-default behavior, `recovery.snapshot`'s AES-256-GCM scope and limits, and `evidence.security_scan`'s secret/license scan, each cited to its implementing module, alongside an explicit list of controls NOT implemented (live CVE scanning, egress allowlist, formal data classification, penetration test) |
+| DOC-10 (first credited) | API specification and example client | pre-existing `docs/api/openapi-v1.json` (generated from the same dataclasses the runtime decoders use, `service.schema._schema`) and `service.client` (314-line typed synchronous client), exercised by the pre-existing `tests/unit/test_service_client.py` -- this item was already fully satisfied by prior PRs and simply never credited in this checklist until now |
+| DOC-11 | contributor guide, code of conduct and security policy | new root `CONTRIBUTING.md` (setup, code style, bookkeeping workflow, commit convention), `CODE_OF_CONDUCT.md`, and `SECURITY.md` (scope, GitHub private-vulnerability-reporting disclosure channel, existing controls) |
+| DOC-12 | results including negative findings and limits | `docs/RESULTS_AND_LIMITATIONS.md`; every cited number (quantum Brier ~0.087 vs ~0.083; Q-MACRO MAE ~0.034/MASE ~0.62 vs persistence ~0.89; the real 2006 inversion and 2020 zero-rate events) traces to its originating PR-142/143/145/146 entry in `docs/PR_LEDGER.md`, including the project's own unchanged NO-GO gate decision |
+
+Not covered: DOC-06 was already evidenced by a prior PR (unchanged here).
+DOC-07/DOC-08 are marked partial above for the specific, stated reasons
+(a guide document citing an existing reproducibility/invalidation
+mechanism is not the same as that document itself proving a NEW claim;
+and a true versioned-rollback demonstration remains LCH-10, open). No new
+test was added by this PR -- it is documentation only, and is evidenced
+by citation to tests and modules that already existed before it.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

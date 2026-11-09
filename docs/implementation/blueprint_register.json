@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "5447adcf8419dcea84618a59dcbe7e60635fd9ec8ec2c3f498d084d4c02a7769",
+    "content_sha256": "d8b802ad6289bc50bc775d2ba986f185352bbe3b72ee833a5f20817cc9e407b6",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "5603cbb4470c2dd96f981cf0101f5c523cdef1dff157bc4c60204bf094d98146",
+  "checklist_notes_sha256": "7a3e4482b4554dd4a131f65cf5aa51e363791b816eb9ef78101435b7310965c6",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -8106,10 +8106,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5604,
+          "evidence_note": "README Quickstart + the explicit `prometheus.orchestration.replay --require-integrity` smoke-test call; this exact sequence (bootstrap, `uv sync --locked`, lint, type check, test, replay) already runs on a clean GitHub Actions VM on every push (`.github/workflows/ci.yml`), not merely a claim that it would work",
+          "id_column": "DOC-01",
+          "requirement_note": "clear environment setup and one-command smoke test"
+        }
+      ],
       "requirement": "Publish clear environment setup and one-command smoke test",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8123,10 +8130,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5605,
+          "evidence_note": "`docs/PROBLEM_STATEMENT.md`; states H1/H2/H3 as specific pre-stated claims against named primary metrics (Brier score; MAE/MASE; real-holiday discrimination), citing the real PRs that tested each one, including H1/H2's real non-support outcomes",
+          "id_column": "DOC-02",
+          "requirement_note": "research problem statement and falsifiable hypotheses"
+        }
+      ],
       "requirement": "Publish research problem statement and falsifiable hypotheses",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8140,10 +8154,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5606,
+          "evidence_note": "`docs/MATHEMATICAL_APPENDIX.md`; every equation and disclosed numerical-boundary finding copied from the implementing module's own docstring (`volterra.black_scholes`, `stochastica.{gbm,heston,jump_diffusion,regime_switching}`, `core.ledger`), not re-derived independently",
+          "id_column": "DOC-03",
+          "requirement_note": "full mathematical notation and assumptions appendix"
+        }
+      ],
       "requirement": "Publish full mathematical notation and assumptions appendix",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8157,10 +8178,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5607,
+          "evidence_note": "`docs/SUBSYSTEM_INTERFACES.md`; the step 3-7 table and data-flow diagram are read directly from `econosim.step_hooks.StepHooks`/`StepContext` and `MacroTimeEngine.advance_step()`, not inferred",
+          "id_column": "DOC-04",
+          "requirement_note": "subsystems interfaces and simulation event-order spec"
+        }
+      ],
       "requirement": "Publish subsystems interfaces and simulation event-order spec",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8174,10 +8202,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5608,
+          "evidence_note": "`docs/DATA_DICTIONARY.md`; every field table copied from the real dataclass (`econosim.pit.MacroObservation`, `core.money.Money`, `evidence.model_card.ModelCard`, `experiments.holdout_manifest.DataSplit`) plus the real `PointInTimeStore.as_of` eligibility predicate a reader needs to reproduce a backdated feature row",
+          "id_column": "DOC-05",
+          "requirement_note": "data dictionary, feature definitions and known-at logic"
+        }
+      ],
       "requirement": "Publish data dictionary, feature definitions and known-at logic",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8221,10 +8256,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5609,
+          "evidence_note": "`docs/EXPERIMENT_GUIDE.md`; six real numbered protocol steps each citing the exact module/PR that established it (`holdout_manifest`, `early_stopping`, `dataset_fingerprint`, `core.seeds`, `bootstrap`); \"independent run matches selected report within tolerance\" is the already-evidenced CIQ-03 deterministic reference replay's own guarantee, cited rather than re-demonstrated here",
+          "id_column": "DOC-07 (partial)",
+          "requirement_note": "experiment guide and seed/split protocol"
+        }
+      ],
       "requirement": "Publish experiment guide and seed/split protocol",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8238,10 +8280,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5610,
+          "evidence_note": "`docs/OPERATIONS_RUNBOOK.md`; indexes the three real drilled runbooks (`evidence.runbook_catalog`, DRI-02/03/04) and `recovery.snapshot`'s restore drill; explicitly discloses that `evidence.model_registry`'s state machine supports invalidation (retire from any state) but NOT a one-step backward \"rollback\" transition (`is_allowed_transition` rejects it by design) -- the stronger LCH-10 versioned-rollback claim is named as still open, not implied covered",
+          "id_column": "DOC-08 (partial)",
+          "requirement_note": "operational runbooks and rollback process"
+        }
+      ],
       "requirement": "Publish operational runbooks and rollback process",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8255,10 +8304,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5611,
+          "evidence_note": "`docs/SECURITY_AND_DATA_HANDLING.md`; documents the real `service.auth` token flow, `service.client`'s no-redirect/TLS-default behavior, `recovery.snapshot`'s AES-256-GCM scope and limits, and `evidence.security_scan`'s secret/license scan, each cited to its implementing module, alongside an explicit list of controls NOT implemented (live CVE scanning, egress allowlist, formal data classification, penetration test)",
+          "id_column": "DOC-09",
+          "requirement_note": "system security and data-handling guide"
+        }
+      ],
       "requirement": "Publish system security and data-handling guide",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8272,10 +8328,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5612,
+          "evidence_note": "pre-existing `docs/api/openapi-v1.json` (generated from the same dataclasses the runtime decoders use, `service.schema._schema`) and `service.client` (314-line typed synchronous client), exercised by the pre-existing `tests/unit/test_service_client.py` -- this item was already fully satisfied by prior PRs and simply never credited in this checklist until now",
+          "id_column": "DOC-10 (first credited)",
+          "requirement_note": "API specification and example client"
+        }
+      ],
       "requirement": "Publish API specification and example client",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8289,10 +8352,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5613,
+          "evidence_note": "new root `CONTRIBUTING.md` (setup, code style, bookkeeping workflow, commit convention), `CODE_OF_CONDUCT.md`, and `SECURITY.md` (scope, GitHub private-vulnerability-reporting disclosure channel, existing controls)",
+          "id_column": "DOC-11",
+          "requirement_note": "contributor guide, code of conduct and security policy"
+        }
+      ],
       "requirement": "Publish contributor guide, code of conduct and security policy",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8306,10 +8376,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DOC",
       "id": "DOC-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5614,
+          "evidence_note": "`docs/RESULTS_AND_LIMITATIONS.md`; every cited number (quantum Brier ~0.087 vs ~0.083; Q-MACRO MAE ~0.034/MASE ~0.62 vs persistence ~0.89; the real 2006 inversion and 2020 zero-rate events) traces to its originating PR-142/143/145/146 entry in `docs/PR_LEDGER.md`, including the project's own unchanged NO-GO gate decision",
+          "id_column": "DOC-12",
+          "requirement_note": "results including negative findings and limits"
+        }
+      ],
       "requirement": "Publish results including negative findings and limits",
       "source_pdf_page": 45,
       "source_rows": [
@@ -8742,7 +8819,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 211,
-    "without_repository_notes": 163
+    "with_repository_notes": 222,
+    "without_repository_notes": 152
   }
 }
