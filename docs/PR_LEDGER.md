@@ -2637,6 +2637,20 @@ the one new structure: an ordered action per fired signal, each
 naming a required owner. Not covered: no real dashboard UI or paging
 integration.
 
+Plus **CPU/RAM and artifact storage utilization tracking with capacity
+forecasting and budget alerts** (OPS-09, PR-127): `evidence.resource_utilization`.
+GPU utilization is honestly not covered (no GPU hardware here); CPU
+and RAM are measured from this real process via the standard library's
+`resource` module. Artifact storage reuses a new one-line public
+`ArtifactStore.usage_bytes` wrapper around that store's own existing
+`_usage_bytes`, confirmed to grow by exactly the combined real size of
+two genuinely different real evidence bundles put into a real store.
+`forecast_capacity` fits a linear trend, confirmed against an exact
+hand-computed series (10 units/day; budget 100 reached 8 days past
+the last sample), with a numerical-tolerance fix so a genuinely flat
+series (float noise from `numpy.polyfit`) correctly reports no
+forecasted exhaustion. Not covered: no live alert-routing/paging.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2968,6 +2982,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-124 (new ID) Data staleness and failed-ingest-count alerting (OPS-06) | implemented locally | `evidence.data_health.measure_staleness`, plus the existing `run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise and a real 0.3 failure rate against a genuinely flaky connector; confirmed by 11 tests |
 | PR-125 (new ID) High-severity numerical event monitoring with assigned ownership (OPS-07) | implemented locally | `evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`; confirmed by 14 tests |
 | PR-126 (new ID) Model drift, risk-metric calibration and tail-breach monitoring with an investigation playbook (OPS-08) | implemented locally | `evidence.model_monitoring`, composing RISK-08/RISK-09/MLO-13/MLO-14's existing primitives; each signal confirmed to fire and not-fire against real data, plus an owner-required investigation playbook; confirmed by 14 tests |
+| PR-127 (new ID) CPU/RAM and artifact storage utilization tracking with capacity forecasting and budget alerts (OPS-09) | implemented locally | `evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking via a new `ArtifactStore.usage_bytes`, and an exact linear capacity forecast; confirmed by 15 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3138,6 +3153,8 @@ PR-125 adds the first evidence for OPS-07, bringing the count from 196 to 197, c
 same way -- a real extreme-drift GBM solver failure and a real Monte-Carlo-vs-closed-form check.
 PR-126 adds the first evidence for OPS-08, bringing the count from 197 to 198, confirmed the
 same way -- three composed real signals, each confirmed to fire and not-fire against real data.
+PR-127 adds the first evidence for OPS-09, bringing the count from 198 to 199, confirmed the
+same way -- real CPU/RAM/artifact-storage tracking and an exact linear capacity forecast.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

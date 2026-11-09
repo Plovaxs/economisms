@@ -5060,6 +5060,47 @@ hardcoded guidance text, not a live ticketing/paging integration.
 See
 [`src/prometheus/evidence/model_monitoring.py`](./src/prometheus/evidence/model_monitoring.py).
 
+## Evidenced today (PR-127: CPU/RAM and artifact storage utilization tracking with capacity forecasting and budget alerts -- OPS-09)
+
+A new `evidence.resource_utilization` module. GPU utilization is
+honestly NOT covered: this environment has no GPU hardware, and
+fabricating a reading from nonexistent hardware would misrepresent
+what was measured -- the same honest-scope boundary this project
+already applies to VAL-10's GPU-tolerance reproducibility item. CPU
+and RAM ARE measured, from this real process, via the standard
+library's `resource` module (confirmed nonzero `cpu_seconds`/
+`ram_bytes` for this actually-running process, not placeholders).
+
+Artifact storage utilization reuses a new one-line public
+`jobs.artifacts.ArtifactStore.usage_bytes` wrapper around that store's
+own existing, already-tested `_usage_bytes` -- the SAME byte count
+`ArtifactStore.put` itself already enforces against `max_total_bytes`,
+not a second, separately-computed total that could disagree with it.
+Confirmed against a REAL store: putting two genuinely different real
+evidence bundles grows `artifact_storage_bytes` by exactly their
+combined real size.
+
+`forecast_capacity` fits a linear trend through a utilization history
+and projects when a budget would be reached, confirmed against an
+EXACT, hand-computed linear series (10 units/day; budget 100 reached
+at day 10, 8 days past the last sample) -- not merely checked for "a
+number comes out." A numerically-flat or shrinking series correctly
+reports no forecasted exhaustion date, including under the real
+floating-point noise `numpy.polyfit` introduces on genuinely constant
+data. `classify_utilization` is the same worst-of warning/critical
+pattern `evidence.queue_metrics.classify_queue_health` already uses.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-09 (first evidence) | track GPU/CPU/RAM and artifact storage utilization; capacity forecast and budget alerts configured | `evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking, and an exact linear capacity forecast; confirmed by 15 tests |
+
+Not covered: GPU utilization (no GPU hardware in this environment);
+no live alert-routing/paging integration -- `classify_utilization`'s
+severity is the same honest "structured, testable" scope
+`evidence.queue_metrics`'s own thresholds already use.
+See
+[`src/prometheus/evidence/resource_utilization.py`](./src/prometheus/evidence/resource_utilization.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

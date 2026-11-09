@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "0d850d417bb36fb40e8fa2d43215f5a06c3736339f661f4876012de885e31ed5",
+    "content_sha256": "8139742f8e1326cf8312450b9ea48fe2349082850832e4e785d1153e47172c61",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "2f3ffbd974df2ef884f8c5ddf367edb43cc995ce18541f4a71578f96a1403330",
+  "checklist_notes_sha256": "5bfebb6a689b462607c245989924c52f14736d82f03e26bf5eab5a43ebf2209e",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5862,10 +5862,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5095,
+          "evidence_note": "`evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking, and an exact linear capacity forecast; confirmed by 15 tests",
+          "id_column": "OPS-09 (first evidence)",
+          "requirement_note": "track GPU/CPU/RAM and artifact storage utilization; capacity forecast and budget alerts configured"
+        }
+      ],
       "requirement": "Track GPU/CPU/RAM and artifact storage utilization",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8651,7 +8658,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 198,
-    "without_repository_notes": 176
+    "with_repository_notes": 199,
+    "without_repository_notes": 175
   }
 }

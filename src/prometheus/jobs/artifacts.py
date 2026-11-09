@@ -75,6 +75,12 @@ class ArtifactStore:
             raise ArtifactError("stored artifact failed integrity/metadata verification") from exc
         return body
 
+    def usage_bytes(self) -> int:
+        """Total bytes currently stored, including any orphan staging
+        files left behind by a crashed publisher (OPS-09: "track
+        artifact storage utilization")."""
+        return self._usage_bytes()
+
     def _usage_bytes(self) -> int:
         total = 0
         for prefix in self.root.iterdir():
