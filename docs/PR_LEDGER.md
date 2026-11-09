@@ -2886,6 +2886,36 @@ vs independent vs shared head").
   only one (window, horizon) pair is benchmarked, not the blueprint's
   3/6/12-month horizon sweep.
 
+Plus **a gradient-dead-zone fix to the hybrid quantum classifier's
+angle embedding** (PR-141). PR-139's `HybridQuantumClassifier` scaled
+its `tanh` encoder's output by pi before feeding it to
+`quantum.layers.QuantumLayer`'s angle embedding. Under a single-qubit
+RX(theta) rotation from |0>, the measured <Z> = cos(theta), so
+d<Z>/d(theta) = -sin(theta): zero at theta = 0 and at theta = +/-pi,
+and MAXIMIZED at theta = +/-pi/2. A trained `tanh` layer tends to
+saturate toward its own +/-1 extremes, which under the original pi
+scaling pushed most inputs toward the dead +/-pi zone rather than the
+sensitive +/-pi/2 zone -- diagnosed directly from PR-139's own
+calibration-slope diagnostic (~0.10, a nearly-flat predictor), not
+guessed. Rescaled to pi/2.
+
+Real result after the fix, re-run against the same real data: at the
+CLI's 300-epoch default, test-set AUC improved from ~0.61 to ~0.70 and
+calibration slope from ~0.10 to ~0.22, but the quantum model still
+loses clearly to logistic regression (AUC ~0.86, Brier ~0.076 vs
+~0.147), with the paired bootstrap CI again excluding zero on the
+"quantum is worse" side. At a shorter 150-epoch budget, the same fixed
+architecture is now statistically indistinguishable from its best
+classical challenger (CI includes zero) rather than significantly
+worse -- a genuine training-stability difference between epoch
+budgets, both outcomes now locked in as their own regression tests
+(`test_run_recessionnet_demo_matches_the_real_observed_result` for
+150 epochs, `test_run_recessionnet_demo_matches_a_longer_run_result`
+for 300) rather than one being silently left stale. The qualitative
+finding is unchanged -- no quantum advantage on this task -- but it is
+now a genuine comparison, not one confounded by a dead-gradient
+encoding bug.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3231,6 +3261,8 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-138 (new ID) Versioned analytical tables with reproducible-script and data-hash linkage, closing AUD at 100% (AUD-10) | implemented locally | `evidence.versioned_table.build_versioned_table`/`verify_versioned_table`; a real table linked to the real `evidence.requirements` script, with genuine script-tamper and data-tamper detection; confirmed by 8 tests |
 | PR-139 (addendum only, no new 374-item ID) RECESSIONNET with a hybrid quantum classifier challenger, closing FP-06 and FP-20 | implemented locally | `recessionnet.{labels,dataset,training,evaluation}` plus new `prometheus.quantum` package; real NBER recession chronology and announcement dates, real Kenneth French factor features, a point-in-time leakage test on the label itself, and a real (honestly negative) quantum-vs-classical benchmark; confirmed by 74 tests |
 | PR-140 (addendum tooling, no new 374-item ID) A runnable RECESSIONNET demo CLI | implemented locally | `orchestration.recessionnet_run`, matching this repo's own `economy_run.py`/`benchmark_run.py` CLI convention: live-fetches the real French factor series, runs the full PR-139 benchmark, and prints/exports a JSON summary with a run manifest; `main`'s `transport` is injectable so the CLI itself is hermetically tested (no network call during `pytest`); confirmed by 13 tests, 99% coverage (only the standard `if __name__` guard uncovered, same as every other orchestration script here) |
+| PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` rescales encoder output by pi/2 instead of pi before angle embedding, moving saturated `tanh` outputs into the RX gate's peak-sensitivity region instead of its zero-gradient one; real test AUC improved ~0.61 to ~0.70, quantum still loses to logistic regression at 300 epochs and ties it (not beats) at 150; confirmed by 1 new test plus 2 existing tests corrected to the real post-fix numbers |
+| PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` scaled its encoder output by pi before angle embedding; under a single-qubit RX gate, d&lt;Z&gt;/d(theta) = -sin(theta), zero at theta=0 and +/-pi, peak at +/-pi/2 -- a saturating `tanh` encoder was pushing most inputs toward the zero-gradient +/-pi extreme. Diagnosed directly from PR-139's own calibration-slope diagnostic (~0.10, i.e. barely discriminating) rather than guessed; fixed by rescaling to pi/2. Real result after the fix: test-set AUC improved from ~0.61 to ~0.70 and calibration slope from ~0.10 to ~0.22, but the quantum model still loses clearly to logistic regression (AUC ~0.86) at a 300-epoch budget, and is statistically indistinguishable from it (not better) at a shorter 150-epoch budget -- both outcomes now locked in as regression tests rather than one being silently left stale; confirmed by 1 new test plus 2 existing tests updated to the corrected real numbers |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3433,6 +3465,13 @@ FP-06 and FP-20 of the separate ECONOSIM-X final-project addendum, plus a new si
 `prometheus.quantum` package answering a user-supplied quantum-ML blueprint; see
 `CHECKLIST_STATUS.md`'s addendum section and this file's own PR-139 entry above for the real,
 honest (negative) benchmark result.
+PR-140 adds no new 374-item ID -- a runnable `orchestration.recessionnet_run` CLI demo of
+PR-139's benchmark, hermetically tested via an injectable transport.
+PR-141 adds no new 374-item ID -- fixes a real angle-embedding gradient-dead-zone bug in
+PR-139's hybrid quantum classifier (diagnosed from its own calibration-slope diagnostic),
+improving its test AUC from ~0.61 to ~0.70 but not changing the qualitative finding: it still
+loses to logistic regression at a 300-epoch budget and is statistically tied with it (not
+ahead) at 150 epochs.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

@@ -146,12 +146,22 @@ def test_verdict_is_quantum_better_when_the_ci_excludes_zero_below() -> None:
 
 def test_run_recessionnet_demo_matches_the_real_observed_result() -> None:
     """Locks in the actual, already-verified empirical finding for this
-    exact configuration (window=6, horizon=6, seed=0, split 2000-01-01):
-    the hybrid quantum classifier is robustly worse than its best
-    classical challenger on this repository's real data. Training is
+    exact configuration (window=6, horizon=6, seed=0, 150 epochs, split
+    2000-01-01): at this epoch budget the hybrid quantum classifier is
+    NOT significantly worse than its best classical challenger (the CI
+    for quantum-minus-classical squared error includes zero, barely:
+    [-0.0009, 0.0325]) -- "inconclusive," not "classical wins," after
+    PR-141 fixed an angle-embedding scaling bug (encoder output was
+    scaled by pi, saturating most inputs into the embedded RX gate's
+    zero-gradient region at +/-pi; fixed to pi/2, the peak-sensitivity
+    region). At a longer 300-epoch budget (this module's
+    `test_run_recessionnet_demo_matches_a_longer_run_result`, and the
+    CLI's own default), the gap reopens and clearly favors the
+    classical model again -- a real training-stability difference
+    between the two epoch budgets, not a flaky test. Training is
     fully deterministic given a fixed seed (confirmed separately in
-    `test_recessionnet_training.py`), so this is a legitimate
-    regression check, not a flaky assertion on a stochastic outcome."""
+    `test_recessionnet_training.py`), so both are legitimate
+    regression checks, not flaky assertions on a stochastic outcome."""
     config = RecessionNetRunConfig(seed=0, n_epochs=150, bootstrap_resamples=200)
     result = run_recessionnet_demo(_REAL_OBSERVATIONS, config)
 
@@ -165,6 +175,21 @@ def test_run_recessionnet_demo_matches_the_real_observed_result() -> None:
         "classical_matched_mlp",
         "hybrid_quantum",
     }
+    assert result.verdict == "inconclusive"
+    assert result.report.quantum_vs_best_classical.excludes_zero() is False
+
+
+def test_run_recessionnet_demo_matches_a_longer_run_result() -> None:
+    """At a longer, more realistic training budget (this module's own
+    CLI default of 300 epochs), the gap between the hybrid quantum
+    classifier and logistic regression reopens and is again
+    statistically clear, in the classical model's favor -- the same
+    qualitative finding as before PR-141's encoding fix, now on a
+    genuinely corrected architecture rather than one confounded by a
+    gradient-dead-zone bug."""
+    config = RecessionNetRunConfig(seed=0, n_epochs=300, bootstrap_resamples=200)
+    result = run_recessionnet_demo(_REAL_OBSERVATIONS, config)
+
     assert result.verdict == "classical_better"
     assert result.report.quantum_vs_best_classical.excludes_zero() is True
     assert result.report.quantum_vs_best_classical.point_estimate > 0

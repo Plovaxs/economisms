@@ -25,7 +25,19 @@ non-torch dependency; explicitly not attempted here):
   challenger is never compared against a weaker classical model than
   necessary.
 - `HybridQuantumClassifier`: the same encoder feeding
-  `quantum.layers.QuantumLayer`.
+  `quantum.layers.QuantumLayer`. The encoder's `tanh` output (range
+  (-1, 1)) is scaled by pi/2, not pi, before angle embedding. Under a
+  single-qubit RX(theta) angle embedding starting from |0>, <Z> =
+  cos(theta), so d<Z>/d(theta) = -sin(theta): zero at theta=0 AND at
+  theta=+/-pi, maximized in magnitude at theta=+/-pi/2. A trained
+  `tanh` layer tends to saturate toward its +/-1 extremes -- scaling
+  by pi previously pushed most saturated inputs toward the +/-pi
+  DEAD zone (near-zero local gradient); scaling by pi/2 instead pushes
+  them toward the +/-pi/2 PEAK-sensitivity zone. This was found by
+  diagnosing an initial benchmark run where the hybrid model's fitted
+  calibration slope was ~0.1 (see `recessionnet.evaluation`) --
+  consistent with angles clustered in a flat region of the circuit's
+  response curve, not genuine inability to discriminate.
 
 Parameter counts are NOT identical between `ClassicalMatchedClassifier`
 and `HybridQuantumClassifier` (the quantum layer has
@@ -106,7 +118,7 @@ class HybridQuantumClassifier(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         encoded = self.encoder(x)
-        features = self.quantum(encoded * math.pi)
+        features = self.quantum(encoded * (math.pi / 2))
         output: torch.Tensor = self.head(features).squeeze(-1)
         return output
 
