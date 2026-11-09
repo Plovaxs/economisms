@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "845bd202fc2b867163afe87364570caa9a5b9939709c017690729971bb581751",
+    "content_sha256": "d3b1d2271878e81d4f46071137debbb441a9211bd7a11033f2417f2ce3f194f0",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "c8f72a46a625c703a0bfbb8a61c022658539c1f5350ef62c5dd0d1c62bde6b7c",
+  "checklist_notes_sha256": "52abd860ba5bfa0477ddda31e162f69e6d7f3b27c7eed36a5d6a4bff5c2c6acd",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7260,10 +7260,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5271,
+          "evidence_note": "`evidence.pit_leak_response.detect_leak`/`trace_affected_runs`/`revoke_run`/`recompute`; a real leaked run identified against a real two-vintage series, and a real recomputation confirmed to produce a different, correct result",
+          "id_column": "DRI-04 (first evidence)",
+          "requirement_note": "create corrupt-data and point-in-time leak response; affected runs traced, revoked and recomputed"
+        }
+      ],
       "requirement": "Create corrupt-data and point-in-time leak response",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8686,7 +8693,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 203,
-    "without_repository_notes": 171
+    "with_repository_notes": 204,
+    "without_repository_notes": 170
   }
 }

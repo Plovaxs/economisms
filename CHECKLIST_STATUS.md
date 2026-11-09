@@ -5241,6 +5241,42 @@ invoked, not scheduled.
 See
 [`src/prometheus/evidence/credential_rotation_drill.py`](./src/prometheus/evidence/credential_rotation_drill.py).
 
+## Evidenced today (PR-132: corrupt-data and point-in-time leak response -- trace, revoke, recompute -- DRI-04)
+
+A new `evidence.pit_leak_response` module, using ONLY
+`econosim.pit.PointInTimeStore`'s own sanctioned `as_of` query -- the
+same discipline `econosim.data_quality` (DAT-11) already established
+for never bypassing that store's deliberate "no give me everything"
+boundary.
+
+Grounded against a REAL two-vintage series (an early nowcast value and
+a later, genuinely revised one, both actually recorded into a real
+`PointInTimeStore`): a run that claims it used the revised value
+BEFORE that revision was actually published is confirmed a genuine
+leak via `detect_leak`, while a run using the correctly-eligible value
+is confirmed clean. `trace_affected_runs` sweeps a mixed real set of
+accesses across multiple `run_id`s and identifies EXACTLY the leaky
+one, not every run.
+
+"Recomputed" is confirmed to matter, not merely execute: the leaked
+run's own (wrong) computation would have produced one result; `recompute`,
+fed the CORRECT store-sanctioned value from the `LeakFinding`, is
+confirmed to produce a genuinely DIFFERENT, correct result from the
+same downstream computation. `revoke_run`'s `owner`/`reason` are
+required fields with no default, the same discipline this project's
+other evidence modules already use.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DRI-04 (first evidence) | create corrupt-data and point-in-time leak response; affected runs traced, revoked and recomputed | `evidence.pit_leak_response.detect_leak`/`trace_affected_runs`/`revoke_run`/`recompute`; a real leaked run identified against a real two-vintage series, and a real recomputation confirmed to produce a different, correct result |
+
+Not covered: "corrupt-data" response specifically (as opposed to
+point-in-time leakage) reuses the same `detect_leak`/`recompute`
+machinery conceptually but is not separately demonstrated with a
+corrupted (rather than merely mistimed) value.
+See
+[`src/prometheus/evidence/pit_leak_response.py`](./src/prometheus/evidence/pit_leak_response.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
