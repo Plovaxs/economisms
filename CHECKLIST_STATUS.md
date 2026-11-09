@@ -5138,6 +5138,40 @@ drawn from a separately maintained org chart.
 See
 [`src/prometheus/evidence/alert_routing.py`](./src/prometheus/evidence/alert_routing.py).
 
+## Evidenced today (PR-129: severity matrix for incorrect pricing, risk and data-integrity incidents -- DRI-01)
+
+A new `evidence.severity_matrix` module, reusing `evidence.alert_routing`'s
+own P0/P1/P2 taxonomy rather than inventing a second vocabulary.
+"Approved" is not independently verified by any organizational
+authority this single-maintainer repository does not have --
+`approved_by` is a required, caller-supplied field with no default,
+the same reasoning `evidence.model_registry`'s own `approved_by` and
+`evidence.ops_inventory`'s `owner` already use.
+
+`SeverityMatrix.lookup` raises `UnknownIncidentCategoryError` for any
+category not in the matrix -- the entire point of a severity matrix is
+that every real incident category is classified BEFORE it occurs.
+Grounded against REAL incident category strings, not invented names:
+a real severity matrix entry for `jobs.store.ERROR_CODES`'
+`"worker_failed"`/`"infrastructure_error"`, and for a REAL
+`solver_failure` event produced by actually calling
+`evidence.numerical_event_monitor.monitor_call` against a genuinely
+failing function. The discriminating case confirms the gap-detection
+is real, not assumed: `"cpu_timeout"` IS a real `ERROR_CODES` member,
+deliberately left out of the test's matrix, and `lookup` is confirmed
+to raise for it specifically, with a full real-code coverage sweep
+confirming exactly which real codes were and weren't configured.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DRI-01 (first evidence) | define severity matrix for incorrect pricing, risk and data breaches; SEV tiers and response ownership approved | `evidence.severity_matrix.SeverityMatrix`/`SeverityMatrixEntry`; a genuine `UnknownIncidentCategoryError` for a real, deliberately-unconfigured `ERROR_CODES` member, plus real lookups for real job and numerical-event categories |
+
+Not covered: `approved_by` is caller-asserted, not a real
+organizational sign-off; the matrix does not yet cover every category
+this repository could produce, only the ones demonstrated.
+See
+[`src/prometheus/evidence/severity_matrix.py`](./src/prometheus/evidence/severity_matrix.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

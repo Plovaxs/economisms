@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "7563d6c9e347bde04986fb8859d0170fbf56ffc91c0c8ba2c42500559683e82e",
+    "content_sha256": "f471b08052eb8769b010ade9b32fe975a7064533bd50b67500c542c456b333d7",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "01bc79044907355b8bc06a60fc44ae62ab9f8606fb8e0392607bd0b4b7c5f0d8",
+  "checklist_notes_sha256": "6668f4d11d8c8ef16c2049534dde2caf7ee001ba6e737553495dd8ec180af704",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7188,10 +7188,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5167,
+          "evidence_note": "`evidence.severity_matrix.SeverityMatrix`/`SeverityMatrixEntry`; a genuine `UnknownIncidentCategoryError` for a real, deliberately-unconfigured `ERROR_CODES` member, plus real lookups for real job and numerical-event categories",
+          "id_column": "DRI-01 (first evidence)",
+          "requirement_note": "define severity matrix for incorrect pricing, risk and data breaches; SEV tiers and response ownership approved"
+        }
+      ],
       "requirement": "Define severity matrix for incorrect pricing, risk and data breaches",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8665,7 +8672,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 200,
-    "without_repository_notes": 174
+    "with_repository_notes": 201,
+    "without_repository_notes": 173
   }
 }
