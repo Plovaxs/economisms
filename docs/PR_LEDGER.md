@@ -2785,6 +2785,21 @@ fixed budget. **REL reaches 100% (12/12)**, the project's 10th
 complete category. Not covered: verifies the label CHOICE, not a
 live metrics backend's actual stored cardinality.
 
+Plus **versioned analytical tables with reproducible-script and
+data-hash linkage, closing AUD at 100%** (AUD-10, PR-138):
+`evidence.versioned_table`. This repository has no plotting
+infrastructure, so only "tables" is claimed, honestly -- not
+"figures." `build_versioned_table` reuses `compute_result_hash`, the
+same hashing convention this project's other manifests already use.
+Grounded against a REAL script (`evidence.requirements`, the actual
+script that produces `blueprint_register.json`) and REAL data (its
+own per-category coverage counts): `verify_versioned_table` confirms
+the recorded hashes match, with two discriminating cases confirming
+the check is genuine -- tampering with the script's content is
+detected, and editing the table's recorded rows after hashing is
+detected too. **AUD reaches 100% (12/12)**, the project's 11th
+complete category. Not covered: no figures, only tables.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3127,6 +3142,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-135 (new ID) Confirmation that no observability vendor exports restricted financial data, closing OPS at 100% (OPS-12) | implemented locally | `evidence.observability_vendor_review.scan_for_observability_vendor_integration`/`extract_event_schema_field_names`/`check_for_sensitive_field_names`; a real zero-finding vendor sweep and a real ast-derived confirmation of the audit-log schema; confirmed by 6 tests |
 | PR-136 (new ID) Error budget actions with service ownership (REL-12) | implemented locally | `evidence.error_budget.evaluate_error_budget`/`record_error_budget_action`; an exact real breach-rate count against a real SLO/LoadReport window, composed through the existing `evaluate_release_gate` to genuinely block and unblock release; confirmed by 9 tests |
 | PR-137 (new ID) Log/metric storage cardinality budget verification, closing REL at 100% (REL-08) | implemented locally | `evidence.cardinality_budget.compute_label_combinations`/`verify_cardinality_budget`; an exact, identical 30-combination count at 50 and 5,000 real simulated jobs, versus a genuinely unbounded `job_id`-labeled count that blows the budget; confirmed by 6 tests |
+| PR-138 (new ID) Versioned analytical tables with reproducible-script and data-hash linkage, closing AUD at 100% (AUD-10) | implemented locally | `evidence.versioned_table.build_versioned_table`/`verify_versioned_table`; a real table linked to the real `evidence.requirements` script, with genuine script-tamper and data-tamper detection; confirmed by 8 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3321,6 +3337,9 @@ same way -- an exact real breach-rate count genuinely blocking and unblocking th
 PR-137 adds the first evidence for REL-08, bringing the count from 208 to 209, confirmed the
 same way -- an identical bounded combination count at two real volumes, versus a real unbounded one,
 closing the REL category at 100% (12/12), the project's 10th complete category.
+PR-138 adds the first evidence for AUD-10, bringing the count from 209 to 210, confirmed the
+same way -- a real table linked to a real script, with genuine script- and data-tamper detection,
+closing the AUD category at 100% (12/12), the project's 11th complete category.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
