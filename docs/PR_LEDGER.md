@@ -3132,6 +3132,65 @@ exact tuple of discovered sources; `kaggle_macro.py`'s own
 new real source this ast-based scanner is SUPPOSED to find, so the
 test's expectation was updated to include it, not suppressed.
 
+Plus **real US Treasury par yield curve ingestion with recorded
+day-count and holiday conventions** (PR-146), the FIRST new 374-item
+ID closed since PR-139 started this quantum/real-data phase -- the
+user pasted a 332-entry candidate-dataset catalog and asked to keep
+pushing; rather than implementing from that catalog wholesale, this PR
+picks the one entry (`MON-003`/`DER-007`/`BEN-013`'s Treasury yield
+curve, also DAT-04's own long-standing, specifically-scoped, unclaimed
+checklist item) that is both genuinely reachable and closes a real,
+previously-open gap instead of adding a third grounding for a task
+PR-139/142/143/145 had already answered three times.
+
+`home.treasury.gov` itself timed out repeatedly from this environment's
+network -- confirmed by a direct `urllib` probe run before any
+production code was written, not assumed. FRED's own public, no-API-
+key `fredgraph.csv` export of the identical Constant Maturity Treasury
+series (the same data the Federal Reserve republishes in its H.15
+release) was reachable instead and used: still the Federal Reserve/
+Treasury's own official release, one hop further from the primary
+publisher, not a secondary reseller the way the Kaggle mirror is.
+`data_ingestion.treasury_yield_curve.fetch_treasury_yield_curve` fetches
+all 11 standard tenors (1mo-30yr) over a caller-given range, one real
+GET per tenor, into the existing `MacroObservation` schema, with a
+disclosed fixed one-day publication lag (FRED's CSV export carries no
+per-observation publish timestamp of its own).
+
+DAT-04's own acceptance wording -- "rate tenors, day count and holiday
+policies recorded" -- is met literally: `treasury_market_conventions()`
+returns a typed, tested `YieldCurveConventions` value (the standard CMT
+day-count split: actual/360-to-bond-equivalent for tenors <= 1 year,
+actual/actual semiannual bond-equivalent for 2yr-30yr notes/bonds --
+the well-established fixed-income-market convention, since
+`home.treasury.gov`'s own methodology page could not be re-fetched live
+for the reason above). Holiday policy is DERIVED per fetch directly
+from the real data (a weekday with no published value in any requested
+tenor, via the existing `core.calendar.BusinessDayCalendar`) rather
+than a hand-typed date list -- confirmed against three real,
+independently known closures: 2006-07-04 (Independence Day), 2006-09-04
+(Labor Day), and, as a genuine discriminating case, 2020-04-10 (Good
+Friday, a bond-market/SIFMA holiday that is NOT a federal government
+holiday -- a borrowed federal-holiday list would have gotten this one
+wrong, and the derivation does not).
+
+The three real captured response windows embedded in the test suite
+double as independent real-world sanity checks, computed from the
+fetched data rather than hand-asserted: the 2-year/10-year curve was
+genuinely inverted on 2006-08-25 (10Y 4.79% - 2Y 4.86% = -0.07,
+preceding the 2008 recession by the well-known interval), and the
+3-month bill yield hit exactly 0.00% on 2020-03-25/26 (the COVID-19
+emergency rate cut to the zero lower bound) -- a fourth independent
+real-world event check in this phase, after the 2008 AUC/Brier
+grounding, the NASDAQ Oct-2008 crash and the Apr-2020 claims spike.
+
+With DAT-04 evidenced, DAT reaches 12/14; DAT-02 (FRED-MD/QD ingestion)
+and DAT-03 (ALFRED vintage-aware retrieval) remain unimplemented and
+are not claimed -- this connector ingests one specific Fed/Treasury
+rate series family, not the standardized FRED-MD/QD panel or ALFRED's
+per-release vintage archive. Blueprint coverage moves from 210/374 to
+**211/374 (56.4%)**.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3482,6 +3541,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-143 (addendum, FP-05 partial) Q-MACRO: hybrid quantum regressor vs. AR(3)/MLP/persistence for h-months-ahead Mkt-RF | implemented locally | New `macrocore.regression_dataset`/`macrocore.quantum_benchmark` plus `quantum.models.{LinearRegressionModel,ClassicalMatchedRegressor,HybridQuantumRegressor}` (zero-behavior-change subclasses reusing the RECESSIONNET architectures for a regression target); AR(3) genuinely refit at every real test month, three learned models selected by early stopping from the start (PR-142's methodology, not repeated as a mistake); real result: AR(3)/MLP/quantum all land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), no significant difference among them across 5 seeds checked; confirmed by 36 new tests, 99-100% coverage |
 | PR-144 (demo reliability, no new ID) Offline-fallback data + switched RECESSIONNET's CLI to early stopping | implemented locally | `french_factors.save_ff3_snapshot`/`load_cached_ff3_snapshot` plus a committed real snapshot at `data_cache/ff3_monthly_snapshot.csv`; `orchestration.recessionnet_run`/`qmacro_run` try a live fetch first and fall back to this snapshot on any network/response failure (confirmed end to end under a simulated outage, exit 0, `data_source: "cached_snapshot_fallback"`), tagging which path was used in the output rather than hiding it; `recessionnet_run` also switched from the superseded fixed-epoch benchmark to `run_recessionnet_benchmark_with_early_stopping` (PR-142's methodology, matching Q-MACRO's CLI from the start), cutting its own wall-clock time roughly in half (~17s to ~7-13s); confirmed by 7 new/updated tests, 99% coverage, and multiple live rehearsal runs |
 | PR-145 (addendum, second real-data grounding, no new ID) RECESSIONNET on real Kaggle-sourced US GDP/claims/Fed-funds/M2/NASDAQ data | implemented locally | `data_ingestion.kaggle_macro` plus a committed derived snapshot (`data_cache/kaggle_us_macro_monthly.csv`, real FRED-sourced series via Kaggle dataset `mikoajfish99/us-recession-and-financial-indicators`, ODbL-1.0); new `orchestration.recessionnet_kaggle_run` CLI makes NO network call at all (data fully committed); reuses every RECESSIONNET/`prometheus.quantum` primitive unchanged; real result: base rate is the strongest classical candidate on this dataset/split, quantum shows no significant difference against it; confirmed by 7 new tests, 97-100% coverage |
+| PR-146 (DAT-04, first evidence) Real US Treasury par yield curve ingestion with recorded day-count and holiday conventions | implemented locally | `data_ingestion.treasury_yield_curve` fetches all 11 CMT tenors (1mo-30yr) via FRED's no-key `fredgraph.csv` export (`home.treasury.gov` itself timed out from this environment, confirmed by a direct pre-implementation probe); `treasury_market_conventions()` records the standard day-count split, and market holidays are DERIVED from real published-value gaps (not a hand-typed list), confirmed against three real closures including a Good-Friday/non-federal-holiday discriminating case; real sanity checks: the 2006 2y/10y curve inversion (-0.07, ahead of the 2008 recession) and the 2020 COVID 3-month-bill rate cut to exactly 0.00%; confirmed by 12 new tests, 100% coverage; blueprint coverage 210/374 -> 211/374 |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3711,6 +3771,12 @@ acceptance criteria this Kaggle mirror does not meet) -- a second, independent r
 grounding for RECESSIONNET using real Kaggle-sourced US GDP/claims/Fed-funds/M2/NASDAQ
 data, with a network-free demo CLI and the same "no significant quantum difference"
 finding independently reproduced on a genuinely different real dataset.
+PR-146 closes DAT-04 (first evidence) with a real US Treasury par yield curve
+connector via FRED's no-key CSV export (home.treasury.gov itself was unreachable from
+this environment); day-count conventions are recorded as a typed value and holiday
+policy is derived from real data gaps, confirmed against three real closures including
+a Good-Friday/non-federal-holiday discriminating case, plus two further real-world
+sanity checks (the 2006 2y/10y inversion and the 2020 COVID zero-rate cut).
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

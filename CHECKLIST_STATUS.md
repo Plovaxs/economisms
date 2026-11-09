@@ -5526,6 +5526,66 @@ is evidenced.
 See
 [`src/prometheus/evidence/versioned_table.py`](./src/prometheus/evidence/versioned_table.py).
 
+## Evidenced today (PR-146: real US Treasury par yield curve ingestion with recorded day-count and holiday conventions -- DAT-04)
+
+A new `data_ingestion.treasury_yield_curve` connector. `home.treasury.gov`
+itself timed out repeatedly from this environment's network (confirmed
+by a direct pre-implementation `urllib` probe, not assumed); FRED's own
+public, no-API-key CSV export of the identical Constant Maturity
+Treasury series (the same data the Federal Reserve republishes in its
+H.15 statistical release) was reachable instead and used -- still the
+Federal Reserve/Treasury's own official release, not a secondary
+reseller. `fetch_treasury_yield_curve` fetches all 11 standard tenors
+(1mo through 30yr) over a caller-given date range, one real GET per
+tenor, parsing each into the existing `econosim.pit.MacroObservation`
+schema with a disclosed, conservative fixed one-day publication lag
+(FRED's CSV export carries no per-observation publish timestamp of its
+own, the same kind of gap `french_factors.py`/`worldbank.py` already
+document for their own single dataset-level vintage fields).
+
+This item's own acceptance wording ("rate tenors, day count and
+holiday policies recorded") is met literally, not just by prose:
+`treasury_market_conventions()` returns a typed, tested
+`YieldCurveConventions` value recording the standard CMT day-count
+split (actual/360-to-bond-equivalent for tenors <= 1 year; actual/
+actual semiannual bond-equivalent for 2yr-30yr notes/bonds) --
+`home.treasury.gov`'s own methodology page could not be re-fetched
+live in this session for the reason above, so this records the
+well-established, publicly documented fixed-income-market convention,
+not an assumption invented for this fetch. Holiday policy is DERIVED
+per fetch directly from the real data (a weekday with no published
+value in ANY requested tenor, via the existing `core.calendar.
+BusinessDayCalendar`), not a hand-typed date list -- confirmed against
+three real, independently known closures: 2006-07-04 (Independence
+Day), 2006-09-04 (Labor Day), and 2020-04-10 (Good Friday, a bond-
+market/SIFMA holiday that is NOT a federal government holiday,
+confirming the detection is the bond market's own calendar rather than
+a borrowed federal-holiday list that would have gotten this one wrong).
+
+The three real captured response windows embedded in the test suite
+double as independent real-world sanity checks, computed from the
+fetched data rather than hand-asserted: the 2-year/10-year curve was
+genuinely inverted on 2006-08-25 (10Y 4.79% - 2Y 4.86% = -0.07,
+preceding the 2008 recession by the well-known interval), and the
+3-month bill yield hit exactly 0.00% on 2020-03-25/26 (the COVID-19
+emergency rate cut to the zero lower bound).
+
+With DAT-04 evidenced, **DAT reaches 12/14** (DAT-02 "FRED-MD/QD
+ingestion" and DAT-03 "ALFRED vintage-aware retrieval" remain
+unimplemented -- neither is claimed by this connector, which ingests
+one specific Fed/Treasury rate series family, not the standardized
+FRED-MD/QD panel or ALFRED's per-release vintage archive).
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DAT-04 (first evidence) | build Treasury yield curve ingestion and conventions; rate tenors, day count and holiday policies recorded | `data_ingestion.treasury_yield_curve.fetch_treasury_yield_curve`/`treasury_market_conventions`; 12 tests (`tests/unit/test_treasury_yield_curve.py`) including the real 2006 2y/10y inversion check, the real 2020 COVID zero-rate check, and the real-holiday-derivation check (including the Good Friday/non-federal-holiday discriminating case) |
+
+Not covered: DAT-02 (FRED-MD/QD) and DAT-03 (ALFRED vintages) remain
+unimplemented; this connector's one-day publication lag is a disclosed
+fixed assumption, not a measured per-value release timestamp.
+See
+[`src/prometheus/data_ingestion/treasury_yield_curve.py`](./src/prometheus/data_ingestion/treasury_yield_curve.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

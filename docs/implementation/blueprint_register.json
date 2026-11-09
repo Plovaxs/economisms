@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "707c85c81d2b9126f131c9b4530de2e7281b84204282c2e664a54e3d6fb079f5",
+    "content_sha256": "5447adcf8419dcea84618a59dcbe7e60635fd9ec8ec2c3f498d084d4c02a7769",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "6604e99f619256ba62d6973ae0d1b5de8734136a1e2b6bac70f8038fce611b77",
+  "checklist_notes_sha256": "5603cbb4470c2dd96f981cf0101f5c523cdef1dff157bc4c60204bf094d98146",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3681,10 +3681,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DAT",
       "id": "DAT-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5581,
+          "evidence_note": "`data_ingestion.treasury_yield_curve.fetch_treasury_yield_curve`/`treasury_market_conventions`; 12 tests (`tests/unit/test_treasury_yield_curve.py`) including the real 2006 2y/10y inversion check, the real 2020 COVID zero-rate check, and the real-holiday-derivation check (including the Good Friday/non-federal-holiday discriminating case)",
+          "id_column": "DAT-04 (first evidence)",
+          "requirement_note": "build Treasury yield curve ingestion and conventions; rate tenors, day count and holiday policies recorded"
+        }
+      ],
       "requirement": "Build Treasury yield curve ingestion and conventions",
       "source_pdf_page": 30,
       "source_rows": [
@@ -8735,7 +8742,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 210,
-    "without_repository_notes": 164
+    "with_repository_notes": 211,
+    "without_repository_notes": 163
   }
 }
