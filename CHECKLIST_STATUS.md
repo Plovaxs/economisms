@@ -5204,6 +5204,43 @@ live system that actually blocks further use of an isolated result.
 See
 [`src/prometheus/evidence/numerical_integrity_runbook.py`](./src/prometheus/evidence/numerical_integrity_runbook.py).
 
+## Evidenced today (PR-131: compromised-credential and secret-rotation tabletop drill -- DRI-03)
+
+A new `evidence.credential_rotation_drill` module, running a REAL
+drill against `service.auth.CredentialStore` rather than a
+hypothetical description. `rotate_credential` rewrites the credential
+file using the exact JSON schema `CredentialStore._load` itself
+validates; `run_credential_rotation_drill` then actually calls
+`CredentialStore.authenticate` with both the old and new bearer
+headers.
+
+Confirmed end-to-end, not merely structurally: the old token genuinely
+authenticates BEFORE rotation (sanity), is genuinely rejected with a
+real `AuthenticationError` AFTER rotation, and the new token genuinely
+authenticates -- and the discriminating case confirms the drill isn't
+rigged to always report success: run against an UNROTATED credential,
+it correctly reports the old token as still working. A separate test
+confirms rotating one principal's credential does not disturb an
+unrelated second principal's.
+
+"Cleaned pipelines" is grounded in `CredentialStore`'s own real
+behavior, not a separate claim: `authenticate` re-reads its credential
+file fresh on every call, with no session cache or other component in
+this repository that could continue honoring a revoked token --
+confirmed by the direct observation that the SAME `CredentialStore`
+instance (not a freshly-constructed one) rejects the old token
+immediately after the file is rewritten.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DRI-03 (first evidence) | create compromised credential and secret rotation runbook; tabletop demonstrates revoked tokens and cleaned pipelines | `evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case |
+
+Not covered: only this repository's own `CredentialStore` is covered,
+not a real external secrets manager/vault; the drill is manually
+invoked, not scheduled.
+See
+[`src/prometheus/evidence/credential_rotation_drill.py`](./src/prometheus/evidence/credential_rotation_drill.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

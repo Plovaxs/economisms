@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "9b6dc6b45bdd9a724475fa1c66fbc1a5fbc53b412deca87db30bbafb82f783d3",
+    "content_sha256": "845bd202fc2b867163afe87364570caa9a5b9939709c017690729971bb581751",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "260b5d231068e83866f20903ab6455fe2c3645e7b91674729fe41ef0c5abb15a",
+  "checklist_notes_sha256": "c8f72a46a625c703a0bfbb8a61c022658539c1f5350ef62c5dd0d1c62bde6b7c",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7236,10 +7236,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5236,
+          "evidence_note": "`evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case",
+          "id_column": "DRI-03 (first evidence)",
+          "requirement_note": "create compromised credential and secret rotation runbook; tabletop demonstrates revoked tokens and cleaned pipelines"
+        }
+      ],
       "requirement": "Create compromised credential and secret rotation runbook",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8679,7 +8686,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 202,
-    "without_repository_notes": 172
+    "with_repository_notes": 203,
+    "without_repository_notes": 171
   }
 }

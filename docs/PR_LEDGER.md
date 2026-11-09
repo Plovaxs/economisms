@@ -2691,6 +2691,21 @@ deterministic injected clock. Not covered: only the numerical-
 integrity category, not the other "top failure categories" OPS-11
 names collectively.
 
+Plus **compromised-credential and secret-rotation tabletop drill**
+(DRI-03, PR-131): `evidence.credential_rotation_drill` runs a REAL
+drill against `service.auth.CredentialStore`: `rotate_credential`
+rewrites the credential file using the exact schema `CredentialStore`
+itself validates, and `run_credential_rotation_drill` actually calls
+`authenticate` with both headers. Confirmed end-to-end: the old token
+works before rotation, is genuinely rejected after, and the new token
+genuinely works -- with a discriminating case proving the drill isn't
+rigged (run unrotated, it correctly reports the old token as still
+working) and a separate test confirming rotation doesn't disturb an
+unrelated principal. "Cleaned pipelines" is grounded in
+`CredentialStore`'s own real re-read-on-every-call behavior, not a
+separate claim. Not covered: no real external vault; manually
+invoked, not scheduled.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3026,6 +3041,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-128 (new ID) Actionable alert routing with a severity taxonomy (OPS-10) | implemented locally | `evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner; confirmed by 13 tests |
 | PR-129 (new ID) Severity matrix for incorrect pricing, risk and data-integrity incidents (DRI-01) | implemented locally | `evidence.severity_matrix.SeverityMatrix`/`SeverityMatrixEntry`; a genuine `UnknownIncidentCategoryError` for a real, deliberately-unconfigured `ERROR_CODES` member, plus real lookups for real job and numerical-event categories; confirmed by 9 tests |
 | PR-130 (new ID) Numerical-integrity incident runbook: isolate, invalidate, re-evaluate (DRI-02) | implemented locally | `evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and a real persistently-failing GBM guard that still fails, each producing a real chronologically-ordered timeline; confirmed by 5 tests |
+| PR-131 (new ID) Compromised-credential and secret-rotation tabletop drill (DRI-03) | implemented locally | `evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case; confirmed by 5 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3204,6 +3220,8 @@ PR-129 adds the first evidence for DRI-01, bringing the count from 200 to 201, c
 same way -- a genuine gap-detection raise for a real, deliberately-unconfigured error code.
 PR-130 adds the first evidence for DRI-02, bringing the count from 201 to 202, confirmed the
 same way -- a real flaky callable recovering and a real persistently-failing guard still failing.
+PR-131 adds the first evidence for DRI-03, bringing the count from 202 to 203, confirmed the
+same way -- a real end-to-end credential rotation against CredentialStore, old rejected, new accepted.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
