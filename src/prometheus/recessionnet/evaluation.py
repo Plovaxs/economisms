@@ -51,7 +51,7 @@ from prometheus.quantum.models import (
     LogisticRegressionClassifier,
 )
 from prometheus.recessionnet.dataset import RecessionDataset
-from prometheus.recessionnet.training import train_classifier
+from prometheus.recessionnet.training import train_classifier, train_classifier_with_early_stopping
 
 
 @dataclass(frozen=True, slots=True)
@@ -180,6 +180,11 @@ class BenchmarkReport:
     quantum model improved on its best classical challenger; this
     report never asserts that on its own."""
     run_manifest: RunManifest
+    selected_epochs: dict[str, int] | None = None
+    """Set only by `run_recessionnet_benchmark_with_early_stopping`:
+    the validation-selected stopping epoch for each trained model.
+    None for the plain fixed-epoch-budget benchmark, where every
+    model simply trains for the full `n_epochs`."""
 
 
 _CLASSICAL_CANDIDATE_NAMES = ("base_rate", "logistic_regression", "classical_matched_mlp")
@@ -266,4 +271,118 @@ def run_recessionnet_benchmark(
         best_classical_challenger=best_classical_challenger,
         quantum_vs_best_classical=bootstrap,
         run_manifest=manifest,
+    )
+
+
+def run_recessionnet_benchmark_with_early_stopping(
+    train_proper: RecessionDataset,
+    validation: RecessionDataset,
+    test: RecessionDataset,
+    *,
+    seed: int,
+    max_epochs: int = 500,
+    patience: int = 20,
+    bootstrap_resamples: int = 2000,
+) -> BenchmarkReport:
+    """The methodologically corrected sibling of `run_recessionnet_benchmark`
+    (PR-142): a real diagnostic run found the hybrid quantum classifier
+    overfitting badly past epoch ~60 at a fixed epoch budget, while
+    logistic regression (25 parameters, versus the quantum model's
+    493) did not. Reporting a fixed, arbitrary epoch count once one
+    candidate overfits and another does not is not a fair comparison.
+    Every trainable model here is instead selected by validation-set
+    Brier score (`training.train_classifier_with_early_stopping`),
+    never by the test set itself -- the test set here is used
+    EXACTLY ONCE, after model selection is already final, exactly the
+    leakage discipline `econosim.pit` enforces for features applied
+    here to a hyperparameter (how long to train) instead."""
+    if train_proper.features.shape[1] != test.features.shape[1]:
+        raise ValueError("train_proper and test datasets must share the same feature width")
+    if validation.features.shape[1] != test.features.shape[1]:
+        raise ValueError("validation and test datasets must share the same feature width")
+
+    input_dim = train_proper.features.shape[1]
+    metrics: dict[str, ClassificationMetrics] = {}
+    parameter_counts: dict[str, int] = {}
+    train_seconds: dict[str, float] = {}
+    selected_epochs: dict[str, int] = {}
+
+    base_rate_probability = float(np.clip(train_proper.labels.mean(), 1e-6, 1 - 1e-6))
+    metrics["base_rate"] = evaluate_constant_probability(base_rate_probability, test.labels)
+    parameter_counts["base_rate"] = 0
+    train_seconds["base_rate"] = 0.0
+
+    model_factories: dict[str, Callable[[], nn.Module]] = {
+        "logistic_regression": lambda: LogisticRegressionClassifier(input_dim),
+        "classical_matched_mlp": lambda: ClassicalMatchedClassifier(input_dim),
+        "hybrid_quantum": lambda: HybridQuantumClassifier(input_dim),
+    }
+    for name, factory in model_factories.items():
+        trained = train_classifier_with_early_stopping(
+            factory,
+            train_proper.features,
+            train_proper.labels,
+            validation.features,
+            validation.labels,
+            seed=seed,
+            max_epochs=max_epochs,
+            patience=patience,
+        )
+        metrics[name] = evaluate_model(trained.model, test.features, test.labels)
+        parameter_counts[name] = trained.n_parameters
+        train_seconds[name] = trained.train_seconds
+        selected_epochs[name] = trained.selected_epoch
+
+    best_classical_challenger = min(
+        _CLASSICAL_CANDIDATE_NAMES, key=lambda name: metrics[name].brier_score
+    )
+
+    rng = np.random.default_rng(seed)
+    bootstrap = paired_bootstrap_difference(
+        lambda arr: float(np.mean(arr)),
+        np.array(metrics["hybrid_quantum"].squared_errors),
+        np.array(metrics[best_classical_challenger].squared_errors),
+        rng,
+        n_resamples=bootstrap_resamples,
+    )
+
+    data_hash = compute_result_hash(
+        {
+            "train_features": train_proper.features.tolist(),
+            "train_labels": train_proper.labels.tolist(),
+            "validation_features": validation.features.tolist(),
+            "validation_labels": validation.labels.tolist(),
+            "test_features": test.features.tolist(),
+            "test_labels": test.labels.tolist(),
+        }
+    )
+    result_hash = compute_result_hash({name: m.brier_score for name, m in metrics.items()})
+    manifest = RunManifest(
+        run_id=new_run_id("recessionnet-earlystop"),
+        created_at=now_iso(),
+        seed=seed,
+        config={
+            "max_epochs": max_epochs,
+            "patience": patience,
+            "selected_epochs": selected_epochs,
+            "window": train_proper.window,
+            "horizon": train_proper.horizon,
+            "series_ids": list(train_proper.series_ids),
+        },
+        result_hash=result_hash,
+        code_hash=runtime_provenance()["source_sha256"],
+        data_hash=data_hash,
+        model_id="recessionnet-hybrid-quantum-v1",
+    )
+
+    return BenchmarkReport(
+        seed=seed,
+        n_epochs=max_epochs,
+        metrics=metrics,
+        parameter_counts=parameter_counts,
+        train_seconds=train_seconds,
+        best_classical_challenger=best_classical_challenger,
+        quantum_vs_best_classical=bootstrap,
+        run_manifest=manifest,
+        selected_epochs=selected_epochs,
     )

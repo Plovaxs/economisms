@@ -2916,6 +2916,59 @@ finding is unchanged -- no quantum advantage on this task -- but it is
 now a genuine comparison, not one confounded by a dead-gradient
 encoding bug.
 
+Plus **early-stopping, validation-selected model comparison for
+RECESSIONNET** (PR-142), which changed that qualitative finding again
+-- this time by fixing the evaluation methodology, not the model.
+A diagnostic script (`diagnose_quantum_training.py`, not committed --
+a one-off trace) tracked BOTH training loss and held-out test Brier/
+AUC every 10 epochs out to 500, for the hybrid quantum classifier and
+logistic regression, on the real RECESSIONNET data. The result: the
+quantum model's (493 parameters) test Brier score bottomed out around
+epoch 20-60 (~0.073, AUC ~0.865 -- competitive with or slightly better
+than logistic regression's eventual plateau) and then degraded
+steadily all the way to epoch 500 (~0.188, AUC ~0.67) while its OWN
+training loss fell smoothly and monotonically toward zero the entire
+time. That is textbook overfitting from a higher-capacity model with
+no capacity control -- not a barren plateau or vanishing-gradient
+pathology (training loss never stalled or oscillated) -- and it fully
+explains why PR-141's fixed 300-epoch run looked clearly worse than
+its own 150-epoch run: by 300 epochs, quantum (and, to a lesser
+extent, the equally-sized classical MLP) had already overfit, while
+25-parameter logistic regression never does in this range.
+
+Picking a fixed, arbitrary epoch count once one candidate overfits and
+another does not is not a fair comparison. The honest fix is standard
+ML practice: select each model's stopping point by a VALIDATION set,
+never the test set. `training.train_classifier_with_early_stopping`
+trains with a `patience`-based stop, checkpointing whichever epoch
+had the best validation Brier score, and restores that checkpoint
+(not whatever the final epoch happened to be) before returning.
+`evaluation.run_recessionnet_benchmark_with_early_stopping` wires this
+into a three-way chronological split -- train-proper (pre-1988),
+validation (1988-1999, which includes the real 1990-91 recession),
+test (2000+, untouched until model selection is already final) --
+built by calling the EXISTING `dataset.chronological_split` twice
+(composition, not a new split primitive).
+
+Real result, re-run against the same real data: at seed=0, quantum's
+test Brier (~0.087) now sits close to its best classical challenger's,
+`classical_matched_mlp` (~0.083) -- not the robust loss PR-139/141's
+fixed-budget evaluation showed. Across the same 5 seeds checked by
+hand for PR-139/141, 4 of 5 are now statistically inconclusive (the
+paired bootstrap CI for quantum-minus-classical squared error includes
+zero) and only 1 of 5 favors classical by a small, significant margin;
+none favor quantum significantly either. **The honest final finding
+for RECESSIONNET**: once evaluated fairly, this task shows neither a
+significant quantum advantage nor a significant quantum disadvantage
+against logistic regression or a parameter-matched classical MLP --
+a materially different, more defensible conclusion than the earlier
+"quantum is robustly worse," reached entirely by correcting the
+evaluation methodology, not by re-running until a result looked
+better. Not covered: this early-stopping path is not yet wired into
+`orchestration.recessionnet_run`'s CLI, which still uses the plain
+fixed-epoch benchmark; multi-seed aggregation remains ad hoc (five
+seeds checked by hand, not wired into the benchmark function itself).
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3261,8 +3314,8 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-138 (new ID) Versioned analytical tables with reproducible-script and data-hash linkage, closing AUD at 100% (AUD-10) | implemented locally | `evidence.versioned_table.build_versioned_table`/`verify_versioned_table`; a real table linked to the real `evidence.requirements` script, with genuine script-tamper and data-tamper detection; confirmed by 8 tests |
 | PR-139 (addendum only, no new 374-item ID) RECESSIONNET with a hybrid quantum classifier challenger, closing FP-06 and FP-20 | implemented locally | `recessionnet.{labels,dataset,training,evaluation}` plus new `prometheus.quantum` package; real NBER recession chronology and announcement dates, real Kenneth French factor features, a point-in-time leakage test on the label itself, and a real (honestly negative) quantum-vs-classical benchmark; confirmed by 74 tests |
 | PR-140 (addendum tooling, no new 374-item ID) A runnable RECESSIONNET demo CLI | implemented locally | `orchestration.recessionnet_run`, matching this repo's own `economy_run.py`/`benchmark_run.py` CLI convention: live-fetches the real French factor series, runs the full PR-139 benchmark, and prints/exports a JSON summary with a run manifest; `main`'s `transport` is injectable so the CLI itself is hermetically tested (no network call during `pytest`); confirmed by 13 tests, 99% coverage (only the standard `if __name__` guard uncovered, same as every other orchestration script here) |
-| PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` rescales encoder output by pi/2 instead of pi before angle embedding, moving saturated `tanh` outputs into the RX gate's peak-sensitivity region instead of its zero-gradient one; real test AUC improved ~0.61 to ~0.70, quantum still loses to logistic regression at 300 epochs and ties it (not beats) at 150; confirmed by 1 new test plus 2 existing tests corrected to the real post-fix numbers |
 | PR-141 (addendum fix, no new 374-item ID) Fixed a gradient-dead-zone bug in the hybrid quantum classifier's angle embedding | implemented locally | `quantum.models.HybridQuantumClassifier` scaled its encoder output by pi before angle embedding; under a single-qubit RX gate, d&lt;Z&gt;/d(theta) = -sin(theta), zero at theta=0 and +/-pi, peak at +/-pi/2 -- a saturating `tanh` encoder was pushing most inputs toward the zero-gradient +/-pi extreme. Diagnosed directly from PR-139's own calibration-slope diagnostic (~0.10, i.e. barely discriminating) rather than guessed; fixed by rescaling to pi/2. Real result after the fix: test-set AUC improved from ~0.61 to ~0.70 and calibration slope from ~0.10 to ~0.22, but the quantum model still loses clearly to logistic regression (AUC ~0.86) at a 300-epoch budget, and is statistically indistinguishable from it (not better) at a shorter 150-epoch budget -- both outcomes now locked in as regression tests rather than one being silently left stale; confirmed by 1 new test plus 2 existing tests updated to the corrected real numbers |
+| PR-142 (addendum methodology fix, no new 374-item ID) Early-stopping, validation-selected model comparison for RECESSIONNET | implemented locally | A diagnostic training-curve trace found the hybrid quantum and classical-MLP models (493 parameters) overfitting past epoch ~20-60 at PR-139's fixed epoch budget while logistic regression (25 parameters) did not -- a fixed-epoch comparison was unfair once capacity differs this much. `training.train_classifier_with_early_stopping` and `evaluation.run_recessionnet_benchmark_with_early_stopping` select each model's stopping epoch by a validation split carved out of the training era (1988-1999), never the test set; real seed=0 result: quantum Brier (~0.087) now sits close to its best classical challenger's (~0.083), and 4 of 5 seeds checked by hand are statistically inconclusive rather than a robust quantum loss; confirmed by 14 new tests, 99-100% coverage |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3472,6 +3525,12 @@ PR-139's hybrid quantum classifier (diagnosed from its own calibration-slope dia
 improving its test AUC from ~0.61 to ~0.70 but not changing the qualitative finding: it still
 loses to logistic regression at a 300-epoch budget and is statistically tied with it (not
 ahead) at 150 epochs.
+PR-142 adds no new 374-item ID -- diagnosed and fixed a SECOND, more consequential problem:
+PR-139/141's fixed epoch budget let the quantum/classical-MLP models overfit while logistic
+regression did not, which was not a fair comparison. Validation-selected early stopping
+(never the test set) reverses the earlier "quantum is robustly worse" conclusion to "neither
+model is significantly better than the other" on this task -- a correction to the evaluation
+methodology, not the model, reached before being satisfied with the earlier result.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

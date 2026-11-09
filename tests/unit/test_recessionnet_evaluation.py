@@ -16,6 +16,7 @@ from prometheus.recessionnet.evaluation import (
     reliability_diagram,
     roc_auc,
     run_recessionnet_benchmark,
+    run_recessionnet_benchmark_with_early_stopping,
 )
 from prometheus.recessionnet.labels import NBER_RECESSIONS
 from prometheus.recessionnet.training import train_classifier
@@ -178,3 +179,113 @@ def test_run_recessionnet_benchmark_rejects_mismatched_feature_widths() -> None:
     _, test = chronological_split(wide, date(2000, 1, 1))
     with pytest.raises(ValueError, match="feature width"):
         run_recessionnet_benchmark(train, test, seed=0, n_epochs=5)
+
+
+def test_run_recessionnet_benchmark_with_early_stopping_end_to_end_on_real_data() -> None:
+    """PR-142: the methodologically corrected benchmark. Model
+    selection (how long to train) is chosen on a validation split
+    carved out of the training era (pre-1988 train-proper, 1988-1999
+    validation, 2000+ test, all still strictly chronological), never
+    on the test set itself. Locks in the real, reproducible seed=0
+    result: quantum's Brier score (~0.087) now sits in the SAME RANGE
+    as its best classical challenger's (~0.083) -- a genuinely close
+    comparison, not the clear loss seen under PR-139's fixed-epoch-
+    budget evaluation (where the higher-capacity quantum/MLP models
+    had already overfit by epoch 150-300 while logistic regression
+    had not)."""
+    dataset = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=6, horizon=6
+    )
+    train_full, test = chronological_split(dataset, date(2000, 1, 1))
+    train_proper, validation = chronological_split(train_full, date(1988, 1, 1))
+    assert len(train_proper.labels) > 0
+    assert len(validation.labels) > 0
+
+    report = run_recessionnet_benchmark_with_early_stopping(
+        train_proper, validation, test, seed=0, max_epochs=500, patience=20,
+        bootstrap_resamples=2000,
+    )
+
+    assert set(report.metrics) == {
+        "base_rate",
+        "logistic_regression",
+        "classical_matched_mlp",
+        "hybrid_quantum",
+    }
+    for metrics in report.metrics.values():
+        assert metrics.n_samples == len(test.labels)
+        assert 0.0 <= metrics.brier_score <= 1.0
+
+    assert report.selected_epochs is not None
+    assert set(report.selected_epochs) == {
+        "logistic_regression",
+        "classical_matched_mlp",
+        "hybrid_quantum",
+    }
+    assert all(epoch < 500 for epoch in report.selected_epochs.values())
+
+    quantum_brier = report.metrics["hybrid_quantum"].brier_score
+    assert quantum_brier == pytest.approx(0.0874, abs=0.01)
+    assert report.best_classical_challenger == "classical_matched_mlp"
+    assert report.metrics["classical_matched_mlp"].brier_score == pytest.approx(0.0827, abs=0.01)
+    # The two Brier scores sit close together -- the whole point of this
+    # corrected benchmark -- unlike PR-139's fixed-epoch run where quantum
+    # was clearly, robustly worse.
+    assert abs(quantum_brier - report.metrics["classical_matched_mlp"].brier_score) < 0.02
+
+    assert report.run_manifest.model_id == "recessionnet-hybrid-quantum-v1"
+    assert report.run_manifest.data_hash is not None
+    assert report.run_manifest.code_hash is not None
+    assert report.run_manifest.config["selected_epochs"] == report.selected_epochs
+
+
+def test_run_recessionnet_benchmark_with_early_stopping_is_reproducible() -> None:
+    dataset = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=6, horizon=6
+    )
+    train_full, test = chronological_split(dataset, date(2000, 1, 1))
+    train_proper, validation = chronological_split(train_full, date(1988, 1, 1))
+
+    report_a = run_recessionnet_benchmark_with_early_stopping(
+        train_proper, validation, test, seed=1, max_epochs=100, patience=10,
+        bootstrap_resamples=100,
+    )
+    report_b = run_recessionnet_benchmark_with_early_stopping(
+        train_proper, validation, test, seed=1, max_epochs=100, patience=10,
+        bootstrap_resamples=100,
+    )
+    assert report_a.selected_epochs == report_b.selected_epochs
+    assert report_a.metrics["hybrid_quantum"].brier_score == pytest.approx(
+        report_b.metrics["hybrid_quantum"].brier_score
+    )
+
+
+def test_run_recessionnet_benchmark_with_early_stopping_rejects_mismatched_train_widths() -> None:
+    narrow = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=3, horizon=3
+    )
+    wide = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=4, horizon=3
+    )
+    train_proper, validation = chronological_split(narrow, date(1988, 1, 1))
+    _, test = chronological_split(wide, date(2000, 1, 1))
+    with pytest.raises(ValueError, match="train_proper and test"):
+        run_recessionnet_benchmark_with_early_stopping(
+            train_proper, validation, test, seed=0, max_epochs=5, patience=2
+        )
+
+
+def test_early_stopping_benchmark_rejects_mismatched_validation_widths() -> None:
+    narrow = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=3, horizon=3
+    )
+    wide = build_recession_dataset(
+        _REAL_OBSERVATIONS, _SERIES_IDS, NBER_RECESSIONS, window=4, horizon=3
+    )
+    train_proper, _ = chronological_split(narrow, date(1988, 1, 1))
+    _, validation = chronological_split(wide, date(1988, 1, 1))
+    _, test = chronological_split(narrow, date(2000, 1, 1))
+    with pytest.raises(ValueError, match="validation and test"):
+        run_recessionnet_benchmark_with_early_stopping(
+            train_proper, validation, test, seed=0, max_epochs=5, patience=2
+        )
