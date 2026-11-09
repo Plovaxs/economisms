@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "f471b08052eb8769b010ade9b32fe975a7064533bd50b67500c542c456b333d7",
+    "content_sha256": "9b6dc6b45bdd9a724475fa1c66fbc1a5fbc53b412deca87db30bbafb82f783d3",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "6668f4d11d8c8ef16c2049534dde2caf7ee001ba6e737553495dd8ec180af704",
+  "checklist_notes_sha256": "260b5d231068e83866f20903ab6455fe2c3645e7b91674729fe41ef0c5abb15a",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7212,10 +7212,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5198,
+          "evidence_note": "`evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and this repository's own real persistently-failing GBM guard that still fails, each producing a real, chronologically-ordered timeline",
+          "id_column": "DRI-02 (first evidence)",
+          "requirement_note": "create numerical-integrity incident runbook; incorrect output triggers isolate, invalidate and re-evaluate"
+        }
+      ],
       "requirement": "Create numerical-integrity incident runbook",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8672,7 +8679,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 201,
-    "without_repository_notes": 173
+    "with_repository_notes": 202,
+    "without_repository_notes": 172
   }
 }

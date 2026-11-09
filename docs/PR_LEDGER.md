@@ -2677,6 +2677,20 @@ deliberately left out of the test matrix to confirm the raise fires
 on an actual real coverage gap, not a typo. Not covered: `approved_by`
 is caller-asserted, not a real sign-off.
 
+Plus **a numerical-integrity incident runbook: isolate, invalidate,
+re-evaluate** (DRI-02, PR-130): `evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`
+actually EXECUTES the three named steps against a real
+`NumericalEvent` and the original failing callable, returning the
+real timestamped timeline that execution produced. "Re-evaluate" is
+grounded against two real, genuinely different outcomes: a flaky
+callable that recovers (`re_evaluation_succeeded=True`), and this
+repository's own real persistently-failing extreme-drift GBM guard
+that still genuinely fails (`False`) -- not an assumed outcome. The
+timeline is confirmed strictly chronologically ordered via a
+deterministic injected clock. Not covered: only the numerical-
+integrity category, not the other "top failure categories" OPS-11
+names collectively.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3011,6 +3025,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-127 (new ID) CPU/RAM and artifact storage utilization tracking with capacity forecasting and budget alerts (OPS-09) | implemented locally | `evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking via a new `ArtifactStore.usage_bytes`, and an exact linear capacity forecast; confirmed by 15 tests |
 | PR-128 (new ID) Actionable alert routing with a severity taxonomy (OPS-10) | implemented locally | `evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner; confirmed by 13 tests |
 | PR-129 (new ID) Severity matrix for incorrect pricing, risk and data-integrity incidents (DRI-01) | implemented locally | `evidence.severity_matrix.SeverityMatrix`/`SeverityMatrixEntry`; a genuine `UnknownIncidentCategoryError` for a real, deliberately-unconfigured `ERROR_CODES` member, plus real lookups for real job and numerical-event categories; confirmed by 9 tests |
+| PR-130 (new ID) Numerical-integrity incident runbook: isolate, invalidate, re-evaluate (DRI-02) | implemented locally | `evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and a real persistently-failing GBM guard that still fails, each producing a real chronologically-ordered timeline; confirmed by 5 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3187,6 +3202,8 @@ PR-128 adds the first evidence for OPS-10, bringing the count from 199 to 200, c
 same way -- three real existing signal sources each routed end-to-end to a configured owner.
 PR-129 adds the first evidence for DRI-01, bringing the count from 200 to 201, confirmed the
 same way -- a genuine gap-detection raise for a real, deliberately-unconfigured error code.
+PR-130 adds the first evidence for DRI-02, bringing the count from 201 to 202, confirmed the
+same way -- a real flaky callable recovering and a real persistently-failing guard still failing.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

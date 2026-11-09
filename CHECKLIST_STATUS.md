@@ -5172,6 +5172,38 @@ this repository could produce, only the ones demonstrated.
 See
 [`src/prometheus/evidence/severity_matrix.py`](./src/prometheus/evidence/severity_matrix.py).
 
+## Evidenced today (PR-130: numerical-integrity incident runbook -- isolate, invalidate, re-evaluate -- DRI-02)
+
+A new `evidence.numerical_integrity_runbook` module. Given a real
+`evidence.numerical_event_monitor.NumericalEvent` and the original
+failing callable, `run_numerical_integrity_runbook` actually EXECUTES
+the three steps this item's acceptance criterion names, in order, and
+returns the real timestamped timeline that specific execution
+produced -- not a description of what a runbook "would" do.
+
+"Re-evaluate" is demonstrated against a REAL callable whose behavior
+genuinely changes between the triggering call and the re-evaluation
+call: a flaky function that fails once then recovers produces
+`re_evaluation_succeeded=True`, while this repository's own real
+extreme-drift GBM guard (the same one `test_gbm.py` and
+`evidence.numerical_event_monitor`'s own tests already confirm raises
+a clear error) produces `re_evaluation_succeeded=False` -- because the
+underlying parameter combination genuinely has no computable answer,
+not because the runbook assumed it would still fail. The timeline is
+confirmed strictly chronologically ordered via a deterministic
+injected clock, with exactly one timestamp per step.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DRI-02 (first evidence) | create numerical-integrity incident runbook; incorrect output triggers isolate, invalidate and re-evaluate | `evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and this repository's own real persistently-failing GBM guard that still fails, each producing a real, chronologically-ordered timeline |
+
+Not covered: the runbook covers the numerical-integrity category
+specifically, not the other "top failure categories" OPS-11 names
+collectively; isolation/invalidation are recorded, not wired into a
+live system that actually blocks further use of an isolated result.
+See
+[`src/prometheus/evidence/numerical_integrity_runbook.py`](./src/prometheus/evidence/numerical_integrity_runbook.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
