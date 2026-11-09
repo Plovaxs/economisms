@@ -214,3 +214,35 @@ def test_main_rejects_an_invalid_config_value(capsys) -> None:
     with pytest.raises(SystemExit):
         main(["--max-epochs", "0"], transport=_ScriptedTransport(b""))
     assert "max_epochs" in capsys.readouterr().err
+
+
+def test_an_uninjected_transport_uses_the_real_allowlisted_default(monkeypatch, capsys) -> None:
+    """SEC-10: a real invocation (no `transport=` injected) must go through
+    `egress_allowlist.default_ingestion_transport`, not a bare
+    `UrllibTransport` -- confirmed by monkeypatching that exact factory
+    (never making a real network call) and checking it was actually
+    called."""
+    import prometheus.orchestration.qmacro_run as module
+
+    calls: list[None] = []
+    scripted = _ScriptedTransport(_small_synthetic_zip(n_months=90))
+
+    def _fake_default_ingestion_transport() -> _ScriptedTransport:
+        calls.append(None)
+        return scripted
+
+    monkeypatch.setattr(module, "default_ingestion_transport", _fake_default_ingestion_transport)
+    exit_code = main(
+        [
+            "--max-epochs", "2",
+            "--patience", "1",
+            "--ar-order", "1",
+            "--bootstrap-resamples", "5",
+            "--validation-split-date", "1993-01-01",
+            "--test-split-date", "1995-01-01",
+        ],
+    )
+    assert exit_code == 0
+    assert calls == [None]
+    assert scripted.calls
+    capsys.readouterr()

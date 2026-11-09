@@ -5795,6 +5795,41 @@ was written, confirming the same real numbers cited above. 62 new
 tests, 97% coverage (`src/prometheus/neural_sde/`).
 See [`src/prometheus/neural_sde/`](./src/prometheus/neural_sde/).
 
+## Evidenced today (PR-151: egress allowlist wired into both real connector call sites, closing PR-148's disclosed gap -- SEC-10 strengthened)
+
+PR-148 shipped `AllowlistedTransport` as a real, tested primitive but
+explicitly disclosed: "no connector call site was switched to use it
+yet." This PR closes that gap. `data_ingestion.egress_allowlist` gained
+`DEFAULT_INGESTION_ROUTING_TABLE` (owner = "project maintainer" -- the
+same honest non-fabrication choice `evidence.risk_register`'s worked
+examples already make, not a fabricated second identity) and
+`default_ingestion_transport()`, a real, wired production default.
+`orchestration.recessionnet_run.main` and `orchestration.qmacro_run.main`
+-- the two real call sites that previously constructed a bare
+`UrllibTransport()` directly when no transport was injected for testing
+-- now default to `default_ingestion_transport()` instead. Confirmed by
+a real test per script that monkeypatches the exact factory function
+(never making a real network call) and asserts it was actually invoked
+and its transport actually used to fetch data, not merely that the
+import exists.
+
+This closes a real, historical risk-acceptance exception: the matching
+entry in `evidence.risk_register`'s own worked-example test
+(`test_risk_register.py`, "AllowlistedTransport exists but no
+connector's production call site was switched to use it yet (PR-148)",
+accepted 2026-11-09, sunset 2026-12-09) is now resolved before its
+sunset date -- left in place as an accurate historical record (this
+repository does not rewrite its own audit trail), not edited after the
+fact.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| SEC-10 (strengthened) | network egress allowlist for ingestion; wired into real connector call sites | `data_ingestion.egress_allowlist.default_ingestion_transport`; both `orchestration.recessionnet_run`/`qmacro_run` now default to it; 2 new monkeypatch-verified tests confirming real wiring, plus 2 new tests on the default routing table/transport factory themselves |
+
+Not covered: `prometheus.service` ("model serving") still originates no
+outbound call today, so there is nothing there to wire -- unchanged from
+PR-148's original disclosure.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

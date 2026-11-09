@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "b747e06aed9abd2e03acdcdc92a61da6eef59418c46b1e3c93ff6f776fffb193",
+    "content_sha256": "8977cc6cda2de163d032bca4776ba0c9d29edbc56ff25772b6ac3c7abaf8d9dd",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "1ca7eb5a3832fa18ae3791b081eb23e21122c0de93b455de1007d874014967c6",
+  "checklist_notes_sha256": "7bb9a249af5e493eb970bd5504855c15a6746870c8a377061869c0c02c5f98d7",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6266,6 +6266,12 @@
           "evidence_note": "`data_ingestion.egress_allowlist.AllowlistedTransport`; 6 tests (`tests/unit/test_egress_allowlist.py`) covering pass-through, denial-before-call, real alert-record generation, fail-loud on unconfigured routing, and a custom allowlist override",
           "id_column": "SEC-10 (first evidence)",
           "requirement_note": "network egress allowlist for ingestion and model serving; unexpected egress denied and alert generated"
+        },
+        {
+          "checklist_line": 5827,
+          "evidence_note": "`data_ingestion.egress_allowlist.default_ingestion_transport`; both `orchestration.recessionnet_run`/`qmacro_run` now default to it; 2 new monkeypatch-verified tests confirming real wiring, plus 2 new tests on the default routing table/transport factory themselves",
+          "id_column": "SEC-10 (strengthened)",
+          "requirement_note": "network egress allowlist for ingestion; wired into real connector call sites"
         }
       ],
       "requirement": "Implement network egress allowlist for ingestion and model serving",

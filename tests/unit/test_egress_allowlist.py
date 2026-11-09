@@ -4,10 +4,12 @@ import pytest
 
 from prometheus.data_ingestion.egress_allowlist import (
     DEFAULT_INGESTION_ALLOWLIST,
+    DEFAULT_INGESTION_ROUTING_TABLE,
     AllowlistedTransport,
     EgressDeniedError,
+    default_ingestion_transport,
 )
-from prometheus.data_ingestion.transport import HttpResponse
+from prometheus.data_ingestion.transport import HttpResponse, UrllibTransport
 from prometheus.evidence.alert_routing import AlertRoute, RoutingTable, UnroutedSeverityError
 
 
@@ -82,3 +84,19 @@ def test_a_custom_allowlist_overrides_the_default() -> None:
         wrapped.get("https://fred.stlouisfed.org/graph/fredgraph.csv", {})
     response = wrapped.get("https://internal.example.com/data", {})
     assert response.status_code == 200
+
+
+def test_default_routing_table_has_a_real_configured_p1_route_not_a_fabricated_name() -> None:
+    routes = DEFAULT_INGESTION_ROUTING_TABLE.routes
+    assert len(routes) == 1
+    assert routes[0].severity == "P1"
+    assert routes[0].owner == "project maintainer"
+    assert routes[0].escalation_contact  # non-empty, enforced by AlertRoute.__post_init__
+
+
+def test_default_ingestion_transport_is_a_real_allowlisted_wrapper_around_urllib() -> None:
+    transport = default_ingestion_transport()
+    assert isinstance(transport, AllowlistedTransport)
+    assert isinstance(transport.inner, UrllibTransport)
+    assert transport.allowed_hosts == DEFAULT_INGESTION_ALLOWLIST
+    assert transport.alert_routing_table == DEFAULT_INGESTION_ROUTING_TABLE

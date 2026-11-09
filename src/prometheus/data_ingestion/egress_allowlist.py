@@ -35,6 +35,16 @@ real hostnames this repository's own connectors already call --
 `*_SOURCE_URL`/`*_BASE_URL` constants, not retyped by hand (so the
 allowlist cannot silently drift out of sync with what the connectors
 actually call).
+
+`default_ingestion_transport()` is the real, wired-in production default:
+`orchestration.recessionnet_run`/`qmacro_run` (the two call sites that
+previously constructed a bare `UrllibTransport()` directly when no
+transport was injected for testing) now default to this instead, closing
+the gap PR-148 originally disclosed ("no connector call site was switched
+to use it yet"). `DEFAULT_INGESTION_ROUTING_TABLE`'s owner names the
+project-maintainer role, the same honest non-fabrication choice
+`evidence.risk_register`'s worked examples already make -- there is no
+second identity in a single-maintainer repository to route a real P1 to.
 """
 
 from __future__ import annotations
@@ -43,7 +53,7 @@ from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 
 from prometheus.data_ingestion.french_factors import FRENCH_FACTORS_URL
-from prometheus.data_ingestion.transport import HttpResponse, HttpTransport
+from prometheus.data_ingestion.transport import HttpResponse, HttpTransport, UrllibTransport
 from prometheus.data_ingestion.treasury_yield_curve import TREASURY_YIELD_CURVE_SOURCE_URL
 from prometheus.data_ingestion.worldbank import WORLD_BANK_BASE_URL
 from prometheus.evidence.alert_routing import AlertRoute, RoutingTable, route_alert
@@ -100,3 +110,25 @@ class AllowlistedTransport:
                 f"({sorted(self.allowed_hosts)}); P1 alert routed to {route.owner}"
             )
         return self.inner.get(url, params)
+
+
+DEFAULT_INGESTION_ROUTING_TABLE = RoutingTable(
+    routes=(
+        AlertRoute(
+            severity="P1",
+            owner="project maintainer",
+            escalation_contact="SECURITY.md private vulnerability reporting (GitHub Security tab)",
+        ),
+    )
+)
+
+
+def default_ingestion_transport() -> AllowlistedTransport:
+    """The real production default: a genuine `UrllibTransport` wrapped in
+    the allowlist with this repository's own real routing table, rather
+    than an unwrapped `UrllibTransport()` -- the production transport every
+    connector call site should actually construct when no transport is
+    injected for testing."""
+    return AllowlistedTransport(
+        inner=UrllibTransport(), alert_routing_table=DEFAULT_INGESTION_ROUTING_TABLE
+    )

@@ -27,7 +27,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Literal
 
-from prometheus.data_ingestion.transport import HttpTransport, UrllibTransport
+from prometheus.data_ingestion.egress_allowlist import default_ingestion_transport
+from prometheus.data_ingestion.transport import HttpTransport
 from prometheus.econosim.pit import MacroObservation
 from prometheus.macrocore.quantum_benchmark import QMacroBenchmarkReport, run_qmacro_benchmark
 from prometheus.macrocore.regression_dataset import (
@@ -203,7 +204,7 @@ def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None =
     except ValueError as exc:
         parser.error(str(exc))
 
-    real_transport = transport if transport is not None else UrllibTransport()
+    real_transport = transport if transport is not None else default_ingestion_transport()
     observations, data_source = load_real_ff3_observations_or_cached(real_transport)
     result = run_qmacro_demo(observations, config)
     payload = _summary_payload(result, data_source)

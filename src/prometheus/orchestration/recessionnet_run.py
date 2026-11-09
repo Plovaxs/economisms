@@ -41,12 +41,13 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Literal
 
+from prometheus.data_ingestion.egress_allowlist import default_ingestion_transport
 from prometheus.data_ingestion.french_factors import (
     FrenchFactorsResponseError,
     fetch_french_factors,
     load_cached_ff3_snapshot,
 )
-from prometheus.data_ingestion.transport import HttpRequestError, HttpTransport, UrllibTransport
+from prometheus.data_ingestion.transport import HttpRequestError, HttpTransport
 from prometheus.econosim.pit import MacroObservation
 from prometheus.recessionnet.dataset import build_recession_dataset, chronological_split
 from prometheus.recessionnet.evaluation import (
@@ -211,11 +212,12 @@ def summary_payload(result: RecessionNetDemoResult, data_source: DataSource) -> 
 
 
 def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None = None) -> int:
-    """`transport` is injectable (defaulting to the real `UrllibTransport`)
-    purely so this CLI's argument parsing, config validation and output
-    plumbing can be tested with a scripted, non-network transport --
-    exactly the same injection pattern every `data_ingestion` connector
-    in this repository already uses; a real invocation never passes it."""
+    """`transport` is injectable (defaulting to the real, allowlist-wrapped
+    `egress_allowlist.default_ingestion_transport()`, SEC-10) purely so
+    this CLI's argument parsing, config validation and output plumbing can
+    be tested with a scripted, non-network transport -- exactly the same
+    injection pattern every `data_ingestion` connector in this repository
+    already uses; a real invocation never passes it."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--max-epochs", type=int, default=500)
@@ -241,7 +243,7 @@ def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None =
     except ValueError as exc:
         parser.error(str(exc))
 
-    real_transport = transport if transport is not None else UrllibTransport()
+    real_transport = transport if transport is not None else default_ingestion_transport()
     observations, data_source = load_real_ff3_observations_or_cached(real_transport)
     result = run_recessionnet_demo(observations, config)
     payload = summary_payload(result, data_source)
