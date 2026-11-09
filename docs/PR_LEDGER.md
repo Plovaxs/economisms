@@ -2621,6 +2621,22 @@ event), and a deliberately wrong reference price fires a genuine
 event. `owner` is required with no default on every event. Not
 covered: no real paging integration.
 
+Plus **model drift, risk-metric calibration and tail-breach monitoring
+with an investigation playbook** (OPS-08, PR-126): `evidence.model_monitoring`
+composes three existing primitives rather than reinventing them --
+`var_exception_coverage_test` (RISK-08) for tail breach, the same
+`RetrainingEscalation` framing `evidence.retraining_trigger` (MLO-13)
+already built on RISK-09 for calibration, and
+`paired_bootstrap_difference` (the same primitive `evidence.champion_challenger`
+(MLO-14) uses) for drift. Each signal is confirmed against real data:
+a real well-calibrated VaR/ES does not trigger, a deliberately
+miscalibrated one does, and a real delta-hedge strategy's own loss
+distribution, unchanged, does not trigger drift against itself while
+a real configuration change does. `build_investigation_playbook` is
+the one new structure: an ordered action per fired signal, each
+naming a required owner. Not covered: no real dashboard UI or paging
+integration.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2951,6 +2967,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-123 (new ID) Inference throughput, latency and failure rate per endpoint and model (OPS-05) | implemented locally | `evidence.inference_metrics.run_inference_benchmark`; exact 0%/50%/100% failure-rate discrimination, plus two real backends (a trained `HedgePolicyMLP` forward pass and a real HTTP call against `ResearchService`); confirmed by 11 tests |
 | PR-124 (new ID) Data staleness and failed-ingest-count alerting (OPS-06) | implemented locally | `evidence.data_health.measure_staleness`, plus the existing `run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise and a real 0.3 failure rate against a genuinely flaky connector; confirmed by 11 tests |
 | PR-125 (new ID) High-severity numerical event monitoring with assigned ownership (OPS-07) | implemented locally | `evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`; confirmed by 14 tests |
+| PR-126 (new ID) Model drift, risk-metric calibration and tail-breach monitoring with an investigation playbook (OPS-08) | implemented locally | `evidence.model_monitoring`, composing RISK-08/RISK-09/MLO-13/MLO-14's existing primitives; each signal confirmed to fire and not-fire against real data, plus an owner-required investigation playbook; confirmed by 14 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3119,6 +3136,8 @@ PR-124 adds the first evidence for OPS-06, bringing the count from 195 to 196, c
 same way -- a real alert exercise against the real captured Kenneth French archive.
 PR-125 adds the first evidence for OPS-07, bringing the count from 196 to 197, confirmed the
 same way -- a real extreme-drift GBM solver failure and a real Monte-Carlo-vs-closed-form check.
+PR-126 adds the first evidence for OPS-08, bringing the count from 197 to 198, confirmed the
+same way -- three composed real signals, each confirmed to fire and not-fire against real data.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

@@ -5023,6 +5023,43 @@ the event's own required `owner` field, the same honest scope
 See
 [`src/prometheus/evidence/numerical_event_monitor.py`](./src/prometheus/evidence/numerical_event_monitor.py).
 
+## Evidenced today (PR-126: model drift, risk-metric calibration and tail-breach monitoring with an investigation playbook -- OPS-08)
+
+A new `evidence.model_monitoring` module, composing THREE
+independently-evidenced existing primitives rather than reinventing
+any of them: "tail breach" reuses `titan.risk_metrics.var_exception_coverage_test`
+(RISK-08, a real Kupiec-style VaR exceedance test); "calibration"
+reuses the exact `RetrainingEscalation` framing `evidence.retraining_trigger`
+(MLO-13) already built on `es_unconditional_calibration_test` (RISK-09);
+"drift" reuses `experiments.bootstrap.paired_bootstrap_difference` (the
+same primitive `evidence.champion_challenger` (MLO-14) uses).
+
+Each signal is grounded against real data, not fabricated: a real
+well-calibrated VaR (p=0.44) does not trigger `tail_breach`, while a
+deliberately too-low VaR threshold (p≈4.4e-289) does; a real
+well-calibrated ES does not trigger `calibration`, while a 3x-scaled
+one does (mirroring `test_retraining_trigger.py`'s own established
+pattern exactly); and for `drift`, a REAL delta-hedge strategy's
+terminal-loss distribution on a real simulated path set, evaluated
+with an unchanged configuration against itself, does not trigger --
+while a real configuration change (a no-trade band plus a nonzero cost
+rate) to the SAME strategy on the SAME paths produces a statistically
+significant, correctly detected drift.
+
+`build_investigation_playbook` is the one genuinely new structure: an
+ordered action for each signal that fires, naming the owner who must
+act -- never a vague "investigate" with no concrete next step or
+accountable person. `owner` is required with no default.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-08 (first evidence) | monitor model drift, risk metric calibration and tail breach; model monitoring dashboard and investigation playbook | `evidence.model_monitoring.tail_breach_signal`/`calibration_signal`/`drift_signal`/`build_investigation_playbook`, composing RISK-08/RISK-09/MLO-13/MLO-14's existing real primitives; each signal confirmed to fire and not-fire against real, not fabricated, data |
+
+Not covered: no real dashboard UI; the playbook's actions are
+hardcoded guidance text, not a live ticketing/paging integration.
+See
+[`src/prometheus/evidence/model_monitoring.py`](./src/prometheus/evidence/model_monitoring.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
