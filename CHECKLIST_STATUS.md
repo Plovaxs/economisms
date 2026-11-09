@@ -5317,6 +5317,81 @@ simulated, only a local snapshot/restore.
 See
 [`src/prometheus/evidence/failover_audit_continuity.py`](./src/prometheus/evidence/failover_audit_continuity.py).
 
+## Evidenced today (PR-134: runbooks for top failure categories with simulated on-call drills -- OPS-11)
+
+A new `evidence.runbook_catalog` module, deliberately covering TWO
+distinct, already-evidenced failure categories -- "top failure
+categories" plural, which is specifically why this was held back from
+DRI-02 (one category only) until now. `run_numerical_integrity_drill`
+wraps the existing DRI-02 runbook; `run_credential_compromise_drill`
+composes DRI-03's `rotate_credential` (the real action) and
+`run_credential_rotation_drill` (the real verification) into ONE
+drill with its own real timestamped timeline, in the same `DrillStep`
+shape both categories share.
+
+`DrillReport.passed` is confirmed to be a real outcome, not a
+constant: a genuinely recovering numerical call passes with a
+3-step, strictly chronologically-ordered timeline, while a
+persistently-failing one does not; a real credential rotation,
+verified against the token that was actually provisioned, passes,
+while verifying against a token that was NEVER provisioned correctly
+fails -- confirming the drill's pass/fail genuinely depends on what
+happened, not a hardcoded result.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-11 (first evidence) | maintain runbooks for top failure categories; simulated on-call drills complete with incident timeline | `evidence.runbook_catalog.run_numerical_integrity_drill`/`run_credential_compromise_drill`; two distinct real failure categories each producing a real, chronologically-ordered incident timeline, with a genuine pass/fail outcome confirmed in both directions |
+
+Not covered: only two categories are catalogued here (numerical
+solver failure, credential compromise); other real categories this
+repository could drill (e.g. queue overload, corrupt data) are not
+yet added to this catalog.
+See
+[`src/prometheus/evidence/runbook_catalog.py`](./src/prometheus/evidence/runbook_catalog.py).
+
+## Evidenced today (PR-135: confirmation that no observability vendor exports restricted financial data -- OPS-12, closing the OPS category at 100%)
+
+A new `evidence.observability_vendor_review` module, with two real,
+independent checks rather than an unexamined assumption.
+
+The "data-flow review" half: `scan_for_observability_vendor_integration`
+extends `evidence.security_scan`'s own vendor-detection pattern with
+real observability/APM vendor names (Datadog, New Relic, Splunk,
+Sentry, Grafana Cloud, Honeycomb, LogRocket), distinct from DAT-13's
+data-LICENSE denylist. A genuine sweep of this repository's own
+tracked `src/` tree (excluding this module's own file, whose docstring
+must name the vendors it detects -- the same reason DAT-13's
+`license_scan` excludes `security_scan.py`) confirms ZERO matches
+today: there is no outbound telemetry integration anywhere in this
+repository, so there is no vendor for restricted financial data to be
+exported TO.
+
+The "redaction verification" half: `extract_event_schema_field_names`
+`ast`-parses `jobs.store.py`'s own real `_event(...)` call sites and
+extracts the REAL, complete field vocabulary this repository's only
+structured audit-log sink actually writes (confirmed to include
+`artifact_sha256`, `worker_id`, `error_code`, and 7 others) -- not a
+hand-typed guess. `check_for_sensitive_field_names` confirms none of
+those REAL fields matches a sensitive-financial-field-shaped pattern
+(balance, position, pnl, account number, secret, password), with a
+discriminating test confirming the checker genuinely flags
+`"account_balance"` when it IS present, rather than reporting a clean
+result unconditionally.
+
+With OPS-12 evidenced, **OPS reaches 100% (12/12)** -- the project's
+9th complete category.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-12 (first evidence) | confirm no observability vendor exports restricted financial data; data-flow review and redaction verification | `evidence.observability_vendor_review.scan_for_observability_vendor_integration`/`extract_event_schema_field_names`/`check_for_sensitive_field_names`; a real zero-finding vendor sweep of this repository's tracked source, and a real ast-derived confirmation that the only audit-log schema carries no sensitive field names |
+
+Not covered: this confirms no vendor integration exists TODAY; it is
+not a continuously-enforced CI gate against a future addition (though
+the vendor-name scanner could be wired into the existing `pytest -q`
+CI step the same way DAT-13's was, if one is ever added).
+See
+[`src/prometheus/evidence/observability_vendor_review.py`](./src/prometheus/evidence/observability_vendor_review.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

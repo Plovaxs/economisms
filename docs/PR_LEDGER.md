@@ -2732,6 +2732,36 @@ itself so a tampered reordering is confirmed to raise
 `IllegalTransitionError` rather than silently round-tripping. Not
 covered: only a local snapshot/restore, not multi-region failover.
 
+Plus **runbooks for top failure categories with simulated on-call
+drills** (OPS-11, PR-134): `evidence.runbook_catalog` deliberately
+covers TWO distinct categories -- held back from DRI-02 (one category
+only) until this PR specifically to satisfy "top failure categories"
+plural. `run_numerical_integrity_drill` wraps the existing DRI-02
+runbook; `run_credential_compromise_drill` composes DRI-03's
+`rotate_credential` and `run_credential_rotation_drill` into one
+drill with its own real timestamped timeline. `passed` is confirmed a
+real outcome in both directions: a recovering call passes, a
+persistently-failing one doesn't; a correctly-verified rotation
+passes, one checked against a never-provisioned token doesn't. Not
+covered: only two categories catalogued so far.
+
+Plus **confirmation that no observability vendor exports restricted
+financial data, closing OPS at 100%** (OPS-12, PR-135):
+`evidence.observability_vendor_review` runs two real checks.
+`scan_for_observability_vendor_integration` extends `security_scan`'s
+vendor-detection pattern with real APM vendor names (Datadog, New
+Relic, Splunk, Sentry, Grafana Cloud, Honeycomb, LogRocket); a real
+sweep of this repository's own tracked `src/` tree confirms zero
+matches -- no telemetry integration exists to export data to.
+`extract_event_schema_field_names` `ast`-parses `jobs.store.py`'s own
+real `_event(...)` call sites for the REAL field vocabulary the only
+audit-log sink writes, and `check_for_sensitive_field_names` confirms
+none of those real fields is financial-value-shaped, with a
+discriminating test confirming the checker genuinely flags a planted
+sensitive name. **OPS reaches 100% (12/12)**, the project's 9th
+complete category. Not covered: confirms no vendor TODAY, not a
+continuously-enforced CI gate.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3070,6 +3100,8 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-131 (new ID) Compromised-credential and secret-rotation tabletop drill (DRI-03) | implemented locally | `evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case; confirmed by 5 tests |
 | PR-132 (new ID) Corrupt-data and point-in-time leak response: trace, revoke, recompute (DRI-04) | implemented locally | `evidence.pit_leak_response.detect_leak`/`trace_affected_runs`/`recompute`; a real leaked run identified against a real two-vintage series, and a real recomputation confirmed to produce a different, correct result; confirmed by 9 tests |
 | PR-133 (new ID) Audit-log and model-approval-history availability throughout failover (DRI-11) | implemented locally | `evidence.failover_audit_continuity.read_job_events`/`serialize_registry_entry`/`restore_registry_entry`; a real snapshot/restore round trip confirming byte-for-byte event completeness, and a real model-approval history round trip rejecting a tampered reordering; confirmed by 3 tests |
+| PR-134 (new ID) Runbooks for top failure categories with simulated on-call drills (OPS-11) | implemented locally | `evidence.runbook_catalog.run_numerical_integrity_drill`/`run_credential_compromise_drill`; two distinct real failure categories each producing a real chronologically-ordered timeline with a genuine pass/fail outcome; confirmed by 6 tests |
+| PR-135 (new ID) Confirmation that no observability vendor exports restricted financial data, closing OPS at 100% (OPS-12) | implemented locally | `evidence.observability_vendor_review.scan_for_observability_vendor_integration`/`extract_event_schema_field_names`/`check_for_sensitive_field_names`; a real zero-finding vendor sweep and a real ast-derived confirmation of the audit-log schema; confirmed by 6 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3254,6 +3286,11 @@ PR-132 adds the first evidence for DRI-04, bringing the count from 203 to 204, c
 same way -- a real leaked run detected and a real recomputation producing a different, correct result.
 PR-133 adds the first evidence for DRI-11, bringing the count from 204 to 205, confirmed the
 same way -- a real snapshot/restore round trip and a real model-approval history round trip.
+PR-134 adds the first evidence for OPS-11, bringing the count from 205 to 206, confirmed the
+same way -- two distinct real failure categories each with a real timeline and genuine pass/fail.
+PR-135 adds the first evidence for OPS-12, bringing the count from 206 to 207, confirmed the
+same way -- a real zero-finding vendor sweep and a real ast-derived audit-log schema check,
+closing the OPS category at 100% (12/12), the project's 9th complete category.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
