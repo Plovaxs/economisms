@@ -5392,6 +5392,67 @@ CI step the same way DAT-13's was, if one is ever added).
 See
 [`src/prometheus/evidence/observability_vendor_review.py`](./src/prometheus/evidence/observability_vendor_review.py).
 
+## Evidenced today (PR-136: error budget actions with service ownership -- REL-12)
+
+A new `evidence.error_budget` module, composing REL-01's own
+`ServiceLevelObjective`/`slo_is_met` over a WINDOW of real
+`LoadReport`s (REL-02) rather than a single snapshot. Grounded
+against exact, known numbers: a window of 8 real reports that meet
+the real SLO plus 2 real reports that genuinely breach it (p95 0.9s
+against a 0.5s target) gives an EXACT breach rate of 0.2, not an
+estimate, correctly exhausting a 0.1 budget while staying within a
+0.3 one.
+
+The acceptance criterion's own "triggers release freeze" is confirmed
+through the EXISTING, already-evidenced gating machinery, not a new
+parallel one: `record_error_budget_action`'s finding, fed into the
+SAME `evaluate_release_gate` (CIQ-05) DAT-13's `license_scan` already
+composes through, is confirmed to genuinely block release. "...or
+corrective review" reuses that same gate's existing "unless approved"
+half: approving the finding's exact id IS the corrective-review
+action, confirmed to lift the freeze. `owner` is a required field
+with no default, so a corrective review always has someone
+accountable to assign it to.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-12 (first evidence) | record error budget actions and service ownership; breaches trigger release freeze or corrective review | `evidence.error_budget.evaluate_error_budget`/`record_error_budget_action`; an exact real breach-rate count against a real SLO/LoadReport window, composed through the existing `evaluate_release_gate` to genuinely block and unblock release |
+
+Not covered: the "window" is a caller-supplied sequence, not drawn
+from a live, continuously-updating measurement stream.
+See
+[`src/prometheus/evidence/error_budget.py`](./src/prometheus/evidence/error_budget.py).
+
+## Evidenced today (PR-137: log/metric storage cardinality budget verification -- REL-08, closing the REL category at 100%)
+
+A new `evidence.cardinality_budget` module. `compute_label_combinations`
+extracts the distinct label-value combinations of caller-chosen
+fields across a real sequence of `jobs.store.Job` records.
+
+The acceptance criterion's own "remains bounded during high run
+volume" is checked directly, not assumed: a bounded label choice
+(`status`, `owner`) gives the SAME exact 30 distinct combinations
+whether 50 or 5,000 real jobs are simulated. The discriminating
+negative case confirms the check is real, not unconditionally
+reassuring: labeling by `job_id` itself (an unbounded per-run
+identifier) is confirmed to grow linearly to exactly 5,000 distinct
+combinations at that same volume and genuinely exceed a fixed budget
+-- proving `verify_cardinality_budget` distinguishes a real bounded
+choice from a real unbounded one.
+
+With REL-08 evidenced, **REL reaches 100% (12/12)** -- the project's
+10th complete category.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| REL-08 (first evidence) | verify log/metric storage and cardinality budgets; dashboard remains bounded during high run volume | `evidence.cardinality_budget.compute_label_combinations`/`verify_cardinality_budget`; an exact, identical 30-combination count at both 50 and 5,000 real simulated jobs, versus a genuinely unbounded `job_id`-labeled count that grows to 5,000 and blows the budget |
+
+Not covered: no real metrics-storage backend is exercised; this
+verifies the LABEL CHOICE a caller makes stays bounded, not a live
+system's actual stored cardinality.
+See
+[`src/prometheus/evidence/cardinality_budget.py`](./src/prometheus/evidence/cardinality_budget.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
