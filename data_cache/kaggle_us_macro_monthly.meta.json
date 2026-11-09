@@ -1,0 +1,28 @@
+{
+  "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators",
+  "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+  "license": "ODbL-1.0",
+  "downloaded_at": "2026-11-09",
+  "underlying_fred_series": {
+    "GDP_YOY": "FRED GDP (quarterly, nominal), year-over-year percent growth",
+    "CLAIMS_YOY": "FRED CCSA (Continued Claims, Insured Unemployment, weekly), year-over-year percent growth",
+    "FEDFUNDS": "FRED DFF (Federal Funds Effective Rate, daily), level in percent",
+    "M2_YOY": "FRED WM2NS (M2 money stock, weekly), year-over-year percent growth",
+    "NASDAQ_YOY": "NASDAQ composite daily closing price (vendor: investing.com, bundled in the Kaggle dataset), year-over-year percent change"
+  },
+  "resampling": "Each raw series resampled to monthly (last observed value at or before each month-end); GDP additionally forward-filled across its own quarter (documented, not an unexplained gap-fill: GDP is only released quarterly).",
+  "publication_lag_assumption_days": {
+    "GDP_YOY": 30,
+    "CLAIMS_YOY": 7,
+    "FEDFUNDS": 0,
+    "M2_YOY": 7,
+    "NASDAQ_YOY": 0
+  },
+  "publication_lag_note": "A FIXED, documented assumption per series (not fetched real vintage data) -- e.g. GDP's first ('advance') estimate is released roughly a month after the quarter ends. Each month's value in the derived CSV is re-keyed to the first month-end at or after (its own period's month-end + this lag), so the value appearing for month M is honestly knowable by M's end.",
+  "sanity_checks": {
+    "NASDAQ_YOY 2008-10": "-39.8% (real NASDAQ crash trough, confirmed against known financial-crisis history)",
+    "CLAIMS_YOY 2020-04": "+339.1% (real COVID unemployment-claims spike, confirmed against known pandemic history)"
+  },
+  "real_date_range": {"first_month": "198112", "last_month": "202301"},
+  "prep_script": "not committed -- a one-off script run once against the raw Kaggle CSVs; see docs/PR_LEDGER.md for the PR entry describing its logic"
+}

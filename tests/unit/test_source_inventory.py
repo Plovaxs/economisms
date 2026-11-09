@@ -42,9 +42,13 @@ def test_discovers_exactly_the_real_connectors_in_this_repository() -> None:
     """A real integration check against this repository's own actual
     `data_ingestion` package -- not a hand-built fixture -- confirming
     `transport` (shared infra, not a source) and `__init__` are
-    correctly excluded."""
+    correctly excluded. `kaggle_macro` (real US GDP/claims/Fed-funds/
+    M2/NASDAQ data, PR-145) is a genuinely new real source this
+    scanner is correctly expected to pick up; `monthly_matrix` has no
+    `*_URL`/`*LICENSE` constants of its own (it is a shared helper, not
+    a source) and is correctly NOT picked up."""
     discovered = discover_data_sources(_repo_data_ingestion_root())
-    assert discovered == ("french_factors", "worldbank")
+    assert discovered == ("french_factors", "kaggle_macro", "worldbank")
 
 
 def test_real_catalog_carries_each_connectors_actual_url_and_license() -> None:

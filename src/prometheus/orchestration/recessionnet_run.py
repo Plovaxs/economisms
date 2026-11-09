@@ -58,7 +58,7 @@ from prometheus.recessionnet.labels import NBER_RECESSIONS
 DEFAULT_SERIES_IDS: tuple[str, ...] = ("FF3_Mkt-RF", "FF3_SMB", "FF3_HML", "FF3_RF")
 DEFAULT_CACHE_PATH = Path(__file__).resolve().parents[3] / "data_cache" / "ff3_monthly_snapshot.csv"
 Verdict = Literal["quantum_better", "classical_better", "inconclusive"]
-DataSource = Literal["live", "cached_snapshot_fallback"]
+DataSource = Literal["live", "cached_snapshot_fallback", "kaggle_local_snapshot"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -169,7 +169,7 @@ def run_recessionnet_demo(
     )
 
 
-def _summary_payload(result: RecessionNetDemoResult, data_source: DataSource) -> dict[str, Any]:
+def summary_payload(result: RecessionNetDemoResult, data_source: DataSource) -> dict[str, Any]:
     report = result.report
     bootstrap = report.quantum_vs_best_classical
     return {
@@ -244,7 +244,7 @@ def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None =
     real_transport = transport if transport is not None else UrllibTransport()
     observations, data_source = load_real_ff3_observations_or_cached(real_transport)
     result = run_recessionnet_demo(observations, config)
-    payload = _summary_payload(result, data_source)
+    payload = summary_payload(result, data_source)
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(payload, indent=2))

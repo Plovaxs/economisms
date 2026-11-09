@@ -3069,6 +3069,69 @@ Two real reliability gaps, both closed:
    "inconclusive" one -- confirmed live, multiple times, not asserted
    from a single lucky run.
 
+Plus **RECESSIONNET on real Kaggle-sourced US GDP/claims/Fed-funds/M2/
+NASDAQ data** (PR-145), directly answering the user's "ambil data dari
+Kaggle" request with a genuinely real, independent second grounding
+for the same task -- not a toy or synthetic substitute.
+
+The user provided a working Kaggle API token; `kaggle datasets list
+-s "recession"` surfaced `mikoajfish99/us-recession-and-financial-
+indicators` (ODbL-1.0 licensed, 49 votes, 5,225 downloads): 20 real
+FRED-sourced CSVs (GDP, Continued Claims/CCSA, Federal Funds Effective
+Rate/DFF, M2/WM2NS) plus a bundled NASDAQ daily price history. This is
+genuinely closer to the blueprint's own original "GDP, rates,
+unemployment" framing than DAT-05's market-factor proxy, and solves a
+limitation disclosed since DAT-02..04 were first scoped (no FRED API
+key in this environment).
+
+A one-off prep script (not committed; its exact logic is recorded
+here) resampled each raw series to monthly, computed year-over-year
+growth (GDP, claims, M2, NASDAQ; the Fed funds rate is used as a
+level, already a percent), and applied a FIXED, documented
+publication-lag assumption per series before re-keying each value to
+the month it would actually become known (GDP +30 days, claims/M2 +7
+days, Fed funds/NASDAQ +0 days) -- an honest approximation, not
+fetched real vintage data, clearly labeled as such. Two independent
+real-world sanity checks confirmed the pipeline before trusting it:
+NASDAQ year-over-year return in October 2008 came out to -39.8% (the
+real financial-crisis trough) and continued claims year-over-year
+growth in April 2020 came out to +339.1% (the real COVID unemployment
+spike) -- both computed from the data, not asserted.
+
+`data_ingestion.kaggle_macro` loads the committed derived snapshot
+(`data_cache/kaggle_us_macro_monthly.csv` plus a `.meta.json` sidecar
+recording the exact provenance, resampling method and lag
+assumptions) into `MacroObservation`s already in the same "percent
+units" convention `french_factors.py` uses, so every existing
+RECESSIONNET/`prometheus.quantum` primitive
+(`build_recession_dataset`, `run_recessionnet_benchmark_with_early_
+stopping`, the quantum/classical model classes) is reused completely
+unchanged -- zero new benchmark code. The new
+`orchestration.recessionnet_kaggle_run` CLI makes NO network call of
+any kind (the data is already committed), making it the single most
+demo-reliable entry point in this repository: it cannot fail on wifi,
+on Kaggle's API, or on a slow upstream server.
+
+Real result (seed=0, validation split 2001-01-01, test split
+2008-01-01, which this choice places the GFC and COVID both inside
+the test set): on this real dataset and split, `base_rate` is the
+strongest classical candidate (Brier ~0.069; logistic regression
+over-fits here, Brier ~0.127, despite having the best raw AUC,
+~0.81 -- a real discrimination-vs-calibration tradeoff, not a bug);
+the hybrid quantum classifier (Brier ~0.074) shows no statistically
+significant difference against `base_rate`. The same qualitative
+finding as DAT-05's grounding and Q-MACRO: no significant quantum
+advantage, no significant quantum disadvantage -- now independently
+reproduced on a genuinely different, real, GDP/unemployment/rate-based
+dataset, not re-run until a different story appeared.
+
+Fixed one regression this PR's own new source caused: `data_ingestion.
+source_inventory`'s real-tree integration test asserted the then-
+exact tuple of discovered sources; `kaggle_macro.py`'s own
+`KAGGLE_SOURCE_URL`/`KAGGLE_SOURCE_LICENSE` constants are a genuinely
+new real source this ast-based scanner is SUPPOSED to find, so the
+test's expectation was updated to include it, not suppressed.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3418,6 +3481,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-142 (addendum methodology fix, no new 374-item ID) Early-stopping, validation-selected model comparison for RECESSIONNET | implemented locally | A diagnostic training-curve trace found the hybrid quantum and classical-MLP models (493 parameters) overfitting past epoch ~20-60 at PR-139's fixed epoch budget while logistic regression (25 parameters) did not -- a fixed-epoch comparison was unfair once capacity differs this much. `training.train_classifier_with_early_stopping` and `evaluation.run_recessionnet_benchmark_with_early_stopping` select each model's stopping epoch by a validation split carved out of the training era (1988-1999), never the test set; real seed=0 result: quantum Brier (~0.087) now sits close to its best classical challenger's (~0.083), and 4 of 5 seeds checked by hand are statistically inconclusive rather than a robust quantum loss; confirmed by 14 new tests, 99-100% coverage |
 | PR-143 (addendum, FP-05 partial) Q-MACRO: hybrid quantum regressor vs. AR(3)/MLP/persistence for h-months-ahead Mkt-RF | implemented locally | New `macrocore.regression_dataset`/`macrocore.quantum_benchmark` plus `quantum.models.{LinearRegressionModel,ClassicalMatchedRegressor,HybridQuantumRegressor}` (zero-behavior-change subclasses reusing the RECESSIONNET architectures for a regression target); AR(3) genuinely refit at every real test month, three learned models selected by early stopping from the start (PR-142's methodology, not repeated as a mistake); real result: AR(3)/MLP/quantum all land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), no significant difference among them across 5 seeds checked; confirmed by 36 new tests, 99-100% coverage |
 | PR-144 (demo reliability, no new ID) Offline-fallback data + switched RECESSIONNET's CLI to early stopping | implemented locally | `french_factors.save_ff3_snapshot`/`load_cached_ff3_snapshot` plus a committed real snapshot at `data_cache/ff3_monthly_snapshot.csv`; `orchestration.recessionnet_run`/`qmacro_run` try a live fetch first and fall back to this snapshot on any network/response failure (confirmed end to end under a simulated outage, exit 0, `data_source: "cached_snapshot_fallback"`), tagging which path was used in the output rather than hiding it; `recessionnet_run` also switched from the superseded fixed-epoch benchmark to `run_recessionnet_benchmark_with_early_stopping` (PR-142's methodology, matching Q-MACRO's CLI from the start), cutting its own wall-clock time roughly in half (~17s to ~7-13s); confirmed by 7 new/updated tests, 99% coverage, and multiple live rehearsal runs |
+| PR-145 (addendum, second real-data grounding, no new ID) RECESSIONNET on real Kaggle-sourced US GDP/claims/Fed-funds/M2/NASDAQ data | implemented locally | `data_ingestion.kaggle_macro` plus a committed derived snapshot (`data_cache/kaggle_us_macro_monthly.csv`, real FRED-sourced series via Kaggle dataset `mikoajfish99/us-recession-and-financial-indicators`, ODbL-1.0); new `orchestration.recessionnet_kaggle_run` CLI makes NO network call at all (data fully committed); reuses every RECESSIONNET/`prometheus.quantum` primitive unchanged; real result: base rate is the strongest classical candidate on this dataset/split, quantum shows no significant difference against it; confirmed by 7 new tests, 97-100% coverage |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3642,6 +3706,11 @@ snapshot for both orchestration CLIs (verified under a simulated network outage)
 switching recessionnet_run to the early-stopping methodology qmacro_run already used,
 roughly halving its wall-clock time and correcting its result to the already-validated
 "inconclusive" finding.
+PR-145 adds no new 374-item ID (not DAT-02/03/04 -- those have narrower, specific
+acceptance criteria this Kaggle mirror does not meet) -- a second, independent real-data
+grounding for RECESSIONNET using real Kaggle-sourced US GDP/claims/Fed-funds/M2/NASDAQ
+data, with a network-free demo CLI and the same "no significant quantum difference"
+finding independently reproduced on a genuinely different real dataset.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to
