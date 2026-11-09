@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "d3b1d2271878e81d4f46071137debbb441a9211bd7a11033f2417f2ce3f194f0",
+    "content_sha256": "b6886a7ae4b07f9fdf8c6ec2840f8c49174d6867ee0c1f0ed7efbaa7ce9c9e71",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "52abd860ba5bfa0477ddda31e162f69e6d7f3b27c7eed36a5d6a4bff5c2c6acd",
+  "checklist_notes_sha256": "f1d08abb23d2283dd16634cc58693f2bbed432236d6f2d4cc48810efbafc0fdd",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7400,10 +7400,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5311,
+          "evidence_note": "`evidence.failover_audit_continuity.read_job_events`/`serialize_registry_entry`/`restore_registry_entry`; a real snapshot/restore round trip confirming byte-for-byte event completeness, and a real model-approval history round trip that rejects a tampered reordering",
+          "id_column": "DRI-11 (first evidence)",
+          "requirement_note": "test audit-log availability throughout failover; approval and model activity history remains complete"
+        }
+      ],
       "requirement": "Test audit-log availability throughout failover",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8693,7 +8700,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 204,
-    "without_repository_notes": 170
+    "with_repository_notes": 205,
+    "without_repository_notes": 169
   }
 }

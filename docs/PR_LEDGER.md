@@ -2718,6 +2718,20 @@ different, correct result from the leaked run's own computation --
 not merely re-executed with the same bad input. Not covered: corrupt
 (rather than mistimed) data is not separately demonstrated.
 
+Plus **audit-log and model-approval-history availability throughout
+failover** (DRI-11, PR-133): `evidence.failover_audit_continuity`
+exercises a REAL simulated failover through the same
+`create_snapshot`/`restore_snapshot` round trip REL-11 already uses.
+`read_job_events`, reading a store's sqlite file read-only, confirms
+a restored store's event bodies are byte-for-byte identical to the
+originals -- stronger than REL-11's own "hash chain still verifies."
+`serialize_registry_entry`/`restore_registry_entry` give
+`ModelRegistryEntry`'s approval history (which has no persistence
+layer of its own) a real round trip, replayed through `transition()`
+itself so a tampered reordering is confirmed to raise
+`IllegalTransitionError` rather than silently round-tripping. Not
+covered: only a local snapshot/restore, not multi-region failover.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3055,6 +3069,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-130 (new ID) Numerical-integrity incident runbook: isolate, invalidate, re-evaluate (DRI-02) | implemented locally | `evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and a real persistently-failing GBM guard that still fails, each producing a real chronologically-ordered timeline; confirmed by 5 tests |
 | PR-131 (new ID) Compromised-credential and secret-rotation tabletop drill (DRI-03) | implemented locally | `evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case; confirmed by 5 tests |
 | PR-132 (new ID) Corrupt-data and point-in-time leak response: trace, revoke, recompute (DRI-04) | implemented locally | `evidence.pit_leak_response.detect_leak`/`trace_affected_runs`/`recompute`; a real leaked run identified against a real two-vintage series, and a real recomputation confirmed to produce a different, correct result; confirmed by 9 tests |
+| PR-133 (new ID) Audit-log and model-approval-history availability throughout failover (DRI-11) | implemented locally | `evidence.failover_audit_continuity.read_job_events`/`serialize_registry_entry`/`restore_registry_entry`; a real snapshot/restore round trip confirming byte-for-byte event completeness, and a real model-approval history round trip rejecting a tampered reordering; confirmed by 3 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3237,6 +3252,8 @@ PR-131 adds the first evidence for DRI-03, bringing the count from 202 to 203, c
 same way -- a real end-to-end credential rotation against CredentialStore, old rejected, new accepted.
 PR-132 adds the first evidence for DRI-04, bringing the count from 203 to 204, confirmed the
 same way -- a real leaked run detected and a real recomputation producing a different, correct result.
+PR-133 adds the first evidence for DRI-11, bringing the count from 204 to 205, confirmed the
+same way -- a real snapshot/restore round trip and a real model-approval history round trip.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

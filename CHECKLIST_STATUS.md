@@ -5277,6 +5277,46 @@ corrupted (rather than merely mistimed) value.
 See
 [`src/prometheus/evidence/pit_leak_response.py`](./src/prometheus/evidence/pit_leak_response.py).
 
+## Evidenced today (PR-133: audit-log and model-approval-history availability throughout failover -- DRI-11)
+
+A new `evidence.failover_audit_continuity` module, exercising a REAL
+simulated failover through this repository's own real
+`recovery.snapshot.create_snapshot`/`restore_snapshot` round trip
+(the same one REL-11 already uses for restore-artifact integrity),
+not a hypothetical description. A real job's full lifecycle
+(submit/claim/finish, three real audit events) is snapshotted and
+restored, and `read_job_events` -- opening the sqlite file read-only,
+the same safe pattern `recovery.snapshot._inspect_database` already
+uses -- confirms the restored store's event bodies are IDENTICAL,
+byte-for-byte, to the originals. This is a stronger, more specific
+claim than REL-11's own "hash chain still verifies": it confirms no
+individual event was lost, reordered, or altered, not merely that the
+chain's structural integrity holds.
+
+`evidence.model_registry.ModelRegistryEntry`'s approval history has no
+persistence layer of its own, so `serialize_registry_entry`/
+`restore_registry_entry` provide a minimal JSON round trip -- not a
+change to `model_registry.py` itself. A real candidate -> evaluated ->
+approved lifecycle, including a real `content_hash` on the approval
+transition (AUD-06's own requirement), is confirmed to survive the
+round trip exactly. The discriminating case replays the restore
+through `ModelRegistryEntry.transition()` itself rather than poking
+`.state`/`.history` directly: a deliberately reordered (tampered)
+history is confirmed to raise `IllegalTransitionError` on restore
+rather than silently reconstructing an entry whose history could
+never have legally occurred.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| DRI-11 (first evidence) | test audit-log availability throughout failover; approval and model activity history remains complete | `evidence.failover_audit_continuity.read_job_events`/`serialize_registry_entry`/`restore_registry_entry`; a real snapshot/restore round trip confirming byte-for-byte event completeness, and a real model-approval history round trip that rejects a tampered reordering |
+
+Not covered: the model-registry round trip is this module's own
+helper, not a change to `model_registry.py`'s own (currently
+nonexistent) persistence; no real multi-region/zone failover is
+simulated, only a local snapshot/restore.
+See
+[`src/prometheus/evidence/failover_audit_continuity.py`](./src/prometheus/evidence/failover_audit_continuity.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
