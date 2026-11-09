@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "8139742f8e1326cf8312450b9ea48fe2349082850832e4e785d1153e47172c61",
+    "content_sha256": "7563d6c9e347bde04986fb8859d0170fbf56ffc91c0c8ba2c42500559683e82e",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "5bfebb6a689b462607c245989924c52f14736d82f03e26bf5eab5a43ebf2209e",
+  "checklist_notes_sha256": "01bc79044907355b8bc06a60fc44ae62ab9f8606fb8e0392607bd0b4b7c5f0d8",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5886,10 +5886,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "OPS",
       "id": "OPS-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5133,
+          "evidence_note": "`evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner",
+          "id_column": "OPS-10 (first evidence)",
+          "requirement_note": "define actionable alert routing and severity taxonomy; each P0/P1 alert maps to human owner and escalation"
+        }
+      ],
       "requirement": "Define actionable alert routing and severity taxonomy",
       "source_pdf_page": 36,
       "source_rows": [
@@ -8658,7 +8665,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 199,
-    "without_repository_notes": 175
+    "with_repository_notes": 200,
+    "without_repository_notes": 174
   }
 }

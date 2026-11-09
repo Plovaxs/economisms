@@ -2651,6 +2651,19 @@ the last sample), with a numerical-tolerance fix so a genuinely flat
 series (float noise from `numpy.polyfit`) correctly reports no
 forecasted exhaustion. Not covered: no live alert-routing/paging.
 
+Plus **actionable alert routing with a severity taxonomy** (OPS-10,
+PR-128): `evidence.alert_routing` unifies the different
+"ok"/"warning"/"critical" severities `queue_metrics`/
+`resource_utilization`/`model_monitoring` already produce into one
+canonical P0/P1/P2 taxonomy. `route_alert` ENFORCES the acceptance
+criterion: it raises `UnroutedSeverityError` for an unconfigured P0 or
+P1, but returns `None` (not an error) for an unconfigured P2, since
+the criterion names only P0/P1. Confirmed end-to-end against three
+real existing signal sources -- a genuinely overloaded real
+`JobStore` queue, a real 95% utilization reading, and a real triggered
+calibration signal -- each resolving to a real configured owner. Not
+covered: no live dispatch (email/Slack/pager).
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -2983,6 +2996,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-125 (new ID) High-severity numerical event monitoring with assigned ownership (OPS-07) | implemented locally | `evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`; confirmed by 14 tests |
 | PR-126 (new ID) Model drift, risk-metric calibration and tail-breach monitoring with an investigation playbook (OPS-08) | implemented locally | `evidence.model_monitoring`, composing RISK-08/RISK-09/MLO-13/MLO-14's existing primitives; each signal confirmed to fire and not-fire against real data, plus an owner-required investigation playbook; confirmed by 14 tests |
 | PR-127 (new ID) CPU/RAM and artifact storage utilization tracking with capacity forecasting and budget alerts (OPS-09) | implemented locally | `evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking via a new `ArtifactStore.usage_bytes`, and an exact linear capacity forecast; confirmed by 15 tests |
+| PR-128 (new ID) Actionable alert routing with a severity taxonomy (OPS-10) | implemented locally | `evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner; confirmed by 13 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3155,6 +3169,8 @@ PR-126 adds the first evidence for OPS-08, bringing the count from 197 to 198, c
 same way -- three composed real signals, each confirmed to fire and not-fire against real data.
 PR-127 adds the first evidence for OPS-09, bringing the count from 198 to 199, confirmed the
 same way -- real CPU/RAM/artifact-storage tracking and an exact linear capacity forecast.
+PR-128 adds the first evidence for OPS-10, bringing the count from 199 to 200, confirmed the
+same way -- three real existing signal sources each routed end-to-end to a configured owner.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

@@ -5101,6 +5101,43 @@ severity is the same honest "structured, testable" scope
 See
 [`src/prometheus/evidence/resource_utilization.py`](./src/prometheus/evidence/resource_utilization.py).
 
+## Evidenced today (PR-128: actionable alert routing with a severity taxonomy -- OPS-10)
+
+A new `evidence.alert_routing` module. Unifies the different
+"ok"/"warning"/"critical"-style severities this repository's own OPS
+modules already produce (`evidence.queue_metrics.classify_queue_health`,
+`evidence.resource_utilization.classify_utilization`, and
+`evidence.model_monitoring.MonitoringSignal.triggered`) into ONE
+canonical P0/P1/P2 taxonomy via `canonical_severity`/
+`severity_from_triggered`.
+
+The acceptance criterion is ENFORCED, not merely documented:
+`route_alert` raises `UnroutedSeverityError` if asked to route a P0 or
+P1 severity with no configured human owner and escalation contact --
+confirmed by actually constructing an empty routing table and
+confirming the raise for both P0 and P1. A P2 (informational) alert
+with no configured route is explicitly NOT an error, since the
+acceptance criterion names only P0/P1 -- `route_alert` returns `None`
+for it, confirmed by a dedicated discriminating test.
+
+Confirmed end-to-end against THREE real existing signal sources, not
+only synthetic severities: a genuinely overloaded real `JobStore`
+queue's "critical" `classify_queue_health` result, a real 95%
+utilization reading through `classify_utilization`, and a real
+triggered `calibration_signal` (itself grounded in a real
+`es_unconditional_calibration_test` p-value) each resolve, through
+this module's own taxonomy conversion, to a real configured owner.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| OPS-10 (first evidence) | define actionable alert routing and severity taxonomy; each P0/P1 alert maps to human owner and escalation | `evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner |
+
+Not covered: no live alert dispatch (email/Slack/pager) actually
+sends; the routing table itself is caller-supplied configuration, not
+drawn from a separately maintained org chart.
+See
+[`src/prometheus/evidence/alert_routing.py`](./src/prometheus/evidence/alert_routing.py).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
