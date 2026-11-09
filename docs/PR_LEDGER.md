@@ -2800,6 +2800,92 @@ detected, and editing the table's recorded rows after hashing is
 detected too. **AUD reaches 100% (12/12)**, the project's 11th
 complete category. Not covered: no figures, only tables.
 
+Plus **RECESSIONNET: a real quantum-vs-classical recession classifier,
+closing the ECONOSIM-X addendum's FP-06 and FP-20** (PR-139). This PR
+does not add an original-374-item blueprint ID -- its coverage is
+tracked in `CHECKLIST_STATUS.md`'s "ECONOSIM-X final-project addendum"
+section only, the same convention PR-055/PR-056 used for FP-02/FP-03/
+FP-04.
+
+Built from a user-supplied "PROMETHEUS-X -- Quantum Deep Learning
+Integration Blueprint" proposing an optional `QUANTUM-LAB` subsystem
+with VQC challengers for this repository's own already-specified (but
+until now unbuilt) RECESSIONNET subsystem. Rather than building a
+disconnected quantum island, this PR builds RECESSIONNET itself (FP-06:
+"produces calibrated probabilities," NOT VERIFIED before this PR) and
+adds the quantum model as one of four competing architectures, exactly
+matching the addendum's own E02 evaluation matrix ("Logistic/XGBoost
+vs independent vs shared head").
+
+- `prometheus.quantum` (new sibling package, not a blueprint category):
+  `QuantumDeviceSpec`/`make_device`/`QuantumLayer` wrap a PennyLane
+  `default.qubit` angle-embedding + `StronglyEntanglingLayers` circuit
+  as a differentiable `torch.nn.Module`, confirmed via a real forward/
+  backward pass with finite, nonzero gradients; an INDEPENDENT central-
+  finite-difference check against autograd's own reported gradient
+  (not just "no NaN"); determinism under a fixed seed; and a
+  state_dict round trip that reproduces inference exactly. Requires the
+  new `quantum` optional dependency group (`pennylane==0.45.1`,
+  `pennylane-lightning==0.45.0`, pinned only after confirming they
+  resolve cleanly against this repository's existing
+  torch==2.15+cpu/numpy==2.5 pins with the full 2,281-test classical
+  suite rerun unaffected). `quantum.models` adds
+  `LogisticRegressionClassifier`, `ClassicalMatchedClassifier` (the
+  SAME classical encoder feeding a classical substitute layer instead
+  of the quantum one -- the blueprint's own required "identical
+  encoder, classical head" arm) and `HybridQuantumClassifier`.
+- `prometheus.recessionnet.labels`: the REAL NBER US business-cycle
+  chronology (16 recessions, 1926 onward, confirmed live against
+  nber.org on 2026-11-09) plus REAL announcement dates for the six
+  recessions since 1980 (also confirmed live, against the NBER Dating
+  Committee's own announcements page). `recession_label_as_of` is the
+  point-in-time-safe counterpart to the plain retrospective label, and
+  its flagship test
+  (`test_as_of_does_not_leak_the_great_recession_before_it_was_announced`)
+  demonstrates the leak directly: January 2008 genuinely was a
+  recession month, but `recession_label_as_of` correctly reports 0
+  (unknown) for an as-of date of 2008-06-01, since the NBER did not
+  announce that peak until 2008-12-01 -- the same `FutureDataError`-
+  style discipline `econosim.pit` already enforces for macro
+  observations, applied here to a label for the first time.
+- `prometheus.recessionnet.dataset`: builds point-in-time-safe trailing-
+  window features from the REAL Kenneth French monthly factor series
+  (DAT-05) and retrospective NBER labels, split by a strict
+  chronological boundary (train < 2000, test >= 2000 -- both sides
+  confirmed to contain real recessions, not an accidental single-class
+  split).
+- `prometheus.recessionnet.evaluation`: Brier score, ROC-AUC (exact
+  Mann-Whitney U, vectorized, no new runtime dependency), a fitted
+  calibration slope/intercept, and a reliability diagram -- E02's
+  "AUROC, PR-AUC, Brier, reliability diagram" minus PR-AUC, explicitly
+  not attempted this PR. `run_recessionnet_benchmark` trains all four
+  architectures and compares the quantum model against whichever
+  classical model actually won on the test set via a PAIRED bootstrap
+  CI (`experiments.bootstrap.paired_bootstrap_difference`, reused, not
+  reinvented), directly implementing the blueprint's own hypothesis
+  framing (H0: E[L_Q - L_C] >= 0 vs H1: E[L_Q - L_C] < 0).
+- **The real, honest result**: on this repository's actual 2000+
+  chronological holdout, the hybrid quantum classifier's test Brier
+  score (~0.156) is robustly WORSE than logistic regression's (~0.076)
+  across every seed checked (0-4), with the paired bootstrap CI
+  excluding zero on the "quantum is worse" side every time. Reported
+  as a clear negative result for this architecture/data/budget
+  combination -- not a quantum advantage, and not hidden or re-run
+  until a flattering seed appeared. This matches the blueprint's own
+  stated research ethos ("a negative or inconclusive result is
+  valid") and RQ2 is answered: no.
+- `experiments.manifest.RunManifest`'s `code_hash`/`data_hash`/
+  `model_id` fields (added PR-057, never exercised by a real model
+  since none existed) are now populated by this real run, closing
+  FP-20 for the first time.
+- Not covered: Q-MACRO, Q-STOCHASTICA, Q-VOLTERRA, Q-TITAN and Q-POLICY
+  (the blueprint's other five proposed engines) are not attempted;
+  PR-AUC and gradient-boosted-tree baselines are not implemented;
+  multi-seed aggregation is demonstrated ad hoc (five seeds checked by
+  hand above) but not wired into `run_recessionnet_benchmark` itself;
+  only one (window, horizon) pair is benchmarked, not the blueprint's
+  3/6/12-month horizon sweep.
+
 Plus **stress testing** (`prometheus.titan.stress_testing`), the first
 evidence anywhere in this repository for RISK-10/OPT-11:
 
@@ -3143,6 +3229,7 @@ repository, plus thirty-eight implementation slices beyond that starting list:
 | PR-136 (new ID) Error budget actions with service ownership (REL-12) | implemented locally | `evidence.error_budget.evaluate_error_budget`/`record_error_budget_action`; an exact real breach-rate count against a real SLO/LoadReport window, composed through the existing `evaluate_release_gate` to genuinely block and unblock release; confirmed by 9 tests |
 | PR-137 (new ID) Log/metric storage cardinality budget verification, closing REL at 100% (REL-08) | implemented locally | `evidence.cardinality_budget.compute_label_combinations`/`verify_cardinality_budget`; an exact, identical 30-combination count at 50 and 5,000 real simulated jobs, versus a genuinely unbounded `job_id`-labeled count that blows the budget; confirmed by 6 tests |
 | PR-138 (new ID) Versioned analytical tables with reproducible-script and data-hash linkage, closing AUD at 100% (AUD-10) | implemented locally | `evidence.versioned_table.build_versioned_table`/`verify_versioned_table`; a real table linked to the real `evidence.requirements` script, with genuine script-tamper and data-tamper detection; confirmed by 8 tests |
+| PR-139 (addendum only, no new 374-item ID) RECESSIONNET with a hybrid quantum classifier challenger, closing FP-06 and FP-20 | implemented locally | `recessionnet.{labels,dataset,training,evaluation}` plus new `prometheus.quantum` package; real NBER recession chronology and announcement dates, real Kenneth French factor features, a point-in-time leakage test on the label itself, and a real (honestly negative) quantum-vs-classical benchmark; confirmed by 74 tests |
 
 **What this does and does not mean.** "Done" means: implemented, covered
 by automated tests, with ruff/mypy --strict checks,
@@ -3340,6 +3427,11 @@ closing the REL category at 100% (12/12), the project's 10th complete category.
 PR-138 adds the first evidence for AUD-10, bringing the count from 209 to 210, confirmed the
 same way -- a real table linked to a real script, with genuine script- and data-tamper detection,
 closing the AUD category at 100% (12/12), the project's 11th complete category.
+PR-139 adds no new 374-item ID (the count stays at 210) -- it builds RECESSIONNET and closes
+FP-06 and FP-20 of the separate ECONOSIM-X final-project addendum, plus a new sibling
+`prometheus.quantum` package answering a user-supplied quantum-ML blueprint; see
+`CHECKLIST_STATUS.md`'s addendum section and this file's own PR-139 entry above for the real,
+honest (negative) benchmark result.
 PR-023 adds the first evidence anywhere in this repository for OPT-01, OPT-02, OPT-03, OPT-04
 and OPT-09 — the entire TITAN portfolio-optimization checklist category had zero evidenced IDs before it.
 PR-024 adds the first evidence for RISK-05 and strengthens OPT-05, connecting directly to

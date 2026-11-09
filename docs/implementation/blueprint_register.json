@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "b2dab390a2a5f19a3098949e7564294d532643883259cdbf034844173f16ce5f",
+    "content_sha256": "f1c6d599b2d3348ca0f3414b38eeb0f3aae49eaa6718ebf0d2e7b47fd42f7d33",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "4e607da21a93f4e49abd5d9d28159b87b9a824208567b0b549c2c647369d8e37",
+  "checklist_notes_sha256": "7d37c36f0fc4bea7cfb4ad424907029e57f017357860005d2581d88a98d829f4",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -50,7 +50,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 187,
+          "checklist_line": 209,
           "evidence_note": "README.md",
           "id_column": "GOV-01 (partial)",
           "requirement_note": "mission, personas, non-goals published"
@@ -108,7 +108,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1522,
+          "checklist_line": 1544,
           "evidence_note": "`evidence.requirements` extracts all 374 IDs in 29 categories with requirement/acceptance text, source page and unreviewed repository-note links; parser rejects duplicates, missing rows and wrong cardinality; no P0/full acceptance is asserted",
           "id_column": "GOV-04 (partial, full inventory)",
           "requirement_note": "retain every requirement and its acceptance evidence target"
@@ -302,13 +302,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 188,
+          "checklist_line": 210,
           "evidence_note": "`core.ledger.EconomicState` is a frozen dataclass; `tests/unit/test_ledger.py::test_journal_is_append_only_and_postings_immutable`",
           "id_column": "ECO-01",
           "requirement_note": "typed economic state, immutable transitions"
         },
         {
-          "checklist_line": 497,
+          "checklist_line": 519,
           "evidence_note": "`test_ledger.py::test_state_balances_are_immutable_and_detached_from_input_mapping`; balance maps are copied into read-only views",
           "id_column": "ECO-01 (extended)",
           "requirement_note": "economic snapshots cannot be changed through aliased input mappings"
@@ -332,13 +332,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 189,
+          "checklist_line": 211,
           "evidence_note": "`tests/unit/test_agents.py::test_consume_more_than_cash_balance_raises_and_does_not_mutate`",
           "id_column": "ECO-02",
           "requirement_note": "household budget feasibility"
         },
         {
-          "checklist_line": 495,
+          "checklist_line": 517,
           "evidence_note": "`test_market_settlement.py::test_later_insolvent_buyer_cannot_leave_a_partial_market`, `test_unfunded_payroll_is_rejected_without_any_posting`; legacy helper regression tests cover later-party funding failures",
           "id_column": "ECO-02 (extended)",
           "requirement_note": "buyer/payroll budgets are enforced before settlement"
@@ -362,7 +362,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 190,
+          "checklist_line": 212,
           "evidence_note": "`tests/unit/test_agents.py::test_firm_pays_wages`, `test_household_receive_income_and_consume`",
           "id_column": "ECO-03",
           "requirement_note": "firm deposits, output revenue recognition"
@@ -386,7 +386,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 191,
+          "checklist_line": 213,
           "evidence_note": "`tests/unit/test_agents.py::test_bank_capitalize_then_originate_loan`",
           "id_column": "ECO-04",
           "requirement_note": "bank loans/deposits/equity, double-entry"
@@ -410,43 +410,43 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 295,
+          "checklist_line": 317,
           "evidence_note": "`econosim.policy_rate.PolicyRateRule`; `tests/unit/test_policy_rate.py::test_matches_exact_discrete_ou_closed_form_with_zero_shocks` (exact match to the closed-form discrete OU recursion, not just \"close\")",
           "id_column": "ECO-05",
           "requirement_note": "central bank policy-rate rule baseline, known reaction-function scenarios reproduce coefficients"
         },
         {
-          "checklist_line": 343,
+          "checklist_line": 365,
           "evidence_note": "`econosim.policy_rate.CentralBank`; `tests/unit/test_central_bank.py::test_step_matches_the_same_closed_form_as_the_free_function` -- the agent wrapper is proven to be behaviorally identical to the pure function it wraps, not a parallel reimplementation that could drift",
           "id_column": "ECO-05 (extended)",
           "requirement_note": "central bank policy-rate rule baseline, as a stateful agent"
         },
         {
-          "checklist_line": 532,
+          "checklist_line": 554,
           "evidence_note": "`test_monetary_feedback.py::test_policy_reaction_matches_independent_coefficients_and_smoothing`, `test_policy_bounds_are_applied_after_smoothing_and_reported`",
           "id_column": "ECO-05 (extended, synthetic rule)",
           "requirement_note": "policy reaction coefficients, smoothing and bounds reproduce independently calculated cases"
         },
         {
-          "checklist_line": 765,
+          "checklist_line": 787,
           "evidence_note": "`CentralBankLedger.purchase_government_bonds`/`sell_government_bonds`/`lend_to_bank`/`repay_central_bank_loan`; `test_purchase_government_bonds_moves_bonds_for_reserves` and `test_lend_to_bank_and_repay_round_trip_exactly` confirm exact round trips back to the starting balances, not just a plausible-looking end state",
           "id_column": "ECO-05 (extended)",
           "requirement_note": "central bank with a real balance sheet (reserve issuance, OMO)"
         },
         {
-          "checklist_line": 857,
+          "checklist_line": 879,
           "evidence_note": "`MonetaryOperationsProcess.compute_actions`/`clear_and_settle`, wired as `StepHooks` callbacks exactly like `price_economy.PriceEconomy`'s two hooks already are; `test_full_engine_driven_run_keeps_ledger_identities_balanced_every_step` runs 24 real `MacroTimeEngine.advance_step()` calls with a seeded policy-rate shock stream and reconfirms `Ledger.check_identities` after every single one",
           "id_column": "ECO-05 (extended)",
           "requirement_note": "central-bank balance sheet operations driven by the real step-event order, not standalone"
         },
         {
-          "checklist_line": 1364,
+          "checklist_line": 1386,
           "evidence_note": "`CentralBankLedger.step_rate`; `test_step_rate_matches_the_standalone_central_bank_wrapper_exactly` confirms bit-for-bit agreement (`abs(...) < 1e-15`) against `policy_rate.CentralBank.step` across 12 steps including a shocked one -- proving `step_rate` calls the SAME `PolicyRateRule.step`, not a reimplementation that could silently drift",
           "id_column": "ECO-05 (extended)",
           "requirement_note": "one central-bank agent combining a policy-rate process and a real balance sheet"
         },
         {
-          "checklist_line": 1402,
+          "checklist_line": 1424,
           "evidence_note": "`test_process_uses_one_unified_central_bank_for_both_rate_and_balance_sheet` confirms `central_bank_rate` no longer exists as a separate attribute and `central_bank_ledger.tracks_policy_rate` is `True` from construction; the full CLI/evidence-export/replay round trip (PR-029) was re-verified end to end against the migrated scenario with an unchanged result structure",
           "id_column": "ECO-05 (extended)",
           "requirement_note": "a real scenario (not just a unit test) using ONE central-bank agent for both the rate decision and the balance sheet"
@@ -470,7 +470,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 342,
+          "checklist_line": 364,
           "evidence_note": "`econosim.agents.Government.collect_tax` / `pay_transfer`; `tests/unit/test_government.py`; extended into the PR-002 Hypothesis property test (`tests/property/test_ledger_invariants.py`) so random tax/transfer/bond sequences are now part of the same conservation proof, not a separately-asserted claim",
           "id_column": "ECO-06",
           "requirement_note": "government taxes, transfers and expenditures; sectoral flows reconcile to counterpart accounts"
@@ -494,13 +494,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 352,
+          "checklist_line": 374,
           "evidence_note": "`econosim.market_clearing.clear_quantity_market` / `apply_goods_clearing_to_ledger`; `ClearingResult.clearing_residual` is always reported (signed excess demand), never silently discarded; `tests/unit/test_market_clearing.py::test_goods_clearing_charges_realized_not_desired_quantity`",
           "id_column": "ECO-07",
           "requirement_note": "goods-market price and quantity clearing, residuals tracked with documented tolerance"
         },
         {
-          "checklist_line": 492,
+          "checklist_line": 514,
           "evidence_note": "`test_price_discovery.py::test_budget_linear_market_finds_an_independent_exact_root`, `test_adjacent_integer_ticks_report_residual_instead_of_false_equilibrium`; `test_exact_markets.py::test_integer_bisection_matches_an_exhaustive_price_grid`",
           "id_column": "ECO-07 (extended, rule-based price discovery)",
           "requirement_note": "goods prices/quantities with explicit residual tolerance and rationing"
@@ -524,13 +524,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 353,
+          "checklist_line": 375,
           "evidence_note": "`apply_labor_clearing_to_ledger`; `test_labor_clearing_pays_realized_not_desired_hours`; the no-double-counting property is proven structurally for arbitrary buyer/seller mixes in `test_no_double_counting_sums_match_realized_total` (3 parametrized cases, oversupply and overdemand), not just asserted for one example",
           "id_column": "ECO-08",
           "requirement_note": "labor supply, demand and rationing, no double counting of hours or paid wages"
         },
         {
-          "checklist_line": 493,
+          "checklist_line": 515,
           "evidence_note": "`test_market_settlement.py::test_entire_labor_market_is_one_balanced_batch`; exact rational pro-rata allocations are structurally checked on both market sides",
           "id_column": "ECO-08 (extended)",
           "requirement_note": "labor supply/demand, feasible wages and no duplicated hours"
@@ -554,31 +554,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 192,
+          "checklist_line": 214,
           "evidence_note": "`tests/unit/test_agents.py::test_loan_origination_blocked_beyond_leverage_cap`",
           "id_column": "ECO-09",
           "requirement_note": "loan underwriting / bank capital limit"
         },
         {
-          "checklist_line": 344,
+          "checklist_line": 366,
           "evidence_note": "`econosim.agents.Borrower` protocol; `Bank.originate_loan`/`receive_repayment` now take any `Borrower`, not `Household` specifically; `tests/unit/test_government.py::test_government_and_household_borrowing_share_the_same_leverage_cap` and the full `tests/unit/test_borrower_protocol.py` (parametrized over household and government, same assertions, same code path)",
           "id_column": "ECO-09 (extended)",
           "requirement_note": "bank capital/leverage limits apply uniformly across borrower types"
         },
         {
-          "checklist_line": 766,
+          "checklist_line": 788,
           "evidence_note": "`CentralBankLedger.settle_interbank_transfer`; `test_settle_interbank_transfer_reallocates_without_changing_total_liability` confirms the central bank's total reserve liability across both banks is unchanged by a transfer -- it is a pure reallocation, not new issuance",
           "id_column": "ECO-09 (extended)",
           "requirement_note": "interbank settlement / reserve transfer between banks"
         },
         {
-          "checklist_line": 1056,
+          "checklist_line": 1078,
           "evidence_note": "`InterbankMarket.lend`/`repay`; `test_lend_rejects_amount_exceeding_lender_leverage_cap` confirms a bank that borrowed heavily from a third party (boosting its reserves but not its capital) is still capped by its OWN capital when relending, not by how much cash happens to be sitting in its account",
           "id_column": "ECO-09 (extended)",
           "requirement_note": "direct bank-to-bank credit extension, subject to the lender's own capital/leverage cap"
         },
         {
-          "checklist_line": 1663,
+          "checklist_line": 1685,
           "evidence_note": "`test_government_borrower_can_be_resolved_through_insolvency_too`",
           "id_column": "ECO-09 (reused)",
           "requirement_note": "household/government borrowers go through the identical Borrower-protocol code path"
@@ -602,7 +602,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2796,
+          "checklist_line": 2818,
           "evidence_note": "pre-existing `econosim.insolvency.resolve_insolvency`/`allocate_recovery` (confirmed by reading the module and its existing tests); strengthened with a new, explicit 3-creditor/3-tier toy-case reconciliation test stating the aggregate identity directly, rather than leaving it implicit in scattered per-bank assertions",
           "id_column": "ECO-10 (first evidence)",
           "requirement_note": "implement defaults and orderly loss allocation; claims and equity loss reconciliation passes toy cases"
@@ -626,7 +626,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3088,
+          "checklist_line": 3110,
           "evidence_note": "`econosim.interbank_market.InterbankMarket.lend`/`repay` (interbank payments) and `econosim.central_bank_ledger.CentralBankLedger.settle_interbank_transfer` (reserve settlement); `test_eco_11_interbank_coverage.py` states both halves explicitly in one combined scenario, plus a discriminating test confirming the two reserve instruments are genuinely unreconciled, not merely documented as such",
           "id_column": "ECO-11 (first evidence)",
           "requirement_note": "interbank payments and reserve settlement"
@@ -650,7 +650,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 193,
+          "checklist_line": 215,
           "evidence_note": "`tests/unit/test_ledger.py::test_state_hash_is_deterministic_for_identical_histories`; only covered for the ledger primitive, not a full agent-config -> simulation replay",
           "id_column": "ECO-12 (partial)",
           "requirement_note": "deterministic config -> equivalent state/journal hash"
@@ -674,25 +674,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 208,
+          "checklist_line": 230,
           "evidence_note": "`econosim.pit.PointInTimeStore.as_of` / `all_eligible_as_of` only ever expose `published_at <= t`; `tests/unit/test_pit.py`, `tests/unit/test_time_engine.py::test_point_in_time_data_is_not_visible_before_its_publication_step`",
           "id_column": "ECO-13",
           "requirement_note": "no hidden future variables in policy feature vector"
         },
         {
-          "checklist_line": 533,
+          "checklist_line": 555,
           "evidence_note": "`test_monetary_feedback.py::test_future_publication_is_rejected_if_a_caller_bypasses_point_in_time_store`; `test_monetary_run.py::test_productivity_shock_affects_policy_only_after_release_and_market_one_interval_later` tests one- and two-month lags",
           "id_column": "ECO-13 (extended)",
           "requirement_note": "policy observes only available macro data"
         },
         {
-          "checklist_line": 575,
+          "checklist_line": 597,
           "evidence_note": "`test_rate_paths.py::test_gbm_uses_opening_rate_and_delta_only_current_rate`; scalar Black-Scholes cross-checks and expiry-only rate perturbation",
           "id_column": "ECO-13 (extended)",
           "requirement_note": "future policy rates never enter current hedge targets or completed market periods"
         },
         {
-          "checklist_line": 611,
+          "checklist_line": 633,
           "evidence_note": "`test_test_seeds_and_scenarios_cannot_change_training_data_or_fitted_models`; `test_training_pool_records_balanced_allocations_rates_and_independent_macro_seeds`",
           "id_column": "EXP-03 / ECO-13 (extended)",
           "requirement_note": "independent training/evaluation draws; no test-scenario-dependent fitting"
@@ -716,19 +716,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 209,
+          "checklist_line": 231,
           "evidence_note": "`econosim.shocks.ShockGenerator`; `tests/unit/test_shocks.py::test_same_seed_reproduces_identical_shocks`",
           "id_column": "ECO-14",
           "requirement_note": "shocks to productivity/prices/policy, impulse-response reproducibility"
         },
         {
-          "checklist_line": 296,
+          "checklist_line": 318,
           "evidence_note": "`test_policy_rate_shock_adds_exactly_its_magnitude_before_next_reversion` -- exact, not just sign/range",
           "id_column": "ECO-14 (extended)",
           "requirement_note": "shocks to monetary policy, impulse-response fixture reproduces expected sign/range"
         },
         {
-          "checklist_line": 534,
+          "checklist_line": 556,
           "evidence_note": "`test_monetary_run.py::test_last_step_productivity_shock_cannot_change_financial_history`, `test_higher_opening_rates_reduce_desired_payroll_and_real_activity`; no empirically identified impulse-response claim",
           "id_column": "ECO-14 (extended, specified channels)",
           "requirement_note": "productivity shocks propagate causally to prices, rates and subsequent financial periods"
@@ -752,7 +752,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3289,
+          "checklist_line": 3311,
           "evidence_note": "`econosim.macro_aggregates.compute_macro_aggregates`; cross-validates GDP's income and expenditure approaches against an independent ledger-derived firm-profit figure on a real Economy scenario, confirms taxes/transfers are correctly excluded from GDP, and confirms a deliberately dirtied period (mid-period capitalization) is correctly flagged rather than silently absorbed",
           "id_column": "ECO-15 (first evidence)",
           "requirement_note": "stylized-fact reports and macro aggregate outputs; GDP/inflation/credit definitions documented and validated"
@@ -776,61 +776,61 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 194,
+          "checklist_line": 216,
           "evidence_note": "`tests/unit/test_ledger.py::test_check_identities_detects_bypassed_mutation`; enforced structurally by `Ledger.post()`'s precondition check, not just detected after the fact",
           "id_column": "ECO-16",
           "requirement_note": "fail-closed halt on broken accounting identity"
         },
         {
-          "checklist_line": 384,
+          "checklist_line": 406,
           "evidence_note": "`test_time_engine_hooks.py::test_hook_corruption_is_rejected_before_a_step_result_is_emitted`; `test_multi_step_run.py::test_corrupted_ledger_cannot_produce_a_valid_run`, `test_firm_funding_failure_preserves_completed_steps_and_invalid_evidence`",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "hook mutations are checked before emitting a completed step; failed runs retain invalid evidence"
         },
         {
-          "checklist_line": 496,
+          "checklist_line": 518,
           "evidence_note": "`test_ledger.py::test_later_currency_mismatch_cannot_partially_apply_earlier_postings`, `test_posting_on_a_corrupted_ledger_fails_before_further_mutation`; `test_economy_run.py::test_unresolved_price_search_halts_with_invalid_evidence`",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "pre-mutation currency/identity checks and explicit halt on failed price search"
         },
         {
-          "checklist_line": 576,
+          "checklist_line": 598,
           "evidence_note": "`test_no_training_or_inference_when_any_macro_bank_fails`, `test_one_failed_bank_suppresses_successful_subset_inference`; all bank records retained, no training/cards/inference on any macro failure",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "failed bank cannot yield a selectively successful experiment"
         },
         {
-          "checklist_line": 613,
+          "checklist_line": 635,
           "evidence_note": "`test_any_training_macro_failure_suppresses_all_fitting_and_inference`, `test_failed_evaluation_and_training_banks_replay_as_invalid`",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "failed training/evaluation bank cannot produce selectively valid evidence"
         },
         {
-          "checklist_line": 858,
+          "checklist_line": 880,
           "evidence_note": "every channel's execution is wrapped in its own try/except recording a `*_skipped_reason` string rather than propagating; `test_discount_window_repayment_remaining_is_unchanged_after_a_skipped_repay` confirms a failed repay attempt leaves the internal amortization schedule exactly unchanged, not partially applied",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "a failed/infeasible monetary operation is skipped and recorded, not allowed to silently halt or corrupt the run"
         },
         {
-          "checklist_line": 1101,
+          "checklist_line": 1123,
           "evidence_note": "a genuine bug caught by writing this PR's own tests, fixed before being evidenced as done: the interbank loan's \"lend\" branch was initially unguarded (copied from the discount window's unconditional, uncapped central-bank lending, which structurally cannot fail) even though `InterbankMarket.lend` -- real bank capital/leverage, real reserves -- genuinely can; `test_clear_and_settle_skips_interbank_loan_gracefully_when_lender_lacks_capacity` now exercises exactly that path",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "a capacity-constrained operation that CAN fail is skipped and recorded, never allowed to crash the step"
         },
         {
-          "checklist_line": 1179,
+          "checklist_line": 1201,
           "evidence_note": "`test_a_detected_default_freezes_future_new_lending_but_not_repayment` engineers a real default, confirms the check detects it, and then confirms a discount-window loan scheduled for a LATER step is never extended even though nothing about that specific request changed -- only the process's own risk state did",
           "id_column": "ECO-16 (extended)",
           "requirement_note": "a detected risk condition changes future behavior, not just future reporting"
         },
         {
-          "checklist_line": 1488,
+          "checklist_line": 1510,
           "evidence_note": "`test_numeric_overflow_is_rejected_instead_of_emitting_an_infinite_risk_claim`, invalid shape/non-finite/control fixtures; `test_failed_macro_experiment_produces_no_mixture_inference_and_replays`; invalid CLI recipe preserves existing output",
           "id_column": "ECO-16 / AUD-11 (extended)",
           "requirement_note": "fail explicitly on malformed samples, numeric overflow and failed source experiment"
         },
         {
-          "checklist_line": 1661,
+          "checklist_line": 1683,
           "evidence_note": "`test_resolve_insolvency_rejects_claims_not_matching_borrowers_recorded_debt`, `test_resolve_insolvency_rejects_recovery_exceeding_borrowers_cash` -- both assert zero mutation on rejection",
           "id_column": "ECO-16 (extended, fail-closed)",
           "requirement_note": "reject an insolvency resolution before posting anything if claims or recovery are inconsistent with the ledger"
@@ -1092,19 +1092,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 195,
+          "checklist_line": 217,
           "evidence_note": "`core.ledger.Ledger.post()`; `tests/unit/test_ledger.py::test_globally_imbalanced_transaction_rejected`, `test_cross_sector_transaction_with_missing_counterpart_rejected`",
           "id_column": "LED-01",
           "requirement_note": "every transaction is balanced journal entries"
         },
         {
-          "checklist_line": 494,
+          "checklist_line": 516,
           "evidence_note": "`test_market_settlement.py::test_largest_remainder_rounding_is_deterministic_and_does_not_exceed_total`, `test_aggregate_rounding_remainder_is_exact_and_reported`; largest-remainder payments sum to floor(total nominal value)",
           "id_column": "LED-01 / LED-02 (extended)",
           "requirement_note": "one balanced market batch, integer cash and deterministic rounding"
         },
         {
-          "checklist_line": 767,
+          "checklist_line": 789,
           "evidence_note": "`test_multi_channel_sequence_keeps_ledger_and_per_bank_identities_balanced` exercises all three channels against two different `Bank` instances sharing `Sector.BANK`, re-checking `Ledger.check_identities` after every step, and separately proves by hand-summing each bank's own accounts that OMO/discount-window operations keep each bank individually balanced, while `settle_interbank_transfer` (by design, see its own docstring) shifts each bank's individual residual by exactly the transferred amount in opposite directions -- caught by writing this test, not assumed",
           "id_column": "LED-01 (extended)",
           "requirement_note": "multi-agent-same-sector transaction correctness"
@@ -1128,19 +1128,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 196,
+          "checklist_line": 218,
           "evidence_note": "`core.money.Money` rejects non-int/bool input; `tests/unit/test_money.py::test_float_rejected_no_cent_drift`",
           "id_column": "LED-02",
           "requirement_note": "deterministic integer minor units, no float drift"
         },
         {
-          "checklist_line": 494,
+          "checklist_line": 516,
           "evidence_note": "`test_market_settlement.py::test_largest_remainder_rounding_is_deterministic_and_does_not_exceed_total`, `test_aggregate_rounding_remainder_is_exact_and_reported`; largest-remainder payments sum to floor(total nominal value)",
           "id_column": "LED-01 / LED-02 (extended)",
           "requirement_note": "one balanced market batch, integer cash and deterministic rounding"
         },
         {
-          "checklist_line": 1662,
+          "checklist_line": 1684,
           "evidence_note": "`test_allocate_recovery_apportionment_is_exact_and_within_one_unit_of_ideal_share`: 500 random claim sets, largest-remainder shares always sum to exactly the target and never deviate from each claim's ideal real-valued share by a full minor unit",
           "id_column": "LED-02 (extended, exact integer apportionment)",
           "requirement_note": "a short tier's recovery splits pro rata without minor-unit rounding drift"
@@ -1164,7 +1164,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2939,
+          "checklist_line": 2961,
           "evidence_note": "`econosim.inventory.InventoryAccount`/`InsufficientInventoryError`; 12 tests cover the base nonnegativity enforcement, the structured-error attributes, non-mutation on rejection, and the explicit-opt-in financing escape hatch (including that merely configuring a limit does not implicitly authorize use of it)",
           "id_column": "LED-03 (first evidence)",
           "requirement_note": "enforce nonnegative inventory unless specified financing exists; invalid sale or withdrawal rejects with structured error"
@@ -1188,7 +1188,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2979,
+          "checklist_line": 3001,
           "evidence_note": "`econosim.equity_rollforward.reconcile_equity_rollforward`, independently recomputing each account's closing balance from the transaction journal rather than trusting the account's own running total; exercised across all four agent sectors (Household/Firm/Bank/Government) in one shared toy economy, with a tampered-balance discrimination test and a mid-simulation opening-balance test alongside it",
           "id_column": "LED-04 (first evidence)",
           "requirement_note": "track equity and P&L across all agent sectors; equity rollforward matches realized changes and flows"
@@ -1212,7 +1212,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1442,
+          "checklist_line": 1464,
           "evidence_note": "`Bank.accrue_interest`; `test_accrue_interest_compounds_across_multiple_periods` hand-verifies exact compounding (`1000.00 * 1.01^3 = 1030.301` rounding to `1030.30`) over three periods, not a single-period smoke test",
           "id_column": "LED-05",
           "requirement_note": "interest accrual and amortization schedule, reference cash-flow tests match documented convention"
@@ -1236,19 +1236,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 197,
+          "checklist_line": 219,
           "evidence_note": "`tests/unit/test_agents.py::test_loan_repayment_reduces_debt_and_bank_assets`; no write-off/recovery path",
           "id_column": "LED-06 (partial)",
           "requirement_note": "loan repayment reduces receivable/payable/deposits"
         },
         {
-          "checklist_line": 1443,
+          "checklist_line": 1465,
           "evidence_note": "`Bank.write_off_loan`; `test_write_off_loan_extinguishes_debt_and_reallocates_equity` confirms the realized loss on the bank's equity and the debt-forgiveness gain on the borrower's equity are EXACTLY equal and opposite, both to the written-off amount",
           "id_column": "LED-06",
           "requirement_note": "loan loss, write-off and recovery; counterparty receivable/payable and equity reconcile"
         },
         {
-          "checklist_line": 1660,
+          "checklist_line": 1682,
           "evidence_note": "`resolve_insolvency` calls `Bank.receive_repayment`/`Bank.write_off_loan` directly; no duplicate posting logic was written",
           "id_column": "LED-06 (reused, not reimplemented)",
           "requirement_note": "single-creditor write-off/repayment as the waterfall's own building block"
@@ -1272,7 +1272,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1659,
+          "checklist_line": 1681,
           "evidence_note": "`test_resolve_insolvency_end_to_end_two_creditors_same_tier_pro_rata`, `test_resolve_insolvency_end_to_end_respects_priority_across_tiers` (secured claim made whole before the unsecured claim absorbs any loss)",
           "id_column": "LED-07",
           "requirement_note": "corporate default / insolvency process across multiple creditors"
@@ -1296,7 +1296,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3412,
+          "checklist_line": 3434,
           "evidence_note": "pre-existing `Bank.reserves_account`, `econosim.interbank_market.InterbankMarket` (ECO-11) and `central_bank_ledger.CentralBankLedger.settle_interbank_transfer`; a new three-bank test (`test_cross_bank_transfer_preserves_total_settlement_balances_system_wide`) confirms the system-wide `settlement_balance_of` total is preserved across multiple transfers, including one not touching the third bank at all",
           "id_column": "LED-08 (first evidence)",
           "requirement_note": "handle deposits, bank reserves, and interbank settlement; cross-bank transfer preserves total settlement balances"
@@ -1320,7 +1320,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2843,
+          "checklist_line": 2865,
           "evidence_note": "`econosim.liquidity.LiquidityAssumptions`/`ask_price`/`bid_price`/`round_trip_cost`; the frictionless-requires-explicit-opt-in validation is tested directly, and the resulting wealth difference is demonstrated against the real ledger, not asserted in isolation",
           "id_column": "LED-09 (first evidence)",
           "requirement_note": "define market bid/ask spread and liquidity assumptions; no zero-cost trades unless explicit frictionless baseline"
@@ -1344,7 +1344,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2890,
+          "checklist_line": 2912,
           "evidence_note": "`econosim.trade_lifecycle.TradeLedger`: non-decreasing execution-order enforcement, plus a direct, step-by-step confirmation that a pending (executed-but-unsettled) trade never anticipates its own settlement",
           "id_column": "LED-10 (first evidence)",
           "requirement_note": "track execution, settlement and position event order; trade accounting never anticipates later settlement states"
@@ -1368,7 +1368,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 206,
+          "checklist_line": 228,
           "evidence_note": "`core.calendar.BusinessDayCalendar`; `tests/unit/test_calendar.py`. Time-zone handling itself (not just business-day stepping) is explicitly out of scope.",
           "id_column": "LED-11 (partial)",
           "requirement_note": "time-zone/holiday/business-day calendars"
@@ -1392,19 +1392,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 198,
+          "checklist_line": 220,
           "evidence_note": "`tests/property/test_ledger_invariants.py::test_random_action_sequences_preserve_identities_and_total_equity` (Hypothesis, 100 random examples per run)",
           "id_column": "LED-12",
           "requirement_note": "global conservation under randomized transaction sequences"
         },
         {
-          "checklist_line": 498,
+          "checklist_line": 520,
           "evidence_note": "`tests/property/test_exact_markets.py` covers buyer feasibility, firm payroll limits, cash/equity conservation and an exhaustive integer-price oracle; `test_economy_run.py::test_every_step_conserves_cash_equity_and_physical_inventory` checks cumulative production/sales/inventory",
           "id_column": "LED-12 / VAL-07 (extended)",
           "requirement_note": "randomized exact settlement conserves money and quantity"
         },
         {
-          "checklist_line": 537,
+          "checklist_line": 559,
           "evidence_note": "`test_monetary_run.py::test_coupled_steps_preserve_economic_conservation_and_opening_rate_timing`, `test_delayed_publication_prevents_any_policy_or_real_activity_feedback`; standalone price-economy results remain identical without active feedback",
           "id_column": "LED-12 / VAL-07 (extended)",
           "requirement_note": "coupled feedback preserves exact economic accounting"
@@ -1428,13 +1428,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 217,
+          "checklist_line": 239,
           "evidence_note": "`stochastica.gbm.simulate_gbm_paths`; `tests/unit/test_gbm.py::test_terminal_distribution_matches_theory_within_confidence_interval` (standard-error-based interval, not a magic tolerance)",
           "id_column": "SDE-01",
           "requirement_note": "GBM path generator, empirical mean/variance match theory within CI"
         },
         {
-          "checklist_line": 298,
+          "checklist_line": 320,
           "evidence_note": "`stochastica.gbm.piecewise_gbm_terminal_moments` (exact closed form for a piecewise-constant-drift GBM, reduces exactly to the constant-drift formula when the path is flat); `tests/unit/test_piecewise_gbm.py::test_terminal_distribution_matches_piecewise_theory_within_ci`",
           "id_column": "SDE-01-style reference check (extended to piecewise drift)",
           "requirement_note": "empirical mean/variance match theory within CI"
@@ -1458,7 +1458,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 218,
+          "checklist_line": 240,
           "evidence_note": "`stochastica.gbm.simulate_correlated_gbm_paths` + `stochastica.correlated`; `tests/unit/test_gbm.py::test_correlated_gbm_recovers_approximate_asset_correlation`",
           "id_column": "SDE-02",
           "requirement_note": "correlated multivariate asset simulator, PSD checks pass"
@@ -1482,13 +1482,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 219,
+          "checklist_line": 241,
           "evidence_note": "`stochastica.heston.simulate_heston_paths`; `tests/unit/test_heston.py::test_variance_path_never_negative`, `test_terminal_variance_mean_matches_exact_cir_moment` (checked against the exact continuous-time CIR first moment)",
           "id_column": "SDE-03",
           "requirement_note": "Heston price/variance dynamics, nonnegative variance"
         },
         {
-          "checklist_line": 297,
+          "checklist_line": 319,
           "evidence_note": "`econosim.macro_market_link.simulate_policy_rate_conditioned_market` + `stochastica.gbm.simulate_piecewise_drift_gbm_paths`; `tests/unit/test_piecewise_gbm.py::test_later_drift_cannot_affect_earlier_simulated_prices` and `test_macro_market_link.py::test_no_lookahead_from_future_policy_shocks` (bit-identical path prefixes despite a wildly different/later tail)",
           "id_column": "SDE-03 Tier 3 (partial, non-neural)",
           "requirement_note": "macro-conditioned market dynamics, no leakage from future releases"
@@ -1512,7 +1512,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 220,
+          "checklist_line": 242,
           "evidence_note": "full-truncation Euler, documented in `heston.py`'s module docstring; `tests/unit/test_heston.py::test_low_feller_ratio_hits_the_zero_floor_far_more_often` (bias/clamping diagnostic tied to the Feller ratio)",
           "id_column": "SDE-04",
           "requirement_note": "variance discretization policy documented, convergence/positivity tests"
@@ -1536,7 +1536,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2040,
+          "checklist_line": 2062,
           "evidence_note": "`stochastica.convergence.heston_weak_convergence_study`: a batched (memory-safe), fixed-seed Monte Carlo bias study of `simulate_heston_paths`'s log-Euler/full-truncation scheme against the closed-form reference price at 3 step counts, confirming bias shrinks monotonically as dt decreases",
           "id_column": "SDE-05 (original blueprint)",
           "requirement_note": "numerical time-step refinement experiments, path distribution stability reported"
@@ -1560,7 +1560,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2667,
+          "checklist_line": 2689,
           "evidence_note": "`stochastica.regime_switching`: `RegimeSwitchingParams` validates row-stochasticity; `stationary_distribution`/`is_stationary_distribution` provide the calculation and the independent test, cross-checked against a derived closed form, a 2M-step empirical simulation, and the module's own simulator's long-run regime occupancy",
           "id_column": "SDE-06 (first evidence)",
           "requirement_note": "implement regime-switching market baseline; transition probabilities valid and stationary test available"
@@ -1584,7 +1584,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2722,
+          "checklist_line": 2744,
           "evidence_note": "`stochastica.garch`'s GARCH(1,1) simulator plus `volatility_clustering_diagnostics`; `test_garch_squared_returns_show_volatility_clustering_unlike_iid_returns` confirms the behavioral signature against a contrasting negative control, not just that the code runs",
           "id_column": "SDE-07 (first evidence)",
           "requirement_note": "implement volatility clustering benchmark where appropriate; autocorrelation and conditional variance diagnostics recorded"
@@ -1608,7 +1608,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1784,
+          "checklist_line": 1806,
           "evidence_note": "`stochastica/jump_diffusion.py`'s module docstring states the exact per-step allocation; `test_simulator_with_zero_jump_intensity_matches_pure_gbm_moments` confirms the zero-jump degenerate case reduces to plain GBM moments",
           "id_column": "SDE-08",
           "requirement_note": "jump/fat-tail model, parameterization and jump timing fully disclosed"
@@ -1632,7 +1632,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 237,
+          "checklist_line": 259,
           "evidence_note": "`volterra.market.MarketSnapshot` raises in `__post_init__` unless `measure == \"Q\"`; the Monte Carlo pricer always simulates with drift `r - q`, never a physical-measure `mu`",
           "id_column": "SDE-09",
           "requirement_note": "explicit P/Q measure tagging on every pricing call"
@@ -1656,7 +1656,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3467,
+          "checklist_line": 3489,
           "evidence_note": "`stochastica.historical_calibration.calibrate_gbm_mle` (closed-form MLE, cross-checked against a tightly-converged general-purpose numerical optimizer) and `CalibrationHistory` (point-in-time versioned lookup, reusing `econosim.pit`'s own as-of convention); GARCH/regime-switching calibration deliberately NOT attempted, see the abandonment reasoning above",
           "id_column": "SDE-10 (first evidence, GBM only)",
           "requirement_note": "historical calibration with dated parameter versions; fit windows, optimizer state and calibration error logged"
@@ -1680,7 +1680,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2430,
+          "checklist_line": 2452,
           "evidence_note": "constraints: pre-existing `HestonParams`/`MertonJumpParams` validation, hardened by PR-061's `require_finite`; sensitivity: `heston_parameter_elasticities`/`merton_parameter_elasticities`, cross-checked against existing Heston vega and pinned by `test_kappa_and_rho_are_the_least_identifiable_heston_parameters`/`test_jump_mean_is_the_least_identifiable_merton_parameter`",
           "id_column": "SDE-11 (first evidence)",
           "requirement_note": "implement parameter constraints and identifiability diagnostics; impossible values rejected, profile or sensitivity reported"
@@ -1704,7 +1704,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2343,
+          "checklist_line": 2365,
           "evidence_note": "10 Hypothesis property tests across Black-Scholes, Heston, Merton, barrier and geometric-Asian pricers plus GBM/Heston/Merton simulators (`tests/property/test_extreme_input_robustness.py`), asserting finite-or-clean-ValueError; findings 1-6 above were each found by this testing and are separately pinned by named regression tests in their own pricer's unit-test file",
           "id_column": "SDE-12 (first evidence)",
           "requirement_note": "test solver behavior on extreme but admissible inputs; no silent NaN, Inf or unbounded accepted paths"
@@ -1949,31 +1949,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 230,
+          "checklist_line": 252,
           "evidence_note": "`volterra.instruments.EuropeanOption`; boundary tests in `tests/unit/test_black_scholes.py::test_option_rejects_invalid_fields`",
           "id_column": "PRI-01",
           "requirement_note": "versioned instrument/payoff specifications"
         },
         {
-          "checklist_line": 1218,
+          "checklist_line": 1240,
           "evidence_note": "`volterra.forwards.forward_price`/`forward_contract_value`; `test_contract_value_matches_the_equivalent_f_minus_k_formulation` cross-checks the direct `S*exp(-qT) - K*exp(-rT)` formula against the economically equivalent `(F_now - K) * exp(-rT)` form -- two independently-derivable expressions for the same no-arbitrage value, not the same code checked against itself; `test_a_freshly_entered_contract_is_worth_exactly_zero` confirms the defining property of a fair forward price directly",
           "id_column": "PRI-01 (extended)",
           "requirement_note": "a second versioned instrument specification, cost-of-carry priced"
         },
         {
-          "checklist_line": 1248,
+          "checklist_line": 1270,
           "evidence_note": "`instruments.AmericanOption`; `american_options.american_binomial_price`/`european_binomial_price`",
           "id_column": "PRI-01 (extended)",
           "requirement_note": "a third versioned instrument specification, priced by a distinct numerical method"
         },
         {
-          "checklist_line": 1326,
+          "checklist_line": 1348,
           "evidence_note": "`test_full_greeks_converge_to_black_scholes_for_a_no_dividend_call` confirms ALL FIVE Greeks (not just delta) converge to PR-005's analytical Black-Scholes Greeks, since PR-038 already proved the two PRICES are identical without dividends -- the same equality theorem, extended to its derivatives",
           "id_column": "PRI-01 (extended)",
           "requirement_note": "American-option sensitivities validated against the closed-form reference in the degenerate (no-dividend) case"
         },
         {
-          "checklist_line": 1785,
+          "checklist_line": 1807,
           "evidence_note": "`test_matches_monte_carlo_simulation_of_the_independent_simulator`: the closed form agrees with simulating the INDEPENDENTLY-written `jump_diffusion` module, within 5 Monte Carlo standard errors",
           "id_column": "PRI-01 / PRI-04 (extended, a second non-GBM pricer)",
           "requirement_note": "a second stochastic model with a working closed-form price"
@@ -1997,7 +1997,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 231,
+          "checklist_line": 253,
           "evidence_note": "`volterra.black_scholes.black_scholes_price`; `tests/unit/test_black_scholes.py::test_matches_known_textbook_reference_value`",
           "id_column": "PRI-02",
           "requirement_note": "Black-Scholes European call/put, analytical reference fixtures"
@@ -2021,31 +2021,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 232,
+          "checklist_line": 254,
           "evidence_note": "`volterra.black_scholes.put_call_parity_residual`; `test_put_call_parity_holds_to_floating_point_precision`, `test_call_price_respects_lower_arbitrage_bound`, monotonicity-in-spot/strike tests",
           "id_column": "PRI-03",
           "requirement_note": "put-call parity and bounds verification"
         },
         {
-          "checklist_line": 1741,
+          "checklist_line": 1763,
           "evidence_note": "`test_put_call_parity_against_an_independently_mirrored_put_formula`: the put price is checked against a SEPARATELY, independently-coded P1'/P2' integral in the test itself, not against the production shortcut's own definition of a put (which derives the put from the call via parity by design, so testing parity against that shortcut alone would be circular)",
           "id_column": "PRI-03 (extended, model-independent parity)",
           "requirement_note": "put-call parity holds for the new model too"
         },
         {
-          "checklist_line": 1787,
+          "checklist_line": 1809,
           "evidence_note": "`test_put_call_parity_holds`, exact to `1e-9`",
           "id_column": "PRI-03 (reused convention)",
           "requirement_note": "put-call parity holds for the new model too"
         },
         {
-          "checklist_line": 1836,
+          "checklist_line": 1858,
           "evidence_note": "`test_in_out_parity_holds`: knock-in + knock-out price equals the Black-Scholes vanilla price, exactly to `1e-8`",
           "id_column": "PRI-03 (reused convention)",
           "requirement_note": "put-call / in-out parity holds for the new model too"
         },
         {
-          "checklist_line": 1879,
+          "checklist_line": 1901,
           "evidence_note": "`test_geometric_put_call_parity_against_the_geometric_forward`: Call - Put = e^{-rT}*(E[G_T] - K), exact to `1e-9`",
           "id_column": "PRI-03 (reused convention, generalized to any lognormal terminal variable)",
           "requirement_note": "put-call parity holds for the new model too"
@@ -2069,13 +2069,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1739,
+          "checklist_line": 1761,
           "evidence_note": "`test_characteristic_function_at_zero_is_one`, `test_characteristic_function_at_negative_i_equals_forward_price` (exact algebraic identities any correct characteristic function must satisfy); `test_converges_to_black_scholes_in_the_zero_vol_of_vol_limit` (+ the symmetric put test, + a from-scratch second Black-Scholes computation not calling `volterra.black_scholes` at all)",
           "id_column": "PRI-04",
           "requirement_note": "Heston Fourier/characteristic-function pricer, checked against reference values"
         },
         {
-          "checklist_line": 1785,
+          "checklist_line": 1807,
           "evidence_note": "`test_matches_monte_carlo_simulation_of_the_independent_simulator`: the closed form agrees with simulating the INDEPENDENTLY-written `jump_diffusion` module, within 5 Monte Carlo standard errors",
           "id_column": "PRI-01 / PRI-04 (extended, a second non-GBM pricer)",
           "requirement_note": "a second stochastic model with a working closed-form price"
@@ -2099,7 +2099,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 645,
+          "checklist_line": 667,
           "evidence_note": "`volterra.calibration.calibrate_implied_volatility`; `tests/unit/test_calibration.py::test_round_trip_recovers_the_exact_volatility` (27-case parametrized round trip: 3 strikes x 2 option types x 3 volatility regimes, each recovered to within 1e-8 of the true value, not one convenient case)",
           "id_column": "PRI-05",
           "requirement_note": "risk-neutral calibration procedure; implied-vol loss, parameter constraints and errors retained"
@@ -2123,13 +2123,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 233,
+          "checklist_line": 255,
           "evidence_note": "`volterra.monte_carlo.monte_carlo_price_vanilla`; `tests/unit/test_monte_carlo.py`",
           "id_column": "PRI-06",
           "requirement_note": "Monte Carlo pricer with standard errors"
         },
         {
-          "checklist_line": 1880,
+          "checklist_line": 1902,
           "evidence_note": "`MonteCarloResult` (the same dataclass `monte_carlo.py`'s vanilla pricer already returns) carries `control_variate_used` and a standard error on every Asian Monte Carlo price",
           "id_column": "PRI-06 (reused convention, control variates)",
           "requirement_note": "Monte Carlo pricer with standard errors"
@@ -2153,13 +2153,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 234,
+          "checklist_line": 256,
           "evidence_note": "`volterra.black_scholes.black_scholes_greeks` vs `volterra.greeks_fd.finite_difference_greeks`; `tests/unit/test_greeks_fd.py` (parametrized across ITM/ATM/OTM, call and put) -- see caveat below",
           "id_column": "PRI-07",
           "requirement_note": "Delta/Gamma/Vega with method tagging, analytical vs. independent-method comparison"
         },
         {
-          "checklist_line": 2073,
+          "checklist_line": 2095,
           "evidence_note": "4 new modules extend Greeks coverage from 2 pricers (Black-Scholes, American) to 6 (+ Heston, Merton, barrier, geometric Asian); arithmetic Asian is the one explicitly disclosed remaining gap (see below)",
           "id_column": "PRI-07 (extended)",
           "requirement_note": "Delta/Gamma/Vega with method tagging"
@@ -2183,7 +2183,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1834,
+          "checklist_line": 1856,
           "evidence_note": "`broadie_glasserman_kou_adjusted_barrier`/`discretely_monitored_barrier_option_price` implement the Broadie-Glasserman-Kou (1997) continuity correction; `test_discretization_correction_reduces_error_vs_naive_discrete_monitoring` pins that the correction reduces pricing error by more than 5x versus the uncorrected continuous formula, against a direct simulation of the actual discretely-monitored process",
           "id_column": "PRI-08",
           "requirement_note": "barrier option with discretization correction"
@@ -2207,7 +2207,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1877,
+          "checklist_line": 1899,
           "evidence_note": "`monte_carlo_price_asian`'s Kemna-Vorst control variate; `test_monte_carlo_arithmetic_control_variate_reduces_variance` pins more than a 5x standard-error reduction versus plain Monte Carlo (a conservative margin below the roughly 20-30x actually observed in pre-implementation scratch verification at similar settings)",
           "id_column": "PRI-09",
           "requirement_note": "path-dependent Asian option with controls"
@@ -2231,7 +2231,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2143,
+          "checklist_line": 2165,
           "evidence_note": "`aggregate_portfolio_greeks` sums quantity-scaled per-unit Greeks across lines; `verify_reconciliation` independently re-derives the total from the lines and confirms it matches, rather than trusting the total is correct merely because it was computed by the same function -- and a dedicated test (`test_verify_reconciliation_detects_a_tampered_total`) confirms this check actually discriminates a wrong total from a correct one, not just that it returns `True` on the happy path",
           "id_column": "PRI-10",
           "requirement_note": "portfolio-level repricing and Greeks aggregation; sum of line-level Greeks reconciles to portfolio totals"
@@ -2255,7 +2255,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 647,
+          "checklist_line": 669,
           "evidence_note": "`calibrate_volatility_smile` fits strikes independently and imposes no cross-strike smoothness or arbitrage-free-surface constraint; a genuine (non-flat) smile shape is recovered exactly in `test_genuine_smile_shape_is_recovered_strike_by_strike`, demonstrating the fit captures real cross-strike variation, but nothing here checks that the *resulting* fitted surface itself is calendar/butterfly arbitrage-free",
           "id_column": "PRI-11 (adjacent, explicitly not claimed)",
           "requirement_note": "volatility surface arbitrage checks"
@@ -2279,13 +2279,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 235,
+          "checklist_line": 257,
           "evidence_note": "`MarketSnapshot`/`EuropeanOption` `__post_init__` validation (non-positive spot/vol/strike/maturity rejected)",
           "id_column": "PRI-12",
           "requirement_note": "fail closed on invalid parameters"
         },
         {
-          "checklist_line": 646,
+          "checklist_line": 668,
           "evidence_note": "`CalibrationError` is raised, with the specific no-arbitrage bounds reported, whenever a quoted price cannot be rationalized by *any* volatility -- checked analytically before root-finding is attempted, not discovered by a failed search; a separate test also covers a bracket that excludes the true root even though the quote itself is valid",
           "id_column": "PRI-12 (extended)",
           "requirement_note": "fail closed on invalid/unrationalizable parameters"
@@ -2309,7 +2309,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 236,
+          "checklist_line": 258,
           "evidence_note": "`MonteCarloResult` always carries `standard_error` and `n_paths`; there is no code path that returns a Monte Carlo price without them",
           "id_column": "PRI-13",
           "requirement_note": "numerical uncertainty required with every non-closed-form price"
@@ -2537,31 +2537,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 258,
+          "checklist_line": 280,
           "evidence_note": "`hedging.simulate.simulate_self_financing_hedge`; `tests/unit/test_hedging_simulate.py::test_self_financing_identity_matches_manual_recomputation` and the exact closed-form `test_zero_hedge_ratios_reduce_to_a_naked_short_option_position`",
           "id_column": "HDG-01",
           "requirement_note": "portfolio wealth/terminal loss with cash financing, self-financing assumption documented"
         },
         {
-          "checklist_line": 380,
+          "checklist_line": 402,
           "evidence_note": "`test_hedging_simulate.py::test_one_period_trade_is_financed_until_maturity` uses an independent borrowed-cash closed form; `test_deep_hedge.py::test_differentiable_accounting_matches_numpy_on_identical_actions`; `test_online_hedge.py::test_matches_batch_simulator_exactly_path_by_path`; `test_multi_step_run.py::test_trajectory_reconciles_to_independent_cash_flow_calculation` reconciles each policy through changing rates",
           "id_column": "HDG-01 (corrected/extended)",
           "requirement_note": "self-financing cash reflects the interval after each trade"
         },
         {
-          "checklist_line": 536,
+          "checklist_line": 558,
           "evidence_note": "`test_hedge_comparison.py::test_opening_rate_finances_each_interval_and_expiry_has_no_new_trade`; `test_monetary_run.py::test_hedge_cash_reconciles_with_opening_rates_and_actual_executions` checks call and put accounts independently",
           "id_column": "HDG-01 / HDG-06 (extended)",
           "requirement_note": "financing and transaction costs reconcile with actual interval rates"
         },
         {
-          "checklist_line": 574,
+          "checklist_line": 596,
           "evidence_note": "shared batch simulator with explicit interval/path funding schedules; `test_rate_paths.py::test_changing_funding_rates_match_independent_cash_and_online_accounts`; `test_zero_policy_cell_matches_closed_form_financing_and_fractional_tail` checks a cell against an independent naked-option calculation",
           "id_column": "HDG-01 / HDG-06 / HDG-13 (extended)",
           "requirement_note": "identical changing-rate financing and costs for both hedges"
         },
         {
-          "checklist_line": 608,
+          "checklist_line": 630,
           "evidence_note": "`test_differentiable_changing_rate_accounting_matches_shared_numpy_simulator` covers call/put losses, turnover, costs, actions and nonzero finite gradients",
           "id_column": "HDG-01 / HDG-06 (extended)",
           "requirement_note": "changing-rate differentiable financing matches evaluation cash/cost recursion"
@@ -2585,7 +2585,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 259,
+          "checklist_line": 281,
           "evidence_note": "`hedging.baseline.black_scholes_delta_hedge_ratios`; `tests/unit/test_hedging_simulate.py::test_finer_discretization_reduces_hedging_error_under_zero_cost` (std of terminal loss strictly decreases at 10/50/250 steps)",
           "id_column": "HDG-02",
           "requirement_note": "Black-Scholes model-consistent delta hedge, convergence under zero frictions"
@@ -2609,7 +2609,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 260,
+          "checklist_line": 282,
           "evidence_note": "`hedging.baseline.apply_no_trade_band`; `test_no_trade_band_reduces_turnover`; empirically cuts turnover/cost by roughly 30% at a 0.1 band width in development",
           "id_column": "HDG-03",
           "requirement_note": "cost-aware no-trade/threshold hedge vs. delta hedge"
@@ -2633,13 +2633,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 261,
+          "checklist_line": 283,
           "evidence_note": "`hedging.deep_hedge.HedgePolicyMLP` (tanh-bounded to [-1, 1]); `tests/unit/test_deep_hedge.py::test_generated_ratios_are_bounded_by_tanh_squashing`",
           "id_column": "HDG-04",
           "requirement_note": "MLP hedging policy, bounded actions"
         },
         {
-          "checklist_line": 607,
+          "checklist_line": 629,
           "evidence_note": "`rate_hedge.RateHedgePolicyMLP`; `test_rate_hedge.py::test_only_current_rate_changes_aware_targets_and_blind_arm_ignores_rates` uses an independently constructed rate-only network and future/expiry perturbations",
           "id_column": "HDG-04 / HDG-05 (extended)",
           "requirement_note": "bounded causal policy with current-rate information"
@@ -2663,19 +2663,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 262,
+          "checklist_line": 284,
           "evidence_note": "hedge ratios at step t are built only from price_paths[:, t] and prior holdings; `tests/unit/test_hedging_baseline.py::test_delta_hedge_ratios_are_causal` (mutating only the terminal price leaves every earlier ratio unchanged)",
           "id_column": "HDG-05",
           "requirement_note": "causal observations, no future path information"
         },
         {
-          "checklist_line": 381,
+          "checklist_line": 403,
           "evidence_note": "`test_multi_step_run.py::test_future_policy_shock_cannot_change_earlier_results`, `test_risk_sample_count_cannot_change_market_or_hedge_decisions`",
           "id_column": "HDG-05 (extended)",
           "requirement_note": "scenario decisions cannot see future shocks; risk sampling cannot affect trading"
         },
         {
-          "checklist_line": 607,
+          "checklist_line": 629,
           "evidence_note": "`rate_hedge.RateHedgePolicyMLP`; `test_rate_hedge.py::test_only_current_rate_changes_aware_targets_and_blind_arm_ignores_rates` uses an independently constructed rate-only network and future/expiry perturbations",
           "id_column": "HDG-04 / HDG-05 (extended)",
           "requirement_note": "bounded causal policy with current-rate information"
@@ -2699,25 +2699,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 263,
+          "checklist_line": 285,
           "evidence_note": "same self-financing simulator as HDG-01; the manual-recomputation test above is exactly this reconciliation",
           "id_column": "HDG-06",
           "requirement_note": "transaction costs, cost ledger reconciles to holdings/cash changes"
         },
         {
-          "checklist_line": 536,
+          "checklist_line": 558,
           "evidence_note": "`test_hedge_comparison.py::test_opening_rate_finances_each_interval_and_expiry_has_no_new_trade`; `test_monetary_run.py::test_hedge_cash_reconciles_with_opening_rates_and_actual_executions` checks call and put accounts independently",
           "id_column": "HDG-01 / HDG-06 (extended)",
           "requirement_note": "financing and transaction costs reconcile with actual interval rates"
         },
         {
-          "checklist_line": 574,
+          "checklist_line": 596,
           "evidence_note": "shared batch simulator with explicit interval/path funding schedules; `test_rate_paths.py::test_changing_funding_rates_match_independent_cash_and_online_accounts`; `test_zero_policy_cell_matches_closed_form_financing_and_fractional_tail` checks a cell against an independent naked-option calculation",
           "id_column": "HDG-01 / HDG-06 / HDG-13 (extended)",
           "requirement_note": "identical changing-rate financing and costs for both hedges"
         },
         {
-          "checklist_line": 608,
+          "checklist_line": 630,
           "evidence_note": "`test_differentiable_changing_rate_accounting_matches_shared_numpy_simulator` covers call/put losses, turnover, costs, actions and nonzero finite gradients",
           "id_column": "HDG-01 / HDG-06 (extended)",
           "requirement_note": "changing-rate differentiable financing matches evaluation cash/cost recursion"
@@ -2741,7 +2741,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3239,
+          "checklist_line": 3261,
           "evidence_note": "`hedging.position_constraints.project_onto_feasible_region`/`PositionLimits`; a 300-example Hypothesis property sweep confirms the projected holding always satisfies both the position-size cap and the leverage-implied notional cap, and that an already-feasible holding is never altered; \"concentration\" explicitly not claimed (not independently meaningful in this repository's single-underlying hedging setup)",
           "id_column": "HDG-07 (first evidence)",
           "requirement_note": "leverage, concentration and position constraints; all proposed actions obey projected feasible region"
@@ -2765,7 +2765,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 264,
+          "checklist_line": 286,
           "evidence_note": "`hedging.deep_hedge._differentiable_cvar`, the same quantile-integral estimator as `titan.risk_metrics.historical_expected_shortfall`, reimplemented differentiably",
           "id_column": "HDG-08",
           "requirement_note": "CVaR objective with correct loss definition"
@@ -2789,7 +2789,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 265,
+          "checklist_line": 287,
           "evidence_note": "all `test_deep_hedge.py` evaluation happens on a freshly simulated test-seed path set, never the training paths",
           "id_column": "HDG-09",
           "requirement_note": "detached test evaluation"
@@ -2813,7 +2813,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 609,
+          "checklist_line": 631,
           "evidence_note": "`RateTrainingDiagnostic` logs CVaR/objective, mean loss/turnover, pre-clipping norm, clipping flag and abs(action)>=.99 fraction per epoch; `test_training_is_deterministic_paired_and_preserves_global_rng`; no calibrated probabilistic policy-risk guarantee",
           "id_column": "HDG-10 (partial, training-batch diagnostics)",
           "requirement_note": "gradient norms, action saturation and tail-loss diagnostics"
@@ -2837,7 +2837,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 456,
+          "checklist_line": 478,
           "evidence_note": "`test_study_run.py::test_every_training_test_scenario_cell_is_retained`; no seed/scenario is filtered by performance; no Heston/jump/historical or market-liquidity model is claimed",
           "id_column": "HDG-11 (partial)",
           "requirement_note": "retain stress and worse-than-baseline outcomes"
@@ -2861,7 +2861,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 457,
+          "checklist_line": 479,
           "evidence_note": "every study cell retains all financial metrics and a paired path-conditional CVaR interval; the crossed mean-CVaR-difference endpoint also checks a predeclared economic margin; paired cost/turnover inference and full acceptance remain open",
           "id_column": "HDG-12 (partial)",
           "requirement_note": "mean loss/P&L sign convention, CVaR, costs and turnover across repeated comparisons"
@@ -2885,19 +2885,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 266,
+          "checklist_line": 288,
           "evidence_note": "baseline and learned policies are evaluated through the identical `simulate_self_financing_hedge` function with identical cost rate and price paths -- structurally, not just by convention",
           "id_column": "HDG-13 (partial)",
           "requirement_note": "reward-hacking / unfair-baseline checks"
         },
         {
-          "checklist_line": 574,
+          "checklist_line": 596,
           "evidence_note": "shared batch simulator with explicit interval/path funding schedules; `test_rate_paths.py::test_changing_funding_rates_match_independent_cash_and_online_accounts`; `test_zero_policy_cell_matches_closed_form_financing_and_fractional_tail` checks a cell against an independent naked-option calculation",
           "id_column": "HDG-01 / HDG-06 / HDG-13 (extended)",
           "requirement_note": "identical changing-rate financing and costs for both hedges"
         },
         {
-          "checklist_line": 610,
+          "checklist_line": 632,
           "evidence_note": "`test_training_arms_are_parameter_and_data_matched_with_full_crossing`; `test_identical_rate_history_makes_blind_and_aware_training_exactly_equal`; zero feature acts as an information ablation, not an untrained random hedge",
           "id_column": "HDG-13 / EXP-06 (extended, matched-feature control)",
           "requirement_note": "apparent feature gains cannot come from larger architecture or different training data"
@@ -2938,19 +2938,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1134,
+          "checklist_line": 1156,
           "evidence_note": "`titan.positions.Position`/`PositionBook`/`value_book`; `test_value_book_aggregates_a_long_and_a_short_position_correctly` confirms a multi-position book's long and short legs are valued and summed independently, matching a direct recomputation",
           "id_column": "RISK-01",
           "requirement_note": "a position book linking positions to the market snapshot they were entered and valued against"
         },
         {
-          "checklist_line": 1219,
+          "checklist_line": 1241,
           "evidence_note": "`test_position_book_can_mix_option_and_forward_instruments` builds and values a book holding BOTH an option and a forward position in one call; `test_cross_type_reprice_is_rejected_both_ways` confirms an option position cannot be repriced as a forward, and vice versa -- the instrument's TYPE itself is checked, not only its identifying terms",
           "id_column": "RISK-01 (extended)",
           "requirement_note": "a position book that generalizes across instrument types, not hard-coded to one"
         },
         {
-          "checklist_line": 1291,
+          "checklist_line": 1313,
           "evidence_note": "`test_position_book_can_mix_all_three_instrument_types` builds and values a book holding a European option, an American option and a forward in one call; `test_american_vs_european_with_identical_strike_and_type_is_a_mismatch` confirms that even with IDENTICAL strike and option type, an `AmericanOption` and a `EuropeanOption` are different instrument TYPES and repricing one as the other is rejected -- the same discipline PR-037's forward/option check already established, now proven to generalize to a third type rather than being special-cased for two",
           "id_column": "RISK-01 (extended)",
           "requirement_note": "a position book generalizing across THREE instrument types sharing one API, not hard-coded to one or two"
@@ -2974,7 +2974,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 246,
+          "checklist_line": 268,
           "evidence_note": "`titan.risk_metrics.historical_var`; declares its `alpha`/`interpolation` convention explicitly, no hidden default assumption",
           "id_column": "RISK-02",
           "requirement_note": "historical VaR with definitional metadata"
@@ -2998,7 +2998,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 247,
+          "checklist_line": 269,
           "evidence_note": "`titan.risk_metrics.parametric_var` (Gaussian); `tests/unit/test_risk_metrics.py::test_parametric_var_known_value` against a literature reference value",
           "id_column": "RISK-03",
           "requirement_note": "parametric VaR under explicit distribution"
@@ -3022,25 +3022,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 248,
+          "checklist_line": 270,
           "evidence_note": "`titan.risk_metrics.historical_expected_shortfall`; hand-worked discrete examples with and without ties (`test_expected_shortfall_discrete_worked_example_with_ties` is the one that would break under naive distinct-value tie handling), plus a continuous Gaussian reference check within 1%",
           "id_column": "RISK-04",
           "requirement_note": "Expected Shortfall, tie/atom-safe estimator, discrete and continuous reference examples"
         },
         {
-          "checklist_line": 382,
+          "checklist_line": 404,
           "evidence_note": "`test_multi_step_run.py::test_conditional_risk_uses_physical_portfolio_losses`; exact terminal loss/expiry checks in `test_all_months_are_completed_and_expiry_is_exact`",
           "id_column": "RISK-04 (extended, conditional diagnostic)",
           "requirement_note": "CVaR of portfolio losses, with horizon and continuation assumptions declared"
         },
         {
-          "checklist_line": 1484,
+          "checklist_line": 1506,
           "evidence_note": "`test_mixture_bootstrap.py::test_fractional_tail_and_ties_match_an_independent_weighted_tail`, `test_macro_mixture_can_reverse_the_mean_conditional_risk_conclusion`, `test_fitted_policies_are_not_pooled_into_an_ensemble_before_cvar`",
           "id_column": "RISK-04 (extended, empirical macro mixture)",
           "requirement_note": "fractional/tied tail estimator across equal-weight macro banks"
         },
         {
-          "checklist_line": 1742,
+          "checklist_line": 1764,
           "evidence_note": "`test_risk_neutral_probabilities_are_in_unit_interval`, parametrized over 5 strikes",
           "id_column": "RISK-04 (reused convention, risk-neutral probability)",
           "requirement_note": "P2 must be a genuine probability"
@@ -3064,19 +3064,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 684,
+          "checklist_line": 706,
           "evidence_note": "`titan.covariance.shrink_covariance_ledoit_wolf`; `tests/unit/test_covariance.py::test_shrinkage_recovers_positive_definiteness_from_a_singular_sample` constructs an n < p sample (confirmed singular via its own eigenvalues first), then confirms the shrunk result is strictly positive definite",
           "id_column": "RISK-05",
           "requirement_note": "volatility/covariance estimators, PSD and shrinkage safeguards unit-tested"
         },
         {
-          "checklist_line": 1697,
+          "checklist_line": 1719,
           "evidence_note": "`test_target_shrinkage_matches_the_identity_special_case_exactly` (6 (n, p) regimes), `test_shrink_covariance_to_target_matches_ledoit_wolf_for_identity_target` -- an independently-written general implementation, not a refactor of PR-024's, reproducing it exactly at its own special case",
           "id_column": "OPT-05 / RISK-05 (extended, general shrinkage target)",
           "requirement_note": "shrinkage toward a structure beyond scaled identity"
         },
         {
-          "checklist_line": 1699,
+          "checklist_line": 1721,
           "evidence_note": "`test_factor_target_reduces_average_estimation_error_vs_identity_target`: 200 repeated modest-sample (n=60, p=10) draws from a TRUE factor-structured covariance, factor-shrunk estimate has lower mean Frobenius-norm error than identity-shrunk",
           "id_column": "RISK-05 (extended, practical value of the new target)",
           "requirement_note": "a factor-model target must actually help, not merely exist"
@@ -3100,7 +3100,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 249,
+          "checklist_line": 271,
           "evidence_note": "`titan.risk_metrics.max_drawdown`; hand-worked example",
           "id_column": "RISK-06",
           "requirement_note": "historical drawdown"
@@ -3124,13 +3124,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 808,
+          "checklist_line": 830,
           "evidence_note": "`titan.factor_model.estimate_factor_exposures`/`decompose_portfolio_variance`; `test_estimate_factor_exposures_matches_lstsq_to_machine_precision` cross-checks the OLS normal-equations solve against `numpy.linalg.lstsq` -- a different algorithm (SVD-based, not matrix inversion) -- to `1e-9`; `test_decompose_portfolio_variance_matches_full_implied_covariance_matrix` independently cross-checks the factor-space decomposition against a direct `w' Sigma w` quadratic form over the full (n_assets, n_assets) implied covariance matrix",
           "id_column": "RISK-07",
           "requirement_note": "factor exposure estimation and portfolio risk decomposition into systematic/idiosyncratic components"
         },
         {
-          "checklist_line": 1698,
+          "checklist_line": 1720,
           "evidence_note": "`test_factor_model_implied_covariance_matches_decompose_portfolio_variance` (20 random weight vectors, two different computational paths over the identical quadratic form); `test_factor_model_implied_covariance_is_positive_semidefinite`",
           "id_column": "RISK-07 (extended, reusable implied covariance)",
           "requirement_note": "the factor model's full covariance matrix, not only its Euler decomposition"
@@ -3154,7 +3154,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 250,
+          "checklist_line": 272,
           "evidence_note": "`titan.risk_metrics.var_exception_coverage_test` (exact two-sided binomial test); tests confirm a correctly-calibrated model is not flagged and a badly miscalibrated one is",
           "id_column": "RISK-08",
           "requirement_note": "VaR exception and coverage tests, expected frequency and CI"
@@ -3178,7 +3178,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3045,
+          "checklist_line": 3067,
           "evidence_note": "`titan.risk_metrics.quantile_score` (VaR pinball loss), `expected_shortfall_exceedance_residual_test` (McNeil-Frey residual t-test), `es_unconditional_calibration_test` (Acerbi-Szekely-style statistic with bootstrap p-value, handles zero exceedances); each confirmed by repeated-trial false-positive-rate and detection-power simulation against a known Gaussian reference before being pinned as a test",
           "id_column": "RISK-09 (first evidence)",
           "requirement_note": "ES forecasting evaluation and calibration diagnostics"
@@ -3202,7 +3202,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 932,
+          "checklist_line": 954,
           "evidence_note": "`stress_scenario_loss_from_factor_shock`/`stress_scenario_loss_from_asset_shock`/`historical_scenario_losses`; `test_factor_shock_matches_the_equivalent_implied_asset_shock` independently cross-checks the factor-shock path against composing the shock through `betas` into an implied asset-level shock and applying it through the completely separate asset-shock path",
           "id_column": "RISK-10",
           "requirement_note": "named stress scenarios (factor-based and historical-replay) applied to a portfolio, loss reported in a consistent sign convention"
@@ -3226,31 +3226,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 968,
+          "checklist_line": 990,
           "evidence_note": "`titan.contagion.eisenberg_noe_clearing`; `test_three_bank_cascade_fully_defaults_down_the_chain` is a fully hand-derived worked example (A owes B owes C, A and B undercapitalized) matching exact expected payments, shortfalls and creditor losses -- not just a plausible-looking result; `test_clearing_vector_is_a_genuine_fixed_point_on_random_networks` independently re-verifies, for 10 random 5-bank networks, that the reported payments truly satisfy the fixed-point equation when recomputed from scratch outside the module",
           "id_column": "RISK-11",
           "requirement_note": "network contagion / default-cascade simulation across interbank exposures"
         },
         {
-          "checklist_line": 1011,
+          "checklist_line": 1033,
           "evidence_note": "`test_network_matches_hand_computed_values_for_a_well_capitalized_scenario` hand-derives every matrix entry and external-asset value from a real `Bank`/`CentralBankLedger` sequence of operations and confirms an exact match; `test_connects_to_a_full_monetary_operations_scenario` runs PR-028/029's real `StepHooks`-driven scenario for 24 steps and clears the resulting live network end to end",
           "id_column": "RISK-11 (extended)",
           "requirement_note": "contagion analysis against a real, live simulated banking system, not only synthetic matrices"
         },
         {
-          "checklist_line": 1057,
+          "checklist_line": 1079,
           "evidence_note": "`test_interbank_market_populates_genuine_bilateral_bank_edges` confirms the liabilities matrix now carries real directional bank<->bank entries; `test_distinct_pairs_get_distinct_linked_accounts_not_an_aggregate` confirms borrowing from two different lenders is tracked independently, not netted",
           "id_column": "RISK-11 (extended)",
           "requirement_note": "contagion analysis incorporating genuine, non-zero bank-to-bank exposures"
         },
         {
-          "checklist_line": 1100,
+          "checklist_line": 1122,
           "evidence_note": "`MonetarySettlement.contagion_check` (a JSON-safe `ContagionCheckSummary`, deliberately avoiding embedding `ClearingResult`'s numpy arrays in an exported evidence payload); `test_periodic_contagion_check_detects_a_genuine_default` directly engineers a real default inside a running `MonetaryOperationsProcess` and confirms the process's OWN wired-in check -- not `network_risk` tested in isolation again -- reports it",
           "id_column": "RISK-11 (extended)",
           "requirement_note": "systemic-risk monitoring integrated into a live, running simulation loop, not only an offline snapshot"
         },
         {
-          "checklist_line": 1180,
+          "checklist_line": 1202,
           "evidence_note": "`test_frozen_state_does_not_block_amortization_of_existing_debt` confirms the freeze is scoped correctly: a loan taken out BEFORE the freeze continues amortizing normally afterward -- the breaker suspends new credit, not existing obligations",
           "id_column": "RISK-11 (extended)",
           "requirement_note": "systemic-risk detection feeding back into subsequent decisions, not a dead-end report"
@@ -3274,7 +3274,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 969,
+          "checklist_line": 991,
           "evidence_note": "`network_concentration`'s Herfindahl-Hirschman index per bank, both as debtor and as creditor; exact known values confirmed (a single counterparty gives HHI=1.0, an equal two-way split gives exactly 0.5)",
           "id_column": "RISK-12 (partial)",
           "requirement_note": "concentration decomposition of interbank exposure"
@@ -3298,7 +3298,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1135,
+          "checklist_line": 1157,
           "evidence_note": "`StaleSnapshotError`, raised in two independent, separately tested cases: a current snapshot dated before the position's own entry snapshot (structurally nonsensical -- you cannot mark to data from before the position existed), and, when the caller supplies an `as_of`/`max_staleness_days` tolerance, a snapshot older than that tolerance relative to `as_of`",
           "id_column": "RISK-13",
           "requirement_note": "stale-snapshot rejection"
@@ -3322,7 +3322,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 662,
+          "checklist_line": 684,
           "evidence_note": "`titan.portfolio.minimum_variance_portfolio` / `target_return_portfolio`; `tests/unit/test_portfolio.py::test_minimum_variance_matches_closed_form_global_min_var_portfolio` and `test_target_return_matches_closed_form_two_fund_formula` -- both match their exact closed-form analytical solutions to within `1e-7`, not an approximate/qualitative check",
           "id_column": "OPT-01",
           "requirement_note": "budget-constrained mean-variance optimization, checked against a reference solver"
@@ -3346,7 +3346,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 663,
+          "checklist_line": 685,
           "evidence_note": "`PortfolioConstraints`; `test_minimum_variance_reports_failure_for_an_infeasible_box` -- a box constraint that makes the budget unreachable (`max_weight * n_assets < budget`) is confirmed to return `success=False` with a non-empty diagnostic message, not a silently-wrong allocation",
           "id_column": "OPT-02",
           "requirement_note": "max/min weight, leverage and short-sale controls; solver refuses infeasible requests with diagnostic"
@@ -3370,7 +3370,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 664,
+          "checklist_line": 686,
           "evidence_note": "`titan.portfolio.cvar_optimal_portfolio`; `test_cvar_optimal_portfolio_matches_brute_force_grid_search` cross-checks the LP solution against an independent brute-force grid search over a 2-asset weight using `titan.risk_metrics.historical_expected_shortfall` directly -- a different code path from the LP, not the same implementation checked against itself",
           "id_column": "OPT-03",
           "requirement_note": "CVaR portfolio optimization via scenario formulation, toy exact solutions validated"
@@ -3394,7 +3394,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 665,
+          "checklist_line": 687,
           "evidence_note": "`turnover_penalty`/`prior_weights` on `target_return_portfolio`; `test_turnover_penalty_pulls_the_solution_toward_the_prior_portfolio` confirms realized turnover is strictly lower with the penalty active, holding everything else fixed",
           "id_column": "OPT-04",
           "requirement_note": "turnover and proportional cost penalties, cost tradeoff vs. naive solution"
@@ -3418,19 +3418,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 685,
+          "checklist_line": 707,
           "evidence_note": "`ledoit_wolf_shrinkage_intensity` is cross-checked against scikit-learn's reference implementation to within `1e-9` across 6 (n_observations, n_assets) regimes including n > p, n < p, n == p and the n == 2 boundary; `test_shrinkage_is_higher_for_a_small_sample_than_a_large_one` confirms the intensity responds correctly to sample-size \"perturbation\" with a fixed non-trivial true covariance",
           "id_column": "OPT-05",
           "requirement_note": "robust covariance/scenario-uncertainty extension, sensitivity to perturbation reported"
         },
         {
-          "checklist_line": 1697,
+          "checklist_line": 1719,
           "evidence_note": "`test_target_shrinkage_matches_the_identity_special_case_exactly` (6 (n, p) regimes), `test_shrink_covariance_to_target_matches_ledoit_wolf_for_identity_target` -- an independently-written general implementation, not a refactor of PR-024's, reproducing it exactly at its own special case",
           "id_column": "OPT-05 / RISK-05 (extended, general shrinkage target)",
           "requirement_note": "shrinkage toward a structure beyond scaled identity"
         },
         {
-          "checklist_line": 1700,
+          "checklist_line": 1722,
           "evidence_note": "`test_factor_target_portfolio_has_lower_true_variance_than_identity_target_portfolio`: `minimum_variance_portfolio` fed the factor-shrunk covariance has lower TRUE out-of-sample variance than the same optimizer fed the identity-shrunk covariance, averaged over 80 trials -- mirrors PR-024's own existing identity-vs-raw portfolio test, one level up",
           "id_column": "OPT-05 / OPT-10 (extended, composes with the portfolio optimizer)",
           "requirement_note": "the lower-error target must translate into a better out-of-sample portfolio, not just a smaller matrix-norm number"
@@ -3454,7 +3454,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3191,
+          "checklist_line": 3213,
           "evidence_note": "`titan.portfolio.PortfolioConstraints.max_weight_per_asset`, threaded through all three optimizers via `_per_asset_bounds`; a discriminating test confirms the cap actually binds against an optimum that would otherwise violate it, and that an unreachable target-return-under-a-cap still reports failure honestly (OPT-09) rather than a silently-clipped false optimum",
           "id_column": "OPT-06 (first evidence)",
           "requirement_note": "liquidity and position-capacity constraints"
@@ -3478,7 +3478,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 710,
+          "checklist_line": 732,
           "evidence_note": "`titan.rebalancing.simulate_rebalancing`; `test_runs_end_to_end_with_realistic_correlated_returns` drives it on `stochastica`-generated correlated GBM paths; `test_wealth_evolves_consistently_period_by_period` independently recomputes the entire wealth path from each period's reported return and cost outside the module and confirms it matches to `1e-10`, not just that the final number looks plausible",
           "id_column": "OPT-07",
           "requirement_note": "multi-period rebalancing simulation with periodic re-estimation and transaction costs"
@@ -3502,7 +3502,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2760,
+          "checklist_line": 2782,
           "evidence_note": "`titan.out_of_sample.compare_in_sample_and_out_of_sample`: fits on `returns[:train_periods]` only, scores the frozen weights on both blocks; the systematic in-sample-optimistic/out-of-sample-pessimistic ordering is confirmed empirically (not assumed) and pinned as a regression guard",
           "id_column": "OPT-08 (first evidence)",
           "requirement_note": "include out-of-sample optimization comparison; train-only parameter estimates, test is untouched"
@@ -3526,7 +3526,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 666,
+          "checklist_line": 688,
           "evidence_note": "every `OptimizationResult`/`CVaROptimizationResult` carries `solver`, `success` and `status_message` unconditionally; both the SLSQP and HiGHS (linprog) infeasibility paths are exercised by name in tests, including an explicitly unachievable CVaR target-return constraint",
           "id_column": "OPT-09",
           "requirement_note": "solver name, tolerance, duality/termination state tracked; no infeasible solution silently labeled optimal"
@@ -3550,13 +3550,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 711,
+          "checklist_line": 733,
           "evidence_note": "`RebalancingResult.total_cost`/`total_turnover`/`max_drawdown`/`historical_var_95` (reusing `titan.risk_metrics`, PR-006); `test_higher_transaction_costs_reduce_final_wealth` and `test_less_frequent_rebalancing_reduces_total_turnover` both demonstrate the expected monotone sensitivity, holding the return path fixed and varying only the cost/frequency parameter",
           "id_column": "OPT-10 (extended)",
           "requirement_note": "turnover-adjusted performance and drawdown reporting over a rebalancing path"
         },
         {
-          "checklist_line": 1700,
+          "checklist_line": 1722,
           "evidence_note": "`test_factor_target_portfolio_has_lower_true_variance_than_identity_target_portfolio`: `minimum_variance_portfolio` fed the factor-shrunk covariance has lower TRUE out-of-sample variance than the same optimizer fed the identity-shrunk covariance, averaged over 80 trials -- mirrors PR-024's own existing identity-vs-raw portfolio test, one level up",
           "id_column": "OPT-05 / OPT-10 (extended, composes with the portfolio optimizer)",
           "requirement_note": "the lower-error target must translate into a better out-of-sample portfolio, not just a smaller matrix-norm number"
@@ -3580,7 +3580,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 933,
+          "checklist_line": 955,
           "evidence_note": "`run_stress_tests`'s `worst_case_exceeds_var` flag; `test_worst_case_scenario_exceeding_historical_var_is_flagged` builds a real historical loss series, computes its 95% VaR with `titan.risk_metrics.historical_var`, and confirms a scenario engineered to lose more is flagged while one engineered to lose less is not",
           "id_column": "OPT-11",
           "requirement_note": "stress-regime testing integrated with the portfolio optimizer and VaR"
@@ -3604,7 +3604,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 934,
+          "checklist_line": 956,
           "evidence_note": "`stress_scenario_factor_attribution`; sums *exactly* (not approximately -- the underlying dot product is linear, unlike variance's Euler allocation) to the scenario's total loss, confirmed directly",
           "id_column": "OPT-12 (partial)",
           "requirement_note": "loss attribution across risk factors under a stress scenario"
@@ -3628,7 +3628,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4789,
+          "checklist_line": 4811,
           "evidence_note": "`data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection",
           "id_column": "DAT-01 (first evidence)",
           "requirement_note": "create inventory of each external data source and license; approved source catalog with allowed use and redistribution"
@@ -3703,7 +3703,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4757,
+          "checklist_line": 4779,
           "evidence_note": "`data_ingestion.french_factors.fetch_french_factors`; a real captured response (4,812 monthly + 396 annual observations, vintage \"202609\") parsed and fed through `PointInTimeStore`",
           "id_column": "DAT-05 (first evidence)",
           "requirement_note": "build Kenneth French factor ingestion with version tracking; factors and methodological release notes versioned"
@@ -3727,7 +3727,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4422,
+          "checklist_line": 4444,
           "evidence_note": "`econosim.storage_layers.StorageLayer`/`ImmutableWriteError`/`LayerPermissionError`; 10 tests (`tests/unit/test_storage_layers.py`) including the per-key (not blanket) immutability check and the skip-a-layer permission rejection",
           "id_column": "DAT-06 (first evidence)",
           "requirement_note": "implement raw/normalized/features/artifacts storage layers; layer permissions and immutable boundaries tested"
@@ -3751,25 +3751,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 210,
+          "checklist_line": 232,
           "evidence_note": "`econosim.pit.MacroObservation`/`PointInTimeStore`; full DAT ingestion (FRED-MD/QD, ALFRED, hashing) is not implemented",
           "id_column": "DAT-07 (partial)",
           "requirement_note": "observation/publication timestamp tracking, point-in-time inclusion predicate"
         },
         {
-          "checklist_line": 535,
+          "checklist_line": 557,
           "evidence_note": "`test_monetary_feedback.py::test_macro_data_is_unavailable_until_publication_and_warms_up_on_two_prices`, `test_model_month_metadata_prevents_business_day_rolls_from_changing_annualization`, `test_no_trade_quote_never_manufactures_a_macro_observation`; external ingestion/vintage archives remain absent",
           "id_column": "DAT-07 (partial, synthetic)",
           "requirement_note": "observation/publication dates and inclusion predicates"
         },
         {
-          "checklist_line": 1926,
+          "checklist_line": 1948,
           "evidence_note": "the predicate itself now has one more leakage gate than before: `asof_eligible_at` (this system's own ingestion lag) in addition to `published_at` (the source's publication date) -- `test_as_of_also_gates_on_internal_ingestion_lag_not_just_publication` exercises a case where publication has happened but internal ingestion has not, confirming the stricter (later) gate wins",
           "id_column": "DAT-07 (original blueprint, strengthened)",
           "requirement_note": "point-in-time inclusion predicate"
         },
         {
-          "checklist_line": 2192,
+          "checklist_line": 2214,
           "evidence_note": "the SAME predicate now gates a real external HTTP-sourced observation, not just synthetic/econosim data -- `test_observations_feed_the_point_in_time_store_correctly` confirms a fetched observation is ineligible before the API's own `lastupdated` date and eligible on/after it",
           "id_column": "DAT-07 (strengthened)",
           "requirement_note": "observation/publication timestamp tracking, point-in-time inclusion predicate"
@@ -3793,7 +3793,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2193,
+          "checklist_line": 2215,
           "evidence_note": "`test_rows_with_a_null_value_are_skipped_not_fabricated`: a JSON `null` value is excluded from the result, never forward-filled or fabricated -- this is the specific clause claimed; no cross-source REVISION policy exists (World Bank's bulk API has no revision concept to test against)",
           "id_column": "DAT-08 (first evidence, narrow)",
           "requirement_note": "no forward-fill across release windows without justification"
@@ -3817,7 +3817,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3334,
+          "checklist_line": 3356,
           "evidence_note": "`econosim.leakage_linter.lint_future_timestamp_usage` (general) and `lint_pit_store_usage` (PointInTimeStore-integrated, via the store's own public `as_of`, not a privacy-violating direct read); tests cover a clean batch, a flagged leak, multiple simultaneous violations, a never-recorded series, and the asof_eligible_at ingestion-lag case",
           "id_column": "DAT-09 (first evidence)",
           "requirement_note": "enforce train/validation/test temporal partition on features; automated leakage linter catches future timestamps"
@@ -3841,7 +3841,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4454,
+          "checklist_line": 4476,
           "evidence_note": "`econosim.schema_contracts.SchemaContract`/`QuarantinedRecord`/`validate_against_contract`/`normalize_unit`/`map_currency_code`; 14 tests (`tests/unit/test_schema_contracts.py`) including the distinct-reason discrimination between a unit and a currency mismatch",
           "id_column": "DAT-10 (first evidence)",
           "requirement_note": "implement schema contracts, unit normalization and currency mapping; contract failures quarantined and logged"
@@ -3865,7 +3865,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3974,
+          "checklist_line": 3996,
           "evidence_note": "`econosim.data_quality.DataQualitySummary`/`summarize_data_quality`; 9 tests (`tests/unit/test_data_quality.py`) including the conflicting-duplicate-vs-harmless-re-ingestion discrimination and the `asof_eligible_at`-honoring freshness case",
           "id_column": "DAT-11 (first evidence)",
           "requirement_note": "monitor freshness, completeness, duplicates and revisions; alerts and quality summary visible per dataset"
@@ -3889,7 +3889,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4008,
+          "checklist_line": 4030,
           "evidence_note": "`experiments.dataset_fingerprint.DatasetFingerprint`/`compute_dataset_fingerprint`/`verify_dataset_fingerprint`; 9 tests (`tests/unit/test_dataset_fingerprint.py`) including a real GBM-price-to-log-return reproduction case and a 1e-9-perturbation detection case",
           "id_column": "DAT-12 (first evidence)",
           "requirement_note": "hash normalized data and feature transformations; every model reproduces dataset fingerprint exactly"
@@ -3913,7 +3913,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4869,
+          "checklist_line": 4891,
           "evidence_note": "`evidence.security_scan.license_scan`, composing through the existing scanner-agnostic `evaluate_release_gate`; a real zero-finding sweep of this repository's own tracked source tree, enforced every CI run via the existing unconditional `pytest -q` step",
           "id_column": "DAT-13 (first evidence)",
           "requirement_note": "prevent licensed/raw data from entering public release; CI secret/license scan and publication approval pass"
@@ -3937,7 +3937,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4396,
+          "checklist_line": 4418,
           "evidence_note": "`evidence.dataset_card.DatasetCard`/`build_dataset_card`; 8 tests (`tests/unit/test_dataset_card.py`) grounded in a real GBM simulation and a real captured World Bank response with its actual license",
           "id_column": "DAT-14 (first evidence)",
           "requirement_note": "document synthetic-vs-empirical labels and dataset cards; every published result identifies data lineage and type"
@@ -3961,19 +3961,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 278,
+          "checklist_line": 300,
           "evidence_note": "`experiments.hedge_benchmark.PRIMARY_ENDPOINT` is a module-level constant fixed before any result is examined, not chosen post hoc",
           "id_column": "EXP-01",
           "requirement_note": "pre-register primary endpoint and baseline comparison"
         },
         {
-          "checklist_line": 570,
+          "checklist_line": 592,
           "evidence_note": "`monetary_study.ENDPOINT`; payload records CVaR differences, mean loss/cost/turnover, uncertainty and all-scenario direction rule; `test_monetary_study.py::test_complete_crossing_shares_banks_and_keeps_every_retraining`",
           "id_column": "EXP-01 / EXP-10 (extended)",
           "requirement_note": "declared endpoint, margin, cell metrics and decision rule"
         },
         {
-          "checklist_line": 1486,
+          "checklist_line": 1508,
           "evidence_note": "`mixture_study.ENDPOINT`; new mixture scenario/contrast family uses nominal Bonferroni allocation; source conditional intervals remain auxiliary and cannot select the new endpoint/verdict",
           "id_column": "EXP-01 / EXP-08 / EXP-10 (extended, approximate inference)",
           "requirement_note": "declared estimand/contrasts, economic margin and separate family allocation"
@@ -3997,13 +3997,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 279,
+          "checklist_line": 301,
           "evidence_note": "only the hedge axis is varied (delta vs. MLP); explicitly documented as a partial slice, not the full 2x2x2, in both the module docstring and every report's `limitations` tuple",
           "id_column": "EXP-02 (partial)",
           "requirement_note": "factorial economy/market/hedge matrix"
         },
         {
-          "checklist_line": 571,
+          "checklist_line": 593,
           "evidence_note": "default publication-delay, payroll-channel and supply-shock scenarios crossed with delta/MLP; no learned economy/market arms or full blueprint factorial",
           "id_column": "EXP-02 (partial, specified macro scenarios)",
           "requirement_note": "vary macro conditions and compare hedge policies"
@@ -4027,49 +4027,49 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 207,
+          "checklist_line": 229,
           "evidence_note": "`core.seeds.SeedHierarchy`; `tests/unit/test_seeds.py::test_stream_identity_is_independent_of_request_order`",
           "id_column": "EXP-03",
           "requirement_note": "random seed hierarchy across agent/market/training, order-independent replay"
         },
         {
-          "checklist_line": 268,
+          "checklist_line": 290,
           "evidence_note": "`tests/unit/test_deep_hedge.py::test_training_is_deterministic_given_a_fixed_seed` (identical objective history across two independent calls)",
           "id_column": "EXP-03 (partial)",
           "requirement_note": "deterministic training given a fixed seed"
         },
         {
-          "checklist_line": 280,
+          "checklist_line": 302,
           "evidence_note": "each test seed independently reseeds path simulation and bootstrap resampling; `tests/unit/test_hedge_benchmark.py::test_result_hash_is_reproducible_across_independent_runs`",
           "id_column": "EXP-03 (partial)",
           "requirement_note": "seed hierarchy, replay reconstructs results"
         },
         {
-          "checklist_line": 417,
+          "checklist_line": 439,
           "evidence_note": "`test_benchmark_run.py::test_seed_order_does_not_change_each_seeds_draws_or_bootstrap`, `test_different_test_seeds_cannot_change_training`",
           "id_column": "EXP-03 (extended)",
           "requirement_note": "independent named path/bootstrap streams; test scenarios cannot affect training"
         },
         {
-          "checklist_line": 611,
+          "checklist_line": 633,
           "evidence_note": "`test_test_seeds_and_scenarios_cannot_change_training_data_or_fitted_models`; `test_training_pool_records_balanced_allocations_rates_and_independent_macro_seeds`",
           "id_column": "EXP-03 / ECO-13 (extended)",
           "requirement_note": "independent training/evaluation draws; no test-scenario-dependent fitting"
         },
         {
-          "checklist_line": 902,
+          "checklist_line": 924,
           "evidence_note": "the policy-rate shock stream is drawn from `SeedHierarchy(config.seed).stream(\"policy-rate-shocks\")`, a named, order-independent stream (core.seeds, PR-003); `test_same_config_is_fully_deterministic` confirms two runs from the same seed produce bit-identical per-step ledger state hashes, not just the same final result",
           "id_column": "EXP-03 (extended)",
           "requirement_note": "seed hierarchy reconstructs nested RNG state on replay"
         },
         {
-          "checklist_line": 1487,
+          "checklist_line": 1509,
           "evidence_note": "`test_nested_settings_never_change_training_data_models_or_loss_samples`, `test_axis_order_cannot_change_results`; copied loss vectors/cubes are fingerprinted against original cells",
           "id_column": "EXP-03 / AUD-02 (extended)",
           "requirement_note": "nested resampling cannot change training, prices or original risk results"
         },
         {
-          "checklist_line": 1527,
+          "checklist_line": 1549,
           "evidence_note": "all supported replay fixtures exercise strict sealed replay and explicit legacy rejection; runtime changes still differ from computational result mismatches",
           "id_column": "EXP-03 / VAL-09 (extended)",
           "requirement_note": "retain reproducibility while strengthening export integrity"
@@ -4093,7 +4093,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3562,
+          "checklist_line": 3584,
           "evidence_note": "`experiments.holdout_manifest.DataSplit`/`HoldoutManifest`/`build_holdout_manifest` (content-addressed manifest id, order-independent, discriminating on any cutoff change) plus `split_for_date`/`regime_for_date`; 16 tests including overlap rejection, duplicate-id rejection, and a deliberate gap-between-regimes case (`tests/unit/test_holdout_manifest.py`)",
           "id_column": "EXP-04 (first evidence)",
           "requirement_note": "lock train/validation/test regimes and date cutoffs; immutable split IDs and holdout manifest"
@@ -4117,7 +4117,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3602,
+          "checklist_line": 3624,
           "evidence_note": "`experiments.leakage_negative_control.run_future_data_negative_control`/`LeakageNegativeControlResult`/`assert_scoreboard_is_leakage_clean`; 9 tests (`tests/unit/test_leakage_negative_control.py`) including a real `PointInTimeStore` leak scenario (large positive gap), its converse (near-zero gap when already eligible), and the isolation guard rejecting an embedded diagnostic",
           "id_column": "EXP-05 (first evidence)",
           "requirement_note": "add future-data negative control only for leakage diagnosis; diagnostic clearly isolated from valid model scoreboard"
@@ -4141,19 +4141,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 267,
+          "checklist_line": 289,
           "evidence_note": "`tests/unit/test_deep_hedge.py::test_trained_policy_vastly_outperforms_untrained_negative_control` (~10x CVaR gap observed in development; test asserts a conservative 2x)",
           "id_column": "EXP-06",
           "requirement_note": "untrained/random-policy negative control"
         },
         {
-          "checklist_line": 281,
+          "checklist_line": 303,
           "evidence_note": "reused from PR-007 (`test_deep_hedge.py`)",
           "id_column": "EXP-06",
           "requirement_note": "untrained/random-policy negative control"
         },
         {
-          "checklist_line": 610,
+          "checklist_line": 632,
           "evidence_note": "`test_training_arms_are_parameter_and_data_matched_with_full_crossing`; `test_identical_rate_history_makes_blind_and_aware_training_exactly_equal`; zero feature acts as an information ablation, not an untrained random hedge",
           "id_column": "HDG-13 / EXP-06 (extended, matched-feature control)",
           "requirement_note": "apparent feature gains cannot come from larger architecture or different training data"
@@ -4177,31 +4177,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 282,
+          "checklist_line": 304,
           "evidence_note": "`experiments.bootstrap.paired_bootstrap_difference`; `tests/unit/test_bootstrap.py::test_paired_constant_shift_gives_a_degenerate_ci_at_the_exact_shift` demonstrates the pairing is load-bearing (a planted constant per-path difference collapses to an exact-point CI, which an unpaired bootstrap would not do)",
           "id_column": "EXP-07",
           "requirement_note": "paired confidence intervals respecting dependence"
         },
         {
-          "checklist_line": 453,
+          "checklist_line": 475,
           "evidence_note": "`test_crossed_bootstrap.py::test_more_test_banks_do_not_erase_training_variability`, `test_more_models_do_not_erase_shared_test_bank_variability`, `test_crossing_resampled_rows_and_columns_includes_their_interaction`; crossed row/column percentile bootstrap, not flattened cell resampling",
           "id_column": "EXP-07 (extended)",
           "requirement_note": "uncertainty retains dependence from shared policies and shared test banks"
         },
         {
-          "checklist_line": 572,
+          "checklist_line": 594,
           "evidence_note": "crossed row/column bootstrap, nominal Bonferroni confidence; `test_reversing_declared_axes_cannot_change_inference_or_result_hash`; inherited exact crossed-bootstrap fixtures remain applicable",
           "id_column": "EXP-07 / EXP-08 (extended, approximate inference)",
           "requirement_note": "shared-bank dependence and declared scenario-family adjustment"
         },
         {
-          "checklist_line": 612,
+          "checklist_line": 634,
           "evidence_note": "rate-blind-minus-aware primary, delta-minus-aware secondary; nominal Bonferroni allocation over all scenario/contrast pairs; `test_all_declared_axes_can_be_reversed_without_changing_results`",
           "id_column": "EXP-07 / EXP-08 (extended, approximate inference)",
           "requirement_note": "two declared contrasts retain row/bank dependence and family allocation"
         },
         {
-          "checklist_line": 1485,
+          "checklist_line": 1507,
           "evidence_note": "`test_nested_draws_match_a_separate_loop_based_reconstruction`; `test_constant_shift_is_preserved_in_every_nested_and_conditional_resample`; tests confirm macro/training uncertainty survives increasing conditional path counts",
           "id_column": "EXP-07 (extended, nested paired design)",
           "requirement_note": "preserve training, shared macro and within-bank market dependence"
@@ -4225,25 +4225,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 454,
+          "checklist_line": 476,
           "evidence_note": "`bonferroni_confidence`; `test_crossed_bootstrap.py::test_nominal_bonferroni_tail_allocation_and_validation`; family/confidence/margin/decision rule are hashed in the study recipe; approximate marginal coverage remains uncalibrated",
           "id_column": "EXP-08 (nominal treatment, partial)",
           "requirement_note": "predeclare a secondary scenario family and adjustment strategy"
         },
         {
-          "checklist_line": 572,
+          "checklist_line": 594,
           "evidence_note": "crossed row/column bootstrap, nominal Bonferroni confidence; `test_reversing_declared_axes_cannot_change_inference_or_result_hash`; inherited exact crossed-bootstrap fixtures remain applicable",
           "id_column": "EXP-07 / EXP-08 (extended, approximate inference)",
           "requirement_note": "shared-bank dependence and declared scenario-family adjustment"
         },
         {
-          "checklist_line": 612,
+          "checklist_line": 634,
           "evidence_note": "rate-blind-minus-aware primary, delta-minus-aware secondary; nominal Bonferroni allocation over all scenario/contrast pairs; `test_all_declared_axes_can_be_reversed_without_changing_results`",
           "id_column": "EXP-07 / EXP-08 (extended, approximate inference)",
           "requirement_note": "two declared contrasts retain row/bank dependence and family allocation"
         },
         {
-          "checklist_line": 1486,
+          "checklist_line": 1508,
           "evidence_note": "`mixture_study.ENDPOINT`; new mixture scenario/contrast family uses nominal Bonferroni allocation; source conditional intervals remain auxiliary and cannot select the new endpoint/verdict",
           "id_column": "EXP-01 / EXP-08 / EXP-10 (extended, approximate inference)",
           "requirement_note": "declared estimand/contrasts, economic margin and separate family allocation"
@@ -4267,7 +4267,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3145,
+          "checklist_line": 3167,
           "evidence_note": "`experiments.block_bootstrap.moving_block_bootstrap`; verified against an exactly-known AR(1) ground truth (CI-width-to-true-SE ratio and direct 95%-nominal coverage-rate comparison), both confirming a large, genuine improvement over the naive i.i.d. bootstrap on a correlated synthetic test case",
           "id_column": "EXP-09 (first evidence)",
           "requirement_note": "support block bootstrap for serial dependence"
@@ -4291,25 +4291,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 283,
+          "checklist_line": 305,
           "evidence_note": "each `SeedResult` carries both the raw CVaR values and the bootstrap point estimate/CI, not just a p-value-style verdict",
           "id_column": "EXP-10 (partial)",
           "requirement_note": "effect size and economic significance jointly"
         },
         {
-          "checklist_line": 418,
+          "checklist_line": 440,
           "evidence_note": "`test_benchmark_run.py::test_report_preserves_all_seed_results_and_financial_metrics`; `hedge_benchmark.SeedResult` and the generated corrected benchmark include each metric without selecting successful seeds",
           "id_column": "EXP-10 (extended, not full acceptance)",
           "requirement_note": "CVaR differences/CIs plus per-seed mean loss, cost and turnover"
         },
         {
-          "checklist_line": 570,
+          "checklist_line": 592,
           "evidence_note": "`monetary_study.ENDPOINT`; payload records CVaR differences, mean loss/cost/turnover, uncertainty and all-scenario direction rule; `test_monetary_study.py::test_complete_crossing_shares_banks_and_keeps_every_retraining`",
           "id_column": "EXP-01 / EXP-10 (extended)",
           "requirement_note": "declared endpoint, margin, cell metrics and decision rule"
         },
         {
-          "checklist_line": 1486,
+          "checklist_line": 1508,
           "evidence_note": "`mixture_study.ENDPOINT`; new mixture scenario/contrast family uses nominal Bonferroni allocation; source conditional intervals remain auxiliary and cannot select the new endpoint/verdict",
           "id_column": "EXP-01 / EXP-08 / EXP-10 (extended, approximate inference)",
           "requirement_note": "declared estimand/contrasts, economic margin and separate family allocation"
@@ -4333,7 +4333,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3646,
+          "checklist_line": 3668,
           "evidence_note": "`experiments.cost_benchmark.HardwareInfo`/`MethodCostProfile`/`benchmark_method_cost`/`benchmark_methods_cost`; 14 tests (`tests/unit/test_cost_benchmark.py`) including a real memory-discrimination check, a real walltime-ordering check, and monkeypatched GPU-present/torch-absent branches",
           "id_column": "EXP-11 (first evidence)",
           "requirement_note": "benchmark computational cost and memory across methods; hardware, GPU driver, dtype and walltime logged"
@@ -4357,13 +4357,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 455,
+          "checklist_line": 477,
           "evidence_note": "baseline, high realized volatility and higher execution cost; `test_study_run.py::test_stress_paths_change_without_giving_delta_oracle_volatility`, `test_stress_configuration_cannot_affect_training`",
           "id_column": "EXP-12 (partial, synthetic parameter stress)",
           "requirement_note": "predefined OOD/perturbed regimes receive separate scores"
         },
         {
-          "checklist_line": 573,
+          "checklist_line": 595,
           "evidence_note": "`test_stress_changes_realized_volatility_costs_without_changing_training_or_macro`; identical per-bank normal hashes and identical training hashes across scenario stress",
           "id_column": "EXP-12 (partial, synthetic feedback stress)",
           "requirement_note": "held-out publication/real-activity/supply regimes with shared shocks"
@@ -4387,7 +4387,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 284,
+          "checklist_line": 306,
           "evidence_note": "`run_hedge_benchmark` always returns one `SeedResult` per requested seed; there is no filtering/selection step",
           "id_column": "EXP-13",
           "requirement_note": "no results excluded without transparent reason"
@@ -4428,7 +4428,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2490,
+          "checklist_line": 2512,
           "evidence_note": "`tests/unit/test_golden_reference_values.py`, 6 tests, run on every push/PR by the existing GitHub Actions CI",
           "id_column": "VAL-01 (first evidence)",
           "requirement_note": "golden analytical test suite for GBM and Black-Scholes; CI matches known reference values"
@@ -4452,7 +4452,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2491,
+          "checklist_line": 2513,
           "evidence_note": "`test_confidence_interval_achieves_its_nominal_coverage_rate` in `test_monte_carlo.py`: 300 independent repeats, 94.7% observed vs 95% nominal coverage of the reported 95% CI",
           "id_column": "VAL-02 (first evidence)",
           "requirement_note": "MC sampling error test on benchmark payoffs; expected confidence coverage across repeated simulations"
@@ -4476,7 +4476,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2041,
+          "checklist_line": 2063,
           "evidence_note": "same module: `estimate_weak_convergence_order` (log-log OLS slope of bias vs dt) is independently verified against two synthetic cases with an EXACTLY known order (pure dt^1 and dt^2 decay, recovered to 1e-9) before being applied to the real Heston result, which lands at order ~0.78 (theory predicts ~1); this is a correct, literal match to \"convergence checks for stochastic integrators\" -- unlike the VAL-01/03/14 misattribution earlier, this module genuinely IS a stochastic-integrator convergence check",
           "id_column": "VAL-03 (original blueprint)",
           "requirement_note": "strong/weak convergence checks for stochastic integrators"
@@ -4500,7 +4500,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 221,
+          "checklist_line": 243,
           "evidence_note": "`stochastica.correlated.validate_and_repair_covariance`; `tests/unit/test_correlated.py` (asymmetric and materially non-PSD matrices rejected; a tiny-negative-eigenvalue matrix is repaired with a warning)",
           "id_column": "VAL-04",
           "requirement_note": "covariance symmetry/PSD validation, adversarial matrices rejected or repaired with warning"
@@ -4524,19 +4524,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 238,
+          "checklist_line": 260,
           "evidence_note": "Implemented as *analytical-formula* vs. *finite-difference*, not automatic differentiation vs. finite-difference as the ID's literal text says; both differentiate the same `black_scholes_price` function, so this does not independently verify the price formula itself, only the Greeks formulas derived from it",
           "id_column": "VAL-05 (caveat)",
           "requirement_note": "AD vs. finite-difference Greek checks"
         },
         {
-          "checklist_line": 1325,
+          "checklist_line": 1347,
           "evidence_note": "`test_naive_spot_bumped_central_difference_gamma_does_not_converge` demonstrates the broken approach directly (gamma off by more than 10x using a bump on the same scale `greeks_fd.py` already uses successfully for the smooth Black-Scholes price) BEFORE the correct method's own convergence test runs, so the fix is proven necessary, not merely elegant",
           "id_column": "VAL-05 (extended)",
           "requirement_note": "Greeks for a non-closed-form instrument, cross-checked for correctness"
         },
         {
-          "checklist_line": 2074,
+          "checklist_line": 2096,
           "evidence_note": "each new module's Greeks converge to Black-Scholes' analytical Greeks in a limit where the two models coincide, confirmed in testing, not merely plausible by inspection",
           "id_column": "VAL-05 (extended, same caveat as the original row)",
           "requirement_note": "Greeks cross-checked for correctness"
@@ -4560,7 +4560,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 222,
+          "checklist_line": 244,
           "evidence_note": "`tests/unit/test_heston.py::test_variance_path_never_negative` at a low-Feller, high-vol-of-vol parameter set; \"silent clamps\" are not hidden -- they are the documented, tested mechanism (full truncation), not a bug being masked",
           "id_column": "VAL-06 (partial)",
           "requirement_note": "Heston variance scheme across parameter extremes, no hidden negative values"
@@ -4584,19 +4584,19 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 199,
+          "checklist_line": 221,
           "evidence_note": "same property test as LED-12",
           "id_column": "VAL-07",
           "requirement_note": "economic conservation under randomized transitions"
         },
         {
-          "checklist_line": 498,
+          "checklist_line": 520,
           "evidence_note": "`tests/property/test_exact_markets.py` covers buyer feasibility, firm payroll limits, cash/equity conservation and an exhaustive integer-price oracle; `test_economy_run.py::test_every_step_conserves_cash_equity_and_physical_inventory` checks cumulative production/sales/inventory",
           "id_column": "LED-12 / VAL-07 (extended)",
           "requirement_note": "randomized exact settlement conserves money and quantity"
         },
         {
-          "checklist_line": 537,
+          "checklist_line": 559,
           "evidence_note": "`test_monetary_run.py::test_coupled_steps_preserve_economic_conservation_and_opening_rate_timing`, `test_delayed_publication_prevents_any_policy_or_real_activity_feedback`; standalone price-economy results remain identical without active feedback",
           "id_column": "LED-12 / VAL-07 (extended)",
           "requirement_note": "coupled feedback preserves exact economic accounting"
@@ -4620,7 +4620,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2599,
+          "checklist_line": 2621,
           "evidence_note": "pre-existing `InsufficientFundsError`/`CreditLimitExceededError` across every debit/credit-extending method in `econosim.agents` (confirmed by reading the whole module); strengthened by a new property sweep over randomly generated amounts, confirming both the rejection AND its converse (an in-budget/at-the-cap action is never over-rejected)",
           "id_column": "VAL-08 (first evidence)",
           "requirement_note": "check budget, capital, leverage and action feasibility always; invariant violation forces explicit fault state"
@@ -4644,13 +4644,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 200,
+          "checklist_line": 222,
           "evidence_note": "`EconomicState.state_hash()`; not yet wired to a pinned CI reference-hash fixture",
           "id_column": "VAL-09 (partial)",
           "requirement_note": "deterministic CPU test mode, reference hashes"
         },
         {
-          "checklist_line": 1527,
+          "checklist_line": 1549,
           "evidence_note": "all supported replay fixtures exercise strict sealed replay and explicit legacy rejection; runtime changes still differ from computational result mismatches",
           "id_column": "EXP-03 / VAL-09 (extended)",
           "requirement_note": "retain reproducibility while strengthening export integrity"
@@ -4691,7 +4691,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2548,
+          "checklist_line": 2570,
           "evidence_note": "`tests/property/test_metamorphic_suite.py`, 8 Hypothesis tests, one or more per named relationship; found and fixed a 6th real SDE-12-adjacent crash (Merton's `jump_intensity=0.0`) along the way",
           "id_column": "VAL-11 (first evidence)",
           "requirement_note": "property-based and metamorphic test suites; scaling, parity, relabeling and zero-shock tests documented"
@@ -4715,7 +4715,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3524,
+          "checklist_line": 3546,
           "evidence_note": "`service.reports.PricingReportResponse`/`RiskReportResponse` carry required per-field tolerances; `check_pricing_tolerance`/`check_risk_tolerance` detect and report violations (`tests/unit/test_service_reports.py`); found and fixed a 7th SDE-12-adjacent crash (barrier option discount-factor overflow, `barrier_options.py`) while re-verifying the full suite",
           "id_column": "VAL-12 (first evidence)",
           "requirement_note": "set numerical accuracy budget per API output; tolerance fields present and tested for violations"
@@ -4739,7 +4739,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 2344,
+          "checklist_line": 2366,
           "evidence_note": "`prometheus.numerics.require_finite`, wired into 8 dataclasses' `__post_init__`; `test_numerics.py` plus a NaN/Inf regression test in each of `test_black_scholes.py`, `test_american_options.py`, `test_forwards.py`, `test_asian_options.py`, `test_barrier_options.py`, `test_heston.py` and `test_merton_pricer.py` confirm each one now fails closed with a clear `ValueError` instead of silently admitting the NaN/Inf",
           "id_column": "VAL-13 (first evidence)",
           "requirement_note": "perform NaN/Inf injection and solver fail-closed tests; no invalid output promoted or silently cached"
@@ -4763,25 +4763,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1740,
+          "checklist_line": 1762,
           "evidence_note": "`test_matches_monte_carlo_simulation`: the Fourier price falls within 4 Monte Carlo standard errors of simulating `stochastica.heston.simulate_heston_paths` (an independently-written module) over 200,000 paths",
           "id_column": "VAL-14 (partial, two-method pricing cross-check)",
           "requirement_note": "cross-check pricing with an independent implementation"
         },
         {
-          "checklist_line": 1786,
+          "checklist_line": 1808,
           "evidence_note": "same test as above, plus `test_matches_a_from_scratch_second_computation_of_the_closed_form` (a from-scratch re-derivation, not calling the production formula) and the Black-Scholes zero-intensity limit (call and put, with and without dividends)",
           "id_column": "VAL-14 (extended, a second two-method cross-check)",
           "requirement_note": "cross-check pricing with an independent implementation"
         },
         {
-          "checklist_line": 1835,
+          "checklist_line": 1857,
           "evidence_note": "`test_matches_independent_bridge_corrected_monte_carlo`: a from-scratch, separately-written Brownian-bridge continuity-corrected Monte Carlo (not the production quadrature re-run), parametrized over down/up barriers, calls/puts, knock-in/out, and strikes on both sides of the barrier",
           "id_column": "VAL-14 (extended, a third two-method cross-check)",
           "requirement_note": "cross-check pricing with an independent implementation"
         },
         {
-          "checklist_line": 1878,
+          "checklist_line": 1900,
           "evidence_note": "`test_geometric_closed_form_matches_independent_monte_carlo`: the closed form against simulation of the independently-written `stochastica.gbm` path simulator's own fixing values, across three (strike, maturity, n_fixings) combinations",
           "id_column": "VAL-14 (extended, a fourth two-method cross-check)",
           "requirement_note": "cross-check pricing with an independent implementation"
@@ -4805,7 +4805,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1553,
+          "checklist_line": 1575,
           "evidence_note": "immutable runner allowlist, canonical recipe fingerprints and all existing strict decoders; `test_recipe_registry.py` covers defaults, missing/unknown fields and resource preflight; committed release config acceptance remains pending",
           "id_column": "MLO-01 (partial, local typed recipes)",
           "requirement_note": "complete typed/versioned execution configuration"
@@ -4829,7 +4829,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1621,
+          "checklist_line": 1643,
           "evidence_note": "`uv.lock`, `requirements/bootstrap.txt`, `tools/reproducible_build.py`; clean locked environment and installed-wheel checks; container/OS digest rebuild remains open",
           "id_column": "MLO-02 (partial)",
           "requirement_note": "exact dependency/artifact hashes, CPU index binding, pinned build/bootstrap inputs and independent wheel rebuild"
@@ -4853,7 +4853,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4683,
+          "checklist_line": 4705,
           "evidence_note": "`evidence.dataset_provenance.DatasetProvenance`/`build_dataset_provenance`/`ProvenanceMismatchError`; 5 tests (`tests/unit/test_dataset_provenance.py`) grounded in real instances of all four composed primitives, including the model-mismatch and no-train-split rejections",
           "id_column": "MLO-03 (first evidence)",
           "requirement_note": "track dataset hash, feature contract and training cutoffs; model artifact includes unambiguous dataset provenance"
@@ -4877,7 +4877,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4729,
+          "checklist_line": 4751,
           "evidence_note": "`hedging.deep_hedge.TrainingCheckpoint`/`resume_from`; a real split-training-run test confirming BIT-FOR-BIT exact final-weight reproduction, plus a mismatched-seed rejection",
           "id_column": "MLO-04 (first evidence)",
           "requirement_note": "persist training seeds, optimizer, scheduler and RNG state; mid-run resume reproduces experiment within tolerance"
@@ -4901,7 +4901,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4730,
+          "checklist_line": 4752,
           "evidence_note": "`hedging.deep_hedge.EpochRecord`/`epoch_log`; confirmed to carry real epoch/seed/gradient-norm metadata, non-trivially",
           "id_column": "MLO-05 (first evidence)",
           "requirement_note": "track learning curves and gradient diagnostics; experiment log contains step/epoch/seed metadata"
@@ -4925,7 +4925,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4196,
+          "checklist_line": 4218,
           "evidence_note": "`experiments.early_stopping.EarlyStopper`/`EarlyStoppingDecision`/`NonValidationRegimeError`; 11 tests (`tests/unit/test_early_stopping.py`) including a real `HoldoutManifest`-driven simulated training loop and a genuine test-regime-date rejection",
           "id_column": "MLO-06 (first evidence)",
           "requirement_note": "implement early stopping using validation only; test set never used for hyperparameter selection"
@@ -4949,7 +4949,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4123,
+          "checklist_line": 4145,
           "evidence_note": "`evidence.model_package.ModelPackage`/`build_model_package`/`verify_package_integrity`/`PackageIntegrityError`; 11 tests (`tests/unit/test_model_package.py`) grounded in a real `torch.save`d `HedgePolicyMLP` artifact, including a single-byte tamper detection case",
           "id_column": "MLO-07 (first evidence)",
           "requirement_note": "version artifacts and keep immutable approved packages; every model package resolves to unique content hash"
@@ -4973,7 +4973,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4084,
+          "checklist_line": 4106,
           "evidence_note": "`evidence.model_registry.ModelRegistryEntry`/`StateTransition`/`is_allowed_transition`; 25 tests (`tests/unit/test_model_registry.py`) including the full forward path, emergency retirement from every state, and 4 illegal-transition cases",
           "id_column": "MLO-08 (first evidence)",
           "requirement_note": "create registry states: candidate/evaluated/approved/staged/retired; transition policy enforced by code and audit trail"
@@ -4997,13 +4997,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 309,
+          "checklist_line": 331,
           "evidence_note": "`evidence.model_card.ModelCard`, structurally validated (cannot construct with a missing required section); `evidence.repository_status.build_deep_hedge_model_card` cards the actual PR-007 MLP policy with real, specific failure modes, not placeholder text",
           "id_column": "MLO-09",
           "requirement_note": "model cards for intended use and limitations, CIs/failure modes/risk owner"
         },
         {
-          "checklist_line": 1525,
+          "checklist_line": 1547,
           "evidence_note": "finite numeric metrics, explicit conditional/approved reviewer names; malformed dates, boolean approvers and reversed gate sunset dates are rejected",
           "id_column": "MLO-09 / DOC-06 (extended)",
           "requirement_note": "model-card metrics and reviewer fields have enforceable schema"
@@ -5027,7 +5027,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4085,
+          "checklist_line": 4107,
           "evidence_note": "`evidence.model_registry.promote_to_approved`, layered on the same transition policy, reusing `training_provenance.TrainingProvenanceManifest` (AUD-03); separately denies missing provenance, missing validation, and failed validation, and confirms the underlying state machine is not bypassed",
           "id_column": "MLO-10 (first evidence)",
           "requirement_note": "block deployment for missing provenance or validation; promotion gate test denies incomplete candidates"
@@ -5051,7 +5051,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4650,
+          "checklist_line": 4672,
           "evidence_note": "`evidence.reproducible_inference.InputContract`/`ReferenceCase`/`ReproducibilityMismatch`/`verify_reproducible_inference`; 8 tests (`tests/unit/test_reproducible_inference.py`) grounded in a real `HedgePolicyMLP`, including a tampered-approved-output discrimination case",
           "id_column": "MLO-11 (first evidence)",
           "requirement_note": "implement reproducible inference container and input contracts; same reference inputs produce approved outputs"
@@ -5075,7 +5075,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4159,
+          "checklist_line": 4181,
           "evidence_note": "`evidence.model_serving.ModelServingSlot`/`deploy`/`cached_predict`/`rollback_to`; 6 tests (`tests/unit/test_model_serving.py`) including exact-restoration, stale-entry-purged, and valid-entry-preserved cases",
           "id_column": "MLO-12 (first evidence)",
           "requirement_note": "implement controlled model rollbacks and retirement; rollback test confirms restored model and stale-cache purge"
@@ -5099,7 +5099,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4485,
+          "checklist_line": 4507,
           "evidence_note": "`evidence.retraining_trigger.RetrainingThreshold`/`RetrainingEscalation`/`evaluate_retraining_trigger`; 7 tests (`tests/unit/test_retraining_trigger.py`) grounded in a real well-calibrated and a real miscalibrated ES forecast via RISK-09's own test, plus the backdating rejection",
           "id_column": "MLO-13 (first evidence)",
           "requirement_note": "track model drift, calibration and retraining triggers; thresholds and escalation recorded before deployment"
@@ -5123,7 +5123,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4236,
+          "checklist_line": 4258,
           "evidence_note": "`evidence.champion_challenger.ChampionChallengerReport`/`build_champion_challenger_report`/`ChampionNeverApprovedError`; 6 tests (`tests/unit/test_champion_challenger.py`) grounded in a real delta-hedge-vs-no-trade-band comparison, including the never-approved-champion rejection and the higher/lower-is-better convention flip",
           "id_column": "MLO-14 (first evidence)",
           "requirement_note": "support comparison against last approved champion model; champion/challenger report generated with matched data"
@@ -5147,7 +5147,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1591,
+          "checklist_line": 1613,
           "evidence_note": "`docs/api/openapi-v1.json`, `docs/RESEARCH_API.md`; contract snapshot and all nine default recipe schema tests",
           "id_column": "API-01 (partial)",
           "requirement_note": "versioned OpenAPI contract and compatibility policy"
@@ -5171,13 +5171,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1554,
+          "checklist_line": 1576,
           "evidence_note": "complete dataclass decoding, structure/precision and aggregate work admission; service 4xx/OpenAPI mappings are not yet implemented",
           "id_column": "API-02 (partial, pre-HTTP validation)",
           "requirement_note": "reject malformed/oversized requests with precise causes"
         },
         {
-          "checklist_line": 1592,
+          "checklist_line": 1614,
           "evidence_note": "`test_service_http.py`: duplicate keys, overflowing exponents, missing/extra fields, invalid dates/units/types/precision/work, media/framing/byte/deadline guards; data ingestion/inference payload families remain open",
           "id_column": "API-02 (extended, partial)",
           "requirement_note": "strict JSON, typed nested wire schemas, dates, currencies, resource admission and structured 4xx failures"
@@ -5201,13 +5201,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1555,
+          "checklist_line": 1577,
           "evidence_note": "`test_job_store.py::test_persistence_idempotency_conflicts_and_owner_visibility`; actual worker/artifact round trip; owner filters rely on trusted operator/OS access, not network authentication",
           "id_column": "API-03 (partial, local jobs)",
           "requirement_note": "persistent unique/replayable jobs with scoped lookups"
         },
         {
-          "checklist_line": 1593,
+          "checklist_line": 1615,
           "evidence_note": "real socket SDK/worker round trip; repeat/conflict cases; foreign-owner status/cancel/artifact denial; complete service acceptance/load validation remains open",
           "id_column": "API-03 / API-06 (extended, partial)",
           "requirement_note": "authenticated owner-derived asynchronous submission/status and mandatory submission idempotency"
@@ -5231,13 +5231,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1556,
+          "checklist_line": 1578,
           "evidence_note": "queue/work/byte budgets, Linux wall/CPU/file controls, token fencing; real timeout, running cancellation, parent-death and recovery tests; hard RSS/cgroup and per-period quotas remain open",
           "id_column": "API-04 (partial, execution controls)",
           "requirement_note": "bound workloads, cancellation and orphan recovery"
         },
         {
-          "checklist_line": 1594,
+          "checklist_line": 1616,
           "evidence_note": "request/global-owner rate caps, inflight fencing after caller cancellation, durable queue quotas; existing real worker failure tests; hard RSS/distributed budgets remain open",
           "id_column": "API-04 (extended, partial)",
           "requirement_note": "HTTP admission plus existing worker deadlines, cancellation and recovery"
@@ -5261,7 +5261,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3374,
+          "checklist_line": 3396,
           "evidence_note": "`service.reports.PricingReportResponse`/`RiskReportResponse` (frozen dataclasses, immutability confirmed by test) plus `build_pricing_report`/`build_risk_report`, which compute `market_snapshot_id` deterministically from the `MarketSnapshot` via the existing `compute_result_hash` utility",
           "id_column": "API-05 (first evidence)",
           "requirement_note": "define immutable pricing and risk report responses; responses reference market snapshots and model versions"
@@ -5285,13 +5285,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1557,
+          "checklist_line": 1579,
           "evidence_note": "sixteen concurrent identical submissions return one transactional job; conflicting request reuse is rejected; HTTP endpoint acceptance remains pending",
           "id_column": "API-06 (partial, backend idempotency)",
           "requirement_note": "retries must not create duplicate jobs"
         },
         {
-          "checklist_line": 1593,
+          "checklist_line": 1615,
           "evidence_note": "real socket SDK/worker round trip; repeat/conflict cases; foreign-owner status/cancel/artifact denial; complete service acceptance/load validation remains open",
           "id_column": "API-03 / API-06 (extended, partial)",
           "requirement_note": "authenticated owner-derived asynchronous submission/status and mandatory submission idempotency"
@@ -5315,13 +5315,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1558,
+          "checklist_line": 1580,
           "evidence_note": "typed submission errors plus terminal structured error codes and diagnostic IDs; malformed requests preserve existing state; HTTP diagnostic response envelope remains open",
           "id_column": "API-07 (partial, job diagnostics)",
           "requirement_note": "distinguish validation/model/infrastructure failures"
         },
         {
-          "checklist_line": 1595,
+          "checklist_line": 1617,
           "evidence_note": "wire schema validates error envelopes; SDK distinguishes structured service failures from protocol/transport faults; no recipe/token values in service logs",
           "id_column": "API-07 (extended, partial)",
           "requirement_note": "consistent HTTP error codes, request/diagnostic IDs and terminal job error classes"
@@ -5345,7 +5345,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1596,
+          "checklist_line": 1618,
           "evidence_note": "HTTP and real SDK page traversal; foreign-owner/invalid cursors rejected; artifact-collection filters and immutable collection snapshot pagination remain open",
           "id_column": "API-08 (partial, job collection only)",
           "requirement_note": "stable owner-scoped cursor pagination over jobs"
@@ -5369,7 +5369,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1597,
+          "checklist_line": 1619,
           "evidence_note": "removal, writer contention and policy drift return not-ready while liveness stays healthy; missing database is not recreated by probe; worker heartbeats/disk-capacity readiness remain open",
           "id_column": "API-09 (partial)",
           "requirement_note": "liveness separated from credential/SQLite writer/storage-directory readiness"
@@ -5393,7 +5393,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1598,
+          "checklist_line": 1620,
           "evidence_note": "`test_service_client.py`: real socket submit/idempotency/status/cancel/pages/artifacts/revocation, protocol/redirect guards; contract fixture; broader compatibility matrix remains open",
           "id_column": "API-10 (partial)",
           "requirement_note": "typed v1 SDK with bounded reads, operation timeouts and verified artifact lineage"
@@ -5417,13 +5417,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1559,
+          "checklist_line": 1581,
           "evidence_note": "job/trace/recipe/attempt context is checked before publication; event history binds input/environment and final outcome; distributed tracing/log collection remains open",
           "id_column": "API-11 / OPS-03 (partial, local trace correlation)",
           "requirement_note": "connect job request, execution and artifact lineage"
         },
         {
-          "checklist_line": 1599,
+          "checklist_line": 1621,
           "evidence_note": "service audit log tests and sealed API execution receipt; external collectors/distributed tracing remain open",
           "id_column": "API-11 (extended, partial)",
           "requirement_note": "structured request-to-job/trace/artifact correlation"
@@ -5447,7 +5447,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1600,
+          "checklist_line": 1622,
           "evidence_note": "exact OpenAPI route inventory and rejection of order/payment/trade routes; no broker/order/payment adapter is implemented",
           "id_column": "API-12 (partial, current route surface)",
           "requirement_note": "research-only HTTP surface"
@@ -5675,7 +5675,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4332,
+          "checklist_line": 4354,
           "evidence_note": "`evidence.ops_inventory.ServiceComponent`/`discover_component_names`/`discover_dependencies`/`build_service_inventory`; 9 tests (`tests/unit/test_ops_inventory.py`) run against this repository's own real source tree, including the genuine stochastica/volterra cycle finding",
           "id_column": "OPS-01 (first evidence)",
           "requirement_note": "create service inventory and dependency map; every production component has owner and environment"
@@ -5699,7 +5699,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1631,
+          "checklist_line": 1653,
           "evidence_note": "sentinel tests and retained drill report; service logs remain correlated/sanitized; external durable log storage and exhaustive secret scans remain open",
           "id_column": "OPS-02 (partial)",
           "requirement_note": "recovery CLI emits bounded operational receipts without plaintext keys/recipes"
@@ -5723,7 +5723,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1559,
+          "checklist_line": 1581,
           "evidence_note": "job/trace/recipe/attempt context is checked before publication; event history binds input/environment and final outcome; distributed tracing/log collection remains open",
           "id_column": "API-11 / OPS-03 (partial, local trace correlation)",
           "requirement_note": "connect job request, execution and artifact lineage"
@@ -5747,7 +5747,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4911,
+          "checklist_line": 4933,
           "evidence_note": "`evidence.queue_metrics.compute_queue_metrics`/`classify_queue_health`/`QueueThresholds`; a real `JobStore` submit/claim/cancel/finish lifecycle with a deterministic clock reproduces exact queue depth, running count, cancellation count and runtime percentiles",
           "id_column": "OPS-04 (first evidence)",
           "requirement_note": "measure job queue depth, runtimes and cancellation count; metrics dashboard with warning/critical thresholds"
@@ -5771,7 +5771,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4945,
+          "checklist_line": 4967,
           "evidence_note": "`evidence.inference_metrics.run_inference_benchmark`/`InferenceReport`; exact 0%/50%/100% failure-rate discrimination, plus two real, genuinely different backends (a trained neural net forward pass and a real HTTP service call)",
           "id_column": "OPS-05 (first evidence)",
           "requirement_note": "measure inference throughput, latency and failure rate; p50/p95/p99 trends shown per endpoint and model"
@@ -5795,7 +5795,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4980,
+          "checklist_line": 5002,
           "evidence_note": "`evidence.data_health.measure_staleness`, plus the existing `evidence.inference_metrics.run_inference_benchmark` reused for ingest-failure counting; a real stale/not-stale alert exercise against the real captured Kenneth French archive, and a real 0.3 failure rate against a genuinely flaky connector",
           "id_column": "OPS-06 (first evidence)",
           "requirement_note": "measure data staleness and failed ingest counts; alert exercise detects stale critical series"
@@ -5819,7 +5819,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5017,
+          "checklist_line": 5039,
           "evidence_note": "`evidence.numerical_event_monitor.monitor_call`/`monitor_pricing_deviation`; a real extreme-drift GBM solver failure, and a real Monte-Carlo-vs-closed-form pricing-deviation discrimination, each carrying a required `owner`",
           "id_column": "OPS-07 (first evidence)",
           "requirement_note": "monitor unexpected NaN, solver failure and pricing deviation; high-severity numerical events page assigned owner"
@@ -5843,7 +5843,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5056,
+          "checklist_line": 5078,
           "evidence_note": "`evidence.model_monitoring.tail_breach_signal`/`calibration_signal`/`drift_signal`/`build_investigation_playbook`, composing RISK-08/RISK-09/MLO-13/MLO-14's existing real primitives; each signal confirmed to fire and not-fire against real, not fabricated, data",
           "id_column": "OPS-08 (first evidence)",
           "requirement_note": "monitor model drift, risk metric calibration and tail breach; model monitoring dashboard and investigation playbook"
@@ -5867,7 +5867,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5095,
+          "checklist_line": 5117,
           "evidence_note": "`evidence.resource_utilization.sample_resource_usage`/`forecast_capacity`/`classify_utilization`; real CPU/RAM readings, real artifact-store byte tracking, and an exact linear capacity forecast; confirmed by 15 tests",
           "id_column": "OPS-09 (first evidence)",
           "requirement_note": "track GPU/CPU/RAM and artifact storage utilization; capacity forecast and budget alerts configured"
@@ -5891,7 +5891,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5133,
+          "checklist_line": 5155,
           "evidence_note": "`evidence.alert_routing.route_alert`/`RoutingTable`/`canonical_severity`; a genuine `UnroutedSeverityError` for an unconfigured P0/P1, and three real existing signal sources each routed end-to-end to a configured owner",
           "id_column": "OPS-10 (first evidence)",
           "requirement_note": "define actionable alert routing and severity taxonomy; each P0/P1 alert maps to human owner and escalation"
@@ -5915,7 +5915,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5343,
+          "checklist_line": 5365,
           "evidence_note": "`evidence.runbook_catalog.run_numerical_integrity_drill`/`run_credential_compromise_drill`; two distinct real failure categories each producing a real, chronologically-ordered incident timeline, with a genuine pass/fail outcome confirmed in both directions",
           "id_column": "OPS-11 (first evidence)",
           "requirement_note": "maintain runbooks for top failure categories; simulated on-call drills complete with incident timeline"
@@ -5939,7 +5939,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5386,
+          "checklist_line": 5408,
           "evidence_note": "`evidence.observability_vendor_review.scan_for_observability_vendor_integration`/`extract_event_schema_field_names`/`check_for_sensitive_field_names`; a real zero-finding vendor sweep of this repository's tracked source, and a real ast-derived confirmation that the only audit-log schema carries no sensitive field names",
           "id_column": "OPS-12 (first evidence)",
           "requirement_note": "confirm no observability vendor exports restricted financial data; data-flow review and redaction verification"
@@ -6014,7 +6014,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1601,
+          "checklist_line": 1623,
           "evidence_note": "private hashed token bindings and rotation/revocation tests; this is not SSO/OIDC, MFA or an independently reviewed access system",
           "id_column": "SEC-04 (partial, service-token foundation)",
           "requirement_note": "deny anonymous/cross-owner/write-with-read-only access"
@@ -6038,13 +6038,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1602,
+          "checklist_line": 1624,
           "evidence_note": "binding/proxy tests; deployed certificates, key management and encrypted-at-rest controls remain unverified",
           "id_column": "SEC-05 (partial, transport controls)",
           "requirement_note": "CLI requires TLS outside loopback; app refuses remote cleartext and ignores spoofed forwarding; SDK retains default TLS verification"
         },
         {
-          "checklist_line": 1630,
+          "checklist_line": 1652,
           "evidence_note": "corruption/wrong-key/pin tests, fresh nonce, bounded regular-file key guard, no secret/recipe in CLI receipts; primary-storage encryption and deployed key-management verification remain open",
           "id_column": "SEC-05 (extended, partial)",
           "requirement_note": "local backup encryption and private binary key handling"
@@ -6102,7 +6102,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4830,
+          "checklist_line": 4852,
           "evidence_note": "`data_ingestion.dataset_sandbox.validate_zip_archive`/`SandboxLimits`; zip-slip and decompression-bomb rejection grounded in real archives on both sides of the threshold, plus a 600-case Hypothesis fuzz test confirming no uncaught exception type",
           "id_column": "SEC-08 (first evidence)",
           "requirement_note": "validate and sandbox untrusted uploaded dataset formats; fuzz/test suite blocks unsafe deserialization paths"
@@ -6687,7 +6687,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1622,
+          "checklist_line": 1644,
           "evidence_note": "prepared workflow uses locked tools; local checks pass; remote CI/branch protection is not asserted",
           "id_column": "CIQ-01 (partial)",
           "requirement_note": "CI lint/type/format checks include platform modules and build tooling"
@@ -6728,7 +6728,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1623,
+          "checklist_line": 1645,
           "evidence_note": "strict reference hash/replay and recovery drill; prepared reference-profile CI step; broader endpoint/workload acceptance remains open",
           "id_column": "CIQ-03 (partial)",
           "requirement_note": "reference replay under installed wheel and locked numerical dependencies"
@@ -6752,7 +6752,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1624,
+          "checklist_line": 1646,
           "evidence_note": "OpenAPI/schema/SDK real-socket tests retained in locked test suite; wider compatibility matrix remains open",
           "id_column": "CIQ-04 (partial)",
           "requirement_note": "contract tests run against installed wheel, rather than an editable checkout alone"
@@ -6776,7 +6776,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3935,
+          "checklist_line": 3957,
           "evidence_note": "`evidence.security_scan.ScanFinding`/`secret_scan`/`evaluate_release_gate`/`ReleaseGateDecision`; 15 tests (`tests/unit/test_security_scan.py`) including a real zero-findings self-scan of this repository's own `src/` tree and a discriminating per-finding approval-scoping test",
           "id_column": "CIQ-05 (first evidence, secret scanning only)",
           "requirement_note": "run vulnerability, dependency and secret scans; high/critical findings block release unless approved"
@@ -6800,7 +6800,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1625,
+          "checklist_line": 1647,
           "evidence_note": "independent source snapshots, wheel RECORD/source verification, `docs/release/dependency-sbom.cdx.json`; container rebuild, deployed inventory and vulnerability assessment remain open",
           "id_column": "CIQ-06 (partial)",
           "requirement_note": "repeatable Python wheel and resolved-profile CycloneDX SBOM"
@@ -6892,7 +6892,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3892,
+          "checklist_line": 3914,
           "evidence_note": "`service.deploy_manifest.DeployManifest`/`capture_deploy_manifest`/`recreate_service_policy`; 10 tests (`tests/unit/test_deploy_manifest.py`) including a full non-default-configuration round trip and manifest-id discrimination on both the policy and the feature flags",
           "id_column": "CIQ-11 (first evidence)",
           "requirement_note": "store complete deploy manifests, config and feature flags; any deployment can be recreated from recorded artifacts"
@@ -6933,7 +6933,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4616,
+          "checklist_line": 4638,
           "evidence_note": "`evidence.slo_definitions.ServiceLevelObjective`/`slo_is_met`; 8 tests (`tests/unit/test_slo_definitions.py`) including a real load-report-meets-its-own-SLO case reusing REL-02's methodology and a wrong-endpoint rejection",
           "id_column": "REL-01 (first evidence)",
           "requirement_note": "document explicit internal service SLO/SLI definitions; approved SLO sheet contains workload assumptions"
@@ -6957,7 +6957,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4555,
+          "checklist_line": 4577,
           "evidence_note": "`experiments.latency_benchmark.LoadReport`/`build_load_report`/`meets_p95_target`; 7 tests (`tests/unit/test_latency_benchmark.py`) including a real 120-request concurrent load test against `ResearchService`'s own ASGI application",
           "id_column": "REL-02 (first evidence)",
           "requirement_note": "benchmark metadata API p95 against target on reference hardware; load report includes request mix and concurrency"
@@ -6981,7 +6981,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4368,
+          "checklist_line": 4390,
           "evidence_note": "`experiments.scale_benchmark.ScaleBudget`/`check_scale_budgets`/`walltimes_are_monotonically_increasing`; 9 tests (`tests/unit/test_scale_benchmark.py`) grounded in a real GBM benchmark across 3 scales, including a genuine budget-violation case and the warm-up-call methodology note; stable across repeated reruns",
           "id_column": "REL-03 (first evidence)",
           "requirement_note": "benchmark simulation jobs at small/medium/large scales; time/memory curves and resource budget published"
@@ -7005,7 +7005,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1560,
+          "checklist_line": 1582,
           "evidence_note": "two real workers produce identical same-seed financial results while leaving parent Torch RNG unchanged; this is not proof of hostile-tenant filesystem/network isolation",
           "id_column": "REL-04 (partial, closed-runner process isolation)",
           "requirement_note": "concurrent simulations do not corrupt each other's seeds"
@@ -7029,7 +7029,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1626,
+          "checklist_line": 1648,
           "evidence_note": "real restored worker execution and old-token rejection; existing live cancellation/parent-death tests; complete cleanup/load acceptance remains open",
           "id_column": "REL-05 (partial)",
           "requirement_note": "copied in-flight leases cannot finalize a restored attempt; requested cancellation stays terminal"
@@ -7053,7 +7053,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1627,
+          "checklist_line": 1649,
           "evidence_note": "encrypted snapshot verification, corrupt/authenticated-invalid state refusal, atomic no-clobber publication, source preservation and numerical replay; live database/object failover remains open",
           "id_column": "REL-06 (partial, local restore only)",
           "requirement_note": "rebuild verified queue/object state into a new root after corruption/outage simulation"
@@ -7077,7 +7077,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1603,
+          "checklist_line": 1625,
           "evidence_note": "global/owner rate, inflight and pending-queue quota tests; no calibrated production load/SLO or cluster-wide rate limit claim",
           "id_column": "REL-07 (partial, process-local backpressure)",
           "requirement_note": "predictable 429/503 overload responses with retry guidance"
@@ -7101,7 +7101,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5448,
+          "checklist_line": 5470,
           "evidence_note": "`evidence.cardinality_budget.compute_label_combinations`/`verify_cardinality_budget`; an exact, identical 30-combination count at both 50 and 5,000 real simulated jobs, versus a genuinely unbounded `job_id`-labeled count that grows to 5,000 and blows the budget",
           "id_column": "REL-08 (first evidence)",
           "requirement_note": "verify log/metric storage and cardinality budgets; dashboard remains bounded during high run volume"
@@ -7125,7 +7125,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4587,
+          "checklist_line": 4609,
           "evidence_note": "`experiments.soak_test.SoakTestResult`/`run_soak_test`; 7 tests (`tests/unit/test_soak_test.py`) grounded in a real 60-iteration GBM soak run, a deliberate-leak discrimination case, and a single-bad-iteration detection case; stable across repeated reruns",
           "id_column": "REL-09 (first evidence)",
           "requirement_note": "test long-horizon simulator stability and memory leaks; extended soak test meets numerical and memory thresholds"
@@ -7149,7 +7149,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4044,
+          "checklist_line": 4066,
           "evidence_note": "pre-existing `ServicePolicy.requests_per_owner`/`requests_global` (`\"rate_limited\"`) and `QueuePolicy.max_pending_per_owner` (`\"quota_exceeded\"`); one new deliberate test stating the claim explicitly (`tests/unit/test_service_http.py`)",
           "id_column": "REL-10 (first evidence, audit)",
           "requirement_note": "define capacity reservation and user quota policies; requests exceeding quota rejected with transparent reason"
@@ -7173,7 +7173,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4272,
+          "checklist_line": 4294,
           "evidence_note": "pre-existing `recovery.snapshot`/`jobs.artifacts.ArtifactStore`, read against REL-11's own acceptance criterion; one new deliberate test (`tests/unit/test_recovery_snapshot.py`)",
           "id_column": "REL-11 (first evidence, audit)",
           "requirement_note": "run backup restore and integrity validation; restore artifacts are readable and hash-consistent"
@@ -7197,7 +7197,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5419,
+          "checklist_line": 5441,
           "evidence_note": "`evidence.error_budget.evaluate_error_budget`/`record_error_budget_action`; an exact real breach-rate count against a real SLO/LoadReport window, composed through the existing `evaluate_release_gate` to genuinely block and unblock release",
           "id_column": "REL-12 (first evidence)",
           "requirement_note": "record error budget actions and service ownership; breaches trigger release freeze or corrective review"
@@ -7221,7 +7221,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5167,
+          "checklist_line": 5189,
           "evidence_note": "`evidence.severity_matrix.SeverityMatrix`/`SeverityMatrixEntry`; a genuine `UnknownIncidentCategoryError` for a real, deliberately-unconfigured `ERROR_CODES` member, plus real lookups for real job and numerical-event categories",
           "id_column": "DRI-01 (first evidence)",
           "requirement_note": "define severity matrix for incorrect pricing, risk and data breaches; SEV tiers and response ownership approved"
@@ -7245,7 +7245,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5198,
+          "checklist_line": 5220,
           "evidence_note": "`evidence.numerical_integrity_runbook.run_numerical_integrity_runbook`; a real flaky callable that recovers on re-evaluation, and this repository's own real persistently-failing GBM guard that still fails, each producing a real, chronologically-ordered timeline",
           "id_column": "DRI-02 (first evidence)",
           "requirement_note": "create numerical-integrity incident runbook; incorrect output triggers isolate, invalidate and re-evaluate"
@@ -7269,7 +7269,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5236,
+          "checklist_line": 5258,
           "evidence_note": "`evidence.credential_rotation_drill.rotate_credential`/`run_credential_rotation_drill`; a real end-to-end rotation against `service.auth.CredentialStore` confirming old-token rejection and new-token acceptance, plus an unrotated-credential discrimination case",
           "id_column": "DRI-03 (first evidence)",
           "requirement_note": "create compromised credential and secret rotation runbook; tabletop demonstrates revoked tokens and cleaned pipelines"
@@ -7293,7 +7293,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5271,
+          "checklist_line": 5293,
           "evidence_note": "`evidence.pit_leak_response.detect_leak`/`trace_affected_runs`/`revoke_run`/`recompute`; a real leaked run identified against a real two-vintage series, and a real recomputation confirmed to produce a different, correct result",
           "id_column": "DRI-04 (first evidence)",
           "requirement_note": "create corrupt-data and point-in-time leak response; affected runs traced, revoked and recomputed"
@@ -7351,7 +7351,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1628,
+          "checklist_line": 1650,
           "evidence_note": "`docs/RECOVERY.md`, drill receipt; business-approved RPO/RTO, accountable owners and scheduling remain open",
           "id_column": "DRI-07 (partial, measurement/runbook only)",
           "requirement_note": "document snapshot boundary, cooperative resource/deadline budgets and local recovery timing"
@@ -7375,7 +7375,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 1629,
+          "checklist_line": 1651,
           "evidence_note": "AES-256-GCM with full authentication before metadata parsing, integrity/audit/lineage checks and restored worker replay; encrypted offsite transfer/custody and full environment rebuild remain open",
           "id_column": "DRI-08 (partial, local encrypted drill)",
           "requirement_note": "encrypted state restore and reference report recomputation"
@@ -7433,7 +7433,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5311,
+          "checklist_line": 5333,
           "evidence_note": "`evidence.failover_audit_continuity.read_job_events`/`serialize_registry_entry`/`restore_registry_entry`; a real snapshot/restore round trip confirming byte-for-byte event completeness, and a real model-approval history round trip that rejects a tampered reordering",
           "id_column": "DRI-11 (first evidence)",
           "requirement_note": "test audit-log availability throughout failover; approval and model activity history remains complete"
@@ -7474,31 +7474,31 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 285,
+          "checklist_line": 307,
           "evidence_note": "`experiments.manifest.RunManifest`; result_hash is a canonical sorted-key JSON hash of the full per-seed payload, reproducible given the same seeds/config, while `run_id`/`created_at` are explicitly documented as *not* part of that reproducibility claim",
           "id_column": "AUD-01/02 (partial)",
           "requirement_note": "immutable run ID, reproducible result hash"
         },
         {
-          "checklist_line": 330,
+          "checklist_line": 352,
           "evidence_note": "`test_result_hash_reproducible_given_identical_config`",
           "id_column": "AUD-01/02 (extended)",
           "requirement_note": "immutable run ID, reproducible result hash, for an integration run rather than a single subsystem"
         },
         {
-          "checklist_line": 419,
+          "checklist_line": 441,
           "evidence_note": "`test_benchmark_run.py::test_recipe_and_policy_hash_are_bound_to_exported_payload`; `test_manifest.py::test_runtime_provenance_observes_source_and_dependency_versions`; no dependency lock, signed source identity or immutable external storage is claimed",
           "id_column": "AUD-01 (partial, extended provenance)",
           "requirement_note": "bind recipe, training-data hash, policy hash, source digest and observed versions"
         },
         {
-          "checklist_line": 1523,
+          "checklist_line": 1545,
           "evidence_note": "`test_evidence_integrity.py` covers every section, external content pins and seal schemas; `test_evidence_validation.py` rejects mismatched/missing/duplicate cards and malformed provenance",
           "id_column": "AUD-01 / AUD-02 (extended, unsigned integrity)",
           "requirement_note": "detect metadata changes and bind model fingerprints to declared training"
         },
         {
-          "checklist_line": 1561,
+          "checklist_line": 1583,
           "evidence_note": "verified content-addressed objects, scoped pagination, hash-chained event/job projection and optional external audit-head pin; tests detect stale workers, corrupt objects and mismatched job contexts",
           "id_column": "AUD-01 / AUD-02 / AUD-11 (extended)",
           "requirement_note": "durable lineage, explicit failures and no-clobber artifacts"
@@ -7522,73 +7522,73 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 363,
+          "checklist_line": 385,
           "evidence_note": "`test_state_hash_reflects_ledger_mutations_made_by_hooks`: a hook that posts a ledger transaction is proven to change `state_hash`, confirming the snapshot is taken after steps 3-7 run, not before",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "state hash reflects everything that happened in a step"
         },
         {
-          "checklist_line": 383,
+          "checklist_line": 405,
           "evidence_note": "`test_multi_step_run.py::test_replay_is_identical_but_run_id_is_unique`, `test_export_round_trip_preserves_full_result_hash_and_metric_meaning`, `test_cli_exports_a_replayable_bundle_and_prints_summary`; real generated `evidence/multi_step_reference.json`",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "replay and exported result hash cover full config, seeds, policy hash and step trace"
         },
         {
-          "checklist_line": 416,
+          "checklist_line": 438,
           "evidence_note": "`test_replay.py::test_replay_retrains_and_reproduces_the_exported_result`, `test_recorded_failed_scenario_replays_as_failed_not_successful`, `test_rehashing_fabricated_results_does_not_make_replay_match`; generated reference/replay artifacts in `evidence/`",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "actual full-recipe replay, including typed dates/currency and training"
         },
         {
-          "checklist_line": 458,
+          "checklist_line": 480,
           "evidence_note": "study variants of `test_replay.py::test_replay_retrains_and_reproduces_the_exported_result`, `test_rehashing_fabricated_results_does_not_make_replay_match`; `test_study_run.py::test_order_of_declared_seeds_and_scenarios_cannot_change_inference`",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "replay reconstructs all retraining seeds, complete stress grid and inference"
         },
         {
-          "checklist_line": 499,
+          "checklist_line": 521,
           "evidence_note": "`test_economy_run.py::test_full_json_round_trip_and_replay_preserve_exact_quantities`; economy variants of the generic replay tests verify corruption/mismatch handling",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "exact-rational recipe/trace round-trip and actual economy replay"
         },
         {
-          "checklist_line": 538,
+          "checklist_line": 560,
           "evidence_note": "`test_monetary_run.py::test_full_nested_recipe_json_and_actual_replay`; monetary variants of `test_replay.py` reject missing configuration and fabricated results even after rehashing",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "full nested recipe, training/model fingerprints and actual replay"
         },
         {
-          "checklist_line": 577,
+          "checklist_line": 599,
           "evidence_note": "`test_actual_replay_retrains_and_recomputes_macro_banks`, `test_bank_hash_reconstructs_from_released_rates_and_named_market_normals`; generic replay tests now cover this sixth payload type",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "actual replay reconstructs macro traces, all retrainings and common banks"
         },
         {
-          "checklist_line": 614,
+          "checklist_line": 636,
           "evidence_note": "`test_policy_hash_binds_feature_semantics_and_scaling`; `test_actual_replay_retrains_both_arms_and_rejects_fabricated_results`; generic replay tests cover this seventh payload type",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "reproducible data, feature semantics, matched minibatches and full artifact replay"
         },
         {
-          "checklist_line": 1487,
+          "checklist_line": 1509,
           "evidence_note": "`test_nested_settings_never_change_training_data_models_or_loss_samples`, `test_axis_order_cannot_change_results`; copied loss vectors/cubes are fingerprinted against original cells",
           "id_column": "EXP-03 / AUD-02 (extended)",
           "requirement_note": "nested resampling cannot change training, prices or original risk results"
         },
         {
-          "checklist_line": 1489,
+          "checklist_line": 1511,
           "evidence_note": "`test_exported_loss_cubes_reconstruct_mixture_and_conditional_cvar_points`, `test_actual_replay_retrains_and_recomputes_nested_risk_and_samples`; generic replay coverage now includes the mixture payload alongside existing runners",
           "id_column": "AUD-02 (extended)",
           "requirement_note": "full loss samples independently reconstruct risk points and actual replay"
         },
         {
-          "checklist_line": 1523,
+          "checklist_line": 1545,
           "evidence_note": "`test_evidence_integrity.py` covers every section, external content pins and seal schemas; `test_evidence_validation.py` rejects mismatched/missing/duplicate cards and malformed provenance",
           "id_column": "AUD-01 / AUD-02 (extended, unsigned integrity)",
           "requirement_note": "detect metadata changes and bind model fingerprints to declared training"
         },
         {
-          "checklist_line": 1561,
+          "checklist_line": 1583,
           "evidence_note": "verified content-addressed objects, scoped pagination, hash-chained event/job projection and optional external audit-head pin; tests detect stale workers, corrupt objects and mismatched job contexts",
           "id_column": "AUD-01 / AUD-02 / AUD-11 (extended)",
           "requirement_note": "durable lineage, explicit failures and no-clobber artifacts"
@@ -7612,7 +7612,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3854,
+          "checklist_line": 3876,
           "evidence_note": "`experiments.training_provenance.TrainingProvenanceManifest`/`capture_training_provenance`; 8 tests (`tests/unit/test_training_provenance.py`) including a real bit-identical replay of `train_deep_hedge` from the manifest alone, and its discriminating different-seed converse",
           "id_column": "AUD-03 (first evidence)",
           "requirement_note": "capture model training config, environment and RNG state; stored manifest sufficient for replay at pinned environment"
@@ -7636,7 +7636,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3690,
+          "checklist_line": 3712,
           "evidence_note": "`service.reports.PricingReportResponse`/`RiskReportResponse` gain a required `measure` field, independent of `MarketSnapshot`'s own structurally-pinned-to-Q field; 7 new tests (`tests/unit/test_service_reports.py`, 27 total) including the Q-measure-risk-report override case and the no-default `TypeError` check",
           "id_column": "AUD-04 (first evidence)",
           "requirement_note": "capture pricing measure and market snapshot for reports; auditor can differentiate P risk model from Q pricer"
@@ -7660,7 +7660,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3773,
+          "checklist_line": 3795,
           "evidence_note": "`experiments.decision_audit_log.DecisionLogEntry`/`CausalityViolation`/`audit_replay`; 13 tests (`tests/unit/test_decision_audit_log.py`) including a real `OnlineHedgeAccount` scenario and a real `Household.consume` scenario, each with both a clean and a caught-violation case",
           "id_column": "AUD-05 (first evidence)",
           "requirement_note": "capture agent and hedge decisions with timestamps; action follows observed state in audit replay"
@@ -7684,7 +7684,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4301,
+          "checklist_line": 4323,
           "evidence_note": "`evidence.model_registry.StateTransition`'s `approved_by`/`content_hash` fields, `promote_to_approved`'s new required `package` parameter; a full-lifecycle test confirming all four named fields (`tests/unit/test_model_registry.py`)",
           "id_column": "AUD-06 (first evidence)",
           "requirement_note": "capture all model registry and promotion transitions; identity, approval, previous state and hash recorded"
@@ -7708,7 +7708,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 4521,
+          "checklist_line": 4543,
           "evidence_note": "`evidence.tamper_evident_log.TamperEvidentLog`/`LogEntry`/`TamperEvidenceError`; 8 tests (`tests/unit/test_tamper_evident_log.py`) including a direct tamper, a forged-hash tamper, and a truncation case",
           "id_column": "AUD-07 (first evidence)",
           "requirement_note": "keep access-control changes and privileged actions logged; regular audit review confirms tamper-evident retention"
@@ -7732,25 +7732,25 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 311,
+          "checklist_line": 333,
           "evidence_note": "`evidence.export.SIMULATION_DISCLAIMER` / `SOURCE_TAG`; `build_evidence_bundle` has no code path that omits either",
           "id_column": "AUD-08",
           "requirement_note": "simulation-vs-empirical disclaimer in exports, machine-readable source tag"
         },
         {
-          "checklist_line": 332,
+          "checklist_line": 354,
           "evidence_note": "`test_evidence_bundle_carries_disclaimer_and_is_tagged_no_go`",
           "id_column": "AUD-08 (reused)",
           "requirement_note": "disclaimer and source tag on export"
         },
         {
-          "checklist_line": 901,
+          "checklist_line": 923,
           "evidence_note": "`run_monetary_operations`; `test_full_json_round_trip_and_replay_preserve_the_exact_result` exports a real evidence bundle to disk, re-reads it, independently recomputes the full recipe via `orchestration.replay.replay_evidence_bundle`, and confirms the observed hash matches the recorded one -- the same full-fidelity check `economy_run.py`'s own replay test performs",
           "id_column": "AUD-08/AUD-11 (extended)",
           "requirement_note": "reproducible evidence export with disclaimer/source-tag, independently replayable"
         },
         {
-          "checklist_line": 1526,
+          "checklist_line": 1548,
           "evidence_note": "shared contract reader validates all artifact sections; computational result hashes remain unchanged; strict audit rejects seal stripping, while legacy access requires explicit opt-in",
           "id_column": "AUD-08 (extended)",
           "requirement_note": "source/disclaimer and gate context survive complete export/readback"
@@ -7774,7 +7774,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3811,
+          "checklist_line": 3833,
           "evidence_note": "`service.report_recomputation.MetricFormula`/`VALUE_AT_RISK_FORMULA`/`EXPECTED_SHORTFALL_FORMULA`/`recompute_risk_report_from_raw_losses`; 8 tests (`tests/unit/test_report_recomputation.py`) including honest-reproduction, tampered-VaR, tampered-ES and non-default-alpha cases",
           "id_column": "AUD-09 (first evidence)",
           "requirement_note": "document reporting metric formulas, units and conventions; each report can be recomputed from raw facts"
@@ -7798,7 +7798,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5482,
+          "checklist_line": 5504,
           "evidence_note": "`evidence.versioned_table.build_versioned_table`/`verify_versioned_table`; a real table linked to the real `evidence.requirements` script, with genuine script-tamper and data-tamper detection",
           "id_column": "AUD-10 (first evidence)",
           "requirement_note": "version final analytical paper figures and tables; figures link to reproducible scripts and data hashes"
@@ -7822,37 +7822,37 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 312,
+          "checklist_line": 334,
           "evidence_note": "`evidence.export.build_evidence_bundle` / `export_evidence_bundle`; `evidence/gate_report_r0.json` in this repository is a real, generated (not hand-written) instance",
           "id_column": "AUD-11",
           "requirement_note": "one-command gate evidence bundle with manifest and reviewers"
         },
         {
-          "checklist_line": 420,
+          "checklist_line": 442,
           "evidence_note": "`test_evidence_export.py::test_invalid_export_preserves_existing_destination_and_leaves_no_tempfile`, `test_failed_atomic_replace_cleans_tempfile_and_preserves_destination`; `test_replay.py::test_cli_mismatch_has_nonzero_exit_status`",
           "id_column": "AUD-11 (extended)",
           "requirement_note": "strict, atomic JSON export with explicit replay failure status"
         },
         {
-          "checklist_line": 901,
+          "checklist_line": 923,
           "evidence_note": "`run_monetary_operations`; `test_full_json_round_trip_and_replay_preserve_the_exact_result` exports a real evidence bundle to disk, re-reads it, independently recomputes the full recipe via `orchestration.replay.replay_evidence_bundle`, and confirms the observed hash matches the recorded one -- the same full-fidelity check `economy_run.py`'s own replay test performs",
           "id_column": "AUD-08/AUD-11 (extended)",
           "requirement_note": "reproducible evidence export with disclaimer/source-tag, independently replayable"
         },
         {
-          "checklist_line": 1488,
+          "checklist_line": 1510,
           "evidence_note": "`test_numeric_overflow_is_rejected_instead_of_emitting_an_infinite_risk_claim`, invalid shape/non-finite/control fixtures; `test_failed_macro_experiment_produces_no_mixture_inference_and_replays`; invalid CLI recipe preserves existing output",
           "id_column": "ECO-16 / AUD-11 (extended)",
           "requirement_note": "fail explicitly on malformed samples, numeric overflow and failed source experiment"
         },
         {
-          "checklist_line": 1524,
+          "checklist_line": 1546,
           "evidence_note": "stale seals and invalid metadata preserve existing files and leave no temporary output; sealed snapshots detach nested mutable input; existing atomic-replace failure tests remain in force",
           "id_column": "AUD-11 (extended)",
           "requirement_note": "refuse malformed evidence before changing the destination"
         },
         {
-          "checklist_line": 1561,
+          "checklist_line": 1583,
           "evidence_note": "verified content-addressed objects, scoped pagination, hash-chained event/job projection and optional external audit-head pin; tests detect stale workers, corrupt objects and mismatched job contexts",
           "id_column": "AUD-01 / AUD-02 / AUD-11 (extended)",
           "requirement_note": "durable lineage, explicit failures and no-clobber artifacts"
@@ -7876,7 +7876,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 3731,
+          "checklist_line": 3753,
           "evidence_note": "`experiments.result_inventory.ExperimentAttempt`/`ResultInventory`/`build_result_inventory`; 11 tests (`tests/unit/test_result_inventory.py`) including the real GARCH-abandonment-history case (3 exclusions with distinct real reasons, 1 included attempt with a real `calibrate_gbm_mle` metric)",
           "id_column": "AUD-12 (first evidence)",
           "requirement_note": "retain failed experiment evidence, not just best outcomes; result inventory contains exclusions and documented reasons"
@@ -8189,13 +8189,13 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 310,
+          "checklist_line": 332,
           "evidence_note": "same `ModelCard` class, enforced at construction rather than documented as a convention to remember",
           "id_column": "DOC-06",
           "requirement_note": "model card template and validation documentation"
         },
         {
-          "checklist_line": 1525,
+          "checklist_line": 1547,
           "evidence_note": "finite numeric metrics, explicit conditional/approved reviewer names; malformed dates, boolean approvers and reversed gate sunset dates are rejected",
           "id_column": "MLO-09 / DOC-06 (extended)",
           "requirement_note": "model-card metrics and reviewer fields have enforceable schema"
@@ -8508,7 +8508,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 313,
+          "checklist_line": 335,
           "evidence_note": "`evidence.gate_report.GateDecisionForm`: constructing one with `decision=\"GO\"` or `\"CONDITIONAL\"` *without* naming `scientific_approval`, `security_ops_approval`, and a `sunset_date` raises -- there is no code path that produces an unsigned GO record",
           "id_column": "LCH-12 / section 19's gate decision form",
           "requirement_note": "signed GO/NO-GO record referencing every required gate and waiver"

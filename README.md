@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C281%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C355%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-210%2F374%20(56.1%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -52,9 +52,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **210 / 374** (56.1%) across 29 categories |
 | Categories at 100% | API, AUD, ECO, LED, MLO, OPS, OPT, PRI, REL, RISK, SDE |
-| Test suite | **2,281 / 2,281** passing |
+| Test suite | **2,355 / 2,355** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 138, each independently verified |
+| Pull requests | 139, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -71,8 +71,10 @@ uv run --locked --all-extras mypy --strict src tools/reproducible_build.py
 ```
 
 Requires Python 3.11+. Core dependencies are `numpy`, `scipy` and `torch`;
-optional extras add a local service layer (`uvicorn`, `jsonschema`) and
-encrypted local recovery (`cryptography`). See
+optional extras add a local service layer (`uvicorn`, `jsonschema`),
+encrypted local recovery (`cryptography`), and hybrid quantum-classical
+ML (`pennylane`, `pennylane-lightning` — see
+[`src/prometheus/quantum/`](./src/prometheus/quantum/)). See
 [`pyproject.toml`](./pyproject.toml) for the full dependency and extras
 list.
 
@@ -88,6 +90,10 @@ src/prometheus/
   volterra/        Black-Scholes, Heston & Merton pricers, barrier/Asian/American options, Greeks
   titan/           VaR, Expected Shortfall, factor exposure, stress testing, portfolio optimization
   hedging/         delta/no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy
+  macrocore/       classical forecasting baselines (persistence/AR/VAR) and rolling-origin backtests
+  recessionnet/    point-in-time-safe recession classification: real NBER labels, real factor
+                   features, logistic/classical-MLP/hybrid-quantum model comparison
+  quantum/         differentiable quantum circuit layer (PennyLane) and hybrid classifier models
   experiments/     bootstrap CIs, manifests, holdout splits, leakage diagnostics, benchmarks
   evidence/        model cards, gate reports, model registry, champion/challenger comparison
   service/         authenticated HTTP API, pricing/risk reports, deploy manifests

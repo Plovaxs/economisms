@@ -1,0 +1,9 @@
+{
+  "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+  "source_license": "Kenneth R. French Data Library (free for academic research use)",
+  "raw_hash": "b03d39e4bb253dda0f14893db3b78e64b40b8d6549a0fc0fd4111dae84c98618",
+  "database_vintage": "202609",
+  "n_months": 1203,
+  "first_month": "192607",
+  "last_month": "202609"
+}

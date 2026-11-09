@@ -36,7 +36,7 @@ about the original 374-item register.
 | FP-03 | VERIFIED-BY-TEST (PR-055) | `econosim.pit.build_feature_vector`/`require_eligible` raise `FutureDataError` (fail closed on the WHOLE request) rather than silently returning partial data, confirmed by `test_build_feature_vector_rejects_unavailable_features_instead_of_partial_data`. Builds on the pre-existing `PointInTimeStore.as_of`/`all_eligible_as_of` predicate (already tested since the original PR-003), now additionally gated on an `asof_eligible_at` internal-ingestion-lag field, not just source `published_at`. |
 | FP-04 | VERIFIED-BY-TEST (PR-056) | `macrocore.baselines` implements Persistence, AR(p) (standing in for "ARIMA" -- see its module docstring for the deliberate scope cut against a full differenced/MA Box-Jenkins ARIMA) and VAR(p), all OLS-fit with closed-form Gaussian forecast intervals; `macrocore.evaluation`'s rolling-origin backtest harness runs all three reproducibly (fixed seed, deterministic OLS) through `econosim.pit`'s point-in-time store end to end, with MAE/RMSE/CRPS/coverage reported via `summarize_scores`. |
 | FP-05 | NOT VERIFIED | MACROCORE (shared temporal encoder) does not exist. |
-| FP-06 | NOT VERIFIED | RECESSIONNET does not exist. |
+| FP-06 | VERIFIED-BY-TEST (PR-139) | `recessionnet` now exists end to end: real point-in-time-safe features (Kenneth French monthly factors, DAT-05, trailing 6-month windows) and real labels (the actual NBER business-cycle chronology, confirmed live against nber.org, with real announcement dates for the six recessions 1980 onward used by a SEPARATE point-in-time leakage test -- see `recessionnet.labels`'s flagship `test_as_of_does_not_leak_the_great_recession_before_it_was_announced`). `run_recessionnet_benchmark` trains and evaluates four candidate architectures (base rate, logistic regression, a parameter-matched classical MLP, and a hybrid quantum classifier built on the new `prometheus.quantum` primitives) on a strict chronological split (train < 2000, test >= 2000), reporting Brier score, ROC-AUC and a fitted calibration slope/intercept for every model -- "calibrated probabilities" exactly as worded, not just a bare accuracy number. |
 | FP-07 | NOT VERIFIED | INFLATIONCAST does not exist. |
 | FP-08 | NOT VERIFIED | No shared-vs-independent encoder ablation; no encoder exists. |
 | FP-09 | VERIFIED-BY-TEST (pre-existing, confirmed PR-057) | `tests/property/test_ledger_invariants.py::test_random_action_sequences_preserve_identities_and_total_equity` is a Hypothesis property test (100 generated examples, 1-40 randomized actions each, drawn from 9 action kinds: income/consume/wages/loan/repay/tax/transfer/gov_loan/gov_repay) that calls `check_integrity()` after EVERY action and asserts total equity equals exactly the sum of exogenous injections -- this is literally "transaction and stock-flow identities pass" under randomized sequences, not hand-picked examples, which is what the FP-09 wording asks for. |
@@ -50,25 +50,47 @@ about the original 374-item register.
 | FP-17 | NOT VERIFIED | No forecasting task exists yet to have train/validation/test splits. |
 | FP-18 | NOT VERIFIED | No trained model exists yet to report seeds/CIs for. |
 | FP-19 | NOT VERIFIED | No end-to-end replay trace spanning the new DL subsystems exists (the pre-existing `MacroTimeEngine`/`StepHooks` replay covers only the original five blocks). |
-| FP-20 | PARTIAL (narrowed PR-057) | `RunManifest` (`experiments/manifest.py`) fields were, before PR-057: `run_id, created_at, seed, config, result_hash` -- a `code_hash`/`data_hash` could at most be embedded inside the opaque `config` mapping (not a named field), and there was NO `model_id` field at all (consistent with no trained model existing anywhere in this repository). PR-057 adds explicit optional `code_hash`, `data_hash` and `model_id` fields (all `str | None = None`, so every pre-existing caller is unaffected), exercised by a test with representative hash-shaped values -- but `model_id` is still never populated by any real trained model, since FP-05/06/07 (MACROCORE/RECESSIONNET/INFLATIONCAST) remain NOT VERIFIED. Mechanism now exists; still not exercised by a real model. |
+| FP-20 | VERIFIED-BY-TEST (closed PR-139) | PR-057 added the optional `code_hash`/`data_hash`/`model_id` fields to `RunManifest` but left them unexercised by any real model (FP-05/06/07 were all still NOT VERIFIED). PR-139's `run_recessionnet_benchmark` is the first real trained model in this repository: its `RunManifest` now carries a genuine `seed`, a real `code_hash` (`experiments.manifest.runtime_provenance()['source_sha256']`, the actual source-tree digest at run time), a real `data_hash` (over the actual train/test feature and label arrays used), and `model_id="recessionnet-hybrid-quantum-v1"` -- all four fields FP-20 asks for, populated by an actual run, not a representative placeholder. |
 | FP-21 | NOT VERIFIED | No dashboard exists. |
 | FP-22 | NOT VERIFIED | No final paper exists yet. |
 | FP-23 | VERIFIED-BY-TEST (pre-existing, reconfirmed PR-056) | `pytest -q` (1480 tests as of PR-056), `ruff check`, and `mypy --strict` all pass from a clean checkout, confirmed after every PR including this one. |
 | FP-24 | Ongoing discipline, not a one-time check | This file and `README.md` are the running record that no module is declared complete on the strength of either blueprint document alone -- every row above states exactly what evidence (or absence of it) backs its status. |
 
-Current FP score (updated PR-060): 7 fully VERIFIED-BY-TEST (FP-02 as of
-PR-060, FP-03, FP-04, FP-09, FP-12 as of PR-058, FP-14, FP-23), 2 PARTIAL
-(FP-11/FP-20, narrowed by PR-057's audit), 14 NOT VERIFIED (FP-16 moved
-here from PARTIAL after an audit found no TITAN output actually carries
-horizon+units+cost together), and FP-24 itself (which is a standing
-discipline this file and README.md follow on every PR, not a single
-check to complete once). This is a documentary snapshot,
-not a completion percentage, matching the addendum's own "0/24 verified"
-starting convention -- six of the ten named subsystems (MACROCORE,
-RECESSIONNET, INFLATIONCAST, CONTAGION-GNN, VOLTERRA-GEN, POLICYLAB-RL)
-do not exist in this repository yet; FP-04's classical baselines are the
-reference point those subsystems' eventual learned models must beat
-(section 09/E01), not a replacement for building them.
+Current FP score (updated PR-139): 9 fully VERIFIED-BY-TEST (FP-02 as of
+PR-060, FP-03, FP-04, FP-06 and FP-20 as of PR-139, FP-09, FP-12 as of
+PR-058, FP-14, FP-23), 1 PARTIAL (FP-11, narrowed by PR-057's audit),
+13 NOT VERIFIED (FP-16 moved here from PARTIAL after an audit found no
+TITAN output actually carries horizon+units+cost together), and FP-24
+itself (which is a standing discipline this file and README.md follow
+on every PR, not a single check to complete once). This is a
+documentary snapshot, not a completion percentage, matching the
+addendum's own "0/24 verified" starting convention -- five of the ten
+named subsystems (MACROCORE, INFLATIONCAST, CONTAGION-GNN,
+VOLTERRA-GEN, POLICYLAB-RL) still do not exist in this repository;
+RECESSIONNET (PR-139) is the first. FP-04's classical baselines remain
+the reference point those still-missing subsystems' eventual learned
+models must beat (section 09/E01).
+
+PR-139 also added a sibling `prometheus.quantum` package (not itself
+an FP-NN item, nor a 374-item blueprint category -- it is shared
+infrastructure RECESSIONNET consumes as one of its four candidate
+architectures) answering the user-supplied "PROMETHEUS-X Quantum Deep
+Learning Integration Blueprint"'s own Q0/Q1/Q-RECESSION gates: an
+isolated `quantum` optional dependency (PennyLane 0.45.1 +
+PennyLane-Lightning 0.45.0, confirmed to resolve cleanly against this
+repository's existing torch/numpy/scipy pins with the full classical
+suite unaffected), a tested differentiable quantum circuit layer, and
+a hybrid quantum classifier benchmarked -- honestly, not favorably --
+against logistic regression and a parameter-matched classical MLP.
+The real result on this repository's actual chronological 2000+
+holdout: the hybrid quantum classifier's test Brier score (about
+0.156) is robustly WORSE than logistic regression's (about 0.076)
+across every seed checked (0-4), with a paired bootstrap CI for
+(quantum - best classical) that excludes zero on the "quantum is
+worse" side every time. This is reported as exactly what it is -- a
+clear negative result for this architecture/data/budget combination,
+not a quantum advantage -- consistent with the blueprint's own stated
+research ethos ("a negative or inconclusive result is valid").
 
 ---
 

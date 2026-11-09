@@ -19,6 +19,10 @@ service = [
     "jsonschema>=4.23",
 ]
 recovery = ["cryptography>=46.0"]
+quantum = [
+    "pennylane==0.45.1",
+    "pennylane-lightning==0.45.0",
+]
 dev = [
     "pytest>=8.0",
     "hypothesis>=6.100",
@@ -70,3 +74,11 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.11"
 strict = true
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+# PennyLane ships no py.typed marker or stub package (confirmed: no
+# `pennylane-stubs` exists on PyPI as of this pin). Narrowly scoped to
+# this one third-party import, per pyproject's own quantum-addendum
+# note that a documented stub-ignore strategy may be required.
+module = "pennylane.*"
+ignore_missing_imports = true

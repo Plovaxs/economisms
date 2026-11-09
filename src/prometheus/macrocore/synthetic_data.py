@@ -3,14 +3,18 @@ PROMETHEUS-X addendum: "Synthetic generators ... Always label synthetic,
 preserve source config and seed"; AUD-08's synthetic-vs-empirical
 disclosure discipline).
 
-No real FRED-MD/FRED-QD/ALFRED/Treasury/French-factor data is ingested
-anywhere in this repository (DAT-02..DAT-05 remain unimplemented and
-unlicensed). This module exists so the point-in-time machinery
-(`econosim.pit`) and the classical forecasting baselines
-(`macrocore.baselines`) have *something* realistic-shaped to run against
-while that real ingestion work remains open -- every observation this
-module produces carries `source_license="synthetic-generated-for-testing-
-only"` and `quality_flags=("synthetic",)`, and `generate_synthetic_macro_
+No real FRED-MD/FRED-QD/ALFRED/Treasury data is ingested anywhere in
+this repository (DAT-02..DAT-04 remain unimplemented and unlicensed;
+DAT-05, Kenneth French factors, was closed separately and is real --
+see `data_ingestion.french_factors` and `recessionnet.dataset`, which
+uses that real series as RECESSIONNET's actual features). This module
+exists so the point-in-time machinery (`econosim.pit`) and the
+classical forecasting baselines (`macrocore.baselines`) have
+*something* realistic-shaped to run against for the macro-aggregate
+(GDP/rate-style) series FRED would otherwise supply, while that real
+ingestion work remains open -- every observation this module produces
+carries `source_license="synthetic-generated-for-testing-only"` and
+`quality_flags=("synthetic",)`, and `generate_synthetic_macro_
 var_series` additionally returns the raw ground-truth array directly (not
 only through the point-in-time store) specifically so a caller can never
 be left wondering whether a value came from a real source -- there is no
