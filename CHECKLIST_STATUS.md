@@ -5830,6 +5830,67 @@ Not covered: `prometheus.service` ("model serving") still originates no
 outbound call today, so there is nothing there to wire -- unchanged from
 PR-148's original disclosure.
 
+## Evidenced today (PR-152: PII scan, data processing inventory, and extended license/entitlement register -- PRV-01/02/03/05/07)
+
+**PRV-03** ("minimize user and agent-associated personal information";
+acceptance: "tests confirm default datasets avoid real PII") --
+`evidence.security_scan` gained a third scanner, `pii_scan` (composed
+alongside the existing `secret_scan`/`license_scan`, plugging into the
+same scanner-agnostic `evaluate_release_gate` with no change needed
+there), matching SSN/email/US-phone/credit-card-shaped patterns. A real
+self-check (`test_this_repositorys_own_real_committed_datasets_have_no_pii_findings`)
+scans this repository's actual committed `data_cache/`/`tests/fixtures/`
+files and finds zero matches. A genuine discriminating case was caught
+and fixed before this entry was written: a naive digit-run pattern
+misflagged a REAL value from this repository's own data (`neural_sde`'s
+`1146.4183381088824`, a genuine 2020 Claims YoY figure) as a
+credit-card-shaped sequence; the pattern now excludes digit runs
+adjacent to a decimal point, confirmed by a dedicated regression test.
+
+**PRV-02** ("classify personal, financial and confidential records";
+acceptance: "data processing inventory and purposes documented") --
+new `docs/DATA_PROCESSING_INVENTORY.md`: every real ingested series
+classified (all "public aggregate," none personal/financial-individual/
+confidential), derived from the existing data dictionary, with the
+PRV-03 PII scan cited as the real check backing the classification
+rather than an unverified assertion.
+
+**PRV-05** ("define deletion and data-subject request procedures where
+relevant"; first evidence, not-applicable confirmed) -- the same
+inventory document states, and the real PRV-03 scan backs, that no
+personal data exists in this system for a deletion procedure to act on
+-- "where relevant" read literally as allowing a confirmed-not-relevant
+resolution, not silently skipped.
+
+**PRV-01** ("maintain dataset rights and vendor-entitlement register";
+acceptance: "permitted uses, retention and redistribution independently
+checked") -- `docs/LICENSE_INVENTORY.md` extended with explicit
+permitted-use/retention/redistribution columns per real external data
+source, read from each source's own published license terms; "checked"
+against the real license text, honestly marked NOT independently
+(second-party) verified.
+
+**PRV-07** ("document licensing of source code, model weights and
+benchmarks"; acceptance: "chosen OSS license and third-party notice
+inventory") -- credited from pre-existing `LICENSE` (MIT) plus
+`docs/LICENSE_INVENTORY.md`'s third-party notice inventory (PR-149),
+with a new section explicitly addressing model-weights licensing (none
+committed -- every model trains fresh from licensed input data) and
+benchmark-output licensing.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| PRV-03 (first evidence) | tests confirm default datasets avoid real PII | `evidence.security_scan.pii_scan`; 9 new tests (`tests/unit/test_security_scan.py`) including a real self-check against this repo's committed datasets and a real false-positive regression against this repo's own data |
+| PRV-02 (first evidence) | data processing inventory and purposes documented | `docs/DATA_PROCESSING_INVENTORY.md` |
+| PRV-05 (first evidence, not-applicable confirmed) | deletion/data-subject procedures where relevant | `docs/DATA_PROCESSING_INVENTORY.md` § Data-subject / deletion procedures, backed by the real PRV-03 scan |
+| PRV-01 (first evidence) | dataset rights/vendor-entitlement register | `docs/LICENSE_INVENTORY.md` § External data source / vendor-entitlement register |
+| PRV-07 (first credited) | source code/model-weights/benchmark licensing | pre-existing `LICENSE` + `docs/LICENSE_INVENTORY.md` § Source code, model weights, and benchmark licensing |
+
+Not covered: PRV-04/06/08/09/10/11/12 remain open -- several need real
+external authority (counsel sign-off, a real vendor contract, a real
+data-sharing access-grant event) this single-maintainer repository does
+not have, consistent with the same honest-gap pattern as GOV-03/SEC-14.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

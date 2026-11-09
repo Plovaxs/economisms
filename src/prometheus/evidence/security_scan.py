@@ -75,6 +75,22 @@ _RESTRICTED_LICENSE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     ),
 )
 
+_PII_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "US Social Security Number-shaped value"),
+    (
+        re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+        "email address",
+    ),
+    (
+        re.compile(r"(?:\(\d{3}\)\s?|\b\d{3}[-.\s])\d{3}[-.\s]\d{4}\b"),
+        "US phone number-shaped value",
+    ),
+    (
+        re.compile(r"(?<![\d.])\d{13,19}(?![\d.])"),
+        "credit-card-number-shaped digit sequence",
+    ),
+)
+
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS access key ID"),
     (
@@ -138,6 +154,40 @@ def license_scan(files: Mapping[str, str]) -> list[ScanFinding]:
                     ScanFinding(
                         scanner="license_scan",
                         severity="critical",
+                        location=f"{path}:{line_number}",
+                        description=description,
+                    )
+                )
+    return findings
+
+
+def pii_scan(files: Mapping[str, str]) -> list[ScanFinding]:
+    """PRV-03 ("minimize user and agent-associated personal information";
+    acceptance: "tests confirm default datasets avoid real PII").
+
+    Same fixed-pattern-scan discipline as `secret_scan`/`license_scan`
+    above (a live PII-detection service is not something this hermetic
+    test environment has a reliable way to query) -- matches common
+    PII shapes (US SSN, email address, US phone number, credit-card-
+    shaped digit runs) against file contents. `files` maps a path to its
+    text content; every match is reported as a `high` finding (serious
+    enough to matter, but not an immediate credential-leak `critical`),
+    located by 1-based line number.
+
+    Intended target: this repository's committed research datasets
+    (`data_cache/`, `tests/fixtures/`), not arbitrary source code --
+    running it over `.py` files would flag legitimate things (a test's
+    own synthetic example data, a docstring citing a real statute
+    number) that are not personal information about a real person."""
+    findings = []
+    for path, content in files.items():
+        for pattern, description in _PII_PATTERNS:
+            for match in pattern.finditer(content):
+                line_number = content.count("\n", 0, match.start()) + 1
+                findings.append(
+                    ScanFinding(
+                        scanner="pii_scan",
+                        severity="high",
                         location=f"{path}:{line_number}",
                         description=description,
                     )

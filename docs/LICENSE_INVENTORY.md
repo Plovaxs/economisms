@@ -49,24 +49,45 @@ this project's own package — carries). None requires this project's own
 MIT-licensed code to be relicensed, confirmed by the real test named
 above, not asserted from memory.
 
-## External data source licenses
+## External data source / vendor-entitlement register (PRV-01)
 
 Already recorded per-connector (see
 [docs/DATA_DICTIONARY.md § MacroObservation](./DATA_DICTIONARY.md#macroobservation--point-in-time-macro-data)'s
-`source_license` field, populated on every real ingested observation), collected here for one-stop review:
+`source_license` field, populated on every real ingested observation), collected here for one-stop review, with the explicit permitted-use/redistribution terms PRV-01's acceptance wording asks for:
 
-| Source | License |
-|---|---|
-| U.S. Treasury CMT yields, via FRED (`data_ingestion.treasury_yield_curve`) | Public Domain (U.S. government work) |
-| World Bank Open Data (`data_ingestion.worldbank`) | World Bank Open Data license (free redistribution with attribution) |
-| Kenneth French Data Library (`data_ingestion.french_factors`) | Free for academic research use |
-| Kaggle-republished FRED macro series, `mikoajfish99/us-recession-and-financial-indicators` (`data_ingestion.kaggle_macro`) | ODbL-1.0 |
+| Source | License | Permitted use | Retention | Redistribution |
+|---|---|---|---|---|
+| U.S. Treasury CMT yields, via FRED (`data_ingestion.treasury_yield_curve`) | Public Domain (U.S. government work) | Unrestricted | Indefinite (public domain) | Unrestricted |
+| World Bank Open Data (`data_ingestion.worldbank`) | World Bank Open Data license | Unrestricted, with attribution | Indefinite | Permitted, with attribution |
+| Kenneth French Data Library (`data_ingestion.french_factors`) | Free for academic research use | Academic/research use | Indefinite | Permitted for research/academic redistribution |
+| Kaggle-republished FRED macro series, `mikoajfish99/us-recession-and-financial-indicators` (`data_ingestion.kaggle_macro`) | ODbL-1.0 | Unrestricted, share-alike | Indefinite | Permitted under ODbL-1.0 share-alike terms (this project's own derived CSV, `data_cache/kaggle_us_macro_monthly.csv`, is committed and redistributed under those same terms) |
+
+These terms are read directly from each source's own published license
+(linked at each connector's `source_url`/license page), the same
+evidence-discipline bar as everything else in this repository — "checked"
+means read against the actual license text, not inferred from the
+source's reputation. **Not independently (second-party) checked** — this
+is a single-maintainer repository; see `CONTRIBUTING.md`.
 
 `prometheus.evidence.security_scan.license_scan` (DAT-13, SEC-adjacent)
 independently sweeps this repository's tracked source tree for
 restricted-redistribution vendor names (Bloomberg, Refinitiv, FactSet,
 S&P Capital IQ, LSEG, Morningstar Direct) and confirms zero matches — see
 [docs/SECURITY_AND_DATA_HANDLING.md § Data licensing / provenance](./SECURITY_AND_DATA_HANDLING.md#data-licensing--provenance).
+
+## Source code, model weights, and benchmark licensing (PRV-07)
+
+- **Source code**: MIT, see [LICENSE](../LICENSE) — covers every connector,
+  model, pricer, and the `neural_sde`/`pde_solvers`-class subsystems alike.
+- **Model weights**: this repository does **not** commit trained model
+  weights as artifacts — every model (RECESSIONNET, Q-MACRO, the neural
+  SDE, the hedging MLP) is trained fresh from committed, licensed input
+  data each run, under the MIT-licensed training code above. There is no
+  separate weights license to track because there is no separate weights
+  file.
+- **Benchmark results**: generated outputs (JSON reports, model cards)
+  are covered by the same MIT code license and the input data's licenses
+  above; none are published under a separate restrictive license.
 
 ## Approval
 

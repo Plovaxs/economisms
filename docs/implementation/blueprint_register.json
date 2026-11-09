@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "8977cc6cda2de163d032bca4776ba0c9d29edbc56ff25772b6ac3c7abaf8d9dd",
+    "content_sha256": "bb17f70847387f91950787c7b929dd5e4cb8171fa8b23cb011969464da8c8c03",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "7bb9a249af5e493eb970bd5504855c15a6746870c8a377061869c0c02c5f98d7",
+  "checklist_notes_sha256": "ee5c942f625eb9779822173d94c5cc7d06eff69356969084fcfb95caa91f0370",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6379,10 +6379,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5886,
+          "evidence_note": "`docs/LICENSE_INVENTORY.md` \u00a7 External data source / vendor-entitlement register",
+          "id_column": "PRV-01 (first evidence)",
+          "requirement_note": "dataset rights/vendor-entitlement register"
+        }
+      ],
       "requirement": "Maintain dataset rights and vendor-entitlement register",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6396,10 +6403,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5884,
+          "evidence_note": "`docs/DATA_PROCESSING_INVENTORY.md`",
+          "id_column": "PRV-02 (first evidence)",
+          "requirement_note": "data processing inventory and purposes documented"
+        }
+      ],
       "requirement": "Classify personal, financial and confidential records",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6413,10 +6427,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5883,
+          "evidence_note": "`evidence.security_scan.pii_scan`; 9 new tests (`tests/unit/test_security_scan.py`) including a real self-check against this repo's committed datasets and a real false-positive regression against this repo's own data",
+          "id_column": "PRV-03 (first evidence)",
+          "requirement_note": "tests confirm default datasets avoid real PII"
+        }
+      ],
       "requirement": "Minimize user and agent-associated personal information",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6447,10 +6468,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5885,
+          "evidence_note": "`docs/DATA_PROCESSING_INVENTORY.md` \u00a7 Data-subject / deletion procedures, backed by the real PRV-03 scan",
+          "id_column": "PRV-05 (first evidence, not-applicable confirmed)",
+          "requirement_note": "deletion/data-subject procedures where relevant"
+        }
+      ],
       "requirement": "Define deletion and data-subject request procedures where relevant",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6481,10 +6509,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5887,
+          "evidence_note": "pre-existing `LICENSE` + `docs/LICENSE_INVENTORY.md` \u00a7 Source code, model weights, and benchmark licensing",
+          "id_column": "PRV-07 (first credited)",
+          "requirement_note": "source code/model-weights/benchmark licensing"
+        }
+      ],
       "requirement": "Document licensing of source code, model weights and benchmarks",
       "source_pdf_page": 38,
       "source_rows": [
@@ -8951,7 +8986,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 240,
-    "without_repository_notes": 134
+    "with_repository_notes": 245,
+    "without_repository_notes": 129
   }
 }

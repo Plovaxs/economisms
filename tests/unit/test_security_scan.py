@@ -5,6 +5,7 @@ from prometheus.evidence.security_scan import (
     ScanFinding,
     evaluate_release_gate,
     license_scan,
+    pii_scan,
     secret_scan,
 )
 
@@ -184,3 +185,71 @@ def test_release_gate_approval_is_scoped_to_the_exact_finding_not_its_category()
 def test_release_gate_decision_type_is_constructible_directly() -> None:
     decision = ReleaseGateDecision(blocked=False, unapproved_findings=())
     assert decision.blocked is False
+
+
+def test_pii_scan_finds_nothing_in_clean_files() -> None:
+    assert pii_scan({"a.csv": "date,value\n202005,9.88\n"}) == []
+
+
+def test_pii_scan_detects_an_ssn_shaped_value() -> None:
+    findings = pii_scan({"leak.txt": "ssn: 123-45-6789\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "US Social Security Number-shaped value"
+    assert findings[0].severity == "high"
+
+
+def test_pii_scan_detects_an_email_address() -> None:
+    findings = pii_scan({"leak.txt": "contact: someone@example.com\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "email address"
+
+
+def test_pii_scan_detects_a_us_phone_number() -> None:
+    findings = pii_scan({"leak.txt": "call (555) 123-4567\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "US phone number-shaped value"
+
+
+def test_pii_scan_detects_a_credit_card_shaped_digit_run() -> None:
+    findings = pii_scan({"leak.txt": "card number 4111111111111111 on file\n"})
+    assert len(findings) == 1
+    assert findings[0].description == "credit-card-number-shaped digit sequence"
+
+
+def test_pii_scan_does_not_false_positive_on_a_long_real_decimal_value() -> None:
+    """The discriminating case this project's own real macro data
+    actually produces: a YoY growth-rate value like 1146.4183381088824
+    (real -- see neural_sde.ood) has 13+ consecutive digits on one side
+    of its decimal point, which a naive digit-run pattern would
+    misflag as a credit-card number. The decimal-point exclusion in
+    `_PII_PATTERNS` must not fire here."""
+    assert pii_scan({"data.csv": "KAGGLE_CLAIMS_YOY,1146.4183381088824\n"}) == []
+
+
+def test_pii_scan_reports_the_correct_line_number_past_the_first_line() -> None:
+    findings = pii_scan({"a.txt": "line one\nline two\nssn: 123-45-6789\n"})
+    assert findings[0].location == "a.txt:3"
+
+
+def test_a_pii_scan_finding_blocks_the_release_gate_the_same_way_a_secret_does() -> None:
+    """`evaluate_release_gate` is scanner-agnostic by design -- confirms
+    a `pii_scan` finding plugs into the exact same gate with no change
+    needed there."""
+    finding = pii_scan({"leak.txt": "ssn: 123-45-6789\n"})[0]
+    decision = evaluate_release_gate([finding])
+    assert decision.blocked is True
+    assert decision.unapproved_findings == (finding,)
+
+
+def test_this_repositorys_own_real_committed_datasets_have_no_pii_findings() -> None:
+    """A genuine self-check against the real, committed research
+    datasets this repository actually ships (PRV-03's own acceptance
+    wording: "tests confirm default datasets avoid real PII") -- not a
+    synthetic example."""
+    repo_root = pathlib.Path(__file__).resolve().parents[2]
+    paths = list((repo_root / "data_cache").glob("*")) + list(
+        (repo_root / "tests" / "fixtures").glob("*")
+    )
+    files = {str(p): p.read_text() for p in paths if p.is_file()}
+    assert len(files) >= 4  # sanity: the real committed datasets were actually read
+    assert pii_scan(files) == []
