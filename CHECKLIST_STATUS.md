@@ -5621,6 +5621,46 @@ and a true versioned-rollback demonstration remains LCH-10, open). No new
 test was added by this PR -- it is documentation only, and is evidenced
 by citation to tests and modules that already existed before it.
 
+## Evidenced today (PR-148: network egress allowlist for data ingestion, with real denial and alert routing -- SEC-10)
+
+A new `data_ingestion.egress_allowlist.AllowlistedTransport` wraps any
+existing `HttpTransport` (the Protocol every real connector already
+depends on) and checks the request host against a configured allowlist
+BEFORE delegating to the wrapped transport -- an unexpected host is
+rejected before any real network call is attempted. This item's own
+acceptance wording ("unexpected egress denied and alert generated") is
+met literally and testably: denial routes a real P1 alert through the
+pre-existing `evidence.alert_routing.route_alert` (OPS-10's own
+severity/escalation primitive, reused rather than reinvented), which
+itself raises `UnroutedSeverityError` if no human owner/escalation
+contact was ever configured -- a denial path cannot be silently wired up
+with no one actually notified, confirmed by a real test
+(`test_denying_with_no_configured_p1_route_fails_loudly_rather_than_denying_silently`).
+Each denial additionally appends a structured, inspectable
+`EgressDenial` record to the transport's own `denials` list before
+raising `EgressDeniedError`.
+
+`DEFAULT_INGESTION_ALLOWLIST` is built from the real hostnames this
+repository's own connectors already call (`fred.stlouisfed.org`,
+`api.worldbank.org`, `mba.tuck.dartmouth.edu`), read directly from each
+connector's own `*_URL` constant rather than retyped by hand, confirmed
+by `test_default_allowlist_is_built_from_the_real_connectors_own_urls`.
+
+Scope, disclosed plainly: only `data_ingestion` makes outbound network
+calls in this repository today; `prometheus.service` ("model serving")
+originates no outbound request of its own, so there is nothing for an
+egress allowlist to gate there yet -- not claimed as covered.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| SEC-10 (first evidence) | network egress allowlist for ingestion and model serving; unexpected egress denied and alert generated | `data_ingestion.egress_allowlist.AllowlistedTransport`; 6 tests (`tests/unit/test_egress_allowlist.py`) covering pass-through, denial-before-call, real alert-record generation, fail-loud on unconfigured routing, and a custom allowlist override |
+
+Not covered: this wraps `data_ingestion` only; no connector's production
+call site was switched to route through `AllowlistedTransport` by this
+PR (that is a follow-up wiring change, not a new primitive); "model
+serving" egress gating remains unclaimed since that subsystem makes no
+outbound call today.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
