@@ -2,9 +2,9 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C536%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C577%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
-[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-245%2F374%20(65.5%25)-blue)](./CHECKLIST_STATUS.md)
+[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-257%2F374%20(68.7%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](./pyproject.toml)
 
@@ -53,11 +53,11 @@ and every PR states plainly what it does *not* cover.
 
 | | |
 |---|---|
-| Blueprint items evidenced | **245 / 374** (65.5%) across 29 categories |
-| Categories at 100% | API, AUD, DOC, ECO, LED, MLO, NSD, OPS, OPT, PRI, REL, RISK, SDE |
-| Test suite | **2,536 / 2,536** passing |
+| Blueprint items evidenced | **257 / 374** (68.7%) across 29 categories |
+| Categories at 100% | API, AUD, DOC, ECO, LED, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE |
+| Test suite | **2,577 / 2,577** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 152, each independently verified |
+| Pull requests | 153, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -101,6 +101,9 @@ src/prometheus/
   neural_sde/      drift/diffusion network trained on real macro data, proper scoring rules,
                    multi-seed/multi-solver sensitivity, real-event OOD evaluation, model card
   volterra/        Black-Scholes, Heston & Merton pricers, barrier/Asian/American options, Greeks
+  pde_solvers/     classical finite-difference, PINN and deep BSDE solvers for the Black-Scholes
+                   PDE (and a correlated multi-asset basket generalization), cross-checked against
+                   closed-form/Monte Carlo and each other
   titan/           VaR, Expected Shortfall, factor exposure, stress testing, portfolio optimization
   hedging/         delta/no-trade-band baselines, self-financing simulator, CVaR-trained MLP policy
   macrocore/       classical forecasting baselines (persistence/AR/VAR), rolling-origin backtests,

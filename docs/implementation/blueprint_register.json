@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "bb17f70847387f91950787c7b929dd5e4cb8171fa8b23cb011969464da8c8c03",
+    "content_sha256": "fd1fa3f3814663497f48e034b5fd67fa4c076de4c14cca71a3d068e31c1e8030",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "ee5c942f625eb9779822173d94c5cc7d06eff69356969084fcfb95caa91f0370",
+  "checklist_notes_sha256": "ba6b22a36af9ef7d9bb5fef51a67a0edccdcf8fed0fab5e910d0a6c4abd80a06",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -2433,10 +2433,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5928,
+          "evidence_note": "`pde_solvers.problem.BlackScholesPDESpec`/`BasketOptionPDESpec`; independent human review not claimed",
+          "id_column": "PDE-01 (first evidence, partial)",
+          "requirement_note": "PDE/BSDE domain, terminal/boundary conditions"
+        }
+      ],
       "requirement": "Define PDE/BSDE, domain, terminal and boundary conditions",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2450,10 +2457,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5929,
+          "evidence_note": "`grid.solve_crank_nicolson`; price/Delta/Gamma match closed-form, real monotonic convergence across 4 resolutions",
+          "id_column": "PDE-02 (first evidence)",
+          "requirement_note": "classical grid/reference solver, analytically-solved convergence tests"
+        }
+      ],
       "requirement": "Implement classical grid/reference solver for small dimensions",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2467,10 +2481,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5930,
+          "evidence_note": "`pinn.train_pinn`; same-seed-identical / different-seed-different collocation-point and epoch-loss tests",
+          "id_column": "PDE-03 (first evidence)",
+          "requirement_note": "PINN interior residual loss, reproducible sampling"
+        }
+      ],
       "requirement": "Implement PINN interior residual loss and sampling scheme",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2484,10 +2505,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5931,
+          "evidence_note": "`pinn.py` terminal-loss term; 15-point spot grid at t=T vs. real payoff, worst observed error 4.33 under a 6.0 tolerance",
+          "id_column": "PDE-04 (first evidence)",
+          "requirement_note": "payoff terminal condition enforced, terminal error grid checked"
+        }
+      ],
       "requirement": "Enforce payoff terminal condition during training",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2501,10 +2529,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5932,
+          "evidence_note": "`pinn.PINNSolver.arbitrage_violation_rate` + new arbitrage-loss term; real measured reduction 58% -> ~17-20%, see narrative above",
+          "id_column": "PDE-05 (first evidence)",
+          "requirement_note": "boundary/arbitrage constraints, violation rate under pre-approved tolerance"
+        }
+      ],
       "requirement": "Enforce applicable boundary and arbitrage constraints",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2518,10 +2553,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5933,
+          "evidence_note": "`deep_bsde.train_deep_bsde`/`DeepBSDENet`; 1D vs. closed-form, 2D/3D basket vs. independent 200k-path Monte Carlo",
+          "id_column": "PDE-06 (first evidence)",
+          "requirement_note": "deep BSDE solver, causal rollout, benchmark-PDE checks"
+        }
+      ],
       "requirement": "Implement deep BSDE solver with causal time rollout",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2535,10 +2577,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5934,
+          "evidence_note": "`benchmark.grid_node_count` (M^d scaling) + `compute_cost_comparison`; this sandbox's CPU, disclosed, not multi-machine/GPU",
+          "id_column": "PDE-07 (first evidence)",
+          "requirement_note": "error-by-dimension/step-count benchmark with hardware disclosed"
+        }
+      ],
       "requirement": "Benchmark error by dimensions and number of time steps",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2552,10 +2601,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5935,
+          "evidence_note": "`benchmark.greeks_error_report` (grid); PINN Delta/Gamma via autograd; deep BSDE Delta via the Z0/S0 identity -- deep BSDE Gamma deliberately NOT reported, an undemonstrated identity, disclosed rather than fabricated",
+          "id_column": "PDE-08 (first evidence, disclosed gap)",
+          "requirement_note": "price/Delta/Gamma error budgets"
+        }
+      ],
       "requirement": "Benchmark price, Delta and Gamma errors separately",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2569,10 +2625,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5936,
+          "evidence_note": "`benchmark.audit_near_expiry_and_at_the_money_errors`; real worst-case location empirically confirmed at the shortest maturity tested, at-the-money",
+          "id_column": "PDE-09 (first evidence)",
+          "requirement_note": "worst-case error surfaces, near-expiry/ATM audit"
+        }
+      ],
       "requirement": "Audit near-expiry/at-the-money and discontinuous payoffs",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2586,10 +2649,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5937,
+          "evidence_note": "`benchmark.pinn_ablation_matrix`; real seeded 2x2x2 matrix, Adam beats plain-momentum SGD on every seed; independent human validation not claimed",
+          "id_column": "PDE-10 (first evidence, partial)",
+          "requirement_note": "optimizer/sampling ablations, independent validation"
+        }
+      ],
       "requirement": "Perform optimizer and sampling ablations",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2603,10 +2673,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5938,
+          "evidence_note": "`pinn.PDEResidualError` + `benchmark.GridConvergenceError`, both tested via deliberately-under-converged inputs that trigger the raise; deep BSDE has no equivalent hard-refusal gate yet, disclosed",
+          "id_column": "PDE-11 (first evidence, 2 of 3 solvers)",
+          "requirement_note": "refuses false precision on high residuals"
+        }
+      ],
       "requirement": "Assess convergence failure and uncertainty",
       "source_pdf_page": 26,
       "source_rows": [
@@ -2620,10 +2697,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PDE",
       "id": "PDE-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5939,
+          "evidence_note": "`benchmark.compute_cost_comparison`; real wall-clock on this sandbox's CPU; grid ~700x faster AND more accurate than either neural method in 1D",
+          "id_column": "PDE-12 (first evidence)",
+          "requirement_note": "neural compute cost vs. reliable numerical methods, reported fairly"
+        }
+      ],
       "requirement": "Compare neural compute cost against reliable numerical methods",
       "source_pdf_page": 26,
       "source_rows": [
@@ -8986,7 +9070,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 245,
-    "without_repository_notes": 129
+    "with_repository_notes": 257,
+    "without_repository_notes": 117
   }
 }
