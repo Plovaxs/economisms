@@ -6,6 +6,7 @@ from prometheus.evidence.model_package import build_model_package
 from prometheus.evidence.model_registry import (
     IllegalTransitionError,
     ModelRegistryEntry,
+    SinglePersonApprovalError,
     is_allowed_transition,
     promote_to_approved,
 )
@@ -224,6 +225,23 @@ def test_promote_to_approved_still_enforces_the_underlying_state_machine() -> No
             entry, "alice", "carol", date(2026, 1, 1), _manifest(), True, _package()
         )
     assert entry.state == "candidate"
+
+
+def test_promote_to_approved_rejects_a_self_approved_promotion() -> None:
+    """CIQ-08's own acceptance wording: "two-person approval recorded
+    in immutable system." The one identity-distinctness check this
+    registry can honestly enforce -- approved_by must differ from
+    actor -- is checked directly here, not merely documented."""
+    entry = ModelRegistryEntry("m1")
+    entry.transition(
+        "evaluated", "alice", date(2026, 1, 1), "backtest complete", approved_by="alice"
+    )
+    with pytest.raises(SinglePersonApprovalError, match="distinct identity"):
+        promote_to_approved(
+            entry, "alice", "alice", date(2026, 1, 2), _manifest(), True, _package()
+        )
+    assert entry.state == "evaluated"  # unchanged
+    assert isinstance(SinglePersonApprovalError("x"), IllegalTransitionError)
 
 
 def test_promote_to_approved_succeeds_when_everything_is_present() -> None:

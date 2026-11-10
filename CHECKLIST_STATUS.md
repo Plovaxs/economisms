@@ -6789,14 +6789,69 @@ single-maintainer sign-off gap as every other such item.
 | ID | Requirement (abridged) | Evidence |
 |----|-------------------------|----------|
 | SEC-02 (first credited, partial) | protected branches, peer-reviewed merges | live GitHub branch protection: `required_pull_request_reviews` added; signing/admin-enforcement not covered |
-| MGR-11 (first evidence) | restrict model usage to intended applications | `evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 9 new tests |
+| MGR-11 (first evidence) | restrict model usage to intended applications | `evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 7 new tests |
 | MGR-06 (first evidence) | model dependency interactions, aggregated model risk | `evidence.model_dependency_risk`; composes PDE-08 + HDG-13; 4 new tests |
-| MGR-10 (first evidence) | validation issue tracking and remediation | `evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 7 new tests |
+| MGR-10 (first evidence) | validation issue tracking and remediation | `evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 8 new tests |
 | SEC-06 (first credited) | secrets management, secret scan, rotation drill | pre-existing `security_scan.secret_scan` + real credential-rotation drill test |
 | CMP-11 (first credited, partial) | audit retention/recordkeeping schedule | pre-existing `evidence.data_retention`; schedule signature not claimed |
 
 Not covered: SEC-02's signing/admin-enforcement half, CMP-11's
 schedule-signature half. 19 new tests, 100% coverage on new code.
+
+## Evidenced today (PR-166: two-person approval enforcement, a RACI register, and a replication digest)
+
+**CIQ-08** (first evidence, partial) -- "require independent model-
+validation gate before promotion... two-person approval recorded in
+immutable system" is now partially real at the one identity-
+distinctness check this registry can honestly make:
+`evidence.model_registry.promote_to_approved` now rejects a promotion
+whose `approved_by` equals its `actor` with a new
+`SinglePersonApprovalError`, BEFORE even checking provenance/
+validation -- a promotion recorded in the existing append-only history
+(AUD-06) can no longer be silently self-approved by the same recorded
+identity that performed it. Not covered: this is NOT real second-human
+authentication -- this repository has no multi-user identity system
+behind model-registry actors (contrast `service.auth.CredentialStore`,
+which DOES authenticate real distinct principals for the job API and
+dashboard) -- so one person could still type two different strings.
+The enforcement itself, previously explicitly NOT claimed in this
+module's own docstring, is now real and tested.
+
+**GOV-03** (first evidence, partial) -- "assign accountable technical,
+scientific, security and risk owners... RACI register with named
+owners and deputies" draws on new `evidence.raci_register`: a real
+`RACIEntry` per required domain (technical/scientific/security/risk),
+each naming the real project-maintainer role as `accountable_owner`
+(the same identity GOV-09/GOV-12 already name for "approved by
+maintainer"), checked by `verify_raci_register` against the exact four
+domains this item names by name. Not covered: every entry's `deputy`
+is explicitly `None` -- this repository is single-maintainer and has
+no second identity to honestly name, the same gap this item has been
+recorded as blocked on since PR-149.
+
+**EXP-14** (first evidence, partial) -- "require independent rerun of
+paper-quality claims... external/reviewer replication digest and
+comparison stored" draws on new `evidence.replication_digest`, which
+formalizes PR-162's adversarial audit pass (previously only prose in
+the PR ledger) as structured, checkable data: one real
+`ReplicationRecord` per re-verified subsystem (NSD, PDE, MAR), each
+naming the original claim, the independent rerun's result, and
+`matched=True`, with `verify_replications` confirming every cited
+`subsystem_module` still actually imports (a stale citation to a
+renamed/removed module would fail loudly). Not covered: every record's
+`reviewer_type` is honestly `"internal_ai_assisted"` -- EXP-14 asks
+for an EXTERNAL or reviewer replication, and this repository has
+neither; no record claims otherwise.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| CIQ-08 (first evidence, partial) | independent model-validation gate; two-person approval | `evidence.model_registry.SinglePersonApprovalError`; `promote_to_approved` rejects `approved_by == actor`; 1 new test |
+| GOV-03 (first evidence, partial) | named technical/scientific/security/risk owners and deputies | `evidence.raci_register.RACI_REGISTER`/`verify_raci_register`; 6 new tests; deputies explicitly absent |
+| EXP-14 (first evidence, partial) | independent rerun of paper-quality claims, digest stored | `evidence.replication_digest.REAL_REPLICATIONS`; formalizes PR-162's audit; 5 new tests; internal AI-assisted, not external |
+
+Not covered: CIQ-08's real-second-human half, GOV-03's deputy half,
+EXP-14's external/reviewer half -- all the same single-maintainer gap.
+12 new tests, 100% coverage on new code.
 
 ## Explicitly NOT done (do not infer otherwise)
 

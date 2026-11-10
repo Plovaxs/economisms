@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "4bd34cb05540ec0923548d8167b933def91a0c075381c07052616ea3020ee24f",
+    "content_sha256": "3826ee8c58e2cedecb043732981ab821c9567de79a60d7e9d3f47bfbd2e30be5",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "1ce345805e866cb93ce1d50793728a047d28631d20209454e91f27f1081f9a55",
+  "checklist_notes_sha256": "0d9c18bc2537773c28745089c29cf50250861f14d99123a6199e6e32a2060409",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -93,10 +93,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6849,
+          "evidence_note": "`evidence.raci_register.RACI_REGISTER`/`verify_raci_register`; 6 new tests; deputies explicitly absent",
+          "id_column": "GOV-03 (first evidence, partial)",
+          "requirement_note": "named technical/scientific/security/risk owners and deputies"
+        }
+      ],
       "requirement": "Assign accountable technical, scientific, security and risk owners",
       "source_pdf_page": 19,
       "source_rows": [
@@ -4770,10 +4777,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXP",
       "id": "EXP-14",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6850,
+          "evidence_note": "`evidence.replication_digest.REAL_REPLICATIONS`; formalizes PR-162's audit; 5 new tests; internal AI-assisted, not external",
+          "id_column": "EXP-14 (first evidence, partial)",
+          "requirement_note": "independent rerun of paper-quality claims, digest stored"
+        }
+      ],
       "requirement": "Require independent rerun of paper-quality claims",
       "source_pdf_page": 31,
       "source_rows": [
@@ -7246,7 +7260,7 @@
       "repository_notes": [
         {
           "checklist_line": 6794,
-          "evidence_note": "`evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 7 new tests",
+          "evidence_note": "`evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 8 new tests",
           "id_column": "MGR-10 (first evidence)",
           "requirement_note": "validation issue tracking and remediation"
         }
@@ -7270,7 +7284,7 @@
       "repository_notes": [
         {
           "checklist_line": 6792,
-          "evidence_note": "`evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 9 new tests",
+          "evidence_note": "`evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 7 new tests",
           "id_column": "MGR-11 (first evidence)",
           "requirement_note": "restrict model usage to intended applications"
         }
@@ -7521,10 +7535,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6848,
+          "evidence_note": "`evidence.model_registry.SinglePersonApprovalError`; `promote_to_approved` rejects `approved_by == actor`; 1 new test",
+          "id_column": "CIQ-08 (first evidence, partial)",
+          "requirement_note": "independent model-validation gate; two-person approval"
+        }
+      ],
       "requirement": "Require independent model-validation gate before promotion",
       "source_pdf_page": 40,
       "source_rows": [
@@ -9644,7 +9665,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 339,
-    "without_repository_notes": 35
+    "with_repository_notes": 342,
+    "without_repository_notes": 32
   }
 }

@@ -12,13 +12,10 @@ complete, append-only `history` of every `StateTransition` it has ever
 undergone -- AUD-06's own four named fields, each literally present:
 `actor` (identity), `approved_by` (approval -- a separate, REQUIRED
 field with no default, since a silently-defaulted approver would not
-be a deliberate declaration; this registry does not itself enforce
-`approved_by != actor`, since doing so would need real authentication
-this repository does not have -- that is CIQ-08's "two-person approval"
-item, deliberately not claimed here), `from_state` (previous state,
-already part of every `StateTransition`), and `content_hash` (hash,
-optional since not every transition has a packaged artifact to hash
-yet, but REQUIRED specifically on a promotion to `approved` -- the one
+be a deliberate declaration), `from_state` (previous state, already
+part of every `StateTransition`), and `content_hash` (hash, optional
+since not every transition has a packaged artifact to hash yet, but
+REQUIRED specifically on a promotion to `approved` -- the one
 transition AUD-06 names by name, "promotion transitions"). The
 transition policy itself (`is_allowed_transition`) is a pure function,
 not merely documented in prose: `candidate -> evaluated -> approved ->
@@ -37,6 +34,19 @@ a passing validation result, and now a `model_package.ModelPackage`
 (reused from MLO-07) whose `content_hash` is recorded on the resulting
 transition -- "block deployment for missing provenance or validation,"
 checked directly, not assumed from the state machine alone.
+
+`promote_to_approved` ALSO now enforces CIQ-08's "two-person approval"
+at the one identity-distinctness check this registry can honestly make:
+`approved_by == actor` is rejected with `SinglePersonApprovalError`
+before the transition is even attempted, so a promotion can no longer
+be silently self-approved by the same recorded identity that performed
+it. This is NOT real second-human authentication -- this repository has
+no multi-user identity system behind model-registry actors (contrast
+`service.auth.CredentialStore`, which DOES authenticate real distinct
+principals for the job API and dashboard), so one person could still
+type two different strings -- but the enforcement itself, and the
+rejection of a same-identity promotion, is real and tested, not merely
+documented as a convention nobody checks.
 """
 
 from __future__ import annotations
@@ -60,6 +70,13 @@ _FORWARD_TRANSITION: dict[str, str] = {
 
 class IllegalTransitionError(ValueError):
     """Raised for any transition `is_allowed_transition` rejects."""
+
+
+class SinglePersonApprovalError(IllegalTransitionError):
+    """CIQ-08: raised by `promote_to_approved` when `approved_by`
+    equals `actor` -- the real, enforced half of "two-person approval"
+    this registry can honestly make (see this module's own docstring
+    for exactly what is, and is not, claimed by this check)."""
 
 
 def is_allowed_transition(from_state: RegistryState, to_state: RegistryState) -> bool:
@@ -124,6 +141,11 @@ def promote_to_approved(
     validation_passed: bool | None,
     package: ModelPackage,
 ) -> None:
+    if approved_by == actor:
+        raise SinglePersonApprovalError(
+            f"{entry.model_id}: approved_by must be a distinct identity from actor "
+            f"(both were {actor!r}) -- a promotion cannot be self-approved"
+        )
     missing = []
     if provenance is None:
         missing.append("training provenance manifest")
