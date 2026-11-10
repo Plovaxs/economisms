@@ -148,7 +148,16 @@ def train_reinforce_hedge_policy(
             obs = _observations(paths_t, holdings, step, n_steps)
             mu, std = policy(obs)
             dist = torch.distributions.Normal(mu, std)
-            raw_action = dist.rsample()
+            # REINFORCE requires the action to be a CONSTANT w.r.t. policy
+            # parameters when log_prob(action) is differentiated -- dist.sample()
+            # (not rsample()) returns a detached draw. Using rsample() here was a
+            # real bug: for a location-scale family, the reparameterized sample's
+            # own dependence on `mu` exactly cancels log_prob's direct dependence
+            # on `mu`, so d(log_prob(rsample()))/d(mu-producing weights) is
+            # identically zero -- confirmed numerically (mu_head gradient norm
+            # was exactly 0.0 with rsample()) -- silently preventing the policy
+            # from ever learning any state-dependent behavior.
+            raw_action = dist.sample()  # type: ignore[no-untyped-call]
             log_probs = log_probs + dist.log_prob(raw_action)  # type: ignore[no-untyped-call]
             ratio = torch.sigmoid(raw_action)
             ratios[:, step] = ratio.detach().numpy()

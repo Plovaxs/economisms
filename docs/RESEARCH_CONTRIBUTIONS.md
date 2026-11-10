@@ -115,10 +115,17 @@ single anecdote.
 
 ### RQ5 — Does a quickly-trained RL agent beat a well-specified classical baseline on a hedging task, under a controlled, honest comparison?
 
-**`hedging.rl_agent`** (PR-158): a REINFORCE agent, risk-bounded by
-construction and refusing to train without a passing static baseline
-already in hand, is reported **losing** to the static delta/no-trade-
-band baseline at its training budget — not tuned until it won.
+**`hedging.rl_agent`** (PR-158, corrected PR-162): a REINFORCE agent,
+risk-bounded by construction and refusing to train without a passing
+static baseline already in hand, is reported **losing** to the static
+delta/no-trade-band baseline at its training budget — not tuned until
+it won. An AI-assisted adversarial audit (PR-162) found and fixed a
+real implementation bug (`rsample()` silently zeroing the policy's
+mean-head gradient) that predated this finding; re-verified post-fix,
+the same qualitative conclusion holds, now for the genuine reason
+(sample-inefficient terminal-only REINFORCE) rather than a broken
+gradient — see `CHECKLIST_STATUS.md`'s PR-162 entry for the full
+before/after numbers.
 
 **Finding: not supported, reported honestly.** Consistent with RQ1/RQ3:
 across five independent subsystems this session, "the more complex

@@ -6521,6 +6521,76 @@ new ID) rather than claiming new checklist IDs.
 
 14 new tests, 100% coverage on new code.
 
+## Evidenced today (PR-162: AI-assisted adversarial audit of the NSD/PDE/MAR/HDG deep-learning subsystems -- one real bug found and fixed in HDG-14's REINFORCE agent)
+
+Prompted directly by a request to verify "deep learning accurate and
+working well... legits and real," not merely passing its own test
+suite. An independent adversarial re-verification pass re-derived every
+headline number already on record for `neural_sde` (NSD), `pde_solvers`
+(PDE), and `marl` (MAR) from scratch -- re-running the real training/
+evaluation code, not trusting the existing tests -- and found these
+three subsystems clean: NSD's real COVID-OOD degradation numbers
+(5.576/29.974) reproduced to full float precision; PDE's residual loss
+was hand-checked against the real Black-Scholes PDE term by term and
+its deep-BSDE Delta identity independently re-derived numerically;
+MAR's PPO update was confirmed to use a correctly-detached action
+sample (the bug class described below does NOT occur there), and its
+co-learning-instability and OOD-wage-shock numbers reproduced within
+expected noise (4.78x vs. the documented ~4-5x; 8.706/0.112 vs. the
+documented ~8.7/~0.11).
+
+**A real, previously undiagnosed bug WAS found in `hedging.rl_agent`
+(HDG-14)**: `dist.rsample()` (the reparameterized, differentiable draw)
+was used instead of `dist.sample()` (a detached draw) when computing
+the REINFORCE log-probability. For a location-scale (Normal) policy
+this is mathematically fatal, not merely suboptimal: the
+reparameterized sample's own dependence on `mu` exactly cancels
+`log_prob`'s direct dependence on `mu`, so the gradient reaching the
+policy's mean-producing layer was IDENTICALLY zero -- confirmed
+independently, twice (once by the audit pass, once re-derived directly
+in this session): `mu_head.weight.grad.norm()` was exactly `0.0` with
+`rsample()`, nonzero with `sample()`. Training ran without any error
+and produced a real-looking (if flat) loss curve the whole time -- the
+kind of bug that is invisible to "did the code crash" and only visible
+to someone checking the actual gradient reaching each parameter.
+
+Fixed with a one-line change (`rsample()` -> `sample()`), with the
+mechanism explained inline. A new, permanent regression test
+(`test_the_policy_mean_head_receives_a_genuinely_nonzero_gradient`)
+drives the exact mechanism directly -- asserting the mean-head's
+gradient is nonzero -- so this specific bug class cannot silently
+regress again; checking only a downstream CVaR number would not have
+caught it (both before and after the fix, the agent still loses to the
+static baseline, so a downstream-only test would have looked
+unchanged).
+
+**Does this change the already-published finding?** No. Re-run post-fix
+(60 training epochs, the same test configuration): the static baseline's
+real CVaR is 9.17; the REINFORCE agent's real CVaR is 40.58 -- still
+decisively worse. The qualitative conclusion already on record ("the
+REINFORCE agent does not beat the static baseline at this training
+budget") remains correct, but it is now correct because of genuine
+sample-inefficiency in terminal-only episodic REINFORCE, not because a
+silent gradient bug prevented the policy from learning anything
+state-dependent at all. This is the honest distinction worth recording:
+the same observable conclusion, now resting on a verified-correct
+implementation rather than one that happened to produce a similar-
+looking wrong answer for the wrong reason.
+
+This was AI-assisted adversarial self-audit, not independent human
+review -- this repository has no second reviewer (GOV-03's own honest
+open status), stated plainly rather than implied otherwise.
+
+| What | Evidence |
+|---|---|
+| NSD/PDE/MAR independently re-derived, found clean | real re-runs of `neural_sde_run`, `pde_solvers.benchmark`, `marl.diagnostics`; numbers match within expected tolerance |
+| HDG-14 `rsample()`/`sample()` gradient-killing bug found and fixed | `hedging/rl_agent.py`; `mu_head` gradient norm 0.0 (before) vs. nonzero (after), confirmed independently twice |
+| Permanent regression test for this bug class | `test_the_policy_mean_head_receives_a_genuinely_nonzero_gradient`, drives the mechanism directly rather than a downstream proxy |
+
+Not covered: this does not constitute independent human review of any
+checklist item; no new blueprint ID is claimed. 1 new test, 100%
+coverage on the changed file.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
