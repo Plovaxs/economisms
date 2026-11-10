@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "528065379a57676ee59b10571250b78c1d1f3df39ed38051e2819aaa1ff17782",
+    "content_sha256": "51af6fd61fc853034fae6bce82bc8658366156dad9d7ac8d0133197a1e1da7de",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "4bddf8f91fdfed311d46e54424792207cbe6f154a7d251f08b36437e7fae2d65",
+  "checklist_notes_sha256": "18c2e5bf9df1159a7c53a849d84ff18b928b322d03e0b5883f8238f24527a476",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6661,10 +6661,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6447,
+          "evidence_note": "pre-existing `docs/DATA_PROCESSING_INVENTORY.md`; independent audit not claimed",
+          "id_column": "SEC-12 (first evidence, partial)",
+          "requirement_note": "confidential data classification"
+        }
+      ],
       "requirement": "Classify confidential portfolio and user data",
       "source_pdf_page": 37,
       "source_rows": [
@@ -6907,10 +6914,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6445,
+          "evidence_note": "`dashboard.provenance`, reusing `evidence.constants.SIMULATION_DISCLAIMER`",
+          "id_column": "PRV-09 (first evidence)",
+          "requirement_note": "simulation/non-advice statement on public UI/export"
+        }
+      ],
       "requirement": "Define disclosure of simulated and financial data limitations",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6941,10 +6955,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6446,
+          "evidence_note": "pre-existing `evidence.security_scan.license_scan`/`pii_scan`; \"private\" results don't exist in this project",
+          "id_column": "PRV-11 (first evidence, N/A for \"private\")",
+          "requirement_note": "publication redaction/entitlement verification"
+        }
+      ],
       "requirement": "Prohibit release of private benchmark results without consent",
       "source_pdf_page": 38,
       "source_rows": [
@@ -6958,10 +6979,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "PRV",
       "id": "PRV-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6443,
+          "evidence_note": "`dashboard.auth.ShareGrant`/`PortfolioShareRegistry`; 3 new tests",
+          "id_column": "PRV-12 (first evidence)",
+          "requirement_note": "data-sharing access grants: requester/owner/expiry/justification"
+        }
+      ],
       "requirement": "Record approvals and scope for all data sharing",
       "source_pdf_page": 38,
       "source_rows": [
@@ -9122,10 +9150,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6448,
+          "evidence_note": "real zero-finding scans + UIX-10's real 403 test; formal sign-off not claimed",
+          "id_column": "LCH-04 (first evidence, partial)",
+          "requirement_note": "security/privacy sign-off, no critical vuln/unauthorized flow"
+        }
+      ],
       "requirement": "Complete security and privacy sign-off for defined R2 tier",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9139,10 +9174,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6449,
+          "evidence_note": "`runbook_catalog`/`incident_management`/`retraining_trigger`/`model_monitoring`; formal review event not claimed",
+          "id_column": "LCH-05 (first evidence, partial)",
+          "requirement_note": "ops readiness: runbooks/alerts/monitoring/escalation"
+        }
+      ],
       "requirement": "Complete operations readiness review and on-call assignment",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9173,10 +9215,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6450,
+          "evidence_note": "`cost_benchmark`/`soak_test`/`scale_benchmark`/`deployment_paths.AutoRollbackMonitor`; consolidated single artifact not yet built",
+          "id_column": "LCH-07 (first evidence, partial)",
+          "requirement_note": "load/soak/failure-injection benchmark evidence"
+        }
+      ],
       "requirement": "Complete load, soak and failure injection acceptance",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9231,10 +9280,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6444,
+          "evidence_note": "`tests/unit/test_lch10_versioned_rollback_demonstration.py`, composing `ShadowDeployment`/`ModelRegistryEntry`/`deploy_if_not_retired`",
+          "id_column": "LCH-10 (first evidence)",
+          "requirement_note": "versioned rollback and model invalidation, canary + audit chain"
+        }
+      ],
       "requirement": "Demonstrate versioned rollback and model invalidation",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9497,7 +9553,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 318,
-    "without_repository_notes": 56
+    "with_repository_notes": 326,
+    "without_repository_notes": 48
   }
 }

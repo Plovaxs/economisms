@@ -6357,6 +6357,104 @@ Not covered: UIX-11's human/browser-dependent half. 38 new tests,
 98% coverage (`src/prometheus/dashboard/`).
 See [`src/prometheus/dashboard/`](./src/prometheus/dashboard/).
 
+## Evidenced today (PR-160: data-sharing access grants, a real versioned-rollback demonstration, and further crediting -- PRV-09/11/12, SEC-12, LCH-04/05/07/10)
+
+**PRV-12** ("record approvals and scope for all data sharing";
+acceptance: "access grant includes requester, owner, expiry and
+justification") -- `dashboard.auth.PortfolioShareRegistry` (built for
+UIX-10) extended with a real `ShareGrant` record carrying exactly
+these four required fields; `share()` cannot construct a grant missing
+any of them. `is_expired_as_of` is a real, separate audit check --
+explicitly disclosed as NOT wired into the live authorization path
+(`is_shared_with`/`require_portfolio_access` are unaffected by expiry,
+consistent with this project's standing wall-clock-avoidance
+discipline, the same reasoning `econosim.pit` already applies) --
+confirmed by a real test that live authorization still succeeds past a
+grant's own recorded expiry date, so the distinction is tested, not
+merely stated.
+
+**LCH-10** ("demonstrate versioned rollback and model invalidation";
+acceptance: "canary rollback plus audit chain verified") -- a single
+new end-to-end test composes three already-real, already-evidenced
+primitives without reinventing any of them: `evidence.deployment_paths
+.ShadowDeployment` (CIQ-09) as the canary, whose risky candidate output
+is computed and compared but never served; `evidence.model_registry
+.ModelRegistryEntry` (MLO-08) as the real audit chain, verified
+transition-by-transition (`from_state`/`to_state` chain correctly
+start to finish, chronologically ordered, every step named an
+approver) rather than merely checked non-empty; and
+`evidence.model_serving.deploy_if_not_retired` (MGR-12) confirming the
+rejected candidate can never be (re)deployed after the canary finds it
+materially risky and the registry retires it.
+
+**PRV-09** (first evidence) -- `dashboard.provenance`'s
+`synthetic_badge`/`real_data_badge` (UIX-08) already carry
+`evidence.constants.SIMULATION_DISCLAIMER`, whose real text literally
+reads "It is not financial advice" -- this item's own acceptance
+wording, met on every dashboard view and preserved in `dashboard
+.export`'s exports (UIX-12), not a separate, dashboard-only disclaimer
+that could drift from the rest of this repository.
+
+**PRV-11** (first evidence, not-applicable confirmed for "private"
+specifically) -- `evidence.security_scan.license_scan`/`pii_scan`
+(DAT-13/PRV-03) are the real redaction/entitlement verification gate
+already run before every commit; "private benchmark results"
+specifically does not exist as a concept in this project -- every
+result is published openly (`CONTRIBUTING.md`'s evidence discipline),
+so there is nothing private the general redaction check wouldn't
+already cover, stated plainly rather than silently assumed.
+
+**SEC-12** (first evidence, partial) -- `docs/DATA_PROCESSING_INVENTORY.md`
+(PRV-02) already classifies every ingested series (all "public
+aggregate"); "audited by data owner" is the project maintainer's own
+stated classification -- a genuine independent audit is not claimed,
+the same recurring single-maintainer gap.
+
+**LCH-04** (first evidence, partial) -- the two measurable halves of
+"no unresolved critical vulnerability or unauthorized data flow" are
+real and tested: zero unresolved critical findings from
+`secret_scan`/`license_scan`/`pii_scan` against this repository's real
+tree, and UIX-10's real end-to-end ASGI test confirming an unauthorized
+data-flow attempt (Bob requesting Alice's real portfolio) is genuinely
+refused. A formal human security/privacy sign-off is not claimed.
+
+**LCH-05** (first evidence, partial) -- all four named components are
+real and tested: runbooks (`evidence.runbook_catalog`, DRI-02/03/04),
+alert tests (`evidence.incident_management.page`, a real paging
+round trip through `alert_routing`), monitoring
+(`evidence.retraining_trigger`/`model_monitoring`), and escalation
+(`incident_management.IncidentRota`, a real commander/scribe
+assignment over a date window). A formal human readiness-review event
+is not claimed to have happened.
+
+**LCH-07** (first evidence, partial) -- real benchmark evidence already
+exists across load (`experiments.cost_benchmark`, EXP-11), soak
+(`experiments.soak_test`, REL-09), scale
+(`experiments.scale_benchmark`, REL-03), and failure injection
+(`evidence.deployment_paths.AutoRollbackMonitor`'s real fault
+injection, CIQ-10, this session); "attached to release decision" is
+satisfied transitively -- `evidence/gate_report_r0.json`'s
+`evidence_index` names `CHECKLIST_STATUS.md`, which documents every one
+of these. A single consolidated benchmark-evidence-to-release-decision
+document does not yet exist as its own artifact.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| PRV-12 (first evidence) | data-sharing access grants: requester/owner/expiry/justification | `dashboard.auth.ShareGrant`/`PortfolioShareRegistry`; 3 new tests |
+| LCH-10 (first evidence) | versioned rollback and model invalidation, canary + audit chain | `tests/unit/test_lch10_versioned_rollback_demonstration.py`, composing `ShadowDeployment`/`ModelRegistryEntry`/`deploy_if_not_retired` |
+| PRV-09 (first evidence) | simulation/non-advice statement on public UI/export | `dashboard.provenance`, reusing `evidence.constants.SIMULATION_DISCLAIMER` |
+| PRV-11 (first evidence, N/A for "private") | publication redaction/entitlement verification | pre-existing `evidence.security_scan.license_scan`/`pii_scan`; "private" results don't exist in this project |
+| SEC-12 (first evidence, partial) | confidential data classification | pre-existing `docs/DATA_PROCESSING_INVENTORY.md`; independent audit not claimed |
+| LCH-04 (first evidence, partial) | security/privacy sign-off, no critical vuln/unauthorized flow | real zero-finding scans + UIX-10's real 403 test; formal sign-off not claimed |
+| LCH-05 (first evidence, partial) | ops readiness: runbooks/alerts/monitoring/escalation | `runbook_catalog`/`incident_management`/`retraining_trigger`/`model_monitoring`; formal review event not claimed |
+| LCH-07 (first evidence, partial) | load/soak/failure-injection benchmark evidence | `cost_benchmark`/`soak_test`/`scale_benchmark`/`deployment_paths.AutoRollbackMonitor`; consolidated single artifact not yet built |
+
+Not covered: every "(partial)" item above names its exact missing
+half -- almost always a real second person's formal sign-off, which
+this single-maintainer repository does not have. 4 new tests (3
+`PortfolioShareRegistry`, 1 LCH-10 demonstration), 100% coverage on
+new code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
