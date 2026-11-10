@@ -52,3 +52,19 @@ Not applicable today, confirmed by the inventory above and the real
 system for a deletion or data-subject-access request to act on. If that
 changes, a real procedure is required before it does — this inventory
 existing and being checked is the mechanism that would catch the change.
+
+## External API/vendor contract security review (PRV-08)
+
+Not applicable today, confirmed by the real source list above, not
+assumed: every external source this repository actually calls (FRED,
+World Bank Open Data, the Kenneth French Data Library) is a free,
+public, no-authentication data republication — none is a paid API
+vendor, none requires a contract, a processor agreement, or a
+permissions grant of any kind. `docs/LICENSE_INVENTORY.md` already
+records each one's real license terms. There is no vendor relationship
+for "service data flows and processors/permissions approved" to apply
+to. If a future change introduces a real paid API or SaaS dependency,
+a real security/contract review is required before that integration
+ships — this inventory existing and being checked (alongside
+`docs/compliance/`) is the mechanism that would catch the change, the
+same pattern PRV-05 above already uses.
