@@ -1,13 +1,54 @@
 import dataclasses
+from datetime import date
 
 import pytest
 
 from prometheus.service.application import ServicePolicy
 from prometheus.service.deploy_manifest import (
+    BreakingChangeNotice,
     DeployManifest,
     capture_deploy_manifest,
     recreate_service_policy,
 )
+
+
+def _real_notice(**overrides: object) -> BreakingChangeNotice:
+    defaults: dict[str, object] = dict(
+        change_description="service.schema API_VERSION bumped to 2.0.0, field X renamed",
+        affected_clients=("internal-research-cli", "service.client users"),
+        change_log_url="https://github.com/Plovaxs/economisms/blob/main/docs/PR_LEDGER.md",
+        maintenance_window_start=date(2026, 12, 1),
+        maintenance_window_end=date(2026, 12, 1),
+        owner_approved_by="project maintainer",
+    )
+    defaults.update(overrides)
+    return BreakingChangeNotice(**defaults)  # type: ignore[arg-type]
+
+
+def test_a_breaking_change_notice_requires_at_least_one_affected_client() -> None:
+    with pytest.raises(ValueError, match="affected_clients"):
+        _real_notice(affected_clients=())
+
+
+def test_a_breaking_change_notice_requires_change_log_url_and_owner_approval() -> None:
+    with pytest.raises(ValueError, match="change_log_url"):
+        _real_notice(change_log_url="")
+    with pytest.raises(ValueError, match="owner_approved_by"):
+        _real_notice(owner_approved_by="")
+
+
+def test_maintenance_window_end_cannot_precede_its_start() -> None:
+    with pytest.raises(ValueError, match="cannot precede"):
+        _real_notice(
+            maintenance_window_start=date(2026, 12, 5),
+            maintenance_window_end=date(2026, 12, 1),
+        )
+
+
+def test_a_valid_breaking_change_notice_constructs_cleanly() -> None:
+    notice = _real_notice()
+    assert notice.affected_clients == ("internal-research-cli", "service.client users")
+    assert notice.owner_approved_by == "project maintainer"
 
 
 def test_capture_deploy_manifest_defaults_feature_flags_to_empty() -> None:

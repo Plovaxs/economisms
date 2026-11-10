@@ -23,6 +23,17 @@ ORIGINAL policy instance the manifest was captured from -- including a
 non-default configuration, not just the all-defaults case, which could
 otherwise pass trivially even if capture or reconstruction silently
 dropped a field.
+
+`BreakingChangeNotice` (CIQ-12: "require maintenance window and
+notification for breaking change"; acceptance criterion: "change log
+links affected clients and owner approval") is a frozen, validated
+record alongside the manifest types above -- `affected_clients` must be
+non-empty (a "breaking change" notice naming no one it breaks is not a
+notice), `change_log_url` and `owner_approved_by` are required,
+non-optional fields (the same "no silently-defaulted approval field"
+discipline `evidence.gate_report.GateDecisionForm` and `evidence
+.severity_matrix` already use), and `maintenance_window_end` cannot
+precede `maintenance_window_start`.
 """
 
 from __future__ import annotations
@@ -30,6 +41,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from prometheus.experiments.manifest import compute_result_hash, runtime_provenance
@@ -66,3 +78,29 @@ def recreate_service_policy(manifest: DeployManifest) -> ServicePolicy:
     fields -- the actual "recreate a deployment from recorded
     artifacts" step, not merely a claim that the stored dict suffices."""
     return ServicePolicy(**manifest.service_policy)
+
+
+@dataclass(frozen=True, slots=True)
+class BreakingChangeNotice:
+    change_description: str
+    affected_clients: tuple[str, ...]
+    change_log_url: str
+    maintenance_window_start: date
+    maintenance_window_end: date
+    owner_approved_by: str
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("change_description", self.change_description),
+            ("change_log_url", self.change_log_url),
+            ("owner_approved_by", self.owner_approved_by),
+        ):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{name} must not be empty")
+        if not self.affected_clients:
+            raise ValueError(
+                "affected_clients must list at least one affected client -- a breaking "
+                "change notice naming no one it breaks is not a complete notice"
+            )
+        if self.maintenance_window_end < self.maintenance_window_start:
+            raise ValueError("maintenance_window_end cannot precede maintenance_window_start")
