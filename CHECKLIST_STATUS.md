@@ -6701,6 +6701,103 @@ Not covered: LCH-11's "approve" half. No new code; both items credit
 pre-existing, already-tested evidence never mapped to these specific
 IDs before.
 
+## Evidenced today (PR-165: branch-rule tightening, model-usage authorization, model-dependency risk, a real validation issue tracker, and further crediting)
+
+**SEC-02** (first credited, partial) -- "require protected branches and
+peer-reviewed merges... repository rules block unsigned/unreviewed
+changes" is now partially real at the GitHub-settings layer itself (not
+just in this repository's own code): `main`'s branch protection on
+`github.com/Plovaxs/economisms` now requires `required_pull_request_
+reviews` (one approving review, stale reviews dismissed) in addition to
+the existing required status checks, confirmed live via `gh api
+repos/Plovaxs/economisms/branches/main/protection`. Not covered:
+`required_signatures` remains disabled (commits are not required to be
+GPG/SSH-signed), and `enforce_admins` remains disabled so the single
+repository owner can still push directly without a review -- the same
+honest single-maintainer gap as every other item requiring a genuinely
+independent second reviewer. No new code; this is a live GitHub
+settings change, not a commit.
+
+**MGR-11** (first evidence) -- new `evidence.model_inventory.
+authorize_model_usage`/`UnauthorizedModelUsageError`: every
+`ModelInventoryEntry` (MGR-01) now carries a real `authorized_
+applications` tuple (every current entry is `("research",)` only, per
+this repository's own NO-GO gate status), and `authorize_model_usage`
+is wired into a live, rejectable HTTP route,
+`dashboard.app`'s `/dashboard/model-usage`, which returns a real 403
+via `DashboardHTTPError` for an unsupported application or an unknown
+model -- "authorization and UI reject unsupported decisions" checked
+by a real HTTP request/response, not just a library call nobody
+invokes. 7 new tests (4 in `test_model_inventory.py`, 3 in
+`test_dashboard_app.py`).
+
+**MGR-06** (first evidence) -- new `evidence.model_dependency_risk`:
+traces a real dependency already present in this repository (a desk
+that delta-hedges using the grid PDE solver's Delta instead of the
+exact closed-form Delta feeds that Delta directly into the shared
+`hedging.simulate.simulate_self_financing_hedge` engine, HDG-13) and
+actually runs that substitution through the real simulator twice --
+once with the exact Delta, once with the grid solver's own Delta at
+the same spot/strike -- reporting both PDE-08's own local Delta-error
+score and the resulting shift in a downstream, AGGREGATE portfolio
+risk statistic (`titan.risk_metrics.historical_expected_shortfall`).
+"System-level error propagation analyzed, not just local scores" is
+checked directly: a dedicated test confirms a coarser grid produces
+both a larger local Delta error AND a larger downstream aggregate
+Expected-Shortfall shift on the identical simulated price paths. 4 new
+tests, including a malformed-input rejection case.
+
+**MGR-10** (first evidence) -- new `evidence.validation_issue_tracker`:
+`REAL_FINDINGS` records the two genuine defects actually found and
+fixed during this repository's own development -- the REINFORCE
+policy's gradient-zeroing `rsample()`/`sample()` bug (PR-162,
+`hedging.rl_agent`) and the dashboard's ASGI lifespan crash (PR-161,
+`dashboard.app`) -- each a real `ValidationFinding` with a non-empty
+severity, owner, expiry date and disposition (`ModelInventoryEntry`-
+style `__post_init__` validation rejects an empty field, a backdated
+expiry, or a "remediated" finding with no cited evidence), and each
+citing the exact real regression test that would catch a recurrence.
+"Every finding has severity, owner, expiry and disposition" is checked
+directly, not merely a schema nobody populated; `overdue_open_findings`
+is the real enforcement point for findings that are not yet closed.
+Wired into a live `/dashboard/validation-issues` view. 8 new tests (1
+in `test_dashboard_app.py`, 7 in `test_validation_issue_tracker.py`),
+including two that confirm the cited regression-test functions
+genuinely exist in their named files (so a future rename would break
+this citation loudly, not silently).
+
+**SEC-06** (first credited) -- "manage secrets in vault, not code or CI
+logs... secret scan and forced credential-rotation exercise pass" is
+already real and evidenced: `evidence.security_scan.secret_scan` (used
+by `evaluate_release_gate`, SEC-01/15's release gate) and
+`tests/unit/test_credential_rotation_drill.py::test_a_real_rotation_
+rejects_the_old_token_and_accepts_the_new_one` -- a real end-to-end
+drill against `service.auth.CredentialStore` confirming the old token
+is genuinely rejected after rotation and the new one genuinely
+authenticates -- never mapped to SEC-06 specifically before now.
+
+**CMP-11** (first credited, partial) -- "define audit retention and
+recordkeeping by applicable scope... retention schedule signed by
+records owner" draws on the already-real `evidence.data_retention`
+(PRV-04): `DEFAULT_RETENTION_SCHEDULE`'s real per-category retention
+periods (including the deliberately-indefinite ones, disclosed by
+design) and `RetentionException`'s real `signed_by`/sunset-date
+enforcement for exceptions. Not covered: a human signature on the
+schedule itself (as opposed to its exceptions) is the same honest
+single-maintainer sign-off gap as every other such item.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| SEC-02 (first credited, partial) | protected branches, peer-reviewed merges | live GitHub branch protection: `required_pull_request_reviews` added; signing/admin-enforcement not covered |
+| MGR-11 (first evidence) | restrict model usage to intended applications | `evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 9 new tests |
+| MGR-06 (first evidence) | model dependency interactions, aggregated model risk | `evidence.model_dependency_risk`; composes PDE-08 + HDG-13; 4 new tests |
+| MGR-10 (first evidence) | validation issue tracking and remediation | `evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 7 new tests |
+| SEC-06 (first credited) | secrets management, secret scan, rotation drill | pre-existing `security_scan.secret_scan` + real credential-rotation drill test |
+| CMP-11 (first credited, partial) | audit retention/recordkeeping schedule | pre-existing `evidence.data_retention`; schedule signature not claimed |
+
+Not covered: SEC-02's signing/admin-enforcement half, CMP-11's
+schedule-signature half. 19 new tests, 100% coverage on new code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

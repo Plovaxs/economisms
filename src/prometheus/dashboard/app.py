@@ -43,7 +43,9 @@ from prometheus.dashboard.views import (
     render_portfolio_risk,
     render_pricing_diagnostics,
 )
+from prometheus.evidence.model_inventory import UnauthorizedModelUsageError, authorize_model_usage
 from prometheus.evidence.model_registry import ModelRegistryEntry
+from prometheus.evidence.validation_issue_tracker import REAL_FINDINGS
 from prometheus.service.auth import AuthenticationError, CredentialStore
 
 _INDEX_LINKS: tuple[tuple[str, str], ...] = (
@@ -55,6 +57,11 @@ _INDEX_LINKS: tuple[tuple[str, str], ...] = (
     ("/dashboard/experiments", "Experiment comparison, with real losses (UIX-07)"),
     ("/dashboard/audit-trail", "Model registry audit trail (UIX-09)"),
     ("/dashboard/portfolio/alice", "A real owner-scoped portfolio (UIX-02/UIX-10)"),
+    (
+        "/dashboard/model-usage?model_id=recessionnet&application=research",
+        "Model usage authorization check (MGR-11)",
+    ),
+    ("/dashboard/validation-issues", "Validation issue tracker (MGR-10)"),
 )
 
 
@@ -194,6 +201,39 @@ class DashboardService:
 
         if path == "/dashboard/audit-trail":
             return 200, render_audit_trail(_demo_audit_entry())
+
+        if path == "/dashboard/model-usage":
+            model_id = query.get("model_id", [""])[0]
+            application = query.get("application", [""])[0]
+            try:
+                entry = authorize_model_usage(model_id, application)
+            except UnauthorizedModelUsageError as exc:
+                raise DashboardHTTPError(403, str(exc)) from exc
+            body = (
+                f"<p>Model <code>{model_id}</code> is authorized for "
+                f"<code>{application}</code>.</p>"
+                f"<p>Authorized applications: "
+                f"<code>{', '.join(entry.authorized_applications)}</code></p>"
+            )
+            return 200, page(
+                "Model usage authorization", "Model usage authorization (MGR-11)", body
+            )
+
+        if path == "/dashboard/validation-issues":
+            rows = "".join(
+                f"<tr><td>{f.finding_id}</td><td>{f.component_id}</td>"
+                f"<td>{f.severity}</td><td>{f.owner}</td><td>{f.expiry_date}</td>"
+                f"<td>{f.disposition}</td></tr>"
+                for f in REAL_FINDINGS
+            )
+            body = (
+                "<table><thead><tr><th>ID</th><th>Component</th><th>Severity</th>"
+                "<th>Owner</th><th>Expiry</th><th>Disposition</th></tr></thead>"
+                f"<tbody>{rows}</tbody></table>"
+            )
+            return 200, page(
+                "Validation issue tracker", "Validation issue tracker (MGR-10)", body
+            )
 
         if path == "/dashboard/export":
             view_name = query.get("view", [""])[0]

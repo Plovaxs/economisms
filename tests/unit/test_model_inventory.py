@@ -8,7 +8,9 @@ from prometheus.evidence.model_inventory import (
     MODEL_INVENTORY,
     InventoryValidationError,
     ModelInventoryEntry,
+    UnauthorizedModelUsageError,
     active_inventory,
+    authorize_model_usage,
     verify_inventory,
 )
 
@@ -97,3 +99,35 @@ def test_verify_inventory_raises_on_an_active_entry_missing_fields_via_direct_co
     dead code nobody can actually trigger or reason about)."""
     verify_inventory(MODEL_INVENTORY)  # the real table, must not raise
     assert issubclass(InventoryValidationError, ValueError)
+
+
+def test_an_entry_requires_at_least_one_authorized_application() -> None:
+    with pytest.raises(ValueError, match="authorized_applications"):
+        ModelInventoryEntry(
+            model_id="m",
+            business_purpose="purpose",
+            owner="someone",
+            materiality_tier="research",
+            active=True,
+            source_module="prometheus.x",
+            authorized_applications=(),
+        )
+
+
+def test_authorize_model_usage_accepts_a_real_models_real_authorized_application() -> None:
+    """MGR-11's own acceptance wording -- "restrict model usage to
+    intended applications" -- checked against the real populated
+    inventory, not a hand-constructed stand-in."""
+    entry = authorize_model_usage("recessionnet", "research")
+    assert entry.model_id == "recessionnet"
+    assert "research" in entry.authorized_applications
+
+
+def test_authorize_model_usage_rejects_an_unauthorized_application() -> None:
+    with pytest.raises(UnauthorizedModelUsageError, match="not authorized"):
+        authorize_model_usage("recessionnet", "live_trading")
+
+
+def test_authorize_model_usage_rejects_an_unknown_model_id() -> None:
+    with pytest.raises(UnauthorizedModelUsageError, match="not a known inventoried model"):
+        authorize_model_usage("not-a-real-model", "research")

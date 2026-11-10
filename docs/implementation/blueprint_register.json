@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "a420ccc92a1c1074c2c146f55e5de1764fb433ad4226186dc0ece1d77489c48b",
+    "content_sha256": "4bd34cb05540ec0923548d8167b933def91a0c075381c07052616ea3020ee24f",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "c4a20fce4f3b1d449e5c4dc2bea615cb588db86aaf38b3b3c33c8348406599e4",
+  "checklist_notes_sha256": "1ce345805e866cb93ce1d50793728a047d28631d20209454e91f27f1081f9a55",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6437,10 +6437,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6791,
+          "evidence_note": "live GitHub branch protection: `required_pull_request_reviews` added; signing/admin-enforcement not covered",
+          "id_column": "SEC-02 (first credited, partial)",
+          "requirement_note": "protected branches, peer-reviewed merges"
+        }
+      ],
       "requirement": "Require protected branches and peer-reviewed merges",
       "source_pdf_page": 37,
       "source_rows": [
@@ -6525,10 +6532,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6795,
+          "evidence_note": "pre-existing `security_scan.secret_scan` + real credential-rotation drill test",
+          "id_column": "SEC-06 (first credited)",
+          "requirement_note": "secrets management, secret scan, rotation drill"
+        }
+      ],
       "requirement": "Manage secrets in vault, not code or CI logs",
       "source_pdf_page": 37,
       "source_rows": [
@@ -7137,10 +7151,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6793,
+          "evidence_note": "`evidence.model_dependency_risk`; composes PDE-08 + HDG-13; 4 new tests",
+          "id_column": "MGR-06 (first evidence)",
+          "requirement_note": "model dependency interactions, aggregated model risk"
+        }
+      ],
       "requirement": "Evaluate model dependency interactions and aggregated model risk",
       "source_pdf_page": 39,
       "source_rows": [
@@ -7219,10 +7240,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6794,
+          "evidence_note": "`evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 7 new tests",
+          "id_column": "MGR-10 (first evidence)",
+          "requirement_note": "validation issue tracking and remediation"
+        }
+      ],
       "requirement": "Maintain validation issue tracking and remediation",
       "source_pdf_page": 39,
       "source_rows": [
@@ -7236,10 +7264,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6792,
+          "evidence_note": "`evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 9 new tests",
+          "id_column": "MGR-11 (first evidence)",
+          "requirement_note": "restrict model usage to intended applications"
+        }
+      ],
       "requirement": "Restrict model usage to intended applications",
       "source_pdf_page": 39,
       "source_rows": [
@@ -8792,10 +8827,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6796,
+          "evidence_note": "pre-existing `evidence.data_retention`; schedule signature not claimed",
+          "id_column": "CMP-11 (first credited, partial)",
+          "requirement_note": "audit retention/recordkeeping schedule"
+        }
+      ],
       "requirement": "Define audit retention and recordkeeping by applicable scope",
       "source_pdf_page": 44,
       "source_rows": [
@@ -9602,7 +9644,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 333,
-    "without_repository_notes": 41
+    "with_repository_notes": 339,
+    "without_repository_notes": 35
   }
 }

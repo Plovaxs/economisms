@@ -177,6 +177,7 @@ def test_every_real_view_is_refused_without_a_valid_token(app) -> None:
         "/dashboard", "/dashboard/economy", "/dashboard/market-paths",
         "/dashboard/hedge-actions", "/dashboard/portfolio-risk",
         "/dashboard/audit-trail", "/dashboard/export",
+        "/dashboard/validation-issues", "/dashboard/model-usage",
     ):
         status, _ = request(app, path, None)
         assert status == 401, f"{path} did not require authentication"
@@ -212,3 +213,36 @@ def test_the_app_completes_a_real_asgi_lifespan_handshake(app) -> None:
     sent = asyncio.run(_run_lifespan(app))
     assert {"type": "lifespan.startup.complete"} in sent
     assert {"type": "lifespan.shutdown.complete"} in sent
+
+
+def test_model_usage_is_authorized_for_a_real_known_model_and_application(app) -> None:
+    status, body = request(
+        app, "/dashboard/model-usage", ALICE, "model_id=recessionnet&application=research"
+    )
+    assert status == 200
+    assert "authorized" in body.lower()
+
+
+def test_model_usage_rejects_an_unsupported_application(app) -> None:
+    """MGR-11's own acceptance wording: "authorization and UI reject
+    unsupported decisions" -- a real, live 403 for a real model with a
+    genuinely unauthorized requested application."""
+    status, body = request(
+        app, "/dashboard/model-usage", ALICE, "model_id=recessionnet&application=live_trading"
+    )
+    assert status == 403
+    assert "not authorized" in body.lower()
+
+
+def test_model_usage_rejects_an_unknown_model_id(app) -> None:
+    status, _ = request(
+        app, "/dashboard/model-usage", ALICE, "model_id=not-a-real-model&application=research"
+    )
+    assert status == 403
+
+
+def test_validation_issues_view_lists_the_real_tracked_findings(app) -> None:
+    status, body = request(app, "/dashboard/validation-issues", ALICE)
+    assert status == 200
+    assert "VAL-2026-001" in body
+    assert "remediated" in body

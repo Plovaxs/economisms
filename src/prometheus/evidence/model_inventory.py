@@ -40,6 +40,13 @@ class ModelInventoryEntry:
     materiality_tier: MaterialityTier
     active: bool
     source_module: str
+    authorized_applications: tuple[str, ...] = ("research",)
+    """MGR-11: "restrict model usage to intended applications" -- the
+    closed set of applications this model may be used for. Every
+    current entry is `("research",)` only, since nothing in this
+    repository is authorized for production use (see README.md's own
+    NO-GO gate status) -- `authorize_model_usage` below is the real
+    enforcement point, not just a descriptive label."""
 
     def __post_init__(self) -> None:
         for name, value in (
@@ -52,6 +59,8 @@ class ModelInventoryEntry:
                 raise ValueError(f"{name} must not be empty")
         if self.materiality_tier not in _VALID_TIERS:
             raise ValueError(f"materiality_tier must be one of {sorted(_VALID_TIERS)}")
+        if not self.authorized_applications:
+            raise ValueError("authorized_applications must not be empty")
 
 
 MODEL_INVENTORY: tuple[ModelInventoryEntry, ...] = (
@@ -134,3 +143,26 @@ def verify_inventory(inventory: tuple[ModelInventoryEntry, ...] = MODEL_INVENTOR
             raise InventoryValidationError(
                 f"{entry.model_id}: active inventory entry missing business_purpose or owner"
             )
+
+
+class UnauthorizedModelUsageError(PermissionError):
+    """Raised by `authorize_model_usage` when `requested_application`
+    is not in the model's own `authorized_applications` -- MGR-11's
+    real enforcement point. `dashboard.app` wires this into a live,
+    rejectable HTTP route (not just a library call nobody invokes)."""
+
+
+def authorize_model_usage(
+    model_id: str,
+    requested_application: str,
+    inventory: tuple[ModelInventoryEntry, ...] = MODEL_INVENTORY,
+) -> ModelInventoryEntry:
+    entry = next((e for e in inventory if e.model_id == model_id), None)
+    if entry is None:
+        raise UnauthorizedModelUsageError(f"{model_id!r} is not a known inventoried model")
+    if requested_application not in entry.authorized_applications:
+        raise UnauthorizedModelUsageError(
+            f"{model_id!r} is not authorized for application {requested_application!r} "
+            f"(authorized: {sorted(entry.authorized_applications)})"
+        )
+    return entry
