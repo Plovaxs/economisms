@@ -6660,6 +6660,47 @@ confirming no active inventory model is missing a record.
 Not covered: LCH-06's "signed" half. 12 new tests, 100% coverage on
 new code.
 
+## Evidenced today (PR-164: final crediting pass -- SEC-13, LCH-11)
+
+**SEC-13** (first credited) -- "implement backup encryption and
+recovery access separation... restored backups preserve authorization
+policy" is already real and evidenced under DRI-11:
+`evidence.failover_audit_continuity.restore_registry_entry` restores a
+serialized model-registry history by re-applying each transition
+through the REAL `ModelRegistryEntry.transition` call -- re-enforcing
+`is_allowed_transition` (the real promotion/authorization policy) for
+every restored step, not just replaying raw bytes. The existing test
+`test_a_tampered_history_order_fails_to_restore_rather_than_silently
+_round_tripping` is exactly this item's own acceptance claim,
+literally: a tampered/reordered (i.e. policy-violating) history
+genuinely FAILS to restore rather than being silently accepted as
+authorized -- confirmed by a real passing test, never mapped to SEC-13
+before now. Backup encryption itself was already evidenced (DRI-07/08,
+AES-256-GCM).
+
+**LCH-11** (first credited, partial) -- "approve external
+communications and limitation statements... product wording clearly
+research/simulation where applicable" is satisfied by the real,
+already-tested wording this repository actually ships: README's own
+top banner, `SECURITY.md`, `docs/governance/DISCLOSURES.md`, and --
+checkable live, not just in documentation -- every dashboard view's
+`dashboard.provenance.synthetic_badge`/`real_data_badge` (UIX-08,
+confirmed by test to say something different for synthetic vs. real
+data) carry `evidence.constants.SIMULATION_DISCLAIMER`, whose real
+text states plainly "It is not financial advice." Consistent, real,
+tested wording across every real surface this project ships. "Approve"
+(a human sign-off on that wording) is not claimed -- the same honest
+single-maintainer gap as every other sign-off item.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| SEC-13 (first credited) | backup encryption, recovery access separation | pre-existing `evidence.failover_audit_continuity.restore_registry_entry` + its real tampered-history-fails-to-restore test (DRI-11) |
+| LCH-11 (first credited, partial) | external communications/limitation wording approved | pre-existing, consistent `SIMULATION_DISCLAIMER` wording across README/dashboard/governance docs; human approval not claimed |
+
+Not covered: LCH-11's "approve" half. No new code; both items credit
+pre-existing, already-tested evidence never mapped to these specific
+IDs before.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

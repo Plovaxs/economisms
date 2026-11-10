@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "7b9e472f53ddecd5ac9d52cb877cfdc82feb5f64cc5185436b80dab21477e808",
+    "content_sha256": "a420ccc92a1c1074c2c146f55e5de1764fb433ad4226186dc0ece1d77489c48b",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "17f965f1b56de4ec513051e694edbf89971d561df1f73ca4fc24365061d838af",
+  "checklist_notes_sha256": "c4a20fce4f3b1d449e5c4dc2bea615cb588db86aaf38b3b3c33c8348406599e4",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6692,10 +6692,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6697,
+          "evidence_note": "pre-existing `evidence.failover_audit_continuity.restore_registry_entry` + its real tampered-history-fails-to-restore test (DRI-11)",
+          "id_column": "SEC-13 (first credited)",
+          "requirement_note": "backup encryption, recovery access separation"
+        }
+      ],
       "requirement": "Implement backup encryption and recovery access separation",
       "source_pdf_page": 37,
       "source_rows": [
@@ -9339,10 +9346,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6698,
+          "evidence_note": "pre-existing, consistent `SIMULATION_DISCLAIMER` wording across README/dashboard/governance docs; human approval not claimed",
+          "id_column": "LCH-11 (first credited, partial)",
+          "requirement_note": "external communications/limitation wording approved"
+        }
+      ],
       "requirement": "Approve external communications and limitation statements",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9588,7 +9602,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 331,
-    "without_repository_notes": 43
+    "with_repository_notes": 333,
+    "without_repository_notes": 41
   }
 }
