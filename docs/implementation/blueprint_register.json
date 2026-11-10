@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "3cc84e6718cadda1d6c6f9845a994767c352a622acbd07a3bed6966e3d58842f",
+    "content_sha256": "ca1d81d457ace20da05dc1f92c47b04c09c361a799947f9e6fc9468a652f6c5d",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "a002f2ced2e01eb5c12b414b35ca6c1465106892abac59f4232cf5f30a28ad3c",
+  "checklist_notes_sha256": "fd00a380dd2133b18d942a0b347ac1a4f7fd564df7c507f39612ab30f8183853",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -69,10 +69,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6265,
+          "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`; R0 real, R1-R3 undefined",
+          "id_column": "GOV-02 (first evidence, partial)",
+          "requirement_note": "release classes, paper-only default, live-trading exclusion"
+        }
+      ],
       "requirement": "Define R0/R1/R2/R3 release classes and promotion authority",
       "source_pdf_page": 19,
       "source_rows": [
@@ -127,10 +134,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6266,
+          "evidence_note": "`docs/governance/ARCHITECTURE_DECISIONS.md`; 4 real ADRs, not reviewed",
+          "id_column": "GOV-05 (first evidence, partial)",
+          "requirement_note": "ADR process, one per major interface"
+        }
+      ],
       "requirement": "Create architecture decision record process",
       "source_pdf_page": 19,
       "source_rows": [
@@ -144,10 +158,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6267,
+          "evidence_note": "`docs/governance/DISCLOSURES.md`",
+          "id_column": "GOV-06 (first evidence)",
+          "requirement_note": "conflicts of interest, intended audience"
+        }
+      ],
       "requirement": "Document conflicts of interest and intended audience",
       "source_pdf_page": 19,
       "source_rows": [
@@ -161,10 +182,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6268,
+          "evidence_note": "`docs/governance/DISCLOSURES.md`, linking `docs/RESULTS_AND_LIMITATIONS.md`",
+          "id_column": "GOV-07 (first evidence, partial)",
+          "requirement_note": "research ethics/limitations statement"
+        }
+      ],
       "requirement": "Define research ethics and simulation limitations",
       "source_pdf_page": 19,
       "source_rows": [
@@ -178,10 +206,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6269,
+          "evidence_note": "`docs/governance/ISSUE_AND_VALIDATION_POLICY.md`",
+          "id_column": "GOV-08 (first evidence, partial)",
+          "requirement_note": "issue prioritization P0/P1/P2 policy"
+        }
+      ],
       "requirement": "Create issue prioritization P0/P1/P2 policy",
       "source_pdf_page": 19,
       "source_rows": [
@@ -219,10 +254,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6270,
+          "evidence_note": "`docs/governance/DEPLOYMENT_ASSUMPTIONS.md`",
+          "id_column": "GOV-10 (first evidence)",
+          "requirement_note": "jurisdiction/deployment assumptions"
+        }
+      ],
       "requirement": "Document jurisdiction and entity deployment assumptions",
       "source_pdf_page": 19,
       "source_rows": [
@@ -236,10 +278,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6271,
+          "evidence_note": "`docs/governance/ISSUE_AND_VALIDATION_POLICY.md`; process defined, not executed",
+          "id_column": "GOV-11 (first evidence, partial)",
+          "requirement_note": "independent validation/effective challenge"
+        }
+      ],
       "requirement": "Define independent validation and effective challenge process",
       "source_pdf_page": 19,
       "source_rows": [
@@ -277,10 +326,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6272,
+          "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`, reusing `BreakingChangeNotice`/`rollback_to`",
+          "id_column": "GOV-13 (first evidence)",
+          "requirement_note": "change management/rollback authority"
+        }
+      ],
       "requirement": "Define release change management and rollback authority",
       "source_pdf_page": 19,
       "source_rows": [
@@ -294,10 +350,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "GOV",
       "id": "GOV-14",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6273,
+          "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`, reusing `alert_routing` + the real current NO-GO gate",
+          "id_column": "GOV-14 (first evidence)",
+          "requirement_note": "no-go escalation: stop-work/notify/sign-off"
+        }
+      ],
       "requirement": "Create a no-go escalation process for material violations",
       "source_pdf_page": 19,
       "source_rows": [
@@ -3203,10 +3266,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "HDG",
       "id": "HDG-14",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6260,
+          "evidence_note": "`hedging.rl_agent`; 7 new tests; real (disclosed, non-flattering) comparison result",
+          "id_column": "HDG-14 (first evidence)",
+          "requirement_note": "RL agent after static policy, stability + risk bounds"
+        }
+      ],
       "requirement": "Add controlled RL agent only after static policy passes",
       "source_pdf_page": 27,
       "source_rows": [
@@ -4963,10 +5033,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "VAL",
       "id": "VAL-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6257,
+          "evidence_note": "`evidence.stochastic_equivalence`; 5 new tests including a real discriminating negative control",
+          "id_column": "VAL-10 (first evidence)",
+          "requirement_note": "GPU tolerance-based reproducibility; statistical equivalence defined"
+        }
+      ],
       "requirement": "Implement stochastic GPU tolerance-based reproducibility",
       "source_pdf_page": 32,
       "source_rows": [
@@ -6381,10 +6458,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6262,
+          "evidence_note": "pre-existing SBOM credited; container pinning N/A; vuln reports open",
+          "id_column": "SEC-07 (first evidence, partial)",
+          "requirement_note": "container images pinned, SBOM/vuln reports"
+        }
+      ],
       "requirement": "Pin container base images and scan dependencies",
       "source_pdf_page": 37,
       "source_rows": [
@@ -6422,10 +6506,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "SEC",
       "id": "SEC-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6261,
+          "evidence_note": "pre-existing `evidence.release_provenance` (PR-157)",
+          "id_column": "SEC-09 (first credited)",
+          "requirement_note": "sign release artifacts, independent verification"
+        }
+      ],
       "requirement": "Sign release artifacts and preserve checksum chain",
       "source_pdf_page": 37,
       "source_rows": [
@@ -7265,10 +7356,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6258,
+          "evidence_note": "`evidence.deployment_paths.ShadowDeployment`",
+          "id_column": "CIQ-09 (first evidence)",
+          "requirement_note": "staging/canary/shadow deployment paths"
+        }
+      ],
       "requirement": "Implement staging and canary/shadow deployment paths",
       "source_pdf_page": 40,
       "source_rows": [
@@ -7282,10 +7380,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6259,
+          "evidence_note": "`evidence.deployment_paths.AutoRollbackMonitor`; real fault injection, 7 new tests total across both CIQ items",
+          "id_column": "CIQ-10 (first evidence)",
+          "requirement_note": "automatic rollback on critical metric regression"
+        }
+      ],
       "requirement": "Support automatic rollback on critical metric regression",
       "source_pdf_page": 40,
       "source_rows": [
@@ -8892,10 +8997,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6264,
+          "evidence_note": "`uv.lock` + `tools/reproducible_build.py`; staging N/A",
+          "id_column": "LCH-02 (first evidence, partial)",
+          "requirement_note": "dependency lock, candidate hash matches staging"
+        }
+      ],
       "requirement": "Freeze code and dependency lock for validation candidate",
       "source_pdf_page": 46,
       "source_rows": [
@@ -8994,10 +9106,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6263,
+          "evidence_note": "pre-existing `evidence.security_scan.license_scan`/`pii_scan`",
+          "id_column": "LCH-08 (first credited)",
+          "requirement_note": "no prohibited data/artifacts in release"
+        }
+      ],
       "requirement": "Complete entitlements, licenses and publication review",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9294,7 +9413,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 289,
-    "without_repository_notes": 85
+    "with_repository_notes": 306,
+    "without_repository_notes": 68
   }
 }

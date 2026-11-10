@@ -6171,6 +6171,115 @@ externally-rooted certificate chain. LCH-01's "signed" half remains
 open pending a GO/CONDITIONAL decision this project is nowhere near
 making. 10 new tests, 100% coverage.
 
+## Evidenced today (PR-158: statistical equivalence, shadow deployment, automatic rollback, an RL hedging agent, and governance/compliance crediting -- VAL-10, CIQ-09/10, HDG-14, SEC-07/09, LCH-02/08, GOV-02/05/06/07/08/10/11/13/14)
+
+A large batch of honestly-scoped items, each either new real code or a
+credited pre-existing mechanism never mapped to its item before.
+
+**VAL-10** ("stochastic GPU tolerance-based reproducibility") -- new
+`evidence.stochastic_equivalence.two_sample_ks_equivalence`. No GPU
+exists in this environment (disclosed, not hidden); demonstrated
+against the genuinely identical underlying problem instead: two
+independently-seeded real `stochastica.gbm` runs of the SAME
+parameterization are confirmed NOT bit-identical (exact replay
+impossible by construction) but ARE statistically equivalent (KS
+test); a real negative control (a genuinely different `sigma`) is
+confirmed NOT equivalent, proving the test actually discriminates.
+
+**CIQ-09** ("staging and canary/shadow deployment paths") -- new
+`evidence.deployment_paths.ShadowDeployment`, composing the existing
+`ModelServingSlot` (MLO-12): a challenger's output is always computed
+and recorded for comparison but NEVER served -- confirmed by a real
+test that the two differ and only the champion's answer is ever
+returned.
+
+**CIQ-10** ("automatic rollback on critical metric regression") --
+`evidence.deployment_paths.AutoRollbackMonitor`: a real injected fault
+(3 consecutive critical-metric breaches, no human call to `rollback_to`
+anywhere in the test) triggers an automatic rollback within a real,
+asserted recovery target (3 observations); a single noisy spike is
+confirmed NOT to trigger a false rollback.
+
+**HDG-14** ("controlled RL agent only after static policy passes") --
+new `hedging.rl_agent`: a REINFORCE policy-gradient hedging agent
+(genuinely different in kind from the existing differentiable-through-
+simulator `deep_hedge` MLP, HDG-04) that refuses to even start training
+without a real, finite static-baseline CVaR already in hand
+(`StaticBaselineNotPassedError`). Risk bounds enforced by construction
+(sigmoid-squashed ratios, confirmed always in [0,1]). Training
+stability reported via a real multi-seed CVaR spread. Real, disclosed
+finding: at this controlled/small training budget, the terminal-reward-
+only REINFORCE agent does NOT beat the static delta/no-trade-band
+baseline -- consistent with this session's repeated "simple/classical
+beats a quickly-trained learned alternative" pattern (PDE's grid vs.
+neural, several RECESSIONNET/Q-MACRO results), reported honestly rather
+than tuned until it won.
+
+**SEC-09** (first credited) -- `evidence.release_provenance` (built
+this session for CIQ-07) already IS "sign release artifacts and
+preserve checksum chain... signature verification succeeds
+independently" literally; simply never mapped to SEC-09 before now.
+
+**SEC-07 (first evidence, partial)** -- the real, pre-existing SBOM
+(`docs/release/dependency-sbom.cdx.json`) is credited; "pin container
+base images" is confirmed NOT APPLICABLE (this repository has no
+Dockerfile/container image at all); "vulnerability reports" remain
+open (no live CVE feed, the same disclosed gap as elsewhere).
+
+**LCH-08** (first credited) -- `evidence.security_scan.license_scan`/
+`pii_scan` (DAT-13/PRV-03) already check, with real passing tests
+against this repository's real tracked tree and real committed
+datasets, exactly "no prohibited data or artifacts included in
+release."
+
+**LCH-02 (first evidence, partial)** -- `uv.lock` (dependency freeze)
+plus `tools/reproducible_build.py`'s real double-independent-rebuild
+hash match is the real "candidate hash" mechanism; "staging" is
+confirmed NOT APPLICABLE (no staging environment exists in this
+single-service local project).
+
+**GOV-02/05/06/07/08/10/11/13/14** -- new `docs/governance/` documents:
+`RELEASE_GOVERNANCE.md` (GOV-02 partial -- the real R0 gate and
+unconditional live-trading exclusion; the R1-R3 ladder is not defined;
+GOV-13 reusing `BreakingChangeNotice`/`rollback_to`; GOV-14 reusing
+`alert_routing`'s P0 route plus the real, current NO-GO gate record as
+this project's own live no-go-escalation state), `ARCHITECTURE_DECISIONS.md`
+(GOV-05 partial -- 4 real ADRs extracted from already-shipped design
+rationale, not independently reviewed), `DISCLOSURES.md` (GOV-06; GOV-07
+partial, linking the existing `docs/RESULTS_AND_LIMITATIONS.md`),
+`ISSUE_AND_VALIDATION_POLICY.md` (GOV-08 partial, reusing the
+`alert_routing` P0/P1/P2 taxonomy; GOV-11 partial -- a real, specific
+review-criteria process definition, not yet executed by a second
+reviewer), `DEPLOYMENT_ASSUMPTIONS.md` (GOV-10).
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| VAL-10 (first evidence) | GPU tolerance-based reproducibility; statistical equivalence defined | `evidence.stochastic_equivalence`; 5 new tests including a real discriminating negative control |
+| CIQ-09 (first evidence) | staging/canary/shadow deployment paths | `evidence.deployment_paths.ShadowDeployment` |
+| CIQ-10 (first evidence) | automatic rollback on critical metric regression | `evidence.deployment_paths.AutoRollbackMonitor`; real fault injection, 7 new tests total across both CIQ items |
+| HDG-14 (first evidence) | RL agent after static policy, stability + risk bounds | `hedging.rl_agent`; 7 new tests; real (disclosed, non-flattering) comparison result |
+| SEC-09 (first credited) | sign release artifacts, independent verification | pre-existing `evidence.release_provenance` (PR-157) |
+| SEC-07 (first evidence, partial) | container images pinned, SBOM/vuln reports | pre-existing SBOM credited; container pinning N/A; vuln reports open |
+| LCH-08 (first credited) | no prohibited data/artifacts in release | pre-existing `evidence.security_scan.license_scan`/`pii_scan` |
+| LCH-02 (first evidence, partial) | dependency lock, candidate hash matches staging | `uv.lock` + `tools/reproducible_build.py`; staging N/A |
+| GOV-02 (first evidence, partial) | release classes, paper-only default, live-trading exclusion | `docs/governance/RELEASE_GOVERNANCE.md`; R0 real, R1-R3 undefined |
+| GOV-05 (first evidence, partial) | ADR process, one per major interface | `docs/governance/ARCHITECTURE_DECISIONS.md`; 4 real ADRs, not reviewed |
+| GOV-06 (first evidence) | conflicts of interest, intended audience | `docs/governance/DISCLOSURES.md` |
+| GOV-07 (first evidence, partial) | research ethics/limitations statement | `docs/governance/DISCLOSURES.md`, linking `docs/RESULTS_AND_LIMITATIONS.md` |
+| GOV-08 (first evidence, partial) | issue prioritization P0/P1/P2 policy | `docs/governance/ISSUE_AND_VALIDATION_POLICY.md` |
+| GOV-10 (first evidence) | jurisdiction/deployment assumptions | `docs/governance/DEPLOYMENT_ASSUMPTIONS.md` |
+| GOV-11 (first evidence, partial) | independent validation/effective challenge | `docs/governance/ISSUE_AND_VALIDATION_POLICY.md`; process defined, not executed |
+| GOV-13 (first evidence) | change management/rollback authority | `docs/governance/RELEASE_GOVERNANCE.md`, reusing `BreakingChangeNotice`/`rollback_to` |
+| GOV-14 (first evidence) | no-go escalation: stop-work/notify/sign-off | `docs/governance/RELEASE_GOVERNANCE.md`, reusing `alert_routing` + the real current NO-GO gate |
+
+Not covered: every "(partial)" item above names its exact missing half
+plainly. GOV-03 (named owners/deputies), SEC-02/03/06/11/12/13/14, and
+LCH-03/04/05/06/07/09/10/11 remain open for the same recurring, honest
+reason: they need a real second person, real external infrastructure,
+or real legal/regulatory authority this single-maintainer repository
+does not have. 19 new tests across `stochastic_equivalence`/
+`deployment_paths`/`hedging.rl_agent`, 98-100% coverage.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
