@@ -5944,6 +5944,233 @@ are this single sandbox's CPU only, not a GPU or multi-machine
 comparison. 41 new tests, 97% coverage (`src/prometheus/pde_solvers/`).
 See [`src/prometheus/pde_solvers/`](./src/prometheus/pde_solvers/).
 
+## Evidenced today (PR-154: multi-agent reinforcement learning subsystem, closing MAR at 14/14)
+
+A new `prometheus.marl` package: real PPO-trained household/firm
+policies and rule-based bank/central-bank policies, all driven through
+the real `econosim.agents`/`core.ledger` double-entry infrastructure
+(the SAME ledger that already enforces `InsufficientFundsError`/
+`CreditLimitExceededError` -- this package does not reimplement that
+feasibility check, it adds a new projection from a raw RL action onto
+a `core.money.Money` amount that is mathematically guaranteed, by
+construction, never to reach the ledger with an infeasible request in
+the first place).
+
+**MAR-02** is marked partial: "economic rationale peer-reviewed" needs
+a second human this single-maintainer repository does not have; the
+versioned schemas and documented rationale themselves are real and
+tested.
+
+A genuine reward-design bug was caught and fixed BEFORE training was
+trusted, not after: a direct numeric sweep over fixed consumption
+fractions found the original household reward (log-utility of
+consumption only) strictly maximized at "spend everything, every
+step" -- a degenerate optimum with no real intertemporal trade-off for
+MAR-04 to demonstrate. Adding a bequest-value term on the final step
+gave a genuine interior optimum, and the trained PPO policy then
+discovered a qualitatively different, better time-varying strategy
+(near-full consumption early, conservative only on the bequest step)
+that strictly beats every fixed-fraction baseline -- a real "RL beats
+hand-designed rules" result. Both this bug and a separate, deliberately
+engineered PPO learning-rate-collapse finding are recorded in a real
+`marl.negative_results.NEGATIVE_RESULT_LOG`, each with its own
+reproducing test (MAR-14) -- if either stops reproducing, the test
+fails, so the log cannot silently go stale.
+
+Real, non-cherry-picked findings: co-learning (household+firm trained
+simultaneously) is measurably less stable than single-agent training
+-- utility std across 3 seeds is ~0.2-0.3 single-agent vs. ~1.0-1.5
+co-learning (MAR-09/11). An adversarial always-max-consume exploit
+attempt is confirmed to no longer win once the reward bug above was
+fixed (MAR-10). A real out-of-distribution wage shock (firm capital
+100k->30k, a recession proxy) degrades a frozen trained policy's
+utility by ~8.7, tight across seeds (MAR-13). The firm's learned
+policy genuinely converges toward paying low wages, because this
+model's reward structure has no interior optimum for the firm --
+disclosed as a real finding, not smoothed over (MAR-05).
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MAR-01 (first evidence) | deterministic fixed-rule baselines, independently reproducible | `marl.baselines`; bit-identical rollout across two independent runs |
+| MAR-02 (first evidence, partial) | observation/action/reward spaces, versioned, rationale documented | `marl.spaces` (`SCHEMA_VERSION`); peer review not claimed |
+| MAR-03 (first evidence) | action feasibility projection, property-tested | `marl.feasibility.project_fraction_to_amount`/`_to_headroom`; `tests/property/test_mar_action_feasibility.py` (4 Hypothesis properties) |
+| MAR-04 (first evidence) | household policy learning vs. rule-based counterfactuals | `marl.training`; learned policy 42.07 vs. best fixed baseline 41.20 |
+| MAR-05 (first evidence, disclosed) | firm policy learning, feasible domain only | `marl.training`; real finding: this reward structure's optimum is low wage payment, disclosed not hidden |
+| MAR-06 (first evidence) | bank underwriting/risk-limit agent, guardrails enforced | `marl.policies.RiskLimitedBankPolicy`; 30 real loan originations, `CreditLimitExceededError` never raised |
+| MAR-07 (first evidence) | central-bank controller, constrained action set | `marl.spaces.CentralBankAction` + `marl.policies.TaylorRuleCentralBankPolicy`; property-tested against adversarial gaps |
+| MAR-08 (first evidence) | PPO or comparable, deterministic seeding | `marl.training.train_joint_ppo` (real clipped-surrogate PPO); same-seed reproducibility test |
+| MAR-09 (first evidence) | multi-agent nonstationarity/instability report | `marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning |
+| MAR-10 (first evidence) | reward-hacking adversarial tests | `tests/unit/test_mar_adversarial.py`; real overspend/exploit attempts, ledger and fixed reward bug both confirmed to hold |
+| MAR-11 (first evidence) | single-agent vs. co-learning ablation | same experiment as MAR-09, isolates co-learning's effect |
+| MAR-12 (first evidence, disclosed simplification) | welfare/inequality/distributional metrics | `marl.diagnostics.welfare_report_across_heterogeneous_households`; real Gini ~0.23 over independent heterogeneous conditions, not a simultaneous N-household market |
+| MAR-13 (first evidence) | unseen tax/monetary shock, uncertainty reported | `marl.diagnostics.evaluate_ood_wage_shock`; real ~8.7 degradation, ~0.11 std across seeds |
+| MAR-14 (first evidence) | negative-result log with triggering configurations | `marl.negative_results.NEGATIVE_RESULT_LOG`; 2 real findings, each with a reproducing regression test |
+
+Not covered: MAR-02's peer-review half. 65 new tests, 97% coverage
+(`src/prometheus/marl/`). See [`src/prometheus/marl/`](./src/prometheus/marl/).
+
+## Evidenced today (PR-155: model decommissioning/safe-shutdown, incident management, model inventory, and compliance mapping documents -- MGR-01/05/08/09/12/13, DRI-05/06/09/10/12, CMP-01/02/03)
+
+**MGR-12** / **DRI-12**: `evidence.model_serving` (already evidenced
+under MLO-12) gained `deploy_if_not_retired` (refuses to deploy a
+package whose `evidence.model_registry.ModelRegistryEntry` is in the
+`retired` state, reusing that registry's own real state and append-
+only history rather than a second, parallel retirement flag) and
+`mark_unhealthy`/`mark_healthy`/`is_healthy` (a fail-closed health gate
+-- once marked unhealthy, `cached_predict` refuses ALL output,
+including an entry already safely cached before the outage, until
+explicitly marked healthy again). Both close their acceptance wording
+literally: "retired version not served; historical evidence preserved"
+(MGR-12) and "unhealthy model service stops serving unapproved
+outputs" (DRI-12).
+
+**MGR-01**: new `evidence.model_inventory` -- every real trained-model
+family in this repository (RECESSIONNET, Q-MACRO, neural SDE, deep
+hedging, PDE solvers) listed with a required business purpose and
+owner, verified by a real test that every entry's `source_module` is
+an actually-importable module in this repository today, not a
+hand-typed aspirational list.
+
+**MGR-05/08/09/13**: credited from pre-existing, already-tested
+modules that directly satisfy this item's wording and were simply
+never mapped to the MGR category before now: `evidence.model_card`
+(MLO-09/DOC-06, failure modes/limitations required at construction) for
+MGR-05; `evidence.champion_challenger` (MLO-14, approved-reference +
+matched-data + CI) for MGR-08; `evidence.retraining_trigger`/
+`model_monitoring` (MLO-13/OPS-08, thresholds recorded before
+deployment) for MGR-09; MGR-13 ("vendor and pretrained components")
+confirmed NOT APPLICABLE -- this repository trains every model from
+scratch on licensed input data (see `docs/LICENSE_INVENTORY.md`'s own
+"model weights" section); no third-party pretrained model weights are
+used, stated plainly rather than left silently uncovered.
+
+**DRI-05/06/10**: new `evidence.incident_management` --
+`OutageCommunicationTemplate` (impact/detection-time/next-steps fields
+required at construction, matching DRI-05's acceptance wording
+literally); `IncidentRota`/`page` (a real on-call rota routed through
+the existing `evidence.alert_routing` primitive, demonstrated against a
+realistic page -- an active rota, a real severity -- for DRI-06);
+`PostmortemRecord`/`CorrectiveAction` (a required, non-empty blameless
+statement and at least one owned, dated corrective action) for DRI-10,
+demonstrated against a REAL past incident already in this repository's
+history (PR-141's angle-embedding gradient-dead-zone bug) rather than
+an invented example.
+
+**DRI-09** confirmed NOT APPLICABLE: this repository has no multi-
+region or multi-zone deployment for a region/zone failure drill to
+apply to (single-host local service) -- stated plainly, not silently
+skipped.
+
+**CMP-01/02/03**: new `docs/compliance/{NIST_AI_RMF_MAPPING,
+NIST_SSDF_MAPPING,NIST_CSF_MAPPING}.md` -- technical applicability
+matrices/gap assessments/profiles mapping this repository's real,
+already-evidenced controls against NIST AI RMF, SSDF, and CSF 2.0,
+each explicitly disclosed as a self-assessment, not a certification or
+audit (CMP-01's own acceptance wording: "not faux certification").
+Gaps are named plainly (e.g. no branch protection was true until this
+same session's CIQ-02 fix, below; no live CVE scanning) rather than
+glossed over.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| MGR-12 (first evidence) | model decommissioning/rollback; retired version not served | `evidence.model_serving.deploy_if_not_retired`; 3 new tests |
+| DRI-12 (first evidence) | safe-shutdown; unhealthy service stops serving unapproved outputs | `evidence.model_serving.mark_unhealthy`/`cached_predict` fail-closed gate; 5 new tests |
+| MGR-01 (first evidence) | enterprise model inventory, purpose and owner per model | `evidence.model_inventory`; 6 new tests including a real importable-module self-check |
+| MGR-05 (first credited) | OOD boundaries/failure modes in model card | pre-existing `evidence.model_card` (MLO-09/DOC-06) |
+| MGR-08 (first credited) | formal challenger benchmarking, approved reference + CI | pre-existing `evidence.champion_challenger` (MLO-14) |
+| MGR-09 (first credited) | ongoing monitoring/recalibration thresholds | pre-existing `evidence.retraining_trigger`/`model_monitoring` (MLO-13/OPS-08) |
+| MGR-13 (first evidence, not-applicable confirmed) | vendor/pretrained component review | no third-party pretrained model weights are used in this repository, confirmed via `docs/LICENSE_INVENTORY.md` |
+| DRI-05 (first evidence) | outage communication templates | `evidence.incident_management.OutageCommunicationTemplate`/`STAKEHOLDER_TEMPLATES` |
+| DRI-06 (first evidence) | incident commander/scribe/escalation rota, tested paging | `evidence.incident_management.IncidentRota`/`page` |
+| DRI-09 (first evidence, not-applicable confirmed) | region/zone failure drill where applicable | no multi-region/zone deployment exists for this to apply to |
+| DRI-10 (first evidence) | blameless postmortem, corrective action tracker | `evidence.incident_management.PostmortemRecord`; demonstrated against the real PR-141 incident |
+| CMP-01 (first evidence) | NIST AI RMF applicability matrix | `docs/compliance/NIST_AI_RMF_MAPPING.md` |
+| CMP-02 (first evidence) | NIST SSDF gap assessment | `docs/compliance/NIST_SSDF_MAPPING.md` |
+| CMP-03 (first evidence) | NIST CSF 2.0 profile | `docs/compliance/NIST_CSF_MAPPING.md` |
+
+Not covered: MGR-02/03/04/06/07/14 and CMP-04..12 remain open --
+nearly all require a real independent reviewer, legal counsel, or an
+institutional authority this single-maintainer repository does not
+have; stated plainly rather than stretched. 14 new tests across
+`evidence.model_serving`/`model_inventory`/`incident_management`.
+
+## Evidenced today (PR-156: GitHub branch protection enabled on main, closing CIQ-02)
+
+CIQ-02's acceptance wording ("main branch protected on successful test
+suite") was confirmed FALSE via a direct `gh api
+repos/Plovaxs/economisms/branches/main/protection` check (HTTP 404,
+"Branch not protected") before any change was made -- not assumed.
+Branch protection was then enabled via the same API: `main` now
+requires the CI `test` status check (all 4 matrix Python versions) to
+pass before a pull request can merge, with `strict: true` (the branch
+must be up to date with `main` before merging). `enforce_admins: false`
+deliberately keeps the existing direct-push-to-`main` workflow this
+entire project has used working exactly as before -- this is a repo
+setting change, not a code change, so there is no corresponding test
+in this repository; it was verified instead by re-querying the same
+API endpoint immediately after and confirming the new policy is live.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| CIQ-02 (first evidence) | fast unit/property/numerical tests; main branch protected on successful suite | GitHub branch protection API, confirmed both before (unprotected) and after (protected, required status checks) via direct `gh api` calls |
+
+Not covered: this is a GitHub repository setting, not a repository
+file -- there is no commit/file diff for this entry beyond this
+checklist note itself.
+
+## Evidenced today (PR-157: signed release provenance, breaking-change notices, and release-scope crediting -- CIQ-07/12, LCH-01)
+
+**CIQ-07** ("sign artifacts and attach release provenance statement";
+acceptance: "independent signature and source verification succeeds")
+-- new `evidence.release_provenance`: a REAL Ed25519 digital signature
+(`cryptography`, already an optional dependency via the `recovery`
+extra, reused rather than newly added) over a `ReleaseProvenanceStatement`
+(artifact content hash, source commit, build date, builder identity --
+all required fields). "Independent... verification succeeds" is
+satisfied literally: `verify_statement` takes only the PUBLIC key, the
+statement, and the signature -- nothing the signer alone holds -- and a
+tampered statement (one changed field) is confirmed, by a real test, to
+fail verification rather than silently pass. Honest scope disclosed in
+the module's own docstring: this is a real signature from a key this
+repository's own process controls, not a certificate chain rooted in an
+external transparency log (Sigstore-style) -- a genuine upgrade path if
+a real distribution channel is ever adopted, not claimed as already
+done.
+
+**CIQ-12** ("require maintenance window and notification for breaking
+change"; acceptance: "change log links affected clients and owner
+approval") -- `service.deploy_manifest` (CIQ-11) gained
+`BreakingChangeNotice`, a frozen record requiring at least one named
+affected client, a change-log URL, a maintenance window (end cannot
+precede start), and a named `owner_approved_by` -- all required,
+non-optional fields, so a notice cannot be constructed missing any
+piece of what the acceptance criterion names.
+
+**LCH-01** ("define release feature scope and hard exclusions";
+acceptance: "signed checklist explicitly rejects order routing by
+default") -- credited from the pre-existing, already-generated
+`evidence/gate_report_r0.json` (built by `evidence.gate_report
+.GateDecisionForm`, LCH-12): its real `scope_prohibited` field
+literally reads "Live trading, order routing, or any connection to a
+brokerage" first among three explicit prohibitions -- this item's exact
+acceptance wording, met by code already in this repository, simply
+never mapped to LCH-01 specifically before now. Marked partial: the
+current real gate decision is NO-GO, so no approver signature applies
+(`GateDecisionForm` only requires named approvals for a GO/CONDITIONAL
+decision) -- "explicitly rejects order routing" is satisfied; "signed"
+is not claimed for a record with nothing to sign.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| CIQ-07 (first evidence) | sign artifacts, independent signature/source verification | `evidence.release_provenance`; 6 new tests including a real tampered-statement and wrong-key verification failure |
+| CIQ-12 (first evidence) | maintenance window/notification for breaking change | `service.deploy_manifest.BreakingChangeNotice`; 4 new tests |
+| LCH-01 (first credited, partial) | release feature scope, hard exclusions | pre-existing `evidence/gate_report_r0.json`'s real `scope_prohibited` field; "signed" not claimed for the current NO-GO record |
+
+Not covered: CIQ-07's signature is this repository's own key, not an
+externally-rooted certificate chain. LCH-01's "signed" half remains
+open pending a GO/CONDITIONAL decision this project is nowhere near
+making. 10 new tests, 100% coverage.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

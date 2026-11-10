@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "fd1fa3f3814663497f48e034b5fd67fa4c076de4c14cca71a3d068e31c1e8030",
+    "content_sha256": "3cc84e6718cadda1d6c6f9845a994767c352a622acbd07a3bed6966e3d58842f",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "ba6b22a36af9ef7d9bb5fef51a67a0edccdcf8fed0fab5e910d0a6c4abd80a06",
+  "checklist_notes_sha256": "a002f2ced2e01eb5c12b414b35ca6c1465106892abac59f4232cf5f30a28ad3c",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -863,10 +863,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5994,
+          "evidence_note": "`marl.baselines`; bit-identical rollout across two independent runs",
+          "id_column": "MAR-01 (first evidence)",
+          "requirement_note": "deterministic fixed-rule baselines, independently reproducible"
+        }
+      ],
       "requirement": "Implement deterministic fixed-rule policy baselines",
       "source_pdf_page": 21,
       "source_rows": [
@@ -880,10 +887,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5995,
+          "evidence_note": "`marl.spaces` (`SCHEMA_VERSION`); peer review not claimed",
+          "id_column": "MAR-02 (first evidence, partial)",
+          "requirement_note": "observation/action/reward spaces, versioned, rationale documented"
+        }
+      ],
       "requirement": "Specify per-agent observation, action and reward spaces",
       "source_pdf_page": 21,
       "source_rows": [
@@ -897,10 +911,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5996,
+          "evidence_note": "`marl.feasibility.project_fraction_to_amount`/`_to_headroom`; `tests/property/test_mar_action_feasibility.py` (4 Hypothesis properties)",
+          "id_column": "MAR-03 (first evidence)",
+          "requirement_note": "action feasibility projection, property-tested"
+        }
+      ],
       "requirement": "Implement action feasibility projection/constraint solver",
       "source_pdf_page": 21,
       "source_rows": [
@@ -914,10 +935,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5997,
+          "evidence_note": "`marl.training`; learned policy 42.07 vs. best fixed baseline 41.20",
+          "id_column": "MAR-04 (first evidence)",
+          "requirement_note": "household policy learning vs. rule-based counterfactuals"
+        }
+      ],
       "requirement": "Implement household consumption/saving policy learning",
       "source_pdf_page": 21,
       "source_rows": [
@@ -931,10 +959,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5998,
+          "evidence_note": "`marl.training`; real finding: this reward structure's optimum is low wage payment, disclosed not hidden",
+          "id_column": "MAR-05 (first evidence, disclosed)",
+          "requirement_note": "firm policy learning, feasible domain only"
+        }
+      ],
       "requirement": "Implement firm production/investment policy learning",
       "source_pdf_page": 21,
       "source_rows": [
@@ -948,10 +983,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 5999,
+          "evidence_note": "`marl.policies.RiskLimitedBankPolicy`; 30 real loan originations, `CreditLimitExceededError` never raised",
+          "id_column": "MAR-06 (first evidence)",
+          "requirement_note": "bank underwriting/risk-limit agent, guardrails enforced"
+        }
+      ],
       "requirement": "Implement bank underwriting and risk-limit agent",
       "source_pdf_page": 21,
       "source_rows": [
@@ -965,10 +1007,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6000,
+          "evidence_note": "`marl.spaces.CentralBankAction` + `marl.policies.TaylorRuleCentralBankPolicy`; property-tested against adversarial gaps",
+          "id_column": "MAR-07 (first evidence)",
+          "requirement_note": "central-bank controller, constrained action set"
+        }
+      ],
       "requirement": "Provide central-bank controller sandbox with policy constraints",
       "source_pdf_page": 21,
       "source_rows": [
@@ -982,10 +1031,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6001,
+          "evidence_note": "`marl.training.train_joint_ppo` (real clipped-surrogate PPO); same-seed reproducibility test",
+          "id_column": "MAR-08 (first evidence)",
+          "requirement_note": "PPO or comparable, deterministic seeding"
+        }
+      ],
       "requirement": "Implement PPO or comparable baseline with deterministic seeding",
       "source_pdf_page": 21,
       "source_rows": [
@@ -999,10 +1055,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6002,
+          "evidence_note": "`marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning",
+          "id_column": "MAR-09 (first evidence)",
+          "requirement_note": "multi-agent nonstationarity/instability report"
+        }
+      ],
       "requirement": "Measure multi-agent nonstationarity and instability",
       "source_pdf_page": 21,
       "source_rows": [
@@ -1016,10 +1079,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6003,
+          "evidence_note": "`tests/unit/test_mar_adversarial.py`; real overspend/exploit attempts, ledger and fixed reward bug both confirmed to hold",
+          "id_column": "MAR-10 (first evidence)",
+          "requirement_note": "reward-hacking adversarial tests"
+        }
+      ],
       "requirement": "Define reward hacking and degenerate agent safeguards",
       "source_pdf_page": 21,
       "source_rows": [
@@ -1033,10 +1103,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6004,
+          "evidence_note": "same experiment as MAR-09, isolates co-learning's effect",
+          "id_column": "MAR-11 (first evidence)",
+          "requirement_note": "single-agent vs. co-learning ablation"
+        }
+      ],
       "requirement": "Separate single-agent and co-learning experiments",
       "source_pdf_page": 21,
       "source_rows": [
@@ -1050,10 +1127,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6005,
+          "evidence_note": "`marl.diagnostics.welfare_report_across_heterogeneous_households`; real Gini ~0.23 over independent heterogeneous conditions, not a simultaneous N-household market",
+          "id_column": "MAR-12 (first evidence, disclosed simplification)",
+          "requirement_note": "welfare/inequality/distributional metrics"
+        }
+      ],
       "requirement": "Measure welfare distribution, inequality and outcomes",
       "source_pdf_page": 21,
       "source_rows": [
@@ -1067,10 +1151,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6006,
+          "evidence_note": "`marl.diagnostics.evaluate_ood_wage_shock`; real ~8.7 degradation, ~0.11 std across seeds",
+          "id_column": "MAR-13 (first evidence)",
+          "requirement_note": "unseen tax/monetary shock, uncertainty reported"
+        }
+      ],
       "requirement": "Evaluate unseen tax/monetary parameter shifts",
       "source_pdf_page": 21,
       "source_rows": [
@@ -1084,10 +1175,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MAR",
       "id": "MAR-14",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6007,
+          "evidence_note": "`marl.negative_results.NEGATIVE_RESULT_LOG`; 2 real findings, each with a reproducing regression test",
+          "id_column": "MAR-14 (first evidence)",
+          "requirement_note": "negative-result log with triggering configurations"
+        }
+      ],
       "requirement": "Document failure to converge and unidentifiable solutions",
       "source_pdf_page": 21,
       "source_rows": [
@@ -6702,10 +6800,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6078,
+          "evidence_note": "`evidence.model_inventory`; 6 new tests including a real importable-module self-check",
+          "id_column": "MGR-01 (first evidence)",
+          "requirement_note": "enterprise model inventory, purpose and owner per model"
+        }
+      ],
       "requirement": "Maintain enterprise model inventory with tier/materiality",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6770,10 +6875,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6079,
+          "evidence_note": "pre-existing `evidence.model_card` (MLO-09/DOC-06)",
+          "id_column": "MGR-05 (first credited)",
+          "requirement_note": "OOD boundaries/failure modes in model card"
+        }
+      ],
       "requirement": "Document OOD boundaries and known failure modes",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6821,10 +6933,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6080,
+          "evidence_note": "pre-existing `evidence.champion_challenger` (MLO-14)",
+          "id_column": "MGR-08 (first credited)",
+          "requirement_note": "formal challenger benchmarking, approved reference + CI"
+        }
+      ],
       "requirement": "Require formal challenger benchmarking for material models",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6838,10 +6957,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6081,
+          "evidence_note": "pre-existing `evidence.retraining_trigger`/`model_monitoring` (MLO-13/OPS-08)",
+          "id_column": "MGR-09 (first credited)",
+          "requirement_note": "ongoing monitoring/recalibration thresholds"
+        }
+      ],
       "requirement": "Document ongoing monitoring and recalibration thresholds",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6889,10 +7015,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6076,
+          "evidence_note": "`evidence.model_serving.deploy_if_not_retired`; 3 new tests",
+          "id_column": "MGR-12 (first evidence)",
+          "requirement_note": "model decommissioning/rollback; retired version not served"
+        }
+      ],
       "requirement": "Define model decommissioning and rollback procedure",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6906,10 +7039,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-13",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6082,
+          "evidence_note": "no third-party pretrained model weights are used in this repository, confirmed via `docs/LICENSE_INVENTORY.md`",
+          "id_column": "MGR-13 (first evidence, not-applicable confirmed)",
+          "requirement_note": "vendor/pretrained component review"
+        }
+      ],
       "requirement": "Review vendor and pretrained components where applicable",
       "source_pdf_page": 39,
       "source_rows": [
@@ -6964,10 +7104,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6115,
+          "evidence_note": "GitHub branch protection API, confirmed both before (unprotected) and after (protected, required status checks) via direct `gh api` calls",
+          "id_column": "CIQ-02 (first evidence)",
+          "requirement_note": "fast unit/property/numerical tests; main branch protected on successful suite"
+        }
+      ],
       "requirement": "Run fast unit/property/numerical regression tests",
       "source_pdf_page": 40,
       "source_rows": [
@@ -7077,10 +7224,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6165,
+          "evidence_note": "`evidence.release_provenance`; 6 new tests including a real tampered-statement and wrong-key verification failure",
+          "id_column": "CIQ-07 (first evidence)",
+          "requirement_note": "sign artifacts, independent signature/source verification"
+        }
+      ],
       "requirement": "Sign artifacts and attach release provenance statement",
       "source_pdf_page": 40,
       "source_rows": [
@@ -7169,10 +7323,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CIQ",
       "id": "CIQ-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6166,
+          "evidence_note": "`service.deploy_manifest.BreakingChangeNotice`; 4 new tests",
+          "id_column": "CIQ-12 (first evidence)",
+          "requirement_note": "maintenance window/notification for breaking change"
+        }
+      ],
       "requirement": "Require maintenance window and notification for breaking change",
       "source_pdf_page": 40,
       "source_rows": [
@@ -7570,10 +7731,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6083,
+          "evidence_note": "`evidence.incident_management.OutageCommunicationTemplate`/`STAKEHOLDER_TEMPLATES`",
+          "id_column": "DRI-05 (first evidence)",
+          "requirement_note": "outage communication templates"
+        }
+      ],
       "requirement": "Document outage communications and stakeholder notification",
       "source_pdf_page": 42,
       "source_rows": [
@@ -7587,10 +7755,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6084,
+          "evidence_note": "`evidence.incident_management.IncidentRota`/`page`",
+          "id_column": "DRI-06 (first evidence)",
+          "requirement_note": "incident commander/scribe/escalation rota, tested paging"
+        }
+      ],
       "requirement": "Define incident commander, scribe and escalation rota",
       "source_pdf_page": 42,
       "source_rows": [
@@ -7652,10 +7827,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6085,
+          "evidence_note": "no multi-region/zone deployment exists for this to apply to",
+          "id_column": "DRI-09 (first evidence, not-applicable confirmed)",
+          "requirement_note": "region/zone failure drill where applicable"
+        }
+      ],
       "requirement": "Run region/zone failure drill where applicable",
       "source_pdf_page": 42,
       "source_rows": [
@@ -7669,10 +7851,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6086,
+          "evidence_note": "`evidence.incident_management.PostmortemRecord`; demonstrated against the real PR-141 incident",
+          "id_column": "DRI-10 (first evidence)",
+          "requirement_note": "blameless postmortem, corrective action tracker"
+        }
+      ],
       "requirement": "Create postmortem process with corrective action tracker",
       "source_pdf_page": 42,
       "source_rows": [
@@ -7710,10 +7899,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "DRI",
       "id": "DRI-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6077,
+          "evidence_note": "`evidence.model_serving.mark_unhealthy`/`cached_predict` fail-closed gate; 5 new tests",
+          "id_column": "DRI-12 (first evidence)",
+          "requirement_note": "safe-shutdown; unhealthy service stops serving unapproved outputs"
+        }
+      ],
       "requirement": "Document decommission or safe-shutdown contingency",
       "source_pdf_page": 42,
       "source_rows": [
@@ -8153,10 +8349,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6087,
+          "evidence_note": "`docs/compliance/NIST_AI_RMF_MAPPING.md`",
+          "id_column": "CMP-01 (first evidence)",
+          "requirement_note": "NIST AI RMF applicability matrix"
+        }
+      ],
       "requirement": "Map selected controls to NIST AI RMF Govern/Map/Measure/Manage",
       "source_pdf_page": 44,
       "source_rows": [
@@ -8170,10 +8373,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6088,
+          "evidence_note": "`docs/compliance/NIST_SSDF_MAPPING.md`",
+          "id_column": "CMP-02 (first evidence)",
+          "requirement_note": "NIST SSDF gap assessment"
+        }
+      ],
       "requirement": "Map software controls to NIST SSDF secure SDLC practices",
       "source_pdf_page": 44,
       "source_rows": [
@@ -8187,10 +8397,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6089,
+          "evidence_note": "`docs/compliance/NIST_CSF_MAPPING.md`",
+          "id_column": "CMP-03 (first evidence)",
+          "requirement_note": "NIST CSF 2.0 profile"
+        }
+      ],
       "requirement": "Map security outcomes to NIST CSF 2.0 as needed",
       "source_pdf_page": 44,
       "source_rows": [
@@ -8651,10 +8868,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6167,
+          "evidence_note": "pre-existing `evidence/gate_report_r0.json`'s real `scope_prohibited` field; \"signed\" not claimed for the current NO-GO record",
+          "id_column": "LCH-01 (first credited, partial)",
+          "requirement_note": "release feature scope, hard exclusions"
+        }
+      ],
       "requirement": "Define release feature scope and hard exclusions",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9070,7 +9294,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 257,
-    "without_repository_notes": 117
+    "with_repository_notes": 289,
+    "without_repository_notes": 85
   }
 }
