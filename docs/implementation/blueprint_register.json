@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ca1d81d457ace20da05dc1f92c47b04c09c361a799947f9e6fc9468a652f6c5d",
+    "content_sha256": "528065379a57676ee59b10571250b78c1d1f3df39ed38051e2819aaa1ff17782",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "fd00a380dd2133b18d942a0b347ac1a4f7fd564df7c507f39612ab30f8183853",
+  "checklist_notes_sha256": "4bddf8f91fdfed311d46e54424792207cbe6f154a7d251f08b36437e7fae2d65",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -5837,10 +5837,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6343,
+          "evidence_note": "`dashboard.views.render_economy_explorer`; real posted ledger transactions, real `econosim.shocks` draws",
+          "id_column": "UIX-01 (first evidence)",
+          "requirement_note": "economic simulation explorer, macro shocks/time series"
+        }
+      ],
       "requirement": "Design research dashboard with economic simulation explorer",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5854,10 +5861,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-02",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6344,
+          "evidence_note": "`dashboard.views.render_balance_sheets`; the real `Ledger.balance_sheet`/`check_identities`",
+          "id_column": "UIX-02 (first evidence)",
+          "requirement_note": "balance sheets, ledger reconciliation"
+        }
+      ],
       "requirement": "Show agent/sector balance sheets and accounting residuals",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5871,10 +5885,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6345,
+          "evidence_note": "`dashboard.views.render_market_paths`; real `stochastica.gbm` paths, real terminal percentiles",
+          "id_column": "UIX-03 (first evidence)",
+          "requirement_note": "market paths, volatility, uncertainty"
+        }
+      ],
       "requirement": "Show market paths, volatility distributions and uncertainty",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5888,10 +5909,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6346,
+          "evidence_note": "`dashboard.views.render_pricing_diagnostics`; rendered price asserted equal to a direct `black_scholes_price` call",
+          "id_column": "UIX-04 (first evidence)",
+          "requirement_note": "pricing diagnostics and Greeks"
+        }
+      ],
       "requirement": "Show derivative pricing diagnostics and Greeks",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5905,10 +5933,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6347,
+          "evidence_note": "`dashboard.views.render_hedge_actions`; real `hedging.baseline` delta ratios per step",
+          "id_column": "UIX-05 (first evidence)",
+          "requirement_note": "hedge actions, costs, risk outcomes"
+        }
+      ],
       "requirement": "Show hedge actions, realized costs and risk outcomes",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5922,10 +5957,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6348,
+          "evidence_note": "`dashboard.views.render_portfolio_risk`; real `titan.risk_metrics` historical VaR/ES/max-drawdown",
+          "id_column": "UIX-06 (first evidence)",
+          "requirement_note": "portfolio VaR/ES, factors, drawdown, stress"
+        }
+      ],
       "requirement": "Show portfolio VaR/ES, factors, drawdown and stress",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5939,10 +5981,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6349,
+          "evidence_note": "`dashboard.experiment_comparison`; real PR-142/143/150 results including 3 real non-wins",
+          "id_column": "UIX-07 (first evidence)",
+          "requirement_note": "experiment comparison with CI, no cherry-picking"
+        }
+      ],
       "requirement": "Implement experiment comparison with CI and negative results",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5956,10 +6005,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6350,
+          "evidence_note": "`dashboard.provenance`, reusing `evidence.constants`' AUD-08 disclaimer/source_tag",
+          "id_column": "UIX-08 (first evidence)",
+          "requirement_note": "synthetic-vs-historical labels, preserved on export"
+        }
+      ],
       "requirement": "Display synthetic-vs-historical labels on every visualization",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5973,10 +6029,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6351,
+          "evidence_note": "`dashboard.audit_trail`; real `ModelRegistryEntry.history`, disclosed as a realistic test-constructed entry (NO-GO, nothing real promoted)",
+          "id_column": "UIX-09 (first evidence, disclosed)",
+          "requirement_note": "audit trail, promotion/approval navigable"
+        }
+      ],
       "requirement": "Implement audit trail view for model promotion and outputs",
       "source_pdf_page": 35,
       "source_rows": [
@@ -5990,10 +6053,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6352,
+          "evidence_note": "`dashboard.auth`/`app`; real end-to-end ASGI 403 test",
+          "id_column": "UIX-10 (first evidence)",
+          "requirement_note": "authorization-aware sharing, unauthorized access blocked"
+        }
+      ],
       "requirement": "Implement authorization-aware project sharing",
       "source_pdf_page": 35,
       "source_rows": [
@@ -6007,10 +6077,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6353,
+          "evidence_note": "`dashboard.accessibility` (5 real automated checks) + `docs/UIX_ACCESSIBILITY_TEST_PLAN.md` (5 items explicitly NOT COVERED, need a real browser/human)",
+          "id_column": "UIX-11 (first evidence, partial)",
+          "requirement_note": "accessibility/responsive-layout test plan"
+        }
+      ],
       "requirement": "Create accessibility and responsive-layout test plan",
       "source_pdf_page": 35,
       "source_rows": [
@@ -6024,10 +6101,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "UIX",
       "id": "UIX-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 6354,
+          "evidence_note": "`dashboard.export`; real content hash, tamper-sensitive (tested); no PDF renderer added, disclosed",
+          "id_column": "UIX-12 (first evidence, disclosed)",
+          "requirement_note": "report export with reproducibility manifest"
+        }
+      ],
       "requirement": "Implement report exports with reproducibility manifest",
       "source_pdf_page": 35,
       "source_rows": [
@@ -9413,7 +9497,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 306,
-    "without_repository_notes": 68
+    "with_repository_notes": 318,
+    "without_repository_notes": 56
   }
 }

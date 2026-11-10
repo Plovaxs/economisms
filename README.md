@@ -2,9 +2,9 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C696%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C734%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
-[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-306%2F374%20(81.8%25)-blue)](./CHECKLIST_STATUS.md)
+[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-318%2F374%20(85.0%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](./pyproject.toml)
 
@@ -53,11 +53,11 @@ and every PR states plainly what it does *not* cover.
 
 | | |
 |---|---|
-| Blueprint items evidenced | **306 / 374** (81.8%) across 29 categories |
-| Categories at 100% | API, AUD, DOC, DRI, ECO, HDG, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, VAL |
-| Test suite | **2,696 / 2,696** passing |
+| Blueprint items evidenced | **318 / 374** (85.0%) across 29 categories |
+| Categories at 100% | API, AUD, DOC, DRI, ECO, HDG, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
+| Test suite | **2,734 / 2,734** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 158, each independently verified |
+| Pull requests | 159, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -118,6 +118,8 @@ src/prometheus/
   experiments/     bootstrap CIs, manifests, holdout splits, leakage diagnostics, benchmarks
   evidence/        model cards, gate reports, model registry, champion/challenger comparison
   service/         authenticated HTTP API, pricing/risk reports, deploy manifests
+  dashboard/       authenticated research dashboard: economy/market/pricing/hedging/risk views,
+                   experiment comparison, audit trail, provenance labels, reproducible exports
   jobs/            durable, bounded research-job queue and worker
   data_ingestion/  external data source connectors (point-in-time schema)
   orchestration/   demo, benchmark/study and replay runners
