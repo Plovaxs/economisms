@@ -26,15 +26,54 @@ from typing import Any
 from urllib.parse import parse_qs
 
 from prometheus.core.ledger import Ledger, Sector
+from prometheus.dashboard.audit_trail import render_audit_trail
 from prometheus.dashboard.auth import (
     PortfolioShareRegistry,
     UnauthorizedPortfolioAccessError,
     require_portfolio_access,
 )
 from prometheus.dashboard.experiment_comparison import render_experiment_comparison
+from prometheus.dashboard.export import build_export, render_printable_html
 from prometheus.dashboard.html import page
-from prometheus.dashboard.views import render_balance_sheets, render_pricing_diagnostics
+from prometheus.dashboard.views import (
+    render_balance_sheets,
+    render_economy_explorer,
+    render_hedge_actions,
+    render_market_paths,
+    render_portfolio_risk,
+    render_pricing_diagnostics,
+)
+from prometheus.evidence.model_registry import ModelRegistryEntry
 from prometheus.service.auth import AuthenticationError, CredentialStore
+
+_INDEX_LINKS: tuple[tuple[str, str], ...] = (
+    ("/dashboard/economy", "Economic simulation explorer (UIX-01)"),
+    ("/dashboard/market-paths", "Market paths and uncertainty (UIX-03)"),
+    ("/dashboard/pricing", "Derivative pricing diagnostics and Greeks (UIX-04)"),
+    ("/dashboard/hedge-actions", "Hedge actions and timing (UIX-05)"),
+    ("/dashboard/portfolio-risk", "Portfolio VaR/ES and drawdown (UIX-06)"),
+    ("/dashboard/experiments", "Experiment comparison, with real losses (UIX-07)"),
+    ("/dashboard/audit-trail", "Model registry audit trail (UIX-09)"),
+    ("/dashboard/portfolio/alice", "A real owner-scoped portfolio (UIX-02/UIX-10)"),
+)
+
+
+def _demo_audit_entry() -> ModelRegistryEntry:
+    """A REALISTIC entry built via the registry's own real `transition`
+    calls (not hand-typed `StateTransition` objects) -- see
+    `dashboard.audit_trail`'s own docstring for why this is disclosed
+    as a realistic demonstration, not a real production promotion."""
+    from datetime import date
+
+    entry = ModelRegistryEntry("recessionnet-hybrid-quantum-v1")
+    entry.transition(
+        "evaluated", "ci", date(2026, 1, 1), "offline backtest completed", approved_by="n/a"
+    )
+    entry.transition(
+        "approved", "reviewer", date(2026, 1, 2), "passed validation",
+        approved_by="reviewer", content_hash="a" * 64,
+    )
+    return entry
 
 LOGGER = logging.getLogger("prometheus.dashboard.audit")
 Receive = Callable[[], Awaitable[dict[str, Any]]]
@@ -58,6 +97,20 @@ class DashboardService:
         self.shares = shares or PortfolioShareRegistry()
 
     async def __call__(self, scope: dict[str, Any], receive: Receive, send: Send) -> None:
+        if scope["type"] == "lifespan":
+            # Real ASGI servers (uvicorn) send a lifespan scope before any
+            # HTTP request to probe startup/shutdown -- discovered by
+            # actually running this app under uvicorn, not just by unit
+            # tests that construct an "http" scope directly (see
+            # service.application.ResearchService's identical handling,
+            # reused here rather than invented a second way).
+            while True:
+                message = await receive()
+                if message["type"] == "lifespan.startup":
+                    await send({"type": "lifespan.startup.complete"})
+                elif message["type"] == "lifespan.shutdown":
+                    await send({"type": "lifespan.shutdown.complete"})
+                    return
         if scope["type"] != "http":
             raise ValueError("this dashboard app serves HTTP only")
         request_id = uuid.uuid4().hex
@@ -91,8 +144,73 @@ class DashboardService:
 
         query = parse_qs(scope.get("query_string", b"").decode("ascii"))
 
+        if path in ("/dashboard", "/dashboard/"):
+            items = "".join(
+                f'<li><a href="{href}">{label}</a></li>' for href, label in _INDEX_LINKS
+            )
+            return 200, page("Dashboard", "ECONOSIM research dashboard", f"<ul>{items}</ul>")
+
         if path == "/dashboard/experiments":
             return 200, render_experiment_comparison()
+
+        if path == "/dashboard/economy":
+            n_steps = int(query.get("n_steps", ["6"])[0])
+            seed = int(query.get("seed", ["0"])[0])
+            return 200, render_economy_explorer(n_steps=n_steps, seed=seed)
+
+        if path == "/dashboard/market-paths":
+            return 200, render_market_paths(
+                s0=float(query.get("s0", ["100"])[0]),
+                mu=float(query.get("mu", ["0.05"])[0]),
+                sigma=float(query.get("sigma", ["0.2"])[0]),
+                maturity=float(query.get("maturity", ["1.0"])[0]),
+                n_steps=int(query.get("n_steps", ["50"])[0]),
+                n_paths=int(query.get("n_paths", ["2000"])[0]),
+                seed=int(query.get("seed", ["0"])[0]),
+            )
+
+        if path == "/dashboard/hedge-actions":
+            return 200, render_hedge_actions(
+                s0=float(query.get("s0", ["100"])[0]),
+                mu=float(query.get("mu", ["0.05"])[0]),
+                sigma=float(query.get("sigma", ["0.2"])[0]),
+                strike=float(query.get("strike", ["100"])[0]),
+                maturity=float(query.get("maturity", ["1.0"])[0]),
+                risk_free_rate=float(query.get("rate", ["0.03"])[0]),
+                n_steps=int(query.get("n_steps", ["20"])[0]),
+                n_paths=int(query.get("n_paths", ["200"])[0]),
+                seed=int(query.get("seed", ["0"])[0]),
+            )
+
+        if path == "/dashboard/portfolio-risk":
+            import numpy as np
+
+            seed = int(query.get("seed", ["0"])[0])
+            n = int(query.get("n", ["250"])[0])
+            pnl = np.random.default_rng(seed).normal(loc=0.0, scale=1000.0, size=n)
+            return 200, render_portfolio_risk(
+                pnl, alpha=float(query.get("alpha", ["0.95"])[0]), horizon_label="1-day"
+            )
+
+        if path == "/dashboard/audit-trail":
+            return 200, render_audit_trail(_demo_audit_entry())
+
+        if path == "/dashboard/export":
+            view_name = query.get("view", [""])[0]
+            exportable: dict[str, tuple[str, Callable[[], str]]] = {
+                "experiments": ("Experiment comparison", render_experiment_comparison),
+                "audit-trail": (
+                    "Audit trail", lambda: render_audit_trail(_demo_audit_entry())
+                ),
+            }
+            if view_name not in exportable:
+                raise DashboardHTTPError(
+                    404, f"no exportable view named {view_name!r}; try one of "
+                    f"{sorted(exportable)}"
+                )
+            method_summary, render = exportable[view_name]
+            export = build_export(view_name, method_summary, render())
+            return 200, render_printable_html(export)
 
         if path == "/dashboard/pricing":
             from datetime import date

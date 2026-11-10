@@ -6455,6 +6455,72 @@ this single-maintainer repository does not have. 4 new tests (3
 `PortfolioShareRegistry`, 1 LCH-10 demonstration), 100% coverage on
 new code.
 
+## Evidenced today (PR-161: dashboard live-wiring, a real ASGI lifespan bug caught by actually running the server, and research/portfolio documentation -- strengthening UIX-01/03/05/06/09/12)
+
+Prompted by a direct request to verify this repository's real-world
+usability rather than only its test-suite coverage. Two real gaps were
+found and closed, neither visible from `pytest` alone:
+
+**Five already-tested view functions were not actually reachable over
+HTTP.** PR-159 built and unit-tested `render_economy_explorer`,
+`render_market_paths`, `render_hedge_actions`, `render_portfolio_risk`,
+and `render_audit_trail` directly, but `dashboard.app`'s real ASGI
+route table only ever dispatched to 3 of the 8 built views
+(`/dashboard/experiments`, `/dashboard/pricing`,
+`/dashboard/portfolio/<owner>`) -- so UIX-01/03/05/06/09's own
+acceptance wording ("user can inspect...", "reviewer can navigate...")
+was satisfied by direct unit test but not by the live service a real
+user would actually open. All five are now wired into real routes
+(`/dashboard/economy`, `/dashboard/market-paths`, `/dashboard/hedge-
+actions`, `/dashboard/portfolio-risk`, `/dashboard/audit-trail`), plus
+a new `/dashboard/export?view=<name>` route composing UIX-12's existing
+`build_export`/`render_printable_html`, plus a `/dashboard` index page
+listing every real route.
+
+**A real ASGI lifespan bug was found by actually running the service,
+not by any unit test.** `python -m prometheus.dashboard serve`
+(a new, real CLI entry point added in this PR, reusing
+`service.__main__.provision_credentials` rather than duplicating it)
+crashed on startup: uvicorn sends a `"lifespan"` scope before any HTTP
+request, and `DashboardService.__call__` unconditionally raised
+`ValueError("this dashboard app serves HTTP only")` for any non-"http"
+scope -- every existing test constructed an `"http"` scope directly and
+so never exercised this path. Fixed by reusing
+`service.application.ResearchService`'s own already-working lifespan-
+handshake handling (composition, not a second implementation), verified
+by actually starting the real server afterward and hitting every real
+route with a real HTTP client (`urllib`, genuine request/response round
+trips, not simulated) -- all 10 routes returned the expected status,
+including a genuine 403 on an unauthorized portfolio request and a
+genuine 401 with no token. A new regression test drives the real ASGI
+lifespan protocol directly so this specific failure mode cannot
+regress silently again.
+
+**New research/portfolio documentation**: `docs/RESEARCH_CONTRIBUTIONS.md`
+states five specific research questions this repository actually
+tested (RQ1-RQ5, cross-referencing the real PR-139..160 findings) and
+what was found -- three "not supported," one "partially supported," one
+"supported," not reframed as wins; `docs/PORTFOLIO_DEMO.md` is a real,
+runnable 10-minute evaluation sequence (install, test, smoke-test,
+start the real dashboard, read the findings, spot-check one claim)
+addressed to a professor/researcher/recruiter evaluating this
+repository, per the user's own stated framing (engineering/scientific/
+publication/portfolio milestones).
+
+Not covered: this PR strengthens evidence for UIX-01/03/05/06/09/12
+(already counted as evidenced since PR-159; this closes the gap
+between "unit-tested" and "live-reachable" for those same items, not a
+new ID) rather than claiming new checklist IDs.
+
+| What | Evidence |
+|---|---|
+| 6 previously-unreachable views wired into real routes | `dashboard.app._dispatch`; 10 new tests in `tests/unit/test_dashboard_app.py` |
+| Real ASGI lifespan bug found and fixed | `dashboard.app.DashboardService.__call__`; regression test drives the real lifespan protocol |
+| Real runnable CLI (`python -m prometheus.dashboard`) | `dashboard.__main__`; 2 new tests; verified by an actual live server run hitting every route with real HTTP requests |
+| Research contributions and evaluation guide | `docs/RESEARCH_CONTRIBUTIONS.md`, `docs/PORTFOLIO_DEMO.md` |
+
+14 new tests, 100% coverage on new code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
