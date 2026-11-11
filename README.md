@@ -73,6 +73,14 @@ For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATU
 For the detailed, PR-by-PR account of what was built and how each claim
 was verified, see [docs/PR_LEDGER.md](./docs/PR_LEDGER.md).
 
+**Live visual dashboards** (Claude Artifacts, kept in sync with each PR):
+the [blueprint coverage dashboard](https://claude.ai/artifact/HChLfAPJQfvUasBbLP4fxj)
+tracks this same 374-item checklist by category, and the
+[simulation dashboard](https://claude.ai/artifact/Eit5ePvaZhWDgbSXSQhV5w)
+charts real output from the economy, market-path, hedging and portfolio-risk
+subsystems. Both must be shared from their Share menu before a link works
+for anyone other than the account that owns them.
+
 **New here?** [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real
 research dashboard, and spot-checking a real finding yourself.
@@ -158,13 +166,13 @@ docs/
 - **"NO-GO for production"** is this project's own, unchanged internal
   gate decision — see [`evidence/gate_report_r0.json`](./evidence/gate_report_r0.json).
   Nothing in this repository moves that needle, nor is it meant to yet.
-- Remaining work spans data ingestion pipelines, neural stochastic
-  models, multi-agent reinforcement learning, a product-facing dashboard,
-  and governance/compliance/security controls that need real
-  organizational authority — independent review, legal sign-off, a
-  penetration test, disaster-recovery drills — not just more code. See
-  [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md) for exactly which items
-  remain and why.
+- Remaining work is almost entirely governance/compliance/security
+  controls that need real organizational authority this single-maintainer
+  repository does not have — independent review, legal sign-off, a
+  penetration test — plus two data-ingestion connectors (`DAT-02`/`DAT-03`)
+  blocked on `stlouisfed.org` being unreachable from this environment, not
+  on missing code. See [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md) for
+  exactly which items remain and why.
 - No independent review of any claim in this repository has happened.
   "Evidenced" means covered by a passing automated test here, not
   peer-reviewed, regulator-approved, or production-ready.
