@@ -67,6 +67,32 @@ def test_is_recession_month_false_for_a_clear_expansion_month() -> None:
     assert is_recession_month(date(2015, 1, 1)) is False
 
 
+def test_contains_contraction_month_is_consistent_for_first_and_end_of_month_queries() -> None:
+    """Regression test for a real bug found by an independent,
+    separately-coded re-derivation of this exact rule
+    (`evidence.independent_data_assessment`): `NBER_RECESSIONS` stores
+    peak/trough as the first day of their month, but `recessionnet.
+    dataset`'s only real caller queries with END-of-month dates. A raw
+    date comparison silently included the peak month and excluded the
+    trough month whenever queried at end-of-month -- invisible to every
+    OTHER test in this file, which happens to query only at
+    first-of-month. The Great Depression (1929-08 peak, 1933-03
+    trough) is the real, concrete case this bug was found on."""
+    depression = next(r for r in NBER_RECESSIONS if r.peak == date(1929, 8, 1))
+    # Peak month itself: excluded (last month of expansion), at BOTH
+    # first-of-month and end-of-month query granularity.
+    assert depression.contains_contraction_month(date(1929, 8, 1)) is False
+    assert depression.contains_contraction_month(date(1929, 8, 31)) is False
+    # Trough month itself: included (last month of contraction), at
+    # BOTH first-of-month and end-of-month query granularity.
+    assert depression.contains_contraction_month(date(1933, 3, 1)) is True
+    assert depression.contains_contraction_month(date(1933, 3, 31)) is True
+    # A genuine mid-contraction month: included either way.
+    assert depression.contains_contraction_month(date(1931, 6, 30)) is True
+    # A genuine expansion month: excluded either way.
+    assert depression.contains_contraction_month(date(1934, 1, 31)) is False
+
+
 def test_as_of_rejects_a_month_in_the_future_relative_to_as_of() -> None:
     with pytest.raises(ValueError, match="future"):
         recession_label_as_of(date(2026, 1, 1), date(2020, 1, 1))

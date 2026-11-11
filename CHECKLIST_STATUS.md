@@ -6947,6 +6947,75 @@ Not covered: LCH-03's independent-review half, SEC-03's MFA/audit-log
 half, MGR-02's external-reviewer half -- all the same single-maintainer
 gap. 13 new tests, 100% coverage on new code.
 
+## Evidenced today (PR-168: real controlled UAT, and a real recessionnet labeling bug found and fixed by an independent data assessment)
+
+**LCH-09** (first credited, partial) -- "run controlled user
+acceptance tests for analysts and reviewers... documented cases with
+approved pass/fail evidence" is satisfied by new `evidence.
+user_acceptance`: 9 REAL cases executed against a REAL, live `python
+-m prometheus.dashboard serve` process (genuine uvicorn, hit with real
+HTTP requests over the network, not an in-process test double),
+playing the exact two personas this item names by name -- an ANALYST
+(economy/pricing/experiment-comparison/portfolio-risk views) and a
+REVIEWER (audit-trail/validation-issue-tracker/model-usage-
+authorization/cross-tenant-access views), using two distinct real
+credentials (alice, bob) provisioned the same way any real credential
+in this repository is provisioned. All 9 passed on 2026-11-11 against
+commit `73b5540`. `verify_user_acceptance_run` rejects any failed case
+or any run that never actually exercised both named personas. A
+regression test re-exercises the identical 9 scenarios through the
+same in-process ASGI harness every other dashboard test uses, so a
+future regression is caught on every CI run, not just the one dated
+manual run. Not covered: this run was executed by the maintainer
+acting through code as each persona, not by separate, independent
+human analysts or reviewers.
+
+**MGR-03** (first evidence) -- "validate input data suitability and
+training provenance... independent assessment reproduces eligibility
+and split" is satisfied by new `evidence.independent_data_assessment`:
+`independently_reproduce_split`/`independently_reproduce_labels` are
+SEPARATE, independently-written computations -- neither calls
+`recessionnet.dataset.chronological_split` nor `recessionnet.labels.
+is_recession_month` -- that re-derive train/test eligibility and
+recession labels from the same real Kenneth French factor history and
+real NBER chronology, then cross-check against the real production
+pipeline's own output.
+
+**This independent assessment found and fixed a real, previously-
+undiagnosed bug**, exactly the kind of defect this item exists to
+catch: `recessionnet.labels.RecessionPeriod.contains_contraction_month`
+compared `peak`/`trough` (stored as the FIRST day of their month in
+`NBER_RECESSIONS`) directly against query dates using raw `date`
+ordering. `recessionnet.dataset`'s only real production caller queries
+with END-of-month dates -- mixing those two day-of-month conventions
+silently INCLUDED every recession's PEAK month (documented as the last
+month of EXPANSION, should be excluded) and silently EXCLUDED every
+recession's TROUGH month (documented as the last month of contraction,
+should be included), mislabeling 31 real target months across the
+real dataset. This was invisible to every pre-existing unit test in
+`test_recessionnet_labels.py` because every one of them happened to
+query at first-of-month -- the same convention the table itself uses,
+which never exercises the mismatch -- the identical "test shares the
+production code's own blind spot" pattern as PR-161's ASGI bug and
+PR-162's REINFORCE bug. Fixed by comparing at `(year, month)`
+granularity, independent of day-of-month convention on either side,
+with a new permanent regression test driving the exact real case this
+was found on (the 1929 Great Depression's peak/trough boundary months,
+checked at both first- and end-of-month). All 94 recessionnet-related
+tests (`test_recessionnet_labels/dataset/evaluation/kaggle_run/run/
+training.py`) still pass after the fix -- none depended on the
+mislabeled boundary months -- and the independent assessment itself
+now agrees exactly with the (fixed) production pipeline.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| LCH-09 (first credited, partial) | controlled UAT for analysts/reviewers | `evidence.user_acceptance`; 9 real cases against a live `uvicorn` process; 6 new tests |
+| MGR-03 (first evidence) | independent assessment reproduces eligibility/split | `evidence.independent_data_assessment`; found and fixed a real boundary-month labeling bug in `recessionnet.labels`; 5 new tests plus 1 regression test in `test_recessionnet_labels.py` |
+
+Not covered: LCH-09's independent-human half -- the same single-
+maintainer gap. 12 new tests, 100% coverage on new code, plus one real
+bug fixed in previously-shipped code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

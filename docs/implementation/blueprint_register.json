@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "6c564ea6fe2c7e6adba813724841f9dc913216077408faff5629420ba53c8c04",
+    "content_sha256": "46e8ee031034b58f78bf6f95f2c0bcab013347c99bd7dfde084289b64af0a09f",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "562a9fe0d03cfd7953f63676fb29b9db6aa391ec0ff13587daf01ad489a12e49",
+  "checklist_notes_sha256": "c03f349d5f3cc8a4e3426028500fdfe6c23767a6bada5c824299457a9fc65d31",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7114,10 +7114,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "MGR",
       "id": "MGR-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7013,
+          "evidence_note": "`evidence.independent_data_assessment`; found and fixed a real boundary-month labeling bug in `recessionnet.labels`; 5 new tests plus 1 regression test in `test_recessionnet_labels.py`",
+          "id_column": "MGR-03 (first evidence)",
+          "requirement_note": "independent assessment reproduces eligibility/split"
+        }
+      ],
       "requirement": "Validate input data suitability and training provenance",
       "source_pdf_page": 39,
       "source_rows": [
@@ -9403,10 +9410,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "LCH",
       "id": "LCH-09",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7012,
+          "evidence_note": "`evidence.user_acceptance`; 9 real cases against a live `uvicorn` process; 6 new tests",
+          "id_column": "LCH-09 (first credited, partial)",
+          "requirement_note": "controlled UAT for analysts/reviewers"
+        }
+      ],
       "requirement": "Run controlled user acceptance tests for analysts and reviewers",
       "source_pdf_page": 46,
       "source_rows": [
@@ -9700,7 +9714,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 347,
-    "without_repository_notes": 27
+    "with_repository_notes": 349,
+    "without_repository_notes": 25
   }
 }

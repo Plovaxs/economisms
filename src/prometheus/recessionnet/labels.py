@@ -57,7 +57,25 @@ class RecessionPeriod:
             raise ValueError("trough_announced_at must not precede the trough month itself")
 
     def contains_contraction_month(self, month: date) -> bool:
-        return self.peak < month <= self.trough
+        """Compares at (year, month) granularity, not raw `date`
+        equality/ordering: `NBER_RECESSIONS` stores `peak`/`trough` as
+        the first day of their month, but this module's only real
+        caller (`recessionnet.dataset`) queries with END-of-month
+        dates. A raw `self.peak < month <= self.trough` comparison
+        mixing those two day-of-month conventions silently included
+        every recession's PEAK month (should be excluded, "the last
+        month of expansion") and silently excluded every recession's
+        TROUGH month (should be included) -- found by an independent,
+        separately-coded re-derivation of this exact rule
+        (`evidence.independent_data_assessment`) disagreeing with this
+        function on 31 real target months, never caught by this
+        module's own unit tests because every one of them happened to
+        query with a first-of-month date, the same convention the
+        table itself uses, which never exercises the mismatch."""
+        peak_key = (self.peak.year, self.peak.month)
+        trough_key = (self.trough.year, self.trough.month)
+        month_key = (month.year, month.month)
+        return peak_key < month_key <= trough_key
 
 
 # fmt: off
