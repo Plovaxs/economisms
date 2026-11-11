@@ -6853,6 +6853,100 @@ Not covered: CIQ-08's real-second-human half, GOV-03's deputy half,
 EXP-14's external/reviewer half -- all the same single-maintainer gap.
 12 new tests, 100% coverage on new code.
 
+## Evidenced today (PR-167: LCH-03 via the real P0 tracker, an honest access review, a theoretical-assumptions record, and a BCBS 239 mapping)
+
+A fresh, careful re-scan of every remaining open item, triggered
+directly by a request to push to 100% -- found five more genuine,
+non-fabricated opportunities. Several remaining categories (CMP, MGR,
+LCH, SEC, PRV, EXT) still have real items this single-maintainer
+repository cannot honestly close (named individually below and in
+`README.md`); these five are not among them.
+
+**LCH-03** (first credited, partial) -- "complete independent
+scientific/quantitative review... open P0 model findings closed or
+formally blocked" is satisfied at the literal acceptance-criterion
+level: new `evidence.validation_issue_tracker.open_p0_findings` reuses
+`evidence.alert_routing`'s own canonical P0/P1/P2 taxonomy
+(`canonical_severity`) rather than inventing a second one, and
+confirms the one P0-severity (critical) finding this repository has on
+record -- the REINFORCE gradient bug -- is already `"remediated"`, not
+open. Not covered: "independent... review" itself is not claimed, the
+same single-maintainer gap as every other such item; this only checks
+that no P0 finding is sitting open.
+
+**SEC-03** (first credited, partial) -- "enforce MFA and
+least-privilege maintainers... identity access review and access log
+evidence" draws on new `evidence.access_review`: a real, dated
+snapshot (`gh api repos/Plovaxs/economisms/collaborators`, run
+2026-11-11) confirms exactly one collaborator -- the repository owner
+-- with admin access, trivially satisfying least-privilege for a
+genuinely single-maintainer repository, with `verify_least_privilege`
+as the real, checkable enforcement point. Not covered, precisely: GitHub
+exposes `two_factor_requirement_enabled` only at the ORGANIZATION
+level, and deliberately provides no API to toggle a personal account's
+own MFA (a human-only action by GitHub's own design); its audit-log
+API is similarly unavailable to a personal-account repository. This
+module records exactly what can be shown and names exactly what
+cannot, rather than asserting either.
+
+**MGR-02** (first credited, partial) -- "document conceptual soundness
+and theoretical assumptions... independent reviewer evaluates
+mathematical logic" draws on new `evidence.theoretical_assumptions`,
+which compiles the real theoretical assumption already documented in
+each of three subsystems' own modules (Black-Scholes closed-form
+pricing, PDE solvers, and the hedging REINFORCE policy) rather than
+inventing new theory, with `verify_theoretical_assumptions` confirming
+every cited module still imports. "Independent reviewer evaluates
+mathematical logic" reuses the SAME real evidence as EXP-14's
+`replication_digest`: PR-162's audit pass hand-checked PDE-solvers'
+residual/Delta identity against the real Black-Scholes PDE term-by-
+term, and found and fixed a genuine mathematical-logic defect in
+HDG-14's REINFORCE agent. Not covered: every record's `reviewer_type`
+is honestly `"internal_ai_assisted"`, the same disclosed gap as
+EXP-14.
+
+**CMP-05** (first evidence) -- "map risk data lineage/report quality
+to BCBS 239 concepts... reconciliation, completeness and timeliness
+tests available" is satisfied by new `docs/compliance/
+BCBS_239_MAPPING.md`, following the identical "technical
+self-assessment, not a regulatory determination" framing
+`NIST_CSF_MAPPING.md` (CMP-03) already established. Maps three BCBS
+239 sub-principles onto REAL, already-passing, individually-cited
+tests: accuracy/integrity (reconciliation) to `core.ledger`'s
+balanced-transfer/residual-zero tests and `econosim.
+equity_rollforward`'s cross-sector reconciliation; completeness to
+`econosim.schema_contracts`'s quarantine-not-drop tests; timeliness to
+four real point-in-time/no-lookahead tests, including a negative
+control confirming a real leak produces a large, detectable gap. No
+new code -- every cited test was independently re-confirmed to exist
+and pass before this mapping was written. Supervisory-review principles
+(12-14) are marked not applicable (no supervisor); applicability of
+the standard itself is explicitly not determined here (CMP-04/CMP-06's
+job, still open).
+
+**CMP-09** (first evidence, not-applicable confirmed) -- "if market
+access planned, conduct dedicated controls review" is conditionally
+satisfied: the real, already-generated `evidence/gate_report_r0.json`
+records a `"decision": "NO-GO"` with `scope_prohibited` naming live
+trading/order routing/brokerage connections explicitly, and the
+register's own EXT category independently confirms zero EXT items
+(market-access/broker-connectivity code) have any repository note --
+no market access is planned, so this item's own trigger condition
+does not fire. Not a controls review; a confirmed absence of the thing
+that would require one.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| LCH-03 (first credited, partial) | independent review; open P0 findings closed or blocked | `evidence.validation_issue_tracker.open_p0_findings`; reuses `alert_routing.canonical_severity`; 2 new tests |
+| SEC-03 (first credited, partial) | MFA, least-privilege maintainers, access review | `evidence.access_review`; real dated GitHub collaborator snapshot; 5 new tests; MFA/audit-log not available for a personal repo |
+| MGR-02 (first credited, partial) | document theoretical assumptions; reviewer evaluates math logic | `evidence.theoretical_assumptions`; reuses EXP-14's audit evidence; 6 new tests; internal AI-assisted, not external |
+| CMP-05 (first evidence) | map to BCBS 239; reconciliation/completeness/timeliness tests | `docs/compliance/BCBS_239_MAPPING.md`; cites 11 pre-existing, re-confirmed tests |
+| CMP-09 (first evidence, not-applicable confirmed) | market-access controls review, if planned | `evidence/gate_report_r0.json`'s NO-GO/`scope_prohibited`; EXT category confirmed at 0 repository notes |
+
+Not covered: LCH-03's independent-review half, SEC-03's MFA/audit-log
+half, MGR-02's external-reviewer half -- all the same single-maintainer
+gap. 13 new tests, 100% coverage on new code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

@@ -20,6 +20,19 @@ those cited tests, not merely asserted in a string field.
 `disposition` is still `"open"` past its own `expiry_date` is flagged,
 so a tracker that silently let a finding rot past its remediation
 deadline would be a checkable failure, not an unnoticed gap.
+
+`open_p0_findings` additionally covers LCH-03 ("complete independent
+scientific/quantitative review"; acceptance: "open P0 model findings
+closed or formally blocked"): it reuses `evidence.alert_routing`'s own
+canonical P0/P1/P2 taxonomy (`canonical_severity`) rather than
+inventing a second one, so this tracker's `"critical"` severity is the
+one value that maps onto `"P0"`. Checked against the real
+`REAL_FINDINGS`, this returns empty -- the one P0-severity finding
+this repository has on record (the REINFORCE gradient bug) is already
+`"remediated"`. "Independent... review" itself is not claimed here --
+the same honest single-maintainer gap as every other such item; this
+confirms only the literal acceptance text, that no P0 finding is
+sitting open past its own tracker.
 """
 
 from __future__ import annotations
@@ -27,6 +40,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from typing import Literal
+
+from prometheus.evidence.alert_routing import canonical_severity
 
 Severity = Literal["low", "medium", "high", "critical"]
 Disposition = Literal["open", "remediated", "accepted_risk"]
@@ -133,3 +148,17 @@ def overdue_open_findings(
     return tuple(
         f for f in findings if f.disposition == "open" and as_of > f.expiry_date
     )
+
+
+def open_p0_findings(
+    findings: tuple[ValidationFinding, ...] = REAL_FINDINGS,
+) -> tuple[ValidationFinding, ...]:
+    result = []
+    for f in findings:
+        try:
+            is_p0 = canonical_severity(f.severity) == "P0"
+        except ValueError:
+            is_p0 = False
+        if is_p0 and f.disposition == "open":
+            result.append(f)
+    return tuple(result)

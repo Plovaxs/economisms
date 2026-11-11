@@ -8,6 +8,7 @@ import pytest
 from prometheus.evidence.validation_issue_tracker import (
     REAL_FINDINGS,
     ValidationFinding,
+    open_p0_findings,
     overdue_open_findings,
 )
 
@@ -113,3 +114,40 @@ def test_overdue_open_findings_flags_only_open_findings_past_their_expiry() -> N
     )
     overdue = overdue_open_findings(findings, as_of=date(2026, 1, 20))
     assert [f.finding_id for f in overdue] == ["open-overdue"]
+
+
+def test_no_p0_severity_finding_is_open_in_the_real_tracker() -> None:
+    """LCH-03's own acceptance wording: "open P0 model findings closed
+    or formally blocked." The one critical-severity (P0, via
+    alert_routing's own canonical taxonomy) finding this repository
+    has on record is already remediated."""
+    assert open_p0_findings() == ()
+    assert any(f.severity == "critical" for f in REAL_FINDINGS)
+
+
+def test_open_p0_findings_flags_a_real_open_critical_finding() -> None:
+    findings = (
+        ValidationFinding(
+            finding_id="open-critical",
+            component_id="c",
+            description="d",
+            severity="critical",
+            owner="o",
+            opened_date=date(2026, 1, 1),
+            expiry_date=date(2026, 2, 1),
+            disposition="open",
+            remediation_evidence="n/a",
+        ),
+        ValidationFinding(
+            finding_id="open-high-not-p0",
+            component_id="c",
+            description="d",
+            severity="high",
+            owner="o",
+            opened_date=date(2026, 1, 1),
+            expiry_date=date(2026, 2, 1),
+            disposition="open",
+            remediation_evidence="n/a",
+        ),
+    )
+    assert [f.finding_id for f in open_p0_findings(findings)] == ["open-critical"]
