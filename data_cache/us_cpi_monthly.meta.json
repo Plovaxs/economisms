@@ -1,0 +1,28 @@
+{
+  "source": "U.S. Bureau of Labor Statistics, Public Data API v2 (no registration key)",
+  "source_url": "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+  "series_id": "CUUR0000SA0",
+  "series_description": "Consumer Price Index for All Urban Consumers (CPI-U), U.S. city average, All items, Not Seasonally Adjusted, 1982-84=100",
+  "license": "U.S. government work -- public domain, no restriction on reuse",
+  "fetched_at": "2026-11-11",
+  "fetch_method": "Three live HTTPS GET requests to api.bls.gov (startyear/endyear windows 2006-2015, 2016-2025, 2026-2026 -- the public, unregistered API caps each request at a 10-year span), merged and deduplicated by calendar month.",
+  "raw_response_files": {
+    "data_cache/raw_provenance/bls_cpi_2006_2015.json": "sha256:cef3b5639d8888559fef5630faed8e514b1847b0c1ad482a28e00ac5864e4ab2",
+    "data_cache/raw_provenance/bls_cpi_2016_2025.json": "sha256:4119b08e2947814923a27967faf0ff0c8bf04164f4def5b04293ba9ea8e27b46",
+    "data_cache/raw_provenance/bls_cpi_2026_2026.json": "sha256:0a7acd7a8ab979511515614c344088d89fa36f1bbbc8ef12bccb96ef6275e2e8"
+  },
+  "real_date_range": {"first_month": "2006-01", "last_month": "2026-10"},
+  "real_data_gap": {
+    "2025-10": "BLS did not publish this month's index value, citing the 2025 lapse in appropriations (a real government shutdown) -- left absent in the CSV rather than interpolated or forward-filled. This also makes 2026-10's year-over-year change uncomputable (needs the 2025-10 base) and is left blank for the same honest reason."
+  },
+  "transformation": "CPI_YOY is (level[t] / level[t-12] - 1) * 100, computed only where both the current and 12-months-prior level exist.",
+  "publication_lag_assumption_days": {
+    "CPI_YOY": 15,
+    "note": "A FIXED, documented assumption (BLS's own well-publicized release schedule: the CPI for month M is released in a press release roughly 2 weeks into month M+1), not fetched real per-release vintage data (ALFRED, which has true vintage timestamps, is unreachable from this environment -- see CHECKLIST_STATUS.md's DAT-02/DAT-03 entries). Each month's CPI_YOY value is treated as first knowable 15 days after that month's own month-end, i.e. effectively mid-month M+1."
+  },
+  "sanity_checks": {
+    "2008-12": "0.09% YoY -- the real, well-documented disinflation collapse during the 2008 financial crisis (from 5.6% in 5 months earlier)",
+    "2020-05": "0.12% YoY -- the real COVID-19 demand-shock disinflation trough",
+    "2022-06": "9.06% YoY -- the real 2022 US inflation surge peak (BLS's own widely-reported headline figure for this month was 9.1% on the seasonally-adjusted series; this NSA series' 9.06% is the expected, very close NSA/SA difference, not a data error)"
+  }
+}

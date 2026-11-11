@@ -21,7 +21,7 @@ structurally rather than by discipline alone:
   diffed on every change — see `CONTRIBUTING.md`).
 - A rule that an item counts as "evidenced" **only** when a specific,
   named, currently-passing test exercises the specific claim — not a
-  docstring, not a design note. 349/374 items meet this bar today (see
+  docstring, not a design note. 351/374 items meet this bar today (see
   `README.md`'s live badge).
 - A standing practice of publishing **negative and null results** with
   the same visibility as positive ones (`docs/RESULTS_AND_LIMITATIONS.md`),
@@ -152,12 +152,35 @@ not the rule. A project that only reported the cases where the new
 method won would be reporting marketing, not research; this one
 doesn't.
 
+### RQ6 — Can integrated deep learning and hybrid quantum-classical models improve predictive accuracy, uncertainty calibration, and robustness in quantitative economic modeling compared with classical approaches?
+
+**`inflationcast`** (PR-173): naive persistence, linear regression, a
+parameter-matched classical MLP, a hybrid quantum regressor, and
+`InflationGRU` (a recurrent encoder trained by Gaussian negative
+log-likelihood to produce a calibrated `(mean, log-variance)`
+forecast, the one candidate across this project's three forecasting
+tasks that attempts calibration at all) were benchmarked on real BLS
+CPI-U year-over-year inflation and real Kaggle macro predictors,
+behind a real point-in-time mixed-frequency masking layer
+(`econosim.pit`) so no candidate can see a month's own not-yet-
+published figure.
+
+**Finding: not supported, on either axis asked about, reported
+honestly.** Accuracy: naive persistence beat every learned candidate
+(MAE 0.31 vs. 1.77–3.59 percentage points) — CPI year-over-year is
+highly persistent month to month, so the "harder" models had no real
+signal advantage to exploit on this task. Calibration: `InflationGRU`'s
+90% nominal predictive interval covered only ~11% of real outcomes
+(exact binomial test, p ≈ 1.7×10⁻⁴³) — confidently wrong, not merely
+imprecise. See `docs/RESULTS_AND_LIMITATIONS.md`'s Finding 11 for the
+full numbers and what is and isn't claimed from them.
+
 ## Why this is a genuine, if narrow, scientific contribution
 
 Not because any single result is individually surprising to a
 specialist — simple baselines beating undertrained learned models is
 well-known. The contribution is methodological and reproducibility-
-focused: every one of the five findings above is independently
+focused: every one of the six findings above is independently
 rerunnable from this repository today, with the exact seed, exact
 data, and exact test that produced it named in `CHECKLIST_STATUS.md`
 and `docs/PR_LEDGER.md`. A reader does not have to trust the summary

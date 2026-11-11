@@ -33,6 +33,23 @@ _BASE_STYLE = (
     ".provenance{font-size:0.85em;padding:4px 8px;border-radius:4px;display:inline-block;}"
     ".provenance.synthetic{background:#4a3410;color:#e0ab4a;}"
     ".provenance.real{background:#143a24;color:#4fbf84;}"
+    ".chart{display:block;margin:8px 0 16px;max-width:100%;}"
+    ".chart-bar-fill{transform-box:fill-box;transform-origin:left center;"
+    "animation:chart-grow-x 0.6s ease-out forwards;}"
+    "@keyframes chart-grow-x{from{transform:scaleX(0);}to{transform:scaleX(1);}}"
+    ".chart-line-draw{animation:chart-draw-line 1.1s ease-out forwards;}"
+    "@keyframes chart-draw-line{to{stroke-dashoffset:0;}}"
+    ".chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px;font-size:0.85em;}"
+    ".chart-legend-item{display:inline-flex;align-items:center;gap:4px;}"
+    ".indicator-row{display:flex;align-items:center;gap:8px;}"
+    ".indicator-dot{width:12px;height:12px;border-radius:50%;display:inline-block;"
+    "animation:indicator-pulse 1.6s ease-in-out infinite;}"
+    ".indicator-dot.indicator-pass{background:#4fbf84;}"
+    ".indicator-dot.indicator-fail{background:#e0617a;}"
+    "@keyframes indicator-pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}"
+    "@media (prefers-reduced-motion: reduce){"
+    ".chart-bar-fill,.chart-line-draw,.indicator-dot{animation:none;}"
+    ".chart-line-draw{stroke-dashoffset:0;}}"
 )
 
 

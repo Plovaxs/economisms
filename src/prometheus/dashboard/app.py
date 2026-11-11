@@ -35,6 +35,7 @@ from prometheus.dashboard.auth import (
 from prometheus.dashboard.experiment_comparison import render_experiment_comparison
 from prometheus.dashboard.export import build_export, render_printable_html
 from prometheus.dashboard.html import page
+from prometheus.dashboard.inflationcast_view import render_inflationcast
 from prometheus.dashboard.views import (
     render_balance_sheets,
     render_economy_explorer,
@@ -62,6 +63,10 @@ _INDEX_LINKS: tuple[tuple[str, str], ...] = (
         "Model usage authorization check (MGR-11)",
     ),
     ("/dashboard/validation-issues", "Validation issue tracker (MGR-10)"),
+    (
+        "/dashboard/inflationcast",
+        "INFLATIONCAST: CPI nowcasting -- classical vs. deep learning vs. hybrid quantum (FP-07)",
+    ),
 )
 
 
@@ -219,6 +224,14 @@ class DashboardService:
                 "Model usage authorization", "Model usage authorization (MGR-11)", body
             )
 
+        if path == "/dashboard/inflationcast":
+            return 200, render_inflationcast(
+                seed=int(query.get("seed", ["0"])[0]),
+                max_epochs=int(query.get("max_epochs", ["150"])[0]),
+                patience=int(query.get("patience", ["15"])[0]),
+                bootstrap_resamples=int(query.get("bootstrap_resamples", ["300"])[0]),
+            )
+
         if path == "/dashboard/validation-issues":
             rows = "".join(
                 f"<tr><td>{f.finding_id}</td><td>{f.component_id}</td>"
@@ -241,6 +254,9 @@ class DashboardService:
                 "experiments": ("Experiment comparison", render_experiment_comparison),
                 "audit-trail": (
                     "Audit trail", lambda: render_audit_trail(_demo_audit_entry())
+                ),
+                "inflationcast": (
+                    "INFLATIONCAST benchmark", lambda: render_inflationcast()
                 ),
             }
             if view_name not in exportable:

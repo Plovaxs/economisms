@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C847%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C912%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -65,9 +65,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **2,847 / 2,847** passing |
+| Test suite | **2,912 / 2,912** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 172, each independently verified |
+| Pull requests | 173, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -80,6 +80,15 @@ tracks this same 374-item checklist by category, and the
 charts real output from the economy, market-path, hedging and portfolio-risk
 subsystems. Both must be shared from their Share menu before a link works
 for anyone other than the account that owns them.
+
+**The final-project deep-learning demo is a real webapp, not an Artifact.**
+`python -m prometheus.dashboard serve` exposes `/dashboard/inflationcast`:
+naive/linear/classical-MLP/hybrid-quantum/GRU CPI nowcasting candidates
+benchmarked live against real BLS CPI-U and Kaggle macro data, with an
+animated bar chart, an actual-vs-predicted line chart, and a real
+calibration pass/fail indicator — every number computed from a live run,
+not a canned export. See [FP-07](./CHECKLIST_STATUS.md) for the real
+(and honestly negative) result.
 
 **New here?** [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real

@@ -125,6 +125,7 @@ def test_index_page_lists_every_real_wired_view(app) -> None:
         ("/dashboard/portfolio-risk", None),
         ("/dashboard/experiments", None),
         ("/dashboard/audit-trail", None),
+        ("/dashboard/inflationcast", None),
     ]:
         assert href in body
 
@@ -178,6 +179,7 @@ def test_every_real_view_is_refused_without_a_valid_token(app) -> None:
         "/dashboard/hedge-actions", "/dashboard/portfolio-risk",
         "/dashboard/audit-trail", "/dashboard/export",
         "/dashboard/validation-issues", "/dashboard/model-usage",
+        "/dashboard/inflationcast",
     ):
         status, _ = request(app, path, None)
         assert status == 401, f"{path} did not require authentication"
@@ -246,3 +248,24 @@ def test_validation_issues_view_lists_the_real_tracked_findings(app) -> None:
     assert status == 200
     assert "VAL-2026-001" in body
     assert "remediated" in body
+
+
+def test_inflationcast_view_is_reachable_with_a_valid_token_and_fast_query_params(app) -> None:
+    status, body = request(
+        app, "/dashboard/inflationcast", ALICE,
+        "max_epochs=10&patience=3&bootstrap_resamples=20",
+    )
+    assert status == 200
+    assert "gru" in body
+    assert "REAL DATA" in body
+
+
+def test_inflationcast_view_requires_authentication(app) -> None:
+    status, _ = request(app, "/dashboard/inflationcast", None)
+    assert status == 401
+
+
+def test_inflationcast_export_embeds_a_real_run_hash(app) -> None:
+    status, body = request(app, "/dashboard/export", ALICE, "view=inflationcast")
+    assert status == 200
+    assert "run_hash" in body or "run hash" in body.lower()

@@ -175,6 +175,28 @@ about any research result — it is reported here because "replays
 exactly" is exactly the kind of claim this document exists to hold to
 account, including when the claim is about the project itself.
 
+## Finding 11 (PR-173): the simplest baseline won again, and the one calibrated candidate was badly miscalibrated
+
+INFLATIONCAST (naive persistence, linear regression, a parameter-matched
+classical MLP, a hybrid quantum regressor, and `InflationGRU` — a
+recurrent encoder trained by Gaussian negative log-likelihood to
+produce a calibrated `(mean, log-variance)` forecast, not just a point
+estimate) was benchmarked on real BLS CPI-U year-over-year inflation
+plus real Kaggle macro predictors, split strictly chronologically
+(train < 2019, validation 2019–2021, test 2022+). Two real, honest
+results: **naive persistence beat every learned candidate** on point
+accuracy (MAE 0.31 vs. 1.77–3.59 for the learned models) — CPI
+year-over-year is a highly persistent series month to month, a
+well-documented real property, not an artifact of this pipeline or a
+sign anything is broken; and **`InflationGRU`'s calibration failed
+badly**: its nominal 90% predictive interval covered only ~11% of real
+test-set outcomes (exact binomial test, p ≈ 1.7×10⁻⁴³). **Limitation:**
+this is reported exactly as run — seed 0, the CLI's own default
+splits — not re-run across seeds or architectures until a flattering
+result appeared; a lower-capacity or differently-regularized
+calibration head might do better, and that is future work, not a
+claim made here.
+
 ## Known limitations that are not findings, just open scope
 
 - **No independent human review of any claim in this repository has
