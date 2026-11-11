@@ -17,24 +17,34 @@
 ## Overview
 
 ECONOSIM (formerly PROMETHEUS) is a from-scratch research platform that
-combines four subsystems behind one evidence discipline:
+combines six subsystems behind one evidence discipline:
 
 - **a multi-agent computational economy** — households, firms, banks and a
   government, wired to a real double-entry ledger, with point-in-time data
-  access, deterministic shocks, and a macro time engine;
+  access, deterministic shocks, a macro time engine, and an optional
+  PPO-trained multi-agent reinforcement-learning policy benchmarked
+  against the deterministic/calibrated baseline;
 - **classical and stochastic-volatility market models** — GBM, Heston,
   Merton jump-diffusion, regime-switching, with Monte Carlo and
   closed-form pricers for European, American, barrier and Asian options,
   plus a neural SDE trained on real macro data and benchmarked against
   classical baselines with proper scoring rules and real-event OOD
   evaluation;
+- **neural PDE/BSDE option-pricing solvers** — PINN and deep-BSDE
+  solvers for the Black-Scholes PDE, benchmarked against the classical
+  Crank-Nicolson grid and the closed-form price for accuracy, speed, and
+  the dimensionality crossover where a grid stops being practical;
 - **institutional risk analytics** — VaR, Expected Shortfall, factor
   exposure, stress testing, portfolio optimization and covariance
-  shrinkage; and
+  shrinkage;
 - **deep hedging and decision infrastructure** — a CVaR-trained neural
   hedging policy benchmarked against classical baselines, plus the audit,
   provenance, and model-lifecycle tooling needed to make any of the above
-  trustworthy evidence rather than a demo.
+  trustworthy evidence rather than a demo; and
+- **a real, authenticated research dashboard** — a separate ASGI
+  service (`python -m prometheus.dashboard serve`) rendering live
+  computed output from every subsystem above, with owner-scoped
+  portfolio access and real HTTP authorization boundaries, not a mockup.
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
