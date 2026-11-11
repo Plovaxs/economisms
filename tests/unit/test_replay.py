@@ -1,6 +1,7 @@
 import copy
 import json
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -363,3 +364,47 @@ def test_sealed_artifacts_replay_under_strict_integrity_mode(bundle):
     assert result.evidence_bundle["replay"]["input_integrity"] == "sha256_verified"
     with pytest.raises(ValueError, match="required"):
         replay_evidence_bundle(bundle, require_integrity=True)
+
+
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+_ADVERTISED_REFERENCE_BUNDLES = (
+    "api_reference.json",
+    "economy_price_reference.json",
+    "hedge_benchmark_reference.json",
+    "hedge_study_reference.json",
+    "integrity_reference.json",
+    "job_reference.json",
+    "mixture_study_reference.json",
+    "monetary_reference.json",
+    "monetary_study_reference.json",
+    "multi_step_reference.json",
+    "rate_study_reference.json",
+)
+"""The plain-named (no PR suffix) reference bundles committed under
+`evidence/` and advertised in README.md/CONTRIBUTING.md/
+PORTFOLIO_DEMO.md as something a reader can replay themselves right
+now. PR-suffixed siblings (e.g. `monetary_replay_pr020.json`) are
+deliberate historical snapshots of a specific past PR and are NOT
+included here -- they are not claimed to replay against today's code.
+
+Regression test for a real, previously undiagnosed gap: these 11
+files had gone stale against the current `RunManifest` schema (it
+gained `model_id`/`code_hash`/`data_hash` fields after these were last
+regenerated) -- invisible to every other test in this file, since none
+of them replay the COMMITTED files, only freshly-built bundles. Found
+only by actually running the exact commands these three docs
+advertise, not by trusting that a committed JSON file still means what
+its surrounding prose says. Five of the eleven also disagreed on the
+recomputed result itself (legitimate drift from real, disclosed
+`econosim`/monetary changes made since these were first captured, not
+a live bug -- confirmed by the full test suite passing and the
+recipe's own output being reproducibly deterministic); all eleven were
+regenerated via the exact same `execute_recipe`/`export_evidence_bundle`
+pipeline this test now re-checks on every future change."""
+
+
+@pytest.mark.parametrize("name", _ADVERTISED_REFERENCE_BUNDLES)
+def test_every_advertised_reference_bundle_still_replays_exactly(name: str) -> None:
+    path = _REPOSITORY_ROOT / "evidence" / name
+    result = replay_evidence_bundle(read_evidence_bundle(path), require_integrity=False)
+    assert result.matches, f"{name} no longer replays exactly against current code"

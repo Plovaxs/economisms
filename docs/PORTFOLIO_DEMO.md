@@ -13,7 +13,7 @@ uv sync --locked --all-extras
 uv run --locked --all-extras pytest -q
 ```
 
-Expect **2,738 passed, 0 failed** (see the live badge in `README.md`
+Expect **2,819 passed, 0 failed** (see the live badge in `README.md`
 for the current count — this document will drift slightly behind it,
 the test count never does, since CI regenerates it on every push).
 
@@ -84,7 +84,7 @@ cherry-picked best case.
   commit (`.github/workflows/ci.yml`).
 - Deterministic, seeded, CPU-only models throughout — rerun any test
   twice and get bit-identical results.
-- `docs/PR_LEDGER.md` — 160 PRs, each with a stated scope and an
+- `docs/PR_LEDGER.md` — 168 PRs, each with a stated scope and an
   explicit statement of what it does **not** cover.
 - `docs/governance/` and `docs/compliance/` — this project's honest
   accounting of what a single-maintainer research repository genuinely
