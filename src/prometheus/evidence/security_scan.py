@@ -91,6 +91,30 @@ _PII_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     ),
 )
 
+_PROHIBITED_CLAIM_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(
+            r"(?i)\b(?:guaranteed|risk[- ]free)\s+(?:return|profit|income|gain)s?\b"
+        ),
+        "guaranteed-return / risk-free-profit claim",
+    ),
+    (
+        re.compile(
+            r"(?i)\b(?:SEC|FINRA|CFTC|FCA|SIPC|FDIC)[- ]?"
+            r"(?:approved|endorsed|registered|licensed)\b"
+        ),
+        "statutory-approval/registration claim",
+    ),
+    (
+        re.compile(r"(?i)\bapproved\s+by\s+(?:the\s+)?(?:SEC|FINRA|CFTC|FCA|a\s+regulator)\b"),
+        "statutory-approval claim",
+    ),
+    (
+        re.compile(r"(?i)\bFDIC[- ]insured\b"),
+        "deposit-insurance claim",
+    ),
+)
+
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS access key ID"),
     (
@@ -187,6 +211,41 @@ def pii_scan(files: Mapping[str, str]) -> list[ScanFinding]:
                 findings.append(
                     ScanFinding(
                         scanner="pii_scan",
+                        severity="high",
+                        location=f"{path}:{line_number}",
+                        description=description,
+                    )
+                )
+    return findings
+
+
+def claims_scan(files: Mapping[str, str]) -> list[ScanFinding]:
+    """CMP-12 ("obtain explicit disclaimer/claims review before external
+    marketing"; acceptance: "no statements implying statutory approval
+    or guaranteed returns").
+
+    Same fixed-pattern-scan discipline as `secret_scan`/`license_scan`/
+    `pii_scan` above: matches a self-contained denylist of phrases this
+    item's own acceptance text names by name (a guaranteed-return/
+    risk-free-profit claim, a claim of SEC/FINRA/CFTC/FCA/SIPC/FDIC
+    approval or registration, an FDIC-insurance claim) against the real
+    text of this repository's own public-facing documentation. A sweep
+    of this repository's actual README/docs tree is expected, and
+    confirmed by test, to find zero matches -- a genuine negative
+    result, not an untested assumption. `files` maps a path to its text
+    content; every match is reported as a `high` finding, located by
+    1-based line number. "Obtain... review" (a human sign-off on
+    marketing copy before it is published) is NOT claimed here -- this
+    checks only the literal, machine-checkable half of the acceptance
+    text: that no such statement currently exists to review."""
+    findings = []
+    for path, content in files.items():
+        for pattern, description in _PROHIBITED_CLAIM_PATTERNS:
+            for match in pattern.finditer(content):
+                line_number = content.count("\n", 0, match.start()) + 1
+                findings.append(
+                    ScanFinding(
+                        scanner="claims_scan",
                         severity="high",
                         location=f"{path}:{line_number}",
                         description=description,

@@ -2,9 +2,9 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C830%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C839%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
-[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-349%2F374%20(93.3%25)-blue)](./CHECKLIST_STATUS.md)
+[![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](./pyproject.toml)
 
@@ -53,11 +53,11 @@ and every PR states plainly what it does *not* cover.
 
 | | |
 |---|---|
-| Blueprint items evidenced | **349 / 374** (93.3%) across 29 categories |
+| Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **2,830 / 2,830** passing |
+| Test suite | **2,839 / 2,839** passing |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 169, each independently verified |
+| Pull requests | 171, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

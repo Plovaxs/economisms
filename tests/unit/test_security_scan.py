@@ -3,6 +3,7 @@ import pathlib
 from prometheus.evidence.security_scan import (
     ReleaseGateDecision,
     ScanFinding,
+    claims_scan,
     evaluate_release_gate,
     license_scan,
     pii_scan,
@@ -253,3 +254,61 @@ def test_this_repositorys_own_real_committed_datasets_have_no_pii_findings() -> 
     files = {str(p): p.read_text() for p in paths if p.is_file()}
     assert len(files) >= 4  # sanity: the real committed datasets were actually read
     assert pii_scan(files) == []
+
+
+def test_claims_scan_finds_nothing_in_clean_files() -> None:
+    assert claims_scan({"a.md": "this is research software, not advice"}) == []
+
+
+def test_claims_scan_detects_a_guaranteed_return_claim() -> None:
+    finding = claims_scan({"ad.md": "earn guaranteed returns with our platform"})[0]
+    assert finding.scanner == "claims_scan"
+    assert finding.severity == "high"
+    assert "guaranteed-return" in finding.description
+
+
+def test_claims_scan_detects_a_risk_free_profit_claim() -> None:
+    assert claims_scan({"ad.md": "a risk-free profit opportunity"}) != []
+
+
+def test_claims_scan_detects_a_statutory_approval_claim() -> None:
+    assert claims_scan({"ad.md": "this product is SEC approved"}) != []
+    assert claims_scan({"ad.md": "approved by the SEC for public use"}) != []
+
+
+def test_claims_scan_detects_an_fdic_insurance_claim() -> None:
+    assert claims_scan({"ad.md": "your funds are FDIC insured"}) != []
+
+
+def test_claims_scan_reports_the_correct_line_number_past_the_first_line() -> None:
+    content = "line one\nline two\nguaranteed returns here\n"
+    finding = claims_scan({"ad.md": content})[0]
+    assert finding.location == "ad.md:3"
+
+
+def test_claims_scan_checks_every_file_in_the_mapping_independently() -> None:
+    files = {
+        "a.md": "guaranteed returns",
+        "b.md": "FDIC insured",
+        "c.md": "nothing to see here",
+    }
+    assert len(claims_scan(files)) == 2
+
+
+def test_a_claims_scan_finding_blocks_the_release_gate_the_same_way_a_secret_does() -> None:
+    finding = claims_scan({"ad.md": "guaranteed returns"})[0]
+    decision = evaluate_release_gate([finding])
+    assert decision.blocked is True
+    assert decision.unapproved_findings == (finding,)
+
+
+def test_this_repositorys_own_real_public_facing_docs_have_no_claims_findings() -> None:
+    """CMP-12's own acceptance wording: "no statements implying
+    statutory approval or guaranteed returns" -- checked directly
+    against this repository's real README and docs/ tree, the actual
+    public-facing text a reader would see, not a synthetic example."""
+    repo_root = pathlib.Path(__file__).resolve().parents[2]
+    paths = [repo_root / "README.md"] + list((repo_root / "docs").rglob("*.md"))
+    files = {str(p): p.read_text() for p in paths if p.is_file()}
+    assert len(files) >= 10  # sanity: the real docs tree was actually read
+    assert claims_scan(files) == []

@@ -7099,6 +7099,44 @@ only in isolation. No new blueprint ID; strengthens the same DOC
 evidence `docs/RESULTS_AND_LIMITATIONS.md`/`docs/RESEARCH_CONTRIBUTIONS.md`
 already provide, now actually current.
 
+## Evidenced today (PR-171: a marketing-claims scan, and a vendor risk catalogue)
+
+**CMP-12** (first evidence, partial) -- "obtain explicit disclaimer/
+claims review before external marketing... no statements implying
+statutory approval or guaranteed returns" is satisfied at the literal,
+machine-checkable half: new `evidence.security_scan.claims_scan`
+(composing with the existing `secret_scan`/`license_scan`/`pii_scan`
+pattern, not a second scanning architecture) matches a self-contained
+denylist naming exactly what this item's acceptance text names --
+guaranteed-return/risk-free-profit claims, SEC/FINRA/CFTC/FCA/SIPC/FDIC
+approval or registration claims, FDIC-insurance claims -- against a
+real sweep of this repository's own README and docs/ tree, confirmed
+to find zero matches. Not covered: "obtain... review" (a human sign-off
+on marketing copy before publication) is not claimed -- this checks
+only that no such statement currently exists to review. 9 new tests.
+
+**CMP-10** (first evidence) -- "define third-party/vendor risk control
+catalogue... due diligence, concentration and exit plans reviewed" is
+satisfied by new `docs/compliance/VENDOR_RISK_CATALOGUE.md`, extending
+PRV-08's already-confirmed "no paid data vendor" finding
+(`docs/DATA_PROCESSING_INVENTORY.md`) to this repository's actual
+infrastructure dependencies: GitHub (hosting/CI; concentration risk
+named explicitly -- no mirror maintained; exit plan: git's own full-
+history distributed-clone property), the PyPI/Python package ecosystem
+(due diligence via the already-real `docs/LICENSE_INVENTORY.md`;
+concentration risk bounded by `requirements/bootstrap.txt`'s hash
+pinning), and the free public data sources (cross-referencing PRV-08
+directly rather than re-deriving it). No new code; cites only
+pre-existing, re-confirmed real artifacts.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| CMP-12 (first evidence, partial) | marketing-claims review; no statutory-approval/guaranteed-return statements | `evidence.security_scan.claims_scan`; real zero-finding sweep of README/docs; 9 new tests; human review not claimed |
+| CMP-10 (first evidence) | vendor risk catalogue; due diligence/concentration/exit plans | `docs/compliance/VENDOR_RISK_CATALOGUE.md`; extends PRV-08; cites `LICENSE_INVENTORY.md` and `security_scan` |
+
+Not covered: CMP-12's human-review half -- the same single-maintainer
+gap. 9 new tests, 100% coverage on new code.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

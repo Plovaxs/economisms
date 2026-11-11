@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "42c14f24d233a5447f1cae825cd2680be52d0d3480d34ec6e9026cc898c084eb",
+    "content_sha256": "dffdc8b363b07bb4aacbd0719b0d6a34f7e60b6b18bd66665bb5063a709487f4",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "f10ccda2e9e39d05df1490b9def3787bd7194ead8f68669bc4a1e8e5e1e13bac",
+  "checklist_notes_sha256": "b33096a05c0752590b145656d863b987ae81ed95aa3fa4691fb70954fd39e0ed",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -8866,10 +8866,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7135,
+          "evidence_note": "`docs/compliance/VENDOR_RISK_CATALOGUE.md`; extends PRV-08; cites `LICENSE_INVENTORY.md` and `security_scan`",
+          "id_column": "CMP-10 (first evidence)",
+          "requirement_note": "vendor risk catalogue; due diligence/concentration/exit plans"
+        }
+      ],
       "requirement": "Define third-party/vendor risk control catalogue",
       "source_pdf_page": 44,
       "source_rows": [
@@ -8907,10 +8914,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "CMP",
       "id": "CMP-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7134,
+          "evidence_note": "`evidence.security_scan.claims_scan`; real zero-finding sweep of README/docs; 9 new tests; human review not claimed",
+          "id_column": "CMP-12 (first evidence, partial)",
+          "requirement_note": "marketing-claims review; no statutory-approval/guaranteed-return statements"
+        }
+      ],
       "requirement": "Obtain explicit disclaimer/claims review before external marketing",
       "source_pdf_page": 44,
       "source_rows": [
@@ -9714,7 +9728,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 349,
-    "without_repository_notes": 25
+    "with_repository_notes": 351,
+    "without_repository_notes": 23
   }
 }
