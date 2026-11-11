@@ -7076,6 +7076,29 @@ the identical kind of strengthening PR-161 did for UIX (unit-tested ->
 live-reachable). 1 new parametrized test (11 cases), plus 11 real
 evidence files corrected.
 
+## Evidenced today (PR-170: scientific-rigor documentation pass -- no new blueprint ID)
+
+`docs/RESULTS_AND_LIMITATIONS.md`'s "Known limitations that are not
+findings" section had gone factually wrong on three of its four
+bullets -- it still claimed no neural-SDE/PDE solver, no multi-agent
+RL policy, and no product-facing dashboard existed, all dating to
+PR-146, when NSD/PDE/MAR/UIX have since been fully built and evidenced
+(PR-150/153/154/159 respectively). Replaced with accurate current
+scope (no independent human review, `EXT` deliberately at 0/12, FRED/
+ALFRED confirmed network-blocked) and added Findings 5-10, formalizing
+results and bugs that existed only as PR_LEDGER prose before now: the
+neural-SDE OOD-robustness result, the PDE solver crossover, the MAR
+reward-design catch, and -- as genuine negative findings, not just
+engineering notes -- the REINFORCE gradient bug, the recessionnet
+boundary-month labeling bug, and PR-169's own stale-reference-bundle
+finding. `docs/RESEARCH_CONTRIBUTIONS.md`'s stale "326/374" count
+corrected to 349/374, and a new paragraph names the recurring "test
+shares its production code's own blind spot" pattern explicitly across
+all four bugs found this session, rather than leaving each documented
+only in isolation. No new blueprint ID; strengthens the same DOC
+evidence `docs/RESULTS_AND_LIMITATIONS.md`/`docs/RESEARCH_CONTRIBUTIONS.md`
+already provide, now actually current.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

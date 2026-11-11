@@ -21,7 +21,7 @@ structurally rather than by discipline alone:
   diffed on every change — see `CONTRIBUTING.md`).
 - A rule that an item counts as "evidenced" **only** when a specific,
   named, currently-passing test exercises the specific claim — not a
-  docstring, not a design note. 326/374 items meet this bar today (see
+  docstring, not a design note. 349/374 items meet this bar today (see
   `README.md`'s live badge).
 - A standing practice of publishing **negative and null results** with
   the same visibility as positive ones (`docs/RESULTS_AND_LIMITATIONS.md`),
@@ -35,6 +35,23 @@ This is the thing most worth evaluating independently: pick any
 "evidenced" row in `CHECKLIST_STATUS.md`, open the cited test, and
 confirm it actually tests what the row claims. That check is designed
 to survive scrutiny.
+
+**A recurring pattern worth naming explicitly**: four separate real
+bugs in this repository (a dashboard ASGI-lifespan crash, a REINFORCE
+gradient silently zeroed by `rsample()` vs. `sample()`, a recession-
+label boundary-month mismatch, and this project's own advertised
+smoke test having gone stale — see `docs/RESULTS_AND_LIMITATIONS.md`'s
+Findings 8–10) were each found the SAME way: by independently
+re-deriving a result or actually executing a path, rather than trusting
+that passing tests meant the claim was true. Every one of them was
+invisible to this repository's own existing test suite specifically
+because the tests shared the same blind spot as the code they tested
+(constructing only an `"http"` ASGI scope; never asserting a gradient
+directly; querying the NBER table only at first-of-month; never
+replaying the actual committed reference files). The lesson generalizes
+beyond this codebase: a test suite can be large, green, and still
+share its production code's own unstated assumptions — the fix is
+periodic independent re-derivation, not more of the same kind of test.
 
 ## Research questions actually tested, and what was found
 
