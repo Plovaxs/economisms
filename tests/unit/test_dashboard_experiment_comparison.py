@@ -42,3 +42,13 @@ def test_render_always_prints_the_verdict_for_every_row_including_null_results()
     for row in REAL_COMPARISON_LOG:
         assert row.verdict in html
         assert row.source_pr in html
+
+
+def test_render_carries_a_real_data_provenance_badge() -> None:
+    """FP-21/UIX-08: the rendered page actually carries the real-data
+    badge in production, not just the bare `real_data_badge` function
+    existing unexercised -- this view's own data is a REAL comparison
+    log, not a simulation, so it must say so."""
+    html = render_experiment_comparison()
+    assert "REAL DATA" in html
+    assert "docs/RESULTS_AND_LIMITATIONS.md" in html

@@ -31,7 +31,7 @@ about the original 374-item register.
 
 | ID | Status | Evidence |
 |----|--------|----------|
-| FP-01 | NOT VERIFIED | Title/hypotheses not yet formally frozen in a dedicated document; this file and `README.md` currently serve that role informally. |
+| FP-01 | VERIFIED (document frozen, PR-172) | [`docs/FINAL_PROJECT_HYPOTHESES.md`](./docs/FINAL_PROJECT_HYPOTHESES.md): a frozen title and five falsifiable hypotheses (H1-H5, one per research question already tested in `docs/RESEARCH_CONTRIBUTIONS.md`), dated and pinned to a commit hash. Honestly disclosed as a RETROSPECTIVE freeze (the underlying experiments predate this document), not a prospective pre-registration -- a real methodological gap named explicitly rather than glossed over. |
 | FP-02 | VERIFIED-BY-TEST (closed PR-060) | PR-055 built the schema mechanism only ("no REAL external dataset has been licensed or ingested yet"); PR-060 closes that gap for the three fields that generalize across sources: `data_ingestion.worldbank` ingests a REAL dataset (World Bank Open Data, CC-BY-4.0, confirmed live) with a real `raw_hash` (SHA256 of the actual fetched bytes) and a real `published_at` (the API's own `lastupdated` field), all flowing through `econosim.pit.MacroObservation` end to end. `vintage_at` specifically remains unpopulated for this one source -- World Bank's bulk indicator API has no true per-observation vintage concept the way ALFRED does, a source-specific limitation, not a gap in the schema itself (which has carried `vintage_at` since PR-055 and would populate it for a source that provides one). |
 | FP-03 | VERIFIED-BY-TEST (PR-055) | `econosim.pit.build_feature_vector`/`require_eligible` raise `FutureDataError` (fail closed on the WHOLE request) rather than silently returning partial data, confirmed by `test_build_feature_vector_rejects_unavailable_features_instead_of_partial_data`. Builds on the pre-existing `PointInTimeStore.as_of`/`all_eligible_as_of` predicate (already tested since the original PR-003), now additionally gated on an `asof_eligible_at` internal-ingestion-lag field, not just source `published_at`. |
 | FP-04 | VERIFIED-BY-TEST (PR-056) | `macrocore.baselines` implements Persistence, AR(p) (standing in for "ARIMA" -- see its module docstring for the deliberate scope cut against a full differenced/MA Box-Jenkins ARIMA) and VAR(p), all OLS-fit with closed-form Gaussian forecast intervals; `macrocore.evaluation`'s rolling-origin backtest harness runs all three reproducibly (fixed seed, deterministic OLS) through `econosim.pit`'s point-in-time store end to end, with MAE/RMSE/CRPS/coverage reported via `summarize_scores`. |
@@ -47,31 +47,49 @@ about the original 374-item register.
 | FP-14 | VERIFIED-BY-TEST (pre-existing, confirmed PR-057) | `hedging.baseline.apply_no_trade_band` (the cost-aware threshold policy, HDG-03) is directly compared against `black_scholes_delta_hedge_ratios` (HDG-02) on the SAME underlying simulated paths, with HDG-03's own CHECKLIST_STATUS.md evidence note already stating it empirically cuts turnover/cost by roughly 30% -- a genuinely matched, cost-aware baseline comparison, not just two baselines existing independently. |
 | FP-15 | NOT VERIFIED | POLICYLAB-RL does not exist. |
 | FP-16 | NOT VERIFIED (corrected PR-057) | An earlier draft of this row claimed `titan.risk_metrics`/`titan.portfolio` "already report horizon/units/costs," which an audit found to be inaccurate: `historical_var`/`parametric_var`/`historical_expected_shortfall`/`max_drawdown` all return a bare `float` (horizon/alpha are INPUT parameters, never carried in an output report object); `VarCoverageResult`'s fields are `n_observations, n_exceptions, expected_exception_rate, observed_exception_rate, p_value` -- no horizon, units or cost; `StressTestReport`'s fields (`scenario_results, worst_case, value_at_risk_threshold, worst_case_exceeds_var`) carry no units/cost either. No TITAN output literally carries horizon + units + cost together, which is what this FP item and the original blueprint's own section-02 `RiskReport` integration contract both call for. Corrected from PARTIAL to NOT VERIFIED rather than left overstated. |
-| FP-17 | NOT VERIFIED | No forecasting task exists yet to have train/validation/test splits. |
-| FP-18 | NOT VERIFIED | No trained model exists yet to report seeds/CIs for. |
+| FP-17 | VERIFIED-BY-TEST (PR-172; stale since PR-139/142) | This row had gone stale: it still read "no forecasting task exists" when RECESSIONNET (PR-139) and Q-MACRO (PR-143) have both used a strict, enforced, disjoint chronological train-proper/validation/test split for dozens of PRs. `RecessionNetRunConfig.__post_init__`/`QMacroRunConfig`'s equivalent reject a validation split not strictly before the test split (`test_config_rejects_a_validation_split_not_before_the_test_split`, both `test_recessionnet_run.py` and `test_qmacro_run.py`); `run_recessionnet_benchmark_with_early_stopping` selects every model's stopping epoch from the validation split alone, never the test set, confirmed by `test_run_recessionnet_benchmark_with_early_stopping_end_to_end_on_real_data`. |
+| FP-18 | VERIFIED-BY-TEST (PR-172; previously only a one-off manual check) | This row was ALSO stale ("no trained model exists"), but auditing it found a real, more specific gap worth closing properly rather than just relabeling: "confidence intervals are reported" was genuinely tested (every `BenchmarkReport.quantum_vs_best_classical` is a real paired-bootstrap `BootstrapResult`), but "multiple seeds... are reported" had only ever been a one-off MANUAL check ("5 seeds checked by hand", `docs/PR_LEDGER.md`'s PR-142/143/145 entries) -- never a committed, re-runnable test. New `orchestration.recessionnet_run.multi_seed_recessionnet_summary` (reuses `run_recessionnet_demo` unchanged, zero new training logic) plus `test_multi_seed_summary_matches_the_real_observed_result_across_five_seeds` now makes this a real, repeatable artifact: seeds 0-4, all five currently inconclusive (slightly stronger than the historical "4 of 5" finding, after the real recessionnet labeling-bug fix in PR-168). |
 | FP-19 | NOT VERIFIED | No end-to-end replay trace spanning the new DL subsystems exists (the pre-existing `MacroTimeEngine`/`StepHooks` replay covers only the original five blocks). |
 | FP-20 | VERIFIED-BY-TEST (closed PR-139) | PR-057 added the optional `code_hash`/`data_hash`/`model_id` fields to `RunManifest` but left them unexercised by any real model (FP-05/06/07 were all still NOT VERIFIED). PR-139's `run_recessionnet_benchmark` is the first real trained model in this repository: its `RunManifest` now carries a genuine `seed`, a real `code_hash` (`experiments.manifest.runtime_provenance()['source_sha256']`, the actual source-tree digest at run time), a real `data_hash` (over the actual train/test feature and label arrays used), and `model_id="recessionnet-hybrid-quantum-v1"` -- all four fields FP-20 asks for, populated by an actual run, not a representative placeholder. |
-| FP-21 | NOT VERIFIED | No dashboard exists. |
+| FP-21 | VERIFIED-BY-TEST (PR-172; stale since PR-159, exact wording is "dashboard states when results are simulated or empirical", not "a dashboard exists") | This row had gone stale (the real UIX dashboard has existed since PR-159) AND was never quite the right test anyway: `dashboard.provenance.synthetic_badge`/`real_data_badge` exist and `synthetic_badge`'s output was already indirectly tested, but `real_data_badge` -- the "or empirical" half this item's own acceptance text asks for -- had NO test anywhere, direct or indirect, despite being used in real production code (`dashboard.experiment_comparison`). New `tests/unit/test_dashboard_provenance.py` (both badges render distinct, correct, escaped content; `real_data_badge` rejects an empty source) plus a new assertion in `test_dashboard_experiment_comparison.py` confirming the real-data badge actually appears in that view's real rendered output, not just existing unexercised. |
 | FP-22 | NOT VERIFIED | No final paper exists yet. |
 | FP-23 | VERIFIED-BY-TEST (pre-existing, reconfirmed PR-056) | `pytest -q` (1480 tests as of PR-056), `ruff check`, and `mypy --strict` all pass from a clean checkout, confirmed after every PR including this one. |
 | FP-24 | Ongoing discipline, not a one-time check | This file and `README.md` are the running record that no module is declared complete on the strength of either blueprint document alone -- every row above states exactly what evidence (or absence of it) backs its status. |
 
-Current FP score (updated PR-143): 9 fully VERIFIED-BY-TEST (FP-02 as of
-PR-060, FP-03, FP-04, FP-06 and FP-20 as of PR-139 (corrected PR-141/
-142), FP-09, FP-12 as of PR-058, FP-14, FP-23), 2 PARTIAL (FP-05 as of
-PR-143, narrow "rates"-only Q-MACRO contact; FP-11, narrowed by
-PR-057's audit), 12 NOT VERIFIED (FP-16 moved here from PARTIAL after
-an audit found no TITAN output actually carries horizon+units+cost
-together), and FP-24 itself (which is a standing discipline this file
-and README.md follow on every PR, not a single check to complete
-once). This is a documentary snapshot, not a completion percentage,
-matching the addendum's own "0/24 verified" starting convention --
-four of the ten named subsystems (INFLATIONCAST, CONTAGION-GNN,
-VOLTERRA-GEN, POLICYLAB-RL) still do not exist in this repository at
-all; RECESSIONNET (PR-139) and now a narrow slice of MACROCORE
-(PR-143) are the first two. FP-04's classical baselines remain the
-reference point those still-missing subsystems' eventual learned
-models must beat (section 09/E01).
+Current FP score (updated PR-172; this section had gone stale since
+PR-143 -- roughly 28 PRs -- an audit prompted directly by a request
+to reconcile this exact checklist for a course final-project
+submission): **13 fully VERIFIED/VERIFIED-BY-TEST** (FP-01 as of
+PR-172 -- see `docs/FINAL_PROJECT_HYPOTHESES.md`; FP-02 as of PR-060;
+FP-03, FP-04, FP-06 and FP-20 as of PR-139 (corrected PR-141/142);
+FP-09; FP-12 as of PR-058; FP-14; FP-17, FP-18 and FP-21 as of
+PR-172 -- see each row above for exactly what was stale and what
+closed it; FP-23), **2 PARTIAL** (FP-05 as of PR-143, narrow
+"rates"-only Q-MACRO contact; FP-11, narrowed by PR-057's audit),
+**8 NOT VERIFIED** (FP-07, FP-08, FP-10, FP-13, FP-15, FP-16, FP-19,
+FP-22), and FP-24 itself (a standing discipline, not a single check to
+complete once). This is a documentary snapshot, not a completion
+percentage, matching the addendum's own "0/24 verified" starting
+convention.
+
+**What is genuinely still missing, in the addendum's own Tier-A/Tier-B
+framing (section 06):** of the addendum's three MANDATORY Tier-A deep-
+learning tasks (MACROCORE multihorizon forecasting, RECESSIONNET
+classification, INFLATIONCAST nowcasting), RECESSIONNET is complete,
+MACROCORE remains narrowly PARTIAL (Q-MACRO covers only "rates", not
+the full multihorizon GDP/rate/unemployment ask), and **INFLATIONCAST
+does not exist at all** -- the single largest genuine gap against this
+specific checklist's own stated mandatory scope. Of the seven Tier-B
+supporting modules, CONTAGION-GNN and VOLTERRA-GEN still do not exist;
+POLICYLAB-RL (a Taylor-rule-baseline, policy-RATE-setting PPO agent,
+per the addendum's own subsystem description) also does not exist and
+is NOT the same subsystem as `marl` (which trains household/firm
+consumption/labor policies within `econosim` under the ORIGINAL
+blueprint's separate MAR category) -- a distinction worth stating
+explicitly so `marl`'s real, evidenced work is never mistaken for
+POLICYLAB-RL coverage it does not provide. FP-04's classical baselines
+remain the reference point any future INFLATIONCAST/full-MACROCORE
+model must beat (section 09/E01).
 
 PR-139 also added a sibling `prometheus.quantum` package (not itself
 an FP-NN item, nor a 374-item blueprint category -- it is shared

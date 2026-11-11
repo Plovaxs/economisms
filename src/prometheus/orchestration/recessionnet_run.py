@@ -36,7 +36,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -167,6 +167,40 @@ def run_recessionnet_demo(
         n_test_positive=int(test.labels.sum()),
         report=report,
         verdict=_verdict(report),
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class MultiSeedSummary:
+    """FP-18: "multiple seeds and confidence intervals are reported" --
+    this is the real, committed, re-runnable artifact behind what had
+    previously only ever been a one-off manual check ("5 seeds checked
+    by hand", `docs/PR_LEDGER.md`'s own PR-142/143/145 entries): one
+    real `RecessionNetDemoResult` (itself already carrying a real
+    bootstrap confidence interval) per seed, with the resulting
+    verdict counts tallied here rather than recorded only as prose."""
+
+    results: tuple[RecessionNetDemoResult, ...]
+    n_favoring_quantum: int
+    n_favoring_classical: int
+    n_inconclusive: int
+
+
+def multi_seed_recessionnet_summary(
+    observations: Sequence[MacroObservation],
+    config: RecessionNetRunConfig,
+    seeds: Sequence[int],
+) -> MultiSeedSummary:
+    if not seeds:
+        raise ValueError("seeds must not be empty")
+    results = tuple(
+        run_recessionnet_demo(observations, replace(config, seed=seed)) for seed in seeds
+    )
+    return MultiSeedSummary(
+        results=results,
+        n_favoring_quantum=sum(1 for r in results if r.verdict == "quantum_better"),
+        n_favoring_classical=sum(1 for r in results if r.verdict == "classical_better"),
+        n_inconclusive=sum(1 for r in results if r.verdict == "inconclusive"),
     )
 
 

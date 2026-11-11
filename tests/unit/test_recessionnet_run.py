@@ -17,6 +17,7 @@ from prometheus.orchestration.recessionnet_run import (
     load_real_ff3_observations,
     load_real_ff3_observations_or_cached,
     main,
+    multi_seed_recessionnet_summary,
     run_recessionnet_demo,
 )
 
@@ -337,3 +338,35 @@ def test_an_uninjected_transport_uses_the_real_allowlisted_default(monkeypatch, 
     assert calls == [None]
     assert scripted.calls  # the patched default transport was actually used to fetch data
     capsys.readouterr()
+
+
+def test_multi_seed_summary_rejects_empty_seeds() -> None:
+    config = RecessionNetRunConfig(seed=0, max_epochs=500, patience=20, bootstrap_resamples=200)
+    with pytest.raises(ValueError, match="seeds"):
+        multi_seed_recessionnet_summary(_REAL_OBSERVATIONS, config, seeds=())
+
+
+def test_multi_seed_summary_matches_the_real_observed_result_across_five_seeds() -> None:
+    """FP-18's own acceptance wording: "multiple seeds and confidence
+    intervals are reported." This is the real, committed, re-runnable
+    artifact behind what had previously only ever been a one-off manual
+    check (`docs/PR_LEDGER.md`'s PR-142/143/145 entries: "5 seeds checked
+    by hand"). Real, reproducible result for this CLI's default
+    configuration across seeds 0-4: every seed's paired bootstrap CI
+    includes zero -- "inconclusive" -- consistent with (and, after the
+    real recessionnet boundary-month labeling fix in PR-168, slightly
+    stronger than) the historically reported "4 of 5 inconclusive, 1 of
+    5 favors classical" finding. Training is fully deterministic given a
+    fixed seed, so this is a legitimate regression check, not a flaky one."""
+    config = RecessionNetRunConfig(seed=0, max_epochs=500, patience=20, bootstrap_resamples=200)
+    summary = multi_seed_recessionnet_summary(_REAL_OBSERVATIONS, config, seeds=(0, 1, 2, 3, 4))
+
+    assert len(summary.results) == 5
+    assert [r.config.seed for r in summary.results] == [0, 1, 2, 3, 4]
+    for result in summary.results:
+        bootstrap = result.report.quantum_vs_best_classical
+        assert bootstrap.ci_low < 0 < bootstrap.ci_high
+        assert result.verdict == "inconclusive"
+    assert summary.n_inconclusive == 5
+    assert summary.n_favoring_quantum == 0
+    assert summary.n_favoring_classical == 0
