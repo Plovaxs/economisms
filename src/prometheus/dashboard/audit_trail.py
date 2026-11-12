@@ -16,8 +16,10 @@ history.
 
 from __future__ import annotations
 
+from typing import Any
+
 from prometheus.dashboard.html import page, table
-from prometheus.dashboard.provenance import synthetic_badge
+from prometheus.dashboard.provenance import synthetic_badge, synthetic_provenance_json
 from prometheus.evidence.model_registry import ModelRegistryEntry
 
 
@@ -57,3 +59,23 @@ def render_audit_trail(entry: ModelRegistryEntry) -> str:
         )
     )
     return page("Audit trail", f"Audit trail: {entry.model_id}", body)
+
+
+def audit_trail_as_json(entry: ModelRegistryEntry) -> dict[str, Any]:
+    return {
+        **synthetic_provenance_json(),
+        "model_id": entry.model_id,
+        "state": entry.state,
+        "history": [
+            {
+                "from_state": t.from_state,
+                "to_state": t.to_state,
+                "actor": t.actor,
+                "approved_by": t.approved_by,
+                "at": t.at.isoformat(),
+                "reason": t.reason,
+                "content_hash": t.content_hash,
+            }
+            for t in entry.history
+        ],
+    }

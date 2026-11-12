@@ -20,6 +20,8 @@ reader is never limited to the simplified color."""
 
 from __future__ import annotations
 
+from typing import Any
+
 from prometheus.dashboard.charts import bar_chart, calibration_indicator, line_chart
 from prometheus.dashboard.html import page, table
 from prometheus.dashboard.provenance import real_data_badge
@@ -28,8 +30,10 @@ from prometheus.inflationcast.data import load_cpi_observations
 from prometheus.orchestration.inflationcast_run import (
     DEFAULT_CPI_CSV_PATH,
     DEFAULT_MACRO_CSV_PATH,
+    InflationcastDemoResult,
     InflationcastRunConfig,
     run_inflationcast_demo,
+    summary_payload,
 )
 
 _CALIBRATION_PASS_P_VALUE = 0.05
@@ -44,6 +48,17 @@ _VERDICT_TEXT: dict[str, str] = {
 }
 
 
+def _run(
+    *, seed: int, max_epochs: int, patience: int, bootstrap_resamples: int
+) -> InflationcastDemoResult:
+    config = InflationcastRunConfig(
+        seed=seed, max_epochs=max_epochs, patience=patience, bootstrap_resamples=bootstrap_resamples
+    )
+    cpi_observations = load_cpi_observations(DEFAULT_CPI_CSV_PATH)
+    macro_observations = load_kaggle_us_macro_observations(DEFAULT_MACRO_CSV_PATH)
+    return run_inflationcast_demo([*cpi_observations, *macro_observations], config)
+
+
 def render_inflationcast(
     *,
     seed: int = 0,
@@ -51,12 +66,10 @@ def render_inflationcast(
     patience: int = 15,
     bootstrap_resamples: int = 300,
 ) -> str:
-    config = InflationcastRunConfig(
+    result = _run(
         seed=seed, max_epochs=max_epochs, patience=patience, bootstrap_resamples=bootstrap_resamples
     )
-    cpi_observations = load_cpi_observations(DEFAULT_CPI_CSV_PATH)
-    macro_observations = load_kaggle_us_macro_observations(DEFAULT_MACRO_CSV_PATH)
-    result = run_inflationcast_demo([*cpi_observations, *macro_observations], config)
+    config = result.config
     report = result.report
 
     metric_rows = [
@@ -118,3 +131,19 @@ def render_inflationcast(
         "INFLATIONCAST: CPI nowcasting -- classical vs. deep learning vs. hybrid quantum",
         body,
     )
+
+
+def inflationcast_as_json(
+    *,
+    seed: int = 0,
+    max_epochs: int = 150,
+    patience: int = 15,
+    bootstrap_resamples: int = 300,
+) -> dict[str, Any]:
+    """Reuses `orchestration.inflationcast_run.summary_payload` UNCHANGED
+    -- the identical JSON shape the CLI already produces end to end, not
+    a second, dashboard-only serialization of the same real run."""
+    result = _run(
+        seed=seed, max_epochs=max_epochs, patience=patience, bootstrap_resamples=bootstrap_resamples
+    )
+    return summary_payload(result)

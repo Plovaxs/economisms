@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import asdict, dataclass, fields
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -30,6 +30,15 @@ from typing import Any, Literal
 from prometheus.data_ingestion.egress_allowlist import default_ingestion_transport
 from prometheus.data_ingestion.transport import HttpTransport
 from prometheus.econosim.pit import MacroObservation
+from prometheus.evidence.contracts import CONVENTIONS
+from prometheus.evidence.export import build_evidence_bundle
+from prometheus.evidence.repository_status import current_repository_gate_report
+from prometheus.experiments.manifest import (
+    RunManifest,
+    compute_result_hash,
+    new_run_id,
+    now_iso,
+)
 from prometheus.macrocore.quantum_benchmark import QMacroBenchmarkReport, run_qmacro_benchmark
 from prometheus.macrocore.regression_dataset import (
     build_macro_regression_dataset,
@@ -79,6 +88,21 @@ class QMacroRunConfig:
             raise ValueError("feature_series_ids must not be empty")
         if self.validation_split_date >= self.test_split_date:
             raise ValueError("validation_split_date must be strictly before test_split_date")
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> QMacroRunConfig:
+        if set(payload) != {item.name for item in fields(cls)}:
+            raise ValueError("qmacro recipe requires exactly the complete configuration fields")
+        values = dict(payload)
+        try:
+            for name in ("validation_split_date", "test_split_date"):
+                if isinstance(values[name], str):
+                    values[name] = date.fromisoformat(values[name])
+            if isinstance(values["feature_series_ids"], list):
+                values["feature_series_ids"] = tuple(values["feature_series_ids"])
+            return cls(**values)
+        except (TypeError, AttributeError) as exc:
+            raise ValueError(f"invalid qmacro recipe: {exc}") from exc
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +195,44 @@ def _summary_payload(result: QMacroDemoResult, data_source: DataSource) -> dict[
         "verdict": result.verdict,
         "run_manifest": report.run_manifest.to_dict(),
     }
+
+
+@dataclass(frozen=True, slots=True)
+class QMacroJobResult:
+    """Satisfies `orchestration.recipes.RunnerResult` (`.manifest`,
+    `.evidence_bundle`) so this subsystem can be submitted through the
+    real job queue (`service.application.ResearchService`), not just
+    run from this module's own CLI."""
+
+    demo_result: QMacroDemoResult
+    manifest: RunManifest
+    evidence_bundle: dict[str, Any]
+
+
+def run_qmacro_job(config: QMacroRunConfig) -> QMacroJobResult:
+    """The job-kind adapter: identical real pipeline `main()` runs
+    (live Kenneth-French fetch with its existing committed-snapshot
+    fallback, `run_qmacro_demo`, `_summary_payload`), wrapped with a
+    `RunManifest`/evidence-bundle envelope so a submitted job's
+    artifact is independently verifiable the same way every other
+    registered recipe kind's is."""
+    real_transport = default_ingestion_transport()
+    observations, data_source = load_real_ff3_observations_or_cached(real_transport)
+    result = run_qmacro_demo(observations, config)
+    payload = _summary_payload(result, data_source)
+    payload["schema_version"] = 1
+    payload["accounting_convention"] = CONVENTIONS["qmacro"]
+    payload["config"] = asdict(config)
+    manifest = RunManifest(
+        new_run_id("pmth-qmacro"),
+        now_iso(),
+        config.seed,
+        asdict(config),
+        compute_result_hash(payload),
+    )
+    bundle = build_evidence_bundle(manifest, [], current_repository_gate_report())
+    bundle["qmacro"] = payload
+    return QMacroJobResult(demo_result=result, manifest=manifest, evidence_bundle=bundle)
 
 
 def main(argv: Sequence[str] | None = None, *, transport: HttpTransport | None = None) -> int:

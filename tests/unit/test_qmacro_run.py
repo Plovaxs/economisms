@@ -3,6 +3,7 @@ import csv
 import io
 import json
 import zipfile
+from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,6 +18,7 @@ from prometheus.orchestration.qmacro_run import (
     _verdict,
     main,
     run_qmacro_demo,
+    run_qmacro_job,
 )
 
 _FIXTURE_CSV = Path(__file__).resolve().parents[1] / "fixtures" / "ff3_monthly_real.csv"
@@ -245,4 +247,56 @@ def test_an_uninjected_transport_uses_the_real_allowlisted_default(monkeypatch, 
     assert exit_code == 0
     assert calls == [None]
     assert scripted.calls
-    capsys.readouterr()
+
+
+def test_from_dict_round_trips_a_valid_recipe() -> None:
+    config = QMacroRunConfig(max_epochs=7, bootstrap_resamples=11)
+    payload = asdict(config)
+    assert QMacroRunConfig.from_dict(payload) == config
+
+
+def test_from_dict_rejects_a_missing_field() -> None:
+    payload = asdict(QMacroRunConfig())
+    del payload["max_epochs"]
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        QMacroRunConfig.from_dict(payload)
+
+
+def test_from_dict_rejects_an_extra_field() -> None:
+    payload = asdict(QMacroRunConfig())
+    payload["unknown"] = 1
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        QMacroRunConfig.from_dict(payload)
+
+
+def test_from_dict_decodes_string_dates_and_a_json_list_series_ids() -> None:
+    payload = asdict(QMacroRunConfig())
+    payload["validation_split_date"] = "1990-01-01"
+    payload["test_split_date"] = "1995-01-01"
+    payload["feature_series_ids"] = list(payload["feature_series_ids"])
+    config = QMacroRunConfig.from_dict(payload)
+    assert config.validation_split_date == date(1990, 1, 1)
+    assert isinstance(config.feature_series_ids, tuple)
+
+
+def test_run_qmacro_job_produces_a_real_manifest_and_evidence_bundle(monkeypatch) -> None:
+    """The job-kind adapter: a real (scripted, hermetic) transport is
+    injected the same way `test_an_uninjected_transport_uses_the_real_
+    allowlisted_default` confirms the un-injected path works -- here
+    confirming the job adapter itself (no `transport=` parameter at
+    all, unlike `main()`) still reaches the real pipeline."""
+    import prometheus.orchestration.qmacro_run as module
+
+    scripted = _ScriptedTransport(_small_synthetic_zip(n_months=90))
+    monkeypatch.setattr(module, "default_ingestion_transport", lambda: scripted)
+    config = QMacroRunConfig(
+        max_epochs=2, patience=1, ar_order=1, bootstrap_resamples=5,
+        validation_split_date=date(1993, 1, 1), test_split_date=date(1995, 1, 1),
+    )
+    result = run_qmacro_job(config)
+    assert result.manifest.seed == config.seed
+    assert result.evidence_bundle["qmacro"]["accounting_convention"] == (
+        "quantum-classical-benchmark-v1"
+    )
+    assert result.evidence_bundle["qmacro"]["schema_version"] == 1
+    assert result.evidence_bundle["run_manifest"]["result_hash"] == result.manifest.result_hash

@@ -36,3 +36,20 @@ def real_data_badge(source: str) -> str:
         f'<span class="provenance real" data-source-tag="{escape(SOURCE_TAG)}">'
         f"REAL DATA (source: {escape(source)})</span>"
     )
+
+
+def synthetic_provenance_json() -> dict[str, str]:
+    """The JSON-mode twin of `synthetic_badge()` -- UIX-08's "export and
+    screenshots preserve provenance labels" extends naturally to a JSON
+    response too; the same disclaimer string, not a second label."""
+    return {
+        "provenance": "synthetic",
+        "source_tag": SOURCE_TAG,
+        "disclaimer": SIMULATION_DISCLAIMER,
+    }
+
+
+def real_data_provenance_json(source: str) -> dict[str, str]:
+    if not source or not source.strip():
+        raise ValueError("source must not be empty -- a real-data badge names its source")
+    return {"provenance": "real", "source_tag": SOURCE_TAG, "source": source}

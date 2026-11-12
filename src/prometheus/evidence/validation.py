@@ -50,10 +50,33 @@ def _texts(value: Any, label: str) -> tuple[str, ...]:
     return tuple(value)
 
 
+_NO_FINGERPRINT_KINDS = (
+    "economy",
+    "monetary_operations",
+    # qmacro/recessionnet_kaggle/inflationcast/neural_sde/pde_solver/marl
+    # each reuse an existing, UNMODIFIED demo/benchmark function that
+    # does not return its trained model object(s) to the caller (only
+    # derived metrics) -- there is nothing real to fingerprint without
+    # also changing those reused functions, which is out of scope for
+    # wiring them into the job registry. rl_hedge's adapter does keep
+    # its trained policy in hand, but is grouped here too for
+    # consistency across all seven new kinds rather than fingerprinting
+    # only one of them; a real `ModelCard` for it is a disclosed,
+    # deferred enhancement, not a silent gap.
+    "qmacro",
+    "recessionnet_kaggle",
+    "inflationcast",
+    "neural_sde",
+    "pde_solver",
+    "marl",
+    "rl_hedge",
+)
+
+
 def _declared_hashes(kind: str, payload: Mapping[str, Any]) -> list[str]:
     if "valid" in payload and type(payload["valid"]) is not bool:
         raise ValueError("payload valid status must be bool")
-    if payload.get("valid") is False or kind in ("economy", "monetary_operations"):
+    if payload.get("valid") is False or kind in _NO_FINGERPRINT_KINDS:
         return []
     if kind in ("simulation", "benchmark"):
         values = [payload.get("policy_content_hash")]

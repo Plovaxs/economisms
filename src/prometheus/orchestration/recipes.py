@@ -46,6 +46,17 @@ RUNNERS: Mapping[str, RunnerSpec] = MappingProxyType(
             "run_monetary_operations",
             "prometheus.econosim.monetary_operations",
         ),
+        "qmacro": RunnerSpec("qmacro_run", "QMacroRunConfig", "run_qmacro_job"),
+        "recessionnet_kaggle": RunnerSpec(
+            "recessionnet_kaggle_run", "RecessionNetKaggleRunConfig", "run_recessionnet_kaggle_job"
+        ),
+        "inflationcast": RunnerSpec(
+            "inflationcast_run", "InflationcastRunConfig", "run_inflationcast_job"
+        ),
+        "neural_sde": RunnerSpec("neural_sde_run", "NeuralSdeRunConfig", "run_neural_sde_job"),
+        "pde_solver": RunnerSpec("pde_solver_run", "PdeSolverRunConfig", "run_pde_solver"),
+        "marl": RunnerSpec("marl_run", "MarlRunConfig", "run_marl"),
+        "rl_hedge": RunnerSpec("rl_hedge_run", "RlHedgeRunConfig", "run_rl_hedge"),
     }
 )
 
@@ -201,7 +212,102 @@ def _check_raw(value: Any, limits: ResourceLimits) -> None:
             raise RecipeError("recipe numbers must be finite")
 
 
+_NEW_KIND_EPOCH_FIELDS: Mapping[str, str] = {
+    "qmacro": "max_epochs",
+    "recessionnet_kaggle": "max_epochs",
+    "inflationcast": "max_epochs",
+    "neural_sde": "max_epochs",
+    "pde_solver": "pinn_epochs",
+    "marl": "n_epochs",
+    "rl_hedge": "n_epochs",
+}
+_NEW_KINDS = (
+    "qmacro",
+    "recessionnet_kaggle",
+    "inflationcast",
+    "neural_sde",
+    "pde_solver",
+    "marl",
+    "rl_hedge",
+)
+
+
+def _new_kind_estimate(kind: str, config: Mapping[str, Any]) -> ResourceEstimate:
+    """`qmacro`/`recessionnet_kaggle`/`inflationcast`/`neural_sde`/
+    `pde_solver`/`marl`/`rl_hedge` each use their own field names
+    (`max_epochs`, `bootstrap_resamples`, `n_space_grid_1d`,
+    `episodes_per_epoch`, `n_paths`, ...), not the legacy hedging/
+    econosim-shaped names `estimate_resources` otherwise reads (and
+    several of them reuse names like `n_steps` that WOULD collide with
+    that legacy logic's own meaning) -- handled here, mapped onto the
+    same generic estimate dimensions, so none of these seven kinds is
+    silently admitted at a near-zero cost estimate."""
+    epochs = int(config.get(_NEW_KIND_EPOCH_FIELDS.get(kind, ""), 0))
+    resamples = int(config.get("bootstrap_resamples", 0))
+    train_paths = int(config.get("n_paths", 0))
+    training_work = 0
+    evaluation_work = 0
+    steps = 1
+    # `steps` deliberately does NOT reuse `epochs`: `max_steps`'s
+    # default limit (240) encodes "calendar periods in an econosim
+    # run," an entirely different magnitude from training epochs
+    # (hundreds), so admitting these kinds by their real epoch count
+    # through that same ceiling would be a category error, not a
+    # genuine bound (`test_every_default_recipe_is_typed_canonical_
+    # and_admitted` only requires `steps > 0`, not that it equal
+    # `epochs`). Each kind instead reports whatever small, real,
+    # non-fabricated per-run dimension it actually has, or `1` (one
+    # real run performed) where none exists.
+    if kind in ("qmacro", "recessionnet_kaggle"):
+        training_work = epochs * 3  # linear / classical MLP / hybrid quantum
+        steps = int(config.get("window", 1))
+    elif kind == "inflationcast":
+        training_work = epochs * 5  # + naive persistence, + GRU
+        steps = int(config.get("window", 1))
+    elif kind == "neural_sde":
+        training_work = epochs
+        steps = int(config.get("patience", 1))
+    elif kind == "pde_solver":
+        # Crank-Nicolson grid cost (training_work) plus PINN/deep-BSDE
+        # training cost (evaluation_work) -- both real, configurable
+        # cost drivers now that `pde_solver_run.run_pde_solver` calls
+        # `train_pinn`/`train_deep_bsde` directly with real epoch
+        # counts, rather than the fixed 1500/400 `pde_solvers.
+        # benchmark.compute_cost_comparison` hardcodes.
+        training_work = int(config.get("n_space_grid_1d", 0)) ** 2
+        evaluation_work = epochs + int(config.get("bsde_epochs", 0)) * 512
+    elif kind == "marl":
+        steps = int(config.get("n_steps", 1))
+        training_work = (
+            epochs * int(config.get("episodes_per_epoch", 0)) * int(config.get("n_steps", 0)) * 2
+        )
+    elif kind == "rl_hedge":
+        steps = int(config.get("n_steps", 1))
+        training_work = epochs * train_paths * int(config.get("n_steps", 0))
+    return ResourceEstimate(
+        steps=steps,
+        households=0,
+        training_replicates=0,
+        fitted_models=0,
+        test_banks=0,
+        scenarios=0,
+        training_macro_banks=0,
+        train_paths=train_paths,
+        eval_paths=train_paths,
+        epochs=epochs,
+        batch_size=0,
+        resamples=resamples,
+        path_values=0,
+        training_work=training_work,
+        evaluation_work=evaluation_work,
+        bootstrap_work=resamples,
+        economic_work=0,
+    )
+
+
 def estimate_resources(kind: str, config: Mapping[str, Any]) -> ResourceEstimate:
+    if kind in _NEW_KINDS:
+        return _new_kind_estimate(kind, config)
     economic = config.get("economy", config)
     hedge = config.get("hedge", config)
     n_steps = int(economic.get("n_steps", config.get("n_steps", 1)))

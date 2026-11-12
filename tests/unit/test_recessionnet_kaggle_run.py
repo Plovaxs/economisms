@@ -1,9 +1,16 @@
 import json
+from dataclasses import asdict
+from datetime import date
 from pathlib import Path
 
 import pytest
 
-from prometheus.orchestration.recessionnet_kaggle_run import DEFAULT_CSV_PATH, main
+from prometheus.orchestration.recessionnet_kaggle_run import (
+    DEFAULT_CSV_PATH,
+    RecessionNetKaggleRunConfig,
+    main,
+    run_recessionnet_kaggle_job,
+)
 
 
 def _write_small_fixture(tmp_path: Path) -> Path:
@@ -89,3 +96,40 @@ def test_main_rejects_an_invalid_config_value(capsys) -> None:
     with pytest.raises(SystemExit):
         main(["--max-epochs", "0"])
     assert "max_epochs" in capsys.readouterr().err
+
+
+def test_kaggle_config_from_dict_round_trips_a_valid_recipe() -> None:
+    config = RecessionNetKaggleRunConfig(max_epochs=7, bootstrap_resamples=11)
+    assert RecessionNetKaggleRunConfig.from_dict(asdict(config)) == config
+
+
+def test_kaggle_config_from_dict_rejects_a_missing_or_extra_field() -> None:
+    payload = asdict(RecessionNetKaggleRunConfig())
+    del payload["max_epochs"]
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        RecessionNetKaggleRunConfig.from_dict(payload)
+    payload = asdict(RecessionNetKaggleRunConfig())
+    payload["unknown"] = 1
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        RecessionNetKaggleRunConfig.from_dict(payload)
+
+
+def test_kaggle_config_from_dict_decodes_string_dates() -> None:
+    payload = asdict(RecessionNetKaggleRunConfig())
+    payload["validation_split_date"] = "2002-01-01"
+    config = RecessionNetKaggleRunConfig.from_dict(payload)
+    assert config.validation_split_date == date(2002, 1, 1)
+
+
+def test_run_recessionnet_kaggle_job_produces_a_real_manifest_and_evidence_bundle() -> None:
+    config = RecessionNetKaggleRunConfig(
+        max_epochs=2, patience=1, window=2, horizon=1, bootstrap_resamples=5,
+        validation_split_date=date(2001, 1, 1), test_split_date=date(2002, 1, 1),
+    )
+    result = run_recessionnet_kaggle_job(config)
+    assert result.manifest.seed == config.seed
+    payload = result.evidence_bundle["recessionnet_kaggle"]
+    assert payload["accounting_convention"] == "classifier-benchmark-v1"
+    assert payload["schema_version"] == 1
+    assert payload["data_source"] == "kaggle_local_snapshot"
+    assert result.evidence_bundle["run_manifest"]["result_hash"] == result.manifest.result_hash

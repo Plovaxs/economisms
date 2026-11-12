@@ -1,4 +1,6 @@
 import json
+from dataclasses import asdict
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -6,7 +8,9 @@ import pytest
 from prometheus.orchestration.inflationcast_run import (
     DEFAULT_CPI_CSV_PATH,
     DEFAULT_MACRO_CSV_PATH,
+    InflationcastRunConfig,
     main,
+    run_inflationcast_job,
 )
 
 
@@ -100,3 +104,36 @@ def test_main_rejects_validation_split_date_not_before_test_split_date(capsys) -
     with pytest.raises(SystemExit):
         main(["--validation-split-date", "2022-01-01", "--test-split-date", "2022-01-01"])
     assert "validation_split_date" in capsys.readouterr().err
+
+
+def test_config_from_dict_round_trips_a_valid_recipe() -> None:
+    config = InflationcastRunConfig(max_epochs=7, bootstrap_resamples=11)
+    assert InflationcastRunConfig.from_dict(asdict(config)) == config
+
+
+def test_config_from_dict_rejects_a_missing_or_extra_field() -> None:
+    payload = asdict(InflationcastRunConfig())
+    del payload["max_epochs"]
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        InflationcastRunConfig.from_dict(payload)
+    payload = asdict(InflationcastRunConfig())
+    payload["unknown"] = 1
+    with pytest.raises(ValueError, match="complete configuration fields"):
+        InflationcastRunConfig.from_dict(payload)
+
+
+def test_config_from_dict_decodes_string_dates() -> None:
+    payload = asdict(InflationcastRunConfig())
+    payload["validation_split_date"] = "2020-01-01"
+    config = InflationcastRunConfig.from_dict(payload)
+    assert config.validation_split_date == date(2020, 1, 1)
+
+
+def test_run_inflationcast_job_produces_a_real_manifest_and_evidence_bundle() -> None:
+    config = InflationcastRunConfig(max_epochs=2, patience=1, window=2, bootstrap_resamples=5)
+    result = run_inflationcast_job(config)
+    assert result.manifest.seed == config.seed
+    payload = result.evidence_bundle["inflationcast"]
+    assert payload["accounting_convention"] == "calibrated-nowcast-v1"
+    assert payload["schema_version"] == 1
+    assert result.evidence_bundle["run_manifest"]["result_hash"] == result.manifest.result_hash

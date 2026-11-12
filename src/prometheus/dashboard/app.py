@@ -19,6 +19,7 @@ project's job API and worker are already separate processes.
 
 from __future__ import annotations
 
+import json
 import logging
 import uuid
 from collections.abc import Awaitable, Callable
@@ -26,17 +27,26 @@ from typing import Any
 from urllib.parse import parse_qs
 
 from prometheus.core.ledger import Ledger, Sector
-from prometheus.dashboard.audit_trail import render_audit_trail
+from prometheus.dashboard.audit_trail import audit_trail_as_json, render_audit_trail
 from prometheus.dashboard.auth import (
     PortfolioShareRegistry,
     UnauthorizedPortfolioAccessError,
     require_portfolio_access,
 )
-from prometheus.dashboard.experiment_comparison import render_experiment_comparison
+from prometheus.dashboard.experiment_comparison import (
+    experiment_comparison_as_json,
+    render_experiment_comparison,
+)
 from prometheus.dashboard.export import build_export, render_printable_html
 from prometheus.dashboard.html import page
-from prometheus.dashboard.inflationcast_view import render_inflationcast
+from prometheus.dashboard.inflationcast_view import inflationcast_as_json, render_inflationcast
 from prometheus.dashboard.views import (
+    balance_sheets_as_json,
+    economy_explorer_as_json,
+    hedge_actions_as_json,
+    market_paths_as_json,
+    portfolio_risk_as_json,
+    pricing_diagnostics_as_json,
     render_balance_sheets,
     render_economy_explorer,
     render_hedge_actions,
@@ -47,7 +57,15 @@ from prometheus.dashboard.views import (
 from prometheus.evidence.model_inventory import UnauthorizedModelUsageError, authorize_model_usage
 from prometheus.evidence.model_registry import ModelRegistryEntry
 from prometheus.evidence.validation_issue_tracker import REAL_FINDINGS
+from prometheus.experiments.manifest import json_default
 from prometheus.service.auth import AuthenticationError, CredentialStore
+
+_JSON_CONTENT_TYPE = "application/json"
+_HTML_CONTENT_TYPE = "text/html; charset=utf-8"
+
+
+def _json_body(payload: Any) -> str:
+    return json.dumps(payload, default=json_default)
 
 _INDEX_LINKS: tuple[tuple[str, str], ...] = (
     ("/dashboard/economy", "Economic simulation explorer (UIX-01)"),
@@ -126,13 +144,20 @@ class DashboardService:
         if scope["type"] != "http":
             raise ValueError("this dashboard app serves HTTP only")
         request_id = uuid.uuid4().hex
+        query = parse_qs(scope.get("query_string", b"").decode("ascii"))
+        want_json = query.get("format", [""])[0] == "json"
         try:
-            status, html = self._dispatch(scope)
+            status, body_str, content_type = self._dispatch(scope, query, want_json)
         except DashboardHTTPError as exc:
-            status, html = exc.status, page("Error", "Error", f"<p>{exc.message}</p>")
-        body = html.encode("utf-8")
+            status = exc.status
+            if want_json:
+                body_str, content_type = _json_body({"error": exc.message}), _JSON_CONTENT_TYPE
+            else:
+                body_str = page("Error", "Error", f"<p>{exc.message}</p>")
+                content_type = _HTML_CONTENT_TYPE
+        body = body_str.encode("utf-8")
         headers = [
-            (b"content-type", b"text/html; charset=utf-8"),
+            (b"content-type", content_type.encode("ascii")),
             (b"cache-control", b"no-store"),
             (b"x-content-type-options", b"nosniff"),
             (b"x-request-id", request_id.encode("ascii")),
@@ -141,10 +166,12 @@ class DashboardService:
         await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": body})
 
-    def _dispatch(self, scope: dict[str, Any]) -> tuple[int, str]:
+    def _dispatch(
+        self, scope: dict[str, Any], query: dict[str, list[str]], want_json: bool
+    ) -> tuple[int, str, str]:
         path, method = scope["path"], scope["method"]
         if path == "/health/live":
-            return 200, page("Health", "Health", "<p>live</p>")
+            return 200, page("Health", "Health", "<p>live</p>"), _HTML_CONTENT_TYPE
         if method != "GET":
             raise DashboardHTTPError(405, "only GET is supported")
         raw_headers = scope.get("headers", [])
@@ -154,24 +181,32 @@ class DashboardService:
         except AuthenticationError as exc:
             raise DashboardHTTPError(401, "valid bearer credentials are required") from exc
 
-        query = parse_qs(scope.get("query_string", b"").decode("ascii"))
-
         if path in ("/dashboard", "/dashboard/"):
+            if want_json:
+                return 200, _json_body(
+                    {"links": [{"href": h, "label": lb} for h, lb in _INDEX_LINKS]}
+                ), _JSON_CONTENT_TYPE
             items = "".join(
                 f'<li><a href="{href}">{label}</a></li>' for href, label in _INDEX_LINKS
             )
-            return 200, page("Dashboard", "ECONOSIM research dashboard", f"<ul>{items}</ul>")
+            html = page("Dashboard", "ECONOSIM research dashboard", f"<ul>{items}</ul>")
+            return 200, html, _HTML_CONTENT_TYPE
 
         if path == "/dashboard/experiments":
-            return 200, render_experiment_comparison()
+            if want_json:
+                return 200, _json_body(experiment_comparison_as_json()), _JSON_CONTENT_TYPE
+            return 200, render_experiment_comparison(), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/economy":
             n_steps = int(query.get("n_steps", ["6"])[0])
             seed = int(query.get("seed", ["0"])[0])
-            return 200, render_economy_explorer(n_steps=n_steps, seed=seed)
+            if want_json:
+                payload = economy_explorer_as_json(n_steps=n_steps, seed=seed)
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
+            return 200, render_economy_explorer(n_steps=n_steps, seed=seed), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/market-paths":
-            return 200, render_market_paths(
+            market_path_kwargs: dict[str, Any] = dict(
                 s0=float(query.get("s0", ["100"])[0]),
                 mu=float(query.get("mu", ["0.05"])[0]),
                 sigma=float(query.get("sigma", ["0.2"])[0]),
@@ -180,9 +215,14 @@ class DashboardService:
                 n_paths=int(query.get("n_paths", ["2000"])[0]),
                 seed=int(query.get("seed", ["0"])[0]),
             )
+            if want_json:
+                return 200, _json_body(
+                    market_paths_as_json(**market_path_kwargs)
+                ), _JSON_CONTENT_TYPE
+            return 200, render_market_paths(**market_path_kwargs), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/hedge-actions":
-            return 200, render_hedge_actions(
+            hedge_kwargs: dict[str, Any] = dict(
                 s0=float(query.get("s0", ["100"])[0]),
                 mu=float(query.get("mu", ["0.05"])[0]),
                 sigma=float(query.get("sigma", ["0.2"])[0]),
@@ -193,6 +233,9 @@ class DashboardService:
                 n_paths=int(query.get("n_paths", ["200"])[0]),
                 seed=int(query.get("seed", ["0"])[0]),
             )
+            if want_json:
+                return 200, _json_body(hedge_actions_as_json(**hedge_kwargs)), _JSON_CONTENT_TYPE
+            return 200, render_hedge_actions(**hedge_kwargs), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/portfolio-risk":
             import numpy as np
@@ -200,12 +243,19 @@ class DashboardService:
             seed = int(query.get("seed", ["0"])[0])
             n = int(query.get("n", ["250"])[0])
             pnl = np.random.default_rng(seed).normal(loc=0.0, scale=1000.0, size=n)
-            return 200, render_portfolio_risk(
-                pnl, alpha=float(query.get("alpha", ["0.95"])[0]), horizon_label="1-day"
-            )
+            alpha = float(query.get("alpha", ["0.95"])[0])
+            if want_json:
+                payload = portfolio_risk_as_json(pnl, alpha=alpha, horizon_label="1-day")
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
+            html = render_portfolio_risk(pnl, alpha=alpha, horizon_label="1-day")
+            return 200, html, _HTML_CONTENT_TYPE
 
         if path == "/dashboard/audit-trail":
-            return 200, render_audit_trail(_demo_audit_entry())
+            if want_json:
+                return 200, _json_body(
+                    audit_trail_as_json(_demo_audit_entry())
+                ), _JSON_CONTENT_TYPE
+            return 200, render_audit_trail(_demo_audit_entry()), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/model-usage":
             model_id = query.get("model_id", [""])[0]
@@ -214,25 +264,54 @@ class DashboardService:
                 entry = authorize_model_usage(model_id, application)
             except UnauthorizedModelUsageError as exc:
                 raise DashboardHTTPError(403, str(exc)) from exc
+            if want_json:
+                return 200, _json_body(
+                    {
+                        "model_id": model_id,
+                        "requested_application": application,
+                        "authorized": True,
+                        "authorized_applications": list(entry.authorized_applications),
+                    }
+                ), _JSON_CONTENT_TYPE
             body = (
                 f"<p>Model <code>{model_id}</code> is authorized for "
                 f"<code>{application}</code>.</p>"
                 f"<p>Authorized applications: "
                 f"<code>{', '.join(entry.authorized_applications)}</code></p>"
             )
-            return 200, page(
+            html = page(
                 "Model usage authorization", "Model usage authorization (MGR-11)", body
             )
+            return 200, html, _HTML_CONTENT_TYPE
 
         if path == "/dashboard/inflationcast":
-            return 200, render_inflationcast(
+            inflationcast_kwargs = dict(
                 seed=int(query.get("seed", ["0"])[0]),
                 max_epochs=int(query.get("max_epochs", ["150"])[0]),
                 patience=int(query.get("patience", ["15"])[0]),
                 bootstrap_resamples=int(query.get("bootstrap_resamples", ["300"])[0]),
             )
+            if want_json:
+                payload = inflationcast_as_json(**inflationcast_kwargs)
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
+            return 200, render_inflationcast(**inflationcast_kwargs), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/validation-issues":
+            if want_json:
+                payload = {
+                    "findings": [
+                        {
+                            "finding_id": f.finding_id,
+                            "component_id": f.component_id,
+                            "severity": f.severity,
+                            "owner": f.owner,
+                            "expiry_date": f.expiry_date.isoformat(),
+                            "disposition": f.disposition,
+                        }
+                        for f in REAL_FINDINGS
+                    ]
+                }
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
             rows = "".join(
                 f"<tr><td>{f.finding_id}</td><td>{f.component_id}</td>"
                 f"<td>{f.severity}</td><td>{f.owner}</td><td>{f.expiry_date}</td>"
@@ -244,9 +323,10 @@ class DashboardService:
                 "<th>Owner</th><th>Expiry</th><th>Disposition</th></tr></thead>"
                 f"<tbody>{rows}</tbody></table>"
             )
-            return 200, page(
+            html = page(
                 "Validation issue tracker", "Validation issue tracker (MGR-10)", body
             )
+            return 200, html, _HTML_CONTENT_TYPE
 
         if path == "/dashboard/export":
             view_name = query.get("view", [""])[0]
@@ -266,7 +346,7 @@ class DashboardService:
                 )
             method_summary, render = exportable[view_name]
             export = build_export(view_name, method_summary, render())
-            return 200, render_printable_html(export)
+            return 200, render_printable_html(export), _HTML_CONTENT_TYPE
 
         if path == "/dashboard/pricing":
             from datetime import date
@@ -283,7 +363,10 @@ class DashboardService:
                 as_of=date.today(), spot=spot, risk_free_rate=rate, volatility=volatility
             )
             option = EuropeanOption(strike=strike, maturity=maturity, option_type="call")
-            return 200, render_pricing_diagnostics(market, option)
+            if want_json:
+                payload = pricing_diagnostics_as_json(market, option)
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
+            return 200, render_pricing_diagnostics(market, option), _HTML_CONTENT_TYPE
 
         if path.startswith("/dashboard/portfolio/"):
             owner = path.removeprefix("/dashboard/portfolio/")
@@ -296,6 +379,9 @@ class DashboardService:
             ledger = self.portfolios.get(owner)
             if ledger is None:
                 raise DashboardHTTPError(404, "portfolio not found")
-            return 200, render_balance_sheets(ledger, Sector.HOUSEHOLD)
+            if want_json:
+                payload = balance_sheets_as_json(ledger, Sector.HOUSEHOLD)
+                return 200, _json_body(payload), _JSON_CONTENT_TYPE
+            return 200, render_balance_sheets(ledger, Sector.HOUSEHOLD), _HTML_CONTENT_TYPE
 
         raise DashboardHTTPError(404, "endpoint was not found")

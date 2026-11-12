@@ -35,8 +35,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections.abc import Sequence
-from dataclasses import dataclass, replace
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, fields, replace
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -91,6 +91,23 @@ class RecessionNetRunConfig:
             raise ValueError("series_ids must not be empty")
         if self.validation_split_date >= self.test_split_date:
             raise ValueError("validation_split_date must be strictly before test_split_date")
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> RecessionNetRunConfig:
+        if set(payload) != {item.name for item in fields(cls)}:
+            raise ValueError(
+                "recessionnet recipe requires exactly the complete configuration fields"
+            )
+        values = dict(payload)
+        try:
+            for name in ("validation_split_date", "test_split_date"):
+                if isinstance(values[name], str):
+                    values[name] = date.fromisoformat(values[name])
+            if isinstance(values["series_ids"], list):
+                values["series_ids"] = tuple(values["series_ids"])
+            return cls(**values)
+        except (TypeError, AttributeError) as exc:
+            raise ValueError(f"invalid recessionnet recipe: {exc}") from exc
 
 
 @dataclass(frozen=True, slots=True)

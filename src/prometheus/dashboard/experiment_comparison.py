@@ -15,10 +15,11 @@ always prints the confidence interval alongside the point estimate.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from typing import Any
 
 from prometheus.dashboard.html import page, table
-from prometheus.dashboard.provenance import real_data_badge
+from prometheus.dashboard.provenance import real_data_badge, real_data_provenance_json
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,3 +115,12 @@ def render_experiment_comparison(
         )
     )
     return page("Experiment comparison", "Experiment comparison (CI and negative results)", body)
+
+
+def experiment_comparison_as_json(
+    rows: tuple[ExperimentComparisonRow, ...] = REAL_COMPARISON_LOG,
+) -> dict[str, Any]:
+    return {
+        **real_data_provenance_json("docs/RESULTS_AND_LIMITATIONS.md"),
+        "rows": [asdict(r) for r in rows],
+    }

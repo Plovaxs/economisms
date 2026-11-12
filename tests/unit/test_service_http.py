@@ -178,6 +178,26 @@ def test_real_worker_output_served_only_after_full_job_binding_and_integrity(app
     assert request(app, path=path)[1]["error"]["code"] == "artifact_unavailable"
 
 
+def test_a_new_deep_learning_engine_kind_runs_through_the_real_job_queue_end_to_end(app):
+    """The same real submit -> worker -> artifact round trip as the
+    test above, for one of the seven new job kinds
+    (qmacro/recessionnet_kaggle/inflationcast/neural_sde/pde_solver/
+    marl/rl_hedge) -- `neural_sde` chosen as the cheapest to actually
+    train with a small epoch count, confirming the new kinds are wired
+    into the real queue/worker/artifact-store pipeline, not just typed
+    and admitted."""
+    small_config = {**default_recipe("neural_sde"), "max_epochs": 2, "patience": 1}
+    status, job, _headers = submit(app, kind="neural_sde", config=small_config)
+    assert status == 202 and job["status"] == "queued"
+    done = Worker(app.jobs, app.artifacts, worker_id="http-integration-neural-sde").run_once()
+    assert done.status == "succeeded"
+    status, artifact, _headers = request(app, path=f"/v1/jobs/{job['job_id']}/artifact")
+    assert status == 200
+    assert verify_artifact_integrity(artifact, require=True, expected_sha256=done.artifact_sha256)
+    assert artifact["neural_sde"]["accounting_convention"] == "neural-sde-benchmark-v1"
+    assert artifact["neural_sde"]["config"]["max_epochs"] == 2
+
+
 @pytest.mark.parametrize(
     "body,status,code",
     [
@@ -440,7 +460,7 @@ def test_cancelled_http_caller_does_not_release_capacity_while_thread_still_comm
     asyncio.run(exercise())
 
 
-def test_contract_all_nine_default_recipes_and_exact_research_only_route_surface(app):
+def test_contract_all_sixteen_default_recipes_and_exact_research_only_route_surface(app):
     document = openapi_document()
     fixture = Path(__file__).resolve().parents[2] / "docs/api/openapi-v1.json"
     assert json.loads(fixture.read_text()) == document

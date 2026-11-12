@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import asdict, dataclass, fields
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -29,6 +29,15 @@ import numpy as np
 
 from prometheus.data_ingestion.kaggle_macro import load_kaggle_us_macro_observations
 from prometheus.econosim.pit import MacroObservation, PointInTimeStore
+from prometheus.evidence.contracts import CONVENTIONS
+from prometheus.evidence.export import build_evidence_bundle
+from prometheus.evidence.repository_status import current_repository_gate_report
+from prometheus.experiments.manifest import (
+    RunManifest,
+    compute_result_hash,
+    new_run_id,
+    now_iso,
+)
 from prometheus.inflationcast.data import (
     ALL_SERIES_IDS,
     InflationNowcastExample,
@@ -76,6 +85,21 @@ class InflationcastRunConfig:
             raise ValueError("calibration_coverage must be in (0, 1)")
         if self.validation_split_date >= self.test_split_date:
             raise ValueError("validation_split_date must be strictly before test_split_date")
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> InflationcastRunConfig:
+        if set(payload) != {item.name for item in fields(cls)}:
+            raise ValueError(
+                "inflationcast recipe requires exactly the complete configuration fields"
+            )
+        values = dict(payload)
+        try:
+            for name in ("validation_split_date", "test_split_date"):
+                if isinstance(values[name], str):
+                    values[name] = date.fromisoformat(values[name])
+            return cls(**values)
+        except (TypeError, AttributeError) as exc:
+            raise ValueError(f"invalid inflationcast recipe: {exc}") from exc
 
 
 @dataclass(frozen=True, slots=True)
@@ -185,6 +209,37 @@ def summary_payload(result: InflationcastDemoResult) -> dict[str, Any]:
         "verdict": result.verdict,
         "run_manifest": report.run_manifest.to_dict(),
     }
+
+
+@dataclass(frozen=True, slots=True)
+class InflationcastJobResult:
+    demo_result: InflationcastDemoResult
+    manifest: RunManifest
+    evidence_bundle: dict[str, Any]
+
+
+def run_inflationcast_job(config: InflationcastRunConfig) -> InflationcastJobResult:
+    """The job-kind adapter: reuses `run_inflationcast_demo`/
+    `summary_payload` unchanged, against the same real, already-
+    committed, fully offline BLS CPI-U + Kaggle macro snapshots --
+    wrapped with a `RunManifest`/evidence-bundle envelope."""
+    cpi_observations = load_cpi_observations(DEFAULT_CPI_CSV_PATH)
+    macro_observations = load_kaggle_us_macro_observations(DEFAULT_MACRO_CSV_PATH)
+    result = run_inflationcast_demo([*cpi_observations, *macro_observations], config)
+    payload = summary_payload(result)
+    payload["schema_version"] = 1
+    payload["accounting_convention"] = CONVENTIONS["inflationcast"]
+    payload["config"] = asdict(config)
+    manifest = RunManifest(
+        new_run_id("pmth-inflationcast"),
+        now_iso(),
+        config.seed,
+        asdict(config),
+        compute_result_hash(payload),
+    )
+    bundle = build_evidence_bundle(manifest, [], current_repository_gate_report())
+    bundle["inflationcast"] = payload
+    return InflationcastJobResult(demo_result=result, manifest=manifest, evidence_bundle=bundle)
 
 
 def main(

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections.abc import Sequence
-from dataclasses import asdict
+from collections.abc import Mapping, Sequence
+from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +20,15 @@ import numpy as np
 import torch
 
 from prometheus.data_ingestion.kaggle_macro import load_kaggle_us_macro_observations
+from prometheus.evidence.contracts import CONVENTIONS
+from prometheus.evidence.export import build_evidence_bundle
+from prometheus.evidence.repository_status import current_repository_gate_report
+from prometheus.experiments.manifest import (
+    RunManifest,
+    compute_result_hash,
+    new_run_id,
+    now_iso,
+)
 from prometheus.neural_sde.benchmark import benchmark_report, multi_seed_multi_solver_sensitivity
 from prometheus.neural_sde.dataset import (
     build_point_in_time_store,
@@ -35,6 +44,75 @@ from prometheus.neural_sde.training import train_neural_sde
 DEFAULT_CSV_PATH = (
     Path(__file__).resolve().parents[3] / "data_cache" / "kaggle_us_macro_monthly.csv"
 )
+
+
+@dataclass(frozen=True, slots=True)
+class NeuralSdeRunConfig:
+    """Deliberately does not expose `csv_path` as a field -- unlike
+    `qmacro`/`recessionnet_kaggle`/`inflationcast`, which each load a
+    fixed, named real snapshot, this config would otherwise let a job
+    submission point this subsystem's loader at an arbitrary
+    filesystem path from inside a sandboxed worker subprocess.
+    `run_neural_sde_job` below always uses the committed
+    `DEFAULT_CSV_PATH`, the same real, already-committed Kaggle macro
+    snapshot `run()`'s own CLI defaults to."""
+
+    seed: int = 0
+    max_epochs: int = 300
+    patience: int = 20
+
+    def __post_init__(self) -> None:
+        if self.seed < 0:
+            raise ValueError("seed must be non-negative")
+        if self.max_epochs < 1:
+            raise ValueError("max_epochs must be a positive integer")
+        if self.patience < 1:
+            raise ValueError("patience must be a positive integer")
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> NeuralSdeRunConfig:
+        if set(payload) != {item.name for item in fields(cls)}:
+            raise ValueError("neural_sde recipe requires exactly the complete configuration fields")
+        try:
+            return cls(**dict(payload))
+        except TypeError as exc:
+            raise ValueError(f"invalid neural_sde recipe: {exc}") from exc
+
+
+@dataclass(frozen=True, slots=True)
+class NeuralSdeJobResult:
+    run_result: dict[str, Any]
+    manifest: RunManifest
+    evidence_bundle: dict[str, Any]
+
+
+def run_neural_sde_job(config: NeuralSdeRunConfig) -> NeuralSdeJobResult:
+    """The job-kind adapter: calls `run()` unchanged against the fixed
+    committed CSV, wrapped with a `RunManifest`/evidence-bundle
+    envelope. `run()`'s own dict is already fully JSON-shaped (see its
+    `model_card`/`ood_report`/`sensitivity_report` keys) -- this only
+    adds the `schema_version`/`accounting_convention`/`config` fields
+    every registered recipe kind's payload needs."""
+    run_result = run(
+        csv_path=DEFAULT_CSV_PATH,
+        seed=config.seed,
+        max_epochs=config.max_epochs,
+        patience=config.patience,
+    )
+    payload = dict(run_result)
+    payload["schema_version"] = 1
+    payload["accounting_convention"] = CONVENTIONS["neural_sde"]
+    payload["config"] = asdict(config)
+    manifest = RunManifest(
+        new_run_id("pmth-neural-sde"),
+        now_iso(),
+        config.seed,
+        asdict(config),
+        compute_result_hash(payload),
+    )
+    bundle = build_evidence_bundle(manifest, [], current_repository_gate_report())
+    bundle["neural_sde"] = payload
+    return NeuralSdeJobResult(run_result=run_result, manifest=manifest, evidence_bundle=bundle)
 
 
 def run(

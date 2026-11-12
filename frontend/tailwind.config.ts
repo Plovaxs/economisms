@@ -1,0 +1,35 @@
+import type { Config } from "tailwindcss";
+
+// Hyprland/omarchy-style dark glass aesthetic: a near-black base, a
+// violet-to-cyan accent gradient, and one reusable translucent "glass"
+// surface token every card/panel composes (see components/GlassCard.tsx).
+export default {
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        base: {
+          DEFAULT: "#0b0d12",
+          elevated: "#12151c",
+          panel: "#171b24",
+        },
+        accent: {
+          violet: "#8b5cf6",
+          cyan: "#22d3ee",
+        },
+      },
+      backgroundImage: {
+        "accent-gradient": "linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%)",
+        "accent-gradient-soft": "linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(34,211,238,0.18) 100%)",
+      },
+      boxShadow: {
+        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.45)",
+      },
+      borderRadius: {
+        "2xl": "1.1rem",
+        "3xl": "1.6rem",
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config;

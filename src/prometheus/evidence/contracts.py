@@ -23,6 +23,13 @@ CONVENTIONS = {
     "rate_study": "opening-rate-finance-v1",
     "mixture_study": "opening-rate-finance-v1",
     "monetary_operations": "central-bank-ledger-stephooks-v1",
+    "qmacro": "quantum-classical-benchmark-v1",
+    "recessionnet_kaggle": "classifier-benchmark-v1",
+    "inflationcast": "calibrated-nowcast-v1",
+    "neural_sde": "neural-sde-benchmark-v1",
+    "pde_solver": "pde-cost-accuracy-comparison-v1",
+    "marl": "single-vs-colearning-ppo-v1",
+    "rl_hedge": "reinforce-hedge-vs-static-baseline-v1",
 }
 
 
