@@ -16,14 +16,19 @@
 
 ## Overview
 
-ECONOSIM (formerly PROMETHEUS) is a from-scratch research platform that
-combines six subsystems behind one evidence discipline:
+**Beyond Model Complexity: An Empirical Evaluation of Classical, Deep
+Learning, and Hybrid Quantum Models for Quantitative Economic and
+Financial Tasks.** ECONOSIM (formerly PROMETHEUS) is a from-scratch
+research platform that puts that question to real data, with a hard
+rule attached: nothing counts as a finding here unless a specific,
+reproducible, currently-passing test produced it. It combines six
+subsystems behind that one evidence discipline:
 
 - **a multi-agent computational economy** — households, firms, banks and a
   government, wired to a real double-entry ledger, with point-in-time data
-  access, deterministic shocks, a macro time engine, and an optional
-  PPO-trained multi-agent reinforcement-learning policy benchmarked
-  against the deterministic/calibrated baseline;
+  access, deterministic shocks, a macro time engine, and a PPO-trained
+  multi-agent reinforcement-learning policy benchmarked against the
+  deterministic/calibrated baseline;
 - **classical and stochastic-volatility market models** — GBM, Heston,
   Merton jump-diffusion, regime-switching, with Monte Carlo and
   closed-form pricers for European, American, barrier and Asian options,
@@ -41,15 +46,57 @@ combines six subsystems behind one evidence discipline:
   hedging policy benchmarked against classical baselines, plus the audit,
   provenance, and model-lifecycle tooling needed to make any of the above
   trustworthy evidence rather than a demo; and
-- **a real, authenticated research dashboard** — a separate ASGI
-  service (`python -m prometheus.dashboard serve`) rendering live
-  computed output from every subsystem above, with owner-scoped
+- **a real, authenticated research dashboard and a unified React
+  frontend** — a separate ASGI service (`python -m prometheus.dashboard
+  serve`) and a Vite + React + TypeScript app (`frontend/`) rendering
+  live computed output from every subsystem above, with owner-scoped
   portfolio access and real HTTP authorization boundaries, not a mockup.
+  `./run_dev.sh` starts the whole stack with one command; see
+  [frontend/README.md](./frontend/README.md).
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
 and the [PROMETHEUS-X final-project addendum](./docs/PROMETHEUS_X_Final_Project_Integrated_Blueprint.md)
 — and tracks its own progress against both, honestly, in public.
+
+## Key findings
+
+Five falsifiable hypotheses were frozen on 2026-11-11 against the
+evidence gathered through that date — see
+[docs/FINAL_PROJECT_HYPOTHESES.md](./docs/FINAL_PROJECT_HYPOTHESES.md)
+for the full, retrospectively-frozen record and its own honest caveat
+about what that means for evidentiary weight. After that date the
+questions don't change; the evidence for or against them can, with
+every revision disclosed. The pattern across all five, and across
+the two newer, not-yet-frozen findings below: **the more complex
+method winning was the exception, not the rule** — and the exceptions
+that did appear were earned by ruling out confounds directly, not by
+re-running until a result looked good.
+
+| ID | Question | Verdict |
+|---|---|---|
+| **H1** | Does a hybrid quantum-classical model beat classical baselines on recession classification / factor regression? | **Rejected.** Tested 3 independent ways (2 real datasets, 2 task families); every bootstrap CI includes zero. |
+| **H2** | Does a neural SDE beat classical baselines in-distribution, and degrade less under a real shock? | **Partially supported.** Not better in-distribution — but genuinely more robust under the real 2020 COVID shock (+5.58 vs. a GBM baseline's +29.97 log-score degradation). |
+| **H3** | Does a neural PDE solver (PINN/deep-BSDE) earn its cost over a classical grid at high dimension? | **Supported**, crossover measured not assumed — revised 2026-11-13 once an undertrained baseline was caught and fixed (grid's accuracy edge over deep-BSDE: ~580x → ~2x; verdict unchanged). |
+| **H4** | Can naive fixed-epoch training or an unaudited reward silently produce a false conclusion? | **Supported, twice**, independently (RECESSIONNET's early-stopping fix; MARL's reward-design fix). |
+| **H5** | Does a REINFORCE hedging agent beat a well-specified static baseline? | **Rejected.** Still loses after fixing a real reward/metric mismatch and training 10–20x longer (gap narrowed ~2.5x → ~1.04–1.41x, still a loss). |
+
+Two further checks, run after the freeze (disclosed as such, not
+folded into H1–H5): a textbook recession predictor (the US Treasury
+10Y-3M yield-curve spread) was added to RECESSIONNET as a real feature
+and made things **worse**, not better (ROC-AUC 0.68–0.86 without it vs.
+0.36–0.82 with it, across the same 5 seeds) — plausibly because an
+already data-starved model gained one more dimension to fit. And a
+"train harder" pass across all seven deep-learning subsystems found
+two defaults were already *correct*: the neural SDE's one clearly
+positive result (above) collapses under more training, and
+RECESSIONNET's Kaggle dataset revealed a real Brier-score-vs-ROC-AUC
+blind spot in 1 of 5 seeds that a second diagnostic caught before it
+could pass as a win. See
+[docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md)
+(12 numbered findings, each with its own re-runnable test) and
+[docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md) for
+the full account behind every line above.
 
 ## The evidence discipline
 
@@ -79,69 +126,15 @@ tracks this same 374-item checklist by category, and the
 [simulation dashboard](https://claude.ai/artifact/Eit5ePvaZhWDgbSXSQhV5w)
 charts real output from the economy, market-path, hedging and portfolio-risk
 subsystems. Both must be shared from their Share menu before a link works
-for anyone other than the account that owns them.
+for anyone other than the account that owns them. **The deep-learning
+demo itself is a real webapp, not an Artifact**: `/dashboard/inflationcast`
+benchmarks five real CPI-nowcasting candidates live against real BLS/
+Kaggle data, and the React frontend above submits a real job for any
+of all seven deep-learning subsystems and renders the real result.
 
-**The final-project deep-learning demo is a real webapp, not an Artifact.**
-`python -m prometheus.dashboard serve` exposes `/dashboard/inflationcast`:
-naive/linear/classical-MLP/hybrid-quantum/GRU CPI nowcasting candidates
-benchmarked live against real BLS CPI-U and Kaggle macro data, with an
-animated bar chart, an actual-vs-predicted line chart, and a real
-calibration pass/fail indicator — every number computed from a live run,
-not a canned export. See [FP-07](./CHECKLIST_STATUS.md) for the real
-(and honestly negative) result.
+## New here?
 
-**One unified React app now fronts every real engine.** `frontend/`
-(Vite + React + TypeScript + Tailwind + Framer Motion + Recharts) covers
-every dashboard view above plus a "Deep Learning Lab" section — submit a
-real job for RECESSIONNET, Q-MACRO, INFLATIONCAST, the neural SDE, the
-PDE solvers, multi-agent RL, or the REINFORCE hedging agent, and watch
-it resolve through the real SQLite-backed job queue to a real rendered
-chart. Run the whole stack — job worker, job API, dashboard, frontend —
-with one command: `./run_dev.sh`. See
-[frontend/README.md](./frontend/README.md) for details, and
-[FP-19](./CHECKLIST_STATUS.md) for the real end-to-end job trace this
-adds across all seven deep-learning subsystems.
-
-**Two of this project's own named limitations were re-tested directly,
-not left as speculation.** `InflationGRU`'s miscalibration survived an
-8-hidden-size × 10-seed capacity-matching sweep (80 real runs) and a
-new post-hoc variance-calibration step — narrowed substantially, not
-closed, consistent with a genuine 2022+ inflation-surge regime shift
-rather than an undertrained model. The REINFORCE hedging agent's loss
-to its static baseline survived fixing a real reward/metric mismatch
-(it was trained to minimize mean loss, not the CVaR it's judged on)
-plus a 10–20× longer training budget — the gap narrowed from ~2.5× to
-~1.04×–1.41× across 8 seeds, still a real loss. Both honest,
-unchanged conclusions, now with the obvious confounds ruled out
-instead of assumed away. See `docs/RESULTS_AND_LIMITATIONS.md`'s
-Finding 8 and Finding 11 follow-ups.
-
-**A real recession-predictor feature — the US Treasury yield-curve
-spread — was added to RECESSIONNET and made things worse, not
-better.** Rather than chase an arbitrary data-volume target (this
-repository's entire real dataset is ~136KB; monthly macro data is
-structurally small, not a big-data domain), a genuinely new, textbook-
-motivated real feature (the 10Y-3M spread, Estrella-Mishkin) was
-ingested from `home.treasury.gov` and directly ablated. Honest result:
-ROC-AUC is consistently decent without it (0.68–0.86 across 5 seeds)
-and erratic, usually worse, with it (0.36–0.82) — plausibly because an
-already data-starved model gains one more dimension to fit. See
-`docs/RESULTS_AND_LIMITATIONS.md`'s Finding 12.
-
-**The same check was then run across the remaining five DL
-subsystems, with mixed and genuinely interesting results.** The PDE
-solvers' neural-vs-classical accuracy gap narrowed sharply (deep-BSDE
-was undertrained by ~300x) once properly trained. MARL's co-learning
-condition turned out robustly worse for the household on average, not
-just less stable. But two checks confirmed a default was already
-*correct*: the neural SDE's real OOD-robustness finding — its one
-clearly positive result — collapses under more training (COVID
-degradation +5.58 → +48.75), and RECESSIONNET's Kaggle dataset
-revealed a genuine Brier-score-vs-ROC-AUC blind spot in 1 of 5 seeds
-that a second diagnostic caught before it could pass as a win. See
-`docs/RESULTS_AND_LIMITATIONS.md`'s Finding 3, 5, and 6 follow-ups.
-
-**New here?** [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
+[docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real
 research dashboard, and spot-checking a real finding yourself.
 [docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md)
