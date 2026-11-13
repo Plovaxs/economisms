@@ -61,6 +61,28 @@ def test_mar_09_and_mar_11_co_learning_is_measurably_less_stable_than_single_age
     assert co_std > 2.0 * single_std  # measurably less stable, not noise
 
 
+def test_co_learning_is_not_only_less_stable_but_also_robustly_lower_mean_utility() -> None:
+    """PR-176: the pre-existing claim above is about VARIANCE
+    (nonstationarity) only; whether co-learning is better or worse for
+    the household ON AVERAGE had never been directly tested. A sweep
+    (10 seeds at the job default config, plus 5 more at 2x the epochs
+    and 2x the episodes-per-epoch, 20 real runs total) found
+    co-learning's mean household utility is robustly LOWER than
+    single-agent's -- every single seed tried, at every budget tried
+    (0/20), by an effect size (~10-20) far exceeding co-learning's own
+    seed-to-seed std (~1-2) -- not noise. Locked in here at this file's
+    existing fast scale/seeds for a permanent regression check."""
+    report = single_vs_colearning_report(
+        seeds=(0, 1, 2, 3, 4), n_epochs=20, episodes_per_epoch=6, n_steps=6
+    )
+    deltas = [
+        c.household_utility - s.household_utility
+        for s, c in zip(report.single_agent, report.co_learning, strict=True)
+    ]
+    assert all(d < 0 for d in deltas)
+    assert report.mean_household_utility_delta() < 0
+
+
 def test_mar_13_ood_wage_shock_degrades_performance_with_reported_uncertainty() -> None:
     """MAR-13: 'held-out shock performance reported with uncertainty'.
     The policy is trained ONLY under `training_firm_capital`; it never

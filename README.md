@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C999%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C006%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -65,9 +65,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **2,999 / 2,999** passing (Python; see `frontend/` for its own separate Vitest suite) |
+| Test suite | **3,006 / 3,006** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 176, each independently verified |
+| Pull requests | 177, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -115,6 +115,19 @@ plus a 10–20× longer training budget — the gap narrowed from ~2.5× to
 unchanged conclusions, now with the obvious confounds ruled out
 instead of assumed away. See `docs/RESULTS_AND_LIMITATIONS.md`'s
 Finding 8 and Finding 11 follow-ups.
+
+**The same check was then run across the remaining five DL
+subsystems, with mixed and genuinely interesting results.** The PDE
+solvers' neural-vs-classical accuracy gap narrowed sharply (deep-BSDE
+was undertrained by ~300x) once properly trained. MARL's co-learning
+condition turned out robustly worse for the household on average, not
+just less stable. But two checks confirmed a default was already
+*correct*: the neural SDE's real OOD-robustness finding — its one
+clearly positive result — collapses under more training (COVID
+degradation +5.58 → +48.75), and RECESSIONNET's Kaggle dataset
+revealed a genuine Brier-score-vs-ROC-AUC blind spot in 1 of 5 seeds
+that a second diagnostic caught before it could pass as a win. See
+`docs/RESULTS_AND_LIMITATIONS.md`'s Finding 3, 5, and 6 follow-ups.
 
 **New here?** [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real

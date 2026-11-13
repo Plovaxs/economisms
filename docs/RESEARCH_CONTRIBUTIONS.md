@@ -76,6 +76,19 @@ different task families (recession classification, factor regression):
 tested three independent ways and did not hold up. This is reported as
 the actual result, not reframed as a tuning problem.
 
+**Follow-up (PR-177):** a direct check of whether the training budget
+itself (not just capacity) was the limiting factor found a real,
+nuanced answer rather than a clean reversal. On the Kaggle dataset, a
+longer patience (60 vs. 20) lets the hybrid-quantum classifier reach
+genuine, well-calibrated discrimination (ROC-AUC 0.86–0.92) beating
+every classical candidate in 4 of 5 seeds — but the 5th seed shows a
+Brier-score blind spot (ROC-AUC 0.479, worse than random) that a
+second diagnostic catches before it could be mistaken for a win. On
+the original factor dataset, the same check found no such divergence
+and, if anything, a mild shift toward classical. Neither result is
+promoted to a production default; see `docs/RESULTS_AND_LIMITATIONS.md`
+Finding 3's follow-up for the full account and why.
+
 ### RQ2 — Can a neural stochastic differential equation outperform classical SDE models (GBM) and econometric baselines (GARCH) on real macro data, and does it degrade more gracefully under a genuine out-of-distribution shock?
 
 **`neural_sde`** (PR-150): in-distribution, the neural SDE does *not*
@@ -92,20 +105,39 @@ distributional shift that a non-conditioned classical model lacks —
 a concrete, falsifiable distinction between "better on average" and
 "more robust under shock," demonstrated on one real historical event.
 
+**Follow-up (PR-177):** checked directly whether the training budget
+(`patience=20`) was undertraining this model — the opposite turned out
+to be true. Raising patience to 60 improves the in-distribution score
+(the model's own selection metric, measured on its own selection set)
+but makes COVID-window degradation explode from +5.58 to +48.75, now
+worse than the GBM baseline — destroying the exact robustness property
+this finding reports. `patience=20` is a deliberate, correct choice,
+not an oversight; this strengthens the finding by ruling out
+undertraining as a confound, rather than changing it.
+
 ### RQ3 — For option pricing, when (if ever) does a neural PDE solver (PINN / deep BSDE) earn its computational cost over a classical finite-difference grid?
 
-**`pde_solvers`** (PR-153): in 1D, the classical Crank-Nicolson grid is
-simultaneously faster (0.013s vs. 9.3s/11.4s) **and** more accurate
-than either neural method. But grid cost scales as `M^d` — 200,
-40,000, and 8,000,000 nodes at d = 1, 2, 3 at this package's own
-resolution — while the deep BSDE solver's walltime stays ≈flat
-(≈10–13s) across the same dimensions.
+**`pde_solvers`** (PR-153, revised PR-177): in 1D, the classical
+Crank-Nicolson grid is still simultaneously faster (0.02s vs. 22s/54s)
+**and** more accurate than either neural method — but a direct sweep
+found the original comparison's neural solvers genuinely undertrained
+(deep-BSDE's price error was a consistent ~1.43–1.48 across 4 seeds at
+400 epochs, not noise); fixing that (1600 epochs, and a higher PINN
+learning rate at the same epoch budget) cut deep-BSDE's error by
+~300x, from ~580x the grid's own error down to ~2x. Grid cost still
+scales as `M^d` — 200, 40,000, and 8,000,000 nodes at d = 1, 2, 3 at
+this package's own resolution — while the deep BSDE solver's walltime
+stays ≈flat across the same dimensions, the actual mechanism by which
+the comparison could tip at higher dimensions, unchanged by this
+revision.
 
-**Finding: supported, with the crossover demonstrated, not assumed.**
-The textbook "curse of dimensionality" justification for neural PDE
-solvers is a real, commonly-asserted claim; this project is one of the
-few small repositories that actually measures the crossover rather
-than citing the claim.
+**Finding: supported, with the crossover demonstrated, not assumed —
+now on a properly-trained comparison.** The textbook "curse of
+dimensionality" justification for neural PDE solvers is a real,
+commonly-asserted claim; this project is one of the few small
+repositories that actually measures the crossover rather than citing
+the claim, and now does so without an undertrained baseline
+overstating the accuracy gap.
 
 ### RQ4 — Does naive fixed-epoch training produce a fair comparison between models of different capacity, and does reward/objective design silently determine an RL agent's apparent conclusion before any learning happens?
 

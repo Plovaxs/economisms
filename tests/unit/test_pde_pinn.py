@@ -158,3 +158,26 @@ def test_rejects_non_positive_epochs() -> None:
 def test_rejects_unknown_optimizer() -> None:
     with pytest.raises(ValueError, match="optimizer_name"):
         train_pinn(_SPEC, seed=0, n_epochs=5, optimizer_name="rmsprop")
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_a_higher_learning_rate_reduces_price_error_at_the_same_epoch_budget(seed: int) -> None:
+    """PR-176: `n_epochs=1500` at the default `learning_rate=3e-3`
+    (this file's own `well_trained` fixture) measures real seed
+    variance (price error ~0.70-1.95 across seeds 0-3) that a single
+    seed=0 result understates. Simply training LONGER is not a clean
+    fix here -- the cosine-annealing schedule is tied to `n_epochs`,
+    so a longer run anneals on a different trajectory, not just "the
+    same schedule continued" (confirmed: 3000 epochs at the default LR
+    measured WORSE error than 1500, not better). A higher peak LR at
+    the SAME schedule length is the clean comparison, and a direct
+    sweep found `learning_rate=1e-2` reduces price error at every one
+    of 4 seeds tried (mean ~0.53 vs ~1.58) -- now
+    `pde_solvers.benchmark.compute_cost_comparison`'s own real
+    configuration (see its docstring for the full numbers)."""
+    closed_form = black_scholes_price(_MARKET, _OPTION)
+    default_lr_solver, _ = train_pinn(_SPEC, seed=seed, n_epochs=1500)
+    tuned_lr_solver, _ = train_pinn(_SPEC, seed=seed, n_epochs=1500, learning_rate=1e-2)
+    default_error = abs(default_lr_solver.price_at(100.0) - closed_form)
+    tuned_error = abs(tuned_lr_solver.price_at(100.0) - closed_form)
+    assert tuned_error < default_error

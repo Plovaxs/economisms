@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "7e03bed44260d8eabe51fc01c3496ec7509b804d020436eaef5a81cd50a982be",
+    "content_sha256": "8df0069a4298f73a7d5ffd72aa6c892a530ad82408c0dcd04593a0c7f1d3308e",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "5cdd966648e8e8d0887ff443c9327c3367ca5bb1217940987168ec9dc4e59557",
+  "checklist_notes_sha256": "2087e4f55b6e84a21c928c21df42bad86a85ded437a4b3ff9b4808bb7790deec",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -74,7 +74,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6288,
+          "checklist_line": 6308,
           "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`; R0 real, R1-R3 undefined",
           "id_column": "GOV-02 (first evidence, partial)",
           "requirement_note": "release classes, paper-only default, live-trading exclusion"
@@ -98,7 +98,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6872,
+          "checklist_line": 6892,
           "evidence_note": "`evidence.raci_register.RACI_REGISTER`/`verify_raci_register`; 6 new tests; deputies explicitly absent",
           "id_column": "GOV-03 (first evidence, partial)",
           "requirement_note": "named technical/scientific/security/risk owners and deputies"
@@ -146,7 +146,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6289,
+          "checklist_line": 6309,
           "evidence_note": "`docs/governance/ARCHITECTURE_DECISIONS.md`; 4 real ADRs, not reviewed",
           "id_column": "GOV-05 (first evidence, partial)",
           "requirement_note": "ADR process, one per major interface"
@@ -170,7 +170,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6290,
+          "checklist_line": 6310,
           "evidence_note": "`docs/governance/DISCLOSURES.md`",
           "id_column": "GOV-06 (first evidence)",
           "requirement_note": "conflicts of interest, intended audience"
@@ -194,7 +194,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6291,
+          "checklist_line": 6311,
           "evidence_note": "`docs/governance/DISCLOSURES.md`, linking `docs/RESULTS_AND_LIMITATIONS.md`",
           "id_column": "GOV-07 (first evidence, partial)",
           "requirement_note": "research ethics/limitations statement"
@@ -218,7 +218,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6292,
+          "checklist_line": 6312,
           "evidence_note": "`docs/governance/ISSUE_AND_VALIDATION_POLICY.md`",
           "id_column": "GOV-08 (first evidence, partial)",
           "requirement_note": "issue prioritization P0/P1/P2 policy"
@@ -266,7 +266,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6293,
+          "checklist_line": 6313,
           "evidence_note": "`docs/governance/DEPLOYMENT_ASSUMPTIONS.md`",
           "id_column": "GOV-10 (first evidence)",
           "requirement_note": "jurisdiction/deployment assumptions"
@@ -290,7 +290,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6294,
+          "checklist_line": 6314,
           "evidence_note": "`docs/governance/ISSUE_AND_VALIDATION_POLICY.md`; process defined, not executed",
           "id_column": "GOV-11 (first evidence, partial)",
           "requirement_note": "independent validation/effective challenge"
@@ -338,7 +338,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6295,
+          "checklist_line": 6315,
           "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`, reusing `BreakingChangeNotice`/`rollback_to`",
           "id_column": "GOV-13 (first evidence)",
           "requirement_note": "change management/rollback authority"
@@ -362,7 +362,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6296,
+          "checklist_line": 6316,
           "evidence_note": "`docs/governance/RELEASE_GOVERNANCE.md`, reusing `alert_routing` + the real current NO-GO gate",
           "id_column": "GOV-14 (first evidence)",
           "requirement_note": "no-go escalation: stop-work/notify/sign-off"
@@ -938,7 +938,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6017,
+          "checklist_line": 6037,
           "evidence_note": "`marl.baselines`; bit-identical rollout across two independent runs",
           "id_column": "MAR-01 (first evidence)",
           "requirement_note": "deterministic fixed-rule baselines, independently reproducible"
@@ -962,7 +962,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6018,
+          "checklist_line": 6038,
           "evidence_note": "`marl.spaces` (`SCHEMA_VERSION`); peer review not claimed",
           "id_column": "MAR-02 (first evidence, partial)",
           "requirement_note": "observation/action/reward spaces, versioned, rationale documented"
@@ -986,7 +986,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6019,
+          "checklist_line": 6039,
           "evidence_note": "`marl.feasibility.project_fraction_to_amount`/`_to_headroom`; `tests/property/test_mar_action_feasibility.py` (4 Hypothesis properties)",
           "id_column": "MAR-03 (first evidence)",
           "requirement_note": "action feasibility projection, property-tested"
@@ -1010,7 +1010,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6020,
+          "checklist_line": 6040,
           "evidence_note": "`marl.training`; learned policy 42.07 vs. best fixed baseline 41.20",
           "id_column": "MAR-04 (first evidence)",
           "requirement_note": "household policy learning vs. rule-based counterfactuals"
@@ -1034,7 +1034,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6021,
+          "checklist_line": 6041,
           "evidence_note": "`marl.training`; real finding: this reward structure's optimum is low wage payment, disclosed not hidden",
           "id_column": "MAR-05 (first evidence, disclosed)",
           "requirement_note": "firm policy learning, feasible domain only"
@@ -1058,7 +1058,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6022,
+          "checklist_line": 6042,
           "evidence_note": "`marl.policies.RiskLimitedBankPolicy`; 30 real loan originations, `CreditLimitExceededError` never raised",
           "id_column": "MAR-06 (first evidence)",
           "requirement_note": "bank underwriting/risk-limit agent, guardrails enforced"
@@ -1082,7 +1082,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6023,
+          "checklist_line": 6043,
           "evidence_note": "`marl.spaces.CentralBankAction` + `marl.policies.TaylorRuleCentralBankPolicy`; property-tested against adversarial gaps",
           "id_column": "MAR-07 (first evidence)",
           "requirement_note": "central-bank controller, constrained action set"
@@ -1106,7 +1106,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6024,
+          "checklist_line": 6044,
           "evidence_note": "`marl.training.train_joint_ppo` (real clipped-surrogate PPO); same-seed reproducibility test",
           "id_column": "MAR-08 (first evidence)",
           "requirement_note": "PPO or comparable, deterministic seeding"
@@ -1130,9 +1130,9 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6025,
-          "evidence_note": "`marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning",
-          "id_column": "MAR-09 (first evidence)",
+          "checklist_line": 6045,
+          "evidence_note": "`marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning, and (PR-177) a robustly lower mean household utility under co-learning, 0/20 real runs favoring it",
+          "id_column": "MAR-09 (first evidence, extended PR-177)",
           "requirement_note": "multi-agent nonstationarity/instability report"
         }
       ],
@@ -1154,7 +1154,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6026,
+          "checklist_line": 6046,
           "evidence_note": "`tests/unit/test_mar_adversarial.py`; real overspend/exploit attempts, ledger and fixed reward bug both confirmed to hold",
           "id_column": "MAR-10 (first evidence)",
           "requirement_note": "reward-hacking adversarial tests"
@@ -1178,7 +1178,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6027,
+          "checklist_line": 6047,
           "evidence_note": "same experiment as MAR-09, isolates co-learning's effect",
           "id_column": "MAR-11 (first evidence)",
           "requirement_note": "single-agent vs. co-learning ablation"
@@ -1202,7 +1202,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6028,
+          "checklist_line": 6048,
           "evidence_note": "`marl.diagnostics.welfare_report_across_heterogeneous_households`; real Gini ~0.23 over independent heterogeneous conditions, not a simultaneous N-household market",
           "id_column": "MAR-12 (first evidence, disclosed simplification)",
           "requirement_note": "welfare/inequality/distributional metrics"
@@ -1226,7 +1226,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6029,
+          "checklist_line": 6049,
           "evidence_note": "`marl.diagnostics.evaluate_ood_wage_shock`; real ~8.7 degradation, ~0.11 std across seeds",
           "id_column": "MAR-13 (first evidence)",
           "requirement_note": "unseen tax/monetary shock, uncertainty reported"
@@ -1250,7 +1250,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6030,
+          "checklist_line": 6050,
           "evidence_note": "`marl.negative_results.NEGATIVE_RESULT_LOG`; 2 real findings, each with a reproducing regression test",
           "id_column": "MAR-14 (first evidence)",
           "requirement_note": "negative-result log with triggering configurations"
@@ -1910,7 +1910,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5797,
+          "checklist_line": 5802,
           "evidence_note": "`neural_sde.design.NeuralSDEDesignSpec`/`design_record_text`",
           "id_column": "NSD-01 (first evidence)",
           "requirement_note": "neural drift/diffusion architecture design record"
@@ -1934,7 +1934,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5798,
+          "checklist_line": 5803,
           "evidence_note": "`neural_sde.integration`; `torch.autograd.gradcheck` (float64) on a toy case",
           "id_column": "NSD-02 (first evidence)",
           "requirement_note": "differentiable stochastic integration, autograd-consistent"
@@ -1958,7 +1958,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5799,
+          "checklist_line": 5804,
           "evidence_note": "`neural_sde.model`'s Cholesky parameterization; every sampled eigenvalue checked across 4 state-dim combinations x 200 random inputs",
           "id_column": "NSD-03 (first evidence)",
           "requirement_note": "diffusion PSD by construction"
@@ -1982,7 +1982,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5800,
+          "checklist_line": 5805,
           "evidence_note": "substituted with tested architectural boundedness/finiteness, see narrative above",
           "id_column": "NSD-04 (first evidence, disclosed reinterpretation)",
           "requirement_note": "variance/price positivity by construction"
@@ -2006,7 +2006,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5801,
+          "checklist_line": 5806,
           "evidence_note": "`neural_sde.dataset.build_transition_dataset` reads only through `econosim.pit.build_feature_vector`; a direct future-data request is rejected by test",
           "id_column": "NSD-05 (first evidence)",
           "requirement_note": "regime-conditioned model, known-at time checked"
@@ -2030,7 +2030,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5802,
+          "checklist_line": 5807,
           "evidence_note": "`neural_sde.dataset.FittedScaler` is frozen with no `fit`/`fit_transform` method reachable post-construction",
           "id_column": "NSD-06 (first evidence)",
           "requirement_note": "train-only preprocessing/imputation"
@@ -2054,7 +2054,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5803,
+          "checklist_line": 5808,
           "evidence_note": "`neural_sde.benchmark.benchmark_report`; GARCH(1,1) substitutes for Heston, see narrative above",
           "id_column": "NSD-07 (first evidence, disclosed substitution)",
           "requirement_note": "compare vs. GBM/Heston/simple ML"
@@ -2078,7 +2078,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5804,
+          "checklist_line": 5809,
           "evidence_note": "`neural_sde.scoring.gaussian_log_score`/`marginal_crps_report`; CRPS cross-checked against brute-force numerical integration",
           "id_column": "NSD-08 (first evidence)",
           "requirement_note": "proper scoring rules (CRPS/log score)"
@@ -2102,7 +2102,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5805,
+          "checklist_line": 5810,
           "evidence_note": "`neural_sde.scoring.moment_diagnostics` with bootstrap CIs, validated against a known-skew lognormal sample",
           "id_column": "NSD-09 (first evidence)",
           "requirement_note": "tail/skew/vol-persistence moment diagnostics"
@@ -2126,7 +2126,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5806,
+          "checklist_line": 5811,
           "evidence_note": "`neural_sde.benchmark.multi_seed_multi_solver_sensitivity`; real run: within-scheme seed std ~15.6-16.0 vs. cross-scheme std at matched seed ~1.37",
           "id_column": "NSD-10 (first evidence)",
           "requirement_note": "multi-seed/multi-solver sensitivity"
@@ -2150,7 +2150,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5807,
+          "checklist_line": 5812,
           "evidence_note": "`neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +5.58 vs. baseline +29.97 log-score degradation",
           "id_column": "NSD-11 (first evidence)",
           "requirement_note": "unseen macroeconomic shock OOD evaluation"
@@ -2174,7 +2174,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5808,
+          "checklist_line": 5813,
           "evidence_note": "`neural_sde.training._check_integrity`/`TrainingIntegrityError`; both an injected-NaN case and an organically-exploding-learning-rate case",
           "id_column": "NSD-12 (first evidence)",
           "requirement_note": "training fails on loss/gradient/NaN integrity violations"
@@ -2198,7 +2198,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5809,
+          "checklist_line": 5814,
           "evidence_note": "`neural_sde.registry.ModelCard`/`model_card_from_trained_model`, training range read from the real data actually used, not hand-typed",
           "id_column": "NSD-13 (first evidence)",
           "requirement_note": "model version/training-range/limitations card"
@@ -2606,7 +2606,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5951,
+          "checklist_line": 5964,
           "evidence_note": "`pde_solvers.problem.BlackScholesPDESpec`/`BasketOptionPDESpec`; independent human review not claimed",
           "id_column": "PDE-01 (first evidence, partial)",
           "requirement_note": "PDE/BSDE domain, terminal/boundary conditions"
@@ -2630,7 +2630,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5952,
+          "checklist_line": 5965,
           "evidence_note": "`grid.solve_crank_nicolson`; price/Delta/Gamma match closed-form, real monotonic convergence across 4 resolutions",
           "id_column": "PDE-02 (first evidence)",
           "requirement_note": "classical grid/reference solver, analytically-solved convergence tests"
@@ -2654,7 +2654,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5953,
+          "checklist_line": 5966,
           "evidence_note": "`pinn.train_pinn`; same-seed-identical / different-seed-different collocation-point and epoch-loss tests",
           "id_column": "PDE-03 (first evidence)",
           "requirement_note": "PINN interior residual loss, reproducible sampling"
@@ -2678,7 +2678,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5954,
+          "checklist_line": 5967,
           "evidence_note": "`pinn.py` terminal-loss term; 15-point spot grid at t=T vs. real payoff, worst observed error 4.33 under a 6.0 tolerance",
           "id_column": "PDE-04 (first evidence)",
           "requirement_note": "payoff terminal condition enforced, terminal error grid checked"
@@ -2702,7 +2702,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5955,
+          "checklist_line": 5968,
           "evidence_note": "`pinn.PINNSolver.arbitrage_violation_rate` + new arbitrage-loss term; real measured reduction 58% -> ~17-20%, see narrative above",
           "id_column": "PDE-05 (first evidence)",
           "requirement_note": "boundary/arbitrage constraints, violation rate under pre-approved tolerance"
@@ -2726,7 +2726,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5956,
+          "checklist_line": 5969,
           "evidence_note": "`deep_bsde.train_deep_bsde`/`DeepBSDENet`; 1D vs. closed-form, 2D/3D basket vs. independent 200k-path Monte Carlo",
           "id_column": "PDE-06 (first evidence)",
           "requirement_note": "deep BSDE solver, causal rollout, benchmark-PDE checks"
@@ -2750,7 +2750,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5957,
+          "checklist_line": 5970,
           "evidence_note": "`benchmark.grid_node_count` (M^d scaling) + `compute_cost_comparison`; this sandbox's CPU, disclosed, not multi-machine/GPU",
           "id_column": "PDE-07 (first evidence)",
           "requirement_note": "error-by-dimension/step-count benchmark with hardware disclosed"
@@ -2774,7 +2774,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5958,
+          "checklist_line": 5971,
           "evidence_note": "`benchmark.greeks_error_report` (grid); PINN Delta/Gamma via autograd; deep BSDE Delta via the Z0/S0 identity -- deep BSDE Gamma deliberately NOT reported, an undemonstrated identity, disclosed rather than fabricated",
           "id_column": "PDE-08 (first evidence, disclosed gap)",
           "requirement_note": "price/Delta/Gamma error budgets"
@@ -2798,7 +2798,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5959,
+          "checklist_line": 5972,
           "evidence_note": "`benchmark.audit_near_expiry_and_at_the_money_errors`; real worst-case location empirically confirmed at the shortest maturity tested, at-the-money",
           "id_column": "PDE-09 (first evidence)",
           "requirement_note": "worst-case error surfaces, near-expiry/ATM audit"
@@ -2822,7 +2822,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5960,
+          "checklist_line": 5973,
           "evidence_note": "`benchmark.pinn_ablation_matrix`; real seeded 2x2x2 matrix, Adam beats plain-momentum SGD on every seed; independent human validation not claimed",
           "id_column": "PDE-10 (first evidence, partial)",
           "requirement_note": "optimizer/sampling ablations, independent validation"
@@ -2846,7 +2846,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5961,
+          "checklist_line": 5974,
           "evidence_note": "`pinn.PDEResidualError` + `benchmark.GridConvergenceError`, both tested via deliberately-under-converged inputs that trigger the raise; deep BSDE has no equivalent hard-refusal gate yet, disclosed",
           "id_column": "PDE-11 (first evidence, 2 of 3 solvers)",
           "requirement_note": "refuses false precision on high residuals"
@@ -2870,9 +2870,9 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5962,
-          "evidence_note": "`benchmark.compute_cost_comparison`; real wall-clock on this sandbox's CPU; grid ~700x faster AND more accurate than either neural method in 1D",
-          "id_column": "PDE-12 (first evidence)",
+          "checklist_line": 5975,
+          "evidence_note": "`benchmark.compute_cost_comparison`; real wall-clock on this sandbox's CPU; grid ~1100x faster than PINN / ~2700x faster than deep BSDE, and ~80x more accurate than PINN / ~2x more accurate than deep BSDE, on a properly-trained (not undertrained) neural comparison",
+          "id_column": "PDE-12 (first evidence, revised PR-177)",
           "requirement_note": "neural compute cost vs. reliable numerical methods, reported fairly"
         }
       ],
@@ -3278,7 +3278,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6283,
+          "checklist_line": 6303,
           "evidence_note": "`hedging.rl_agent`; 7 new tests; real (disclosed, non-flattering) comparison result",
           "id_column": "HDG-14 (first evidence)",
           "requirement_note": "RL agent after static policy, stability + risk bounds"
@@ -4782,7 +4782,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6873,
+          "checklist_line": 6893,
           "evidence_note": "`evidence.replication_digest.REAL_REPLICATIONS`; formalizes PR-162's audit; 5 new tests; internal AI-assisted, not external",
           "id_column": "EXP-14 (first evidence, partial)",
           "requirement_note": "independent rerun of paper-quality claims, digest stored"
@@ -5052,7 +5052,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6280,
+          "checklist_line": 6300,
           "evidence_note": "`evidence.stochastic_equivalence`; 5 new tests including a real discriminating negative control",
           "id_column": "VAL-10 (first evidence)",
           "requirement_note": "GPU tolerance-based reproducibility; statistical equivalence defined"
@@ -5856,7 +5856,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6366,
+          "checklist_line": 6386,
           "evidence_note": "`dashboard.views.render_economy_explorer`; real posted ledger transactions, real `econosim.shocks` draws",
           "id_column": "UIX-01 (first evidence)",
           "requirement_note": "economic simulation explorer, macro shocks/time series"
@@ -5880,7 +5880,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6367,
+          "checklist_line": 6387,
           "evidence_note": "`dashboard.views.render_balance_sheets`; the real `Ledger.balance_sheet`/`check_identities`",
           "id_column": "UIX-02 (first evidence)",
           "requirement_note": "balance sheets, ledger reconciliation"
@@ -5904,7 +5904,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6368,
+          "checklist_line": 6388,
           "evidence_note": "`dashboard.views.render_market_paths`; real `stochastica.gbm` paths, real terminal percentiles",
           "id_column": "UIX-03 (first evidence)",
           "requirement_note": "market paths, volatility, uncertainty"
@@ -5928,7 +5928,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6369,
+          "checklist_line": 6389,
           "evidence_note": "`dashboard.views.render_pricing_diagnostics`; rendered price asserted equal to a direct `black_scholes_price` call",
           "id_column": "UIX-04 (first evidence)",
           "requirement_note": "pricing diagnostics and Greeks"
@@ -5952,7 +5952,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6370,
+          "checklist_line": 6390,
           "evidence_note": "`dashboard.views.render_hedge_actions`; real `hedging.baseline` delta ratios per step",
           "id_column": "UIX-05 (first evidence)",
           "requirement_note": "hedge actions, costs, risk outcomes"
@@ -5976,7 +5976,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6371,
+          "checklist_line": 6391,
           "evidence_note": "`dashboard.views.render_portfolio_risk`; real `titan.risk_metrics` historical VaR/ES/max-drawdown",
           "id_column": "UIX-06 (first evidence)",
           "requirement_note": "portfolio VaR/ES, factors, drawdown, stress"
@@ -6000,7 +6000,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6372,
+          "checklist_line": 6392,
           "evidence_note": "`dashboard.experiment_comparison`; real PR-142/143/150 results including 3 real non-wins",
           "id_column": "UIX-07 (first evidence)",
           "requirement_note": "experiment comparison with CI, no cherry-picking"
@@ -6024,7 +6024,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6373,
+          "checklist_line": 6393,
           "evidence_note": "`dashboard.provenance`, reusing `evidence.constants`' AUD-08 disclaimer/source_tag",
           "id_column": "UIX-08 (first evidence)",
           "requirement_note": "synthetic-vs-historical labels, preserved on export"
@@ -6048,7 +6048,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6374,
+          "checklist_line": 6394,
           "evidence_note": "`dashboard.audit_trail`; real `ModelRegistryEntry.history`, disclosed as a realistic test-constructed entry (NO-GO, nothing real promoted)",
           "id_column": "UIX-09 (first evidence, disclosed)",
           "requirement_note": "audit trail, promotion/approval navigable"
@@ -6072,7 +6072,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6375,
+          "checklist_line": 6395,
           "evidence_note": "`dashboard.auth`/`app`; real end-to-end ASGI 403 test",
           "id_column": "UIX-10 (first evidence)",
           "requirement_note": "authorization-aware sharing, unauthorized access blocked"
@@ -6096,7 +6096,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6376,
+          "checklist_line": 6396,
           "evidence_note": "`dashboard.accessibility` (5 real automated checks) + `docs/UIX_ACCESSIBILITY_TEST_PLAN.md` (5 items explicitly NOT COVERED, need a real browser/human)",
           "id_column": "UIX-11 (first evidence, partial)",
           "requirement_note": "accessibility/responsive-layout test plan"
@@ -6120,7 +6120,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6377,
+          "checklist_line": 6397,
           "evidence_note": "`dashboard.export`; real content hash, tamper-sensitive (tested); no PDF renderer added, disclosed",
           "id_column": "UIX-12 (first evidence, disclosed)",
           "requirement_note": "report export with reproducibility manifest"
@@ -6456,7 +6456,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6814,
+          "checklist_line": 6834,
           "evidence_note": "live GitHub branch protection: `required_pull_request_reviews` added; signing/admin-enforcement not covered",
           "id_column": "SEC-02 (first credited, partial)",
           "requirement_note": "protected branches, peer-reviewed merges"
@@ -6480,7 +6480,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6964,
+          "checklist_line": 6984,
           "evidence_note": "`evidence.access_review`; real dated GitHub collaborator snapshot; 5 new tests; MFA/audit-log not available for a personal repo",
           "id_column": "SEC-03 (first credited, partial)",
           "requirement_note": "MFA, least-privilege maintainers, access review"
@@ -6558,7 +6558,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6818,
+          "checklist_line": 6838,
           "evidence_note": "pre-existing `security_scan.secret_scan` + real credential-rotation drill test",
           "id_column": "SEC-06 (first credited)",
           "requirement_note": "secrets management, secret scan, rotation drill"
@@ -6582,7 +6582,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6285,
+          "checklist_line": 6305,
           "evidence_note": "pre-existing SBOM credited; container pinning N/A; vuln reports open",
           "id_column": "SEC-07 (first evidence, partial)",
           "requirement_note": "container images pinned, SBOM/vuln reports"
@@ -6630,7 +6630,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6284,
+          "checklist_line": 6304,
           "evidence_note": "pre-existing `evidence.release_provenance` (PR-157)",
           "id_column": "SEC-09 (first credited)",
           "requirement_note": "sign release artifacts, independent verification"
@@ -6660,7 +6660,7 @@
           "requirement_note": "network egress allowlist for ingestion and model serving; unexpected egress denied and alert generated"
         },
         {
-          "checklist_line": 5850,
+          "checklist_line": 5855,
           "evidence_note": "`data_ingestion.egress_allowlist.default_ingestion_transport`; both `orchestration.recessionnet_run`/`qmacro_run` now default to it; 2 new monkeypatch-verified tests confirming real wiring, plus 2 new tests on the default routing table/transport factory themselves",
           "id_column": "SEC-10 (strengthened)",
           "requirement_note": "network egress allowlist for ingestion; wired into real connector call sites"
@@ -6684,7 +6684,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6679,
+          "checklist_line": 6699,
           "evidence_note": "pre-existing `service.application.Admission` + `test_service_http.py` (REL-10)",
           "id_column": "SEC-11 (first credited)",
           "requirement_note": "rate-limiting, per-tenant budgets, load test"
@@ -6708,7 +6708,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6470,
+          "checklist_line": 6490,
           "evidence_note": "pre-existing `docs/DATA_PROCESSING_INVENTORY.md`; independent audit not claimed",
           "id_column": "SEC-12 (first evidence, partial)",
           "requirement_note": "confidential data classification"
@@ -6732,7 +6732,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6720,
+          "checklist_line": 6740,
           "evidence_note": "pre-existing `evidence.failover_audit_continuity.restore_registry_entry` + its real tampered-history-fails-to-restore test (DRI-11)",
           "id_column": "SEC-13 (first credited)",
           "requirement_note": "backup encryption, recovery access separation"
@@ -6797,7 +6797,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5909,
+          "checklist_line": 5914,
           "evidence_note": "`docs/LICENSE_INVENTORY.md` \u00a7 External data source / vendor-entitlement register",
           "id_column": "PRV-01 (first evidence)",
           "requirement_note": "dataset rights/vendor-entitlement register"
@@ -6821,7 +6821,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5907,
+          "checklist_line": 5912,
           "evidence_note": "`docs/DATA_PROCESSING_INVENTORY.md`",
           "id_column": "PRV-02 (first evidence)",
           "requirement_note": "data processing inventory and purposes documented"
@@ -6845,7 +6845,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5906,
+          "checklist_line": 5911,
           "evidence_note": "`evidence.security_scan.pii_scan`; 9 new tests (`tests/unit/test_security_scan.py`) including a real self-check against this repo's committed datasets and a real false-positive regression against this repo's own data",
           "id_column": "PRV-03 (first evidence)",
           "requirement_note": "tests confirm default datasets avoid real PII"
@@ -6869,7 +6869,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6677,
+          "checklist_line": 6697,
           "evidence_note": "`evidence.data_retention`; 7 new tests",
           "id_column": "PRV-04 (first evidence)",
           "requirement_note": "data retention schedule, automated expiry/exceptions"
@@ -6893,7 +6893,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5908,
+          "checklist_line": 5913,
           "evidence_note": "`docs/DATA_PROCESSING_INVENTORY.md` \u00a7 Data-subject / deletion procedures, backed by the real PRV-03 scan",
           "id_column": "PRV-05 (first evidence, not-applicable confirmed)",
           "requirement_note": "deletion/data-subject procedures where relevant"
@@ -6934,7 +6934,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 5910,
+          "checklist_line": 5915,
           "evidence_note": "pre-existing `LICENSE` + `docs/LICENSE_INVENTORY.md` \u00a7 Source code, model weights, and benchmark licensing",
           "id_column": "PRV-07 (first credited)",
           "requirement_note": "source code/model-weights/benchmark licensing"
@@ -6958,7 +6958,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6678,
+          "checklist_line": 6698,
           "evidence_note": "`docs/DATA_PROCESSING_INVENTORY.md`; no vendor relationship exists",
           "id_column": "PRV-08 (first evidence, not-applicable confirmed)",
           "requirement_note": "vendor contract security review"
@@ -6982,7 +6982,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6468,
+          "checklist_line": 6488,
           "evidence_note": "`dashboard.provenance`, reusing `evidence.constants.SIMULATION_DISCLAIMER`",
           "id_column": "PRV-09 (first evidence)",
           "requirement_note": "simulation/non-advice statement on public UI/export"
@@ -7023,7 +7023,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6469,
+          "checklist_line": 6489,
           "evidence_note": "pre-existing `evidence.security_scan.license_scan`/`pii_scan`; \"private\" results don't exist in this project",
           "id_column": "PRV-11 (first evidence, N/A for \"private\")",
           "requirement_note": "publication redaction/entitlement verification"
@@ -7047,7 +7047,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6466,
+          "checklist_line": 6486,
           "evidence_note": "`dashboard.auth.ShareGrant`/`PortfolioShareRegistry`; 3 new tests",
           "id_column": "PRV-12 (first evidence)",
           "requirement_note": "data-sharing access grants: requester/owner/expiry/justification"
@@ -7071,7 +7071,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6101,
+          "checklist_line": 6121,
           "evidence_note": "`evidence.model_inventory`; 6 new tests including a real importable-module self-check",
           "id_column": "MGR-01 (first evidence)",
           "requirement_note": "enterprise model inventory, purpose and owner per model"
@@ -7095,7 +7095,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6965,
+          "checklist_line": 6985,
           "evidence_note": "`evidence.theoretical_assumptions`; reuses EXP-14's audit evidence; 6 new tests; internal AI-assisted, not external",
           "id_column": "MGR-02 (first credited, partial)",
           "requirement_note": "document theoretical assumptions; reviewer evaluates math logic"
@@ -7119,7 +7119,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 7036,
+          "checklist_line": 7056,
           "evidence_note": "`evidence.independent_data_assessment`; found and fixed a real boundary-month labeling bug in `recessionnet.labels`; 5 new tests plus 1 regression test in `test_recessionnet_labels.py`",
           "id_column": "MGR-03 (first evidence)",
           "requirement_note": "independent assessment reproduces eligibility/split"
@@ -7143,7 +7143,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6681,
+          "checklist_line": 6701,
           "evidence_note": "`evidence.model_validation_report`; 5 new tests",
           "id_column": "MGR-04 (first evidence)",
           "requirement_note": "outcomes testing/backtests, calibration + operational use"
@@ -7167,7 +7167,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6102,
+          "checklist_line": 6122,
           "evidence_note": "pre-existing `evidence.model_card` (MLO-09/DOC-06)",
           "id_column": "MGR-05 (first credited)",
           "requirement_note": "OOD boundaries/failure modes in model card"
@@ -7191,7 +7191,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6816,
+          "checklist_line": 6836,
           "evidence_note": "`evidence.model_dependency_risk`; composes PDE-08 + HDG-13; 4 new tests",
           "id_column": "MGR-06 (first evidence)",
           "requirement_note": "model dependency interactions, aggregated model risk"
@@ -7232,7 +7232,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6103,
+          "checklist_line": 6123,
           "evidence_note": "pre-existing `evidence.champion_challenger` (MLO-14)",
           "id_column": "MGR-08 (first credited)",
           "requirement_note": "formal challenger benchmarking, approved reference + CI"
@@ -7256,7 +7256,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6104,
+          "checklist_line": 6124,
           "evidence_note": "pre-existing `evidence.retraining_trigger`/`model_monitoring` (MLO-13/OPS-08)",
           "id_column": "MGR-09 (first credited)",
           "requirement_note": "ongoing monitoring/recalibration thresholds"
@@ -7280,7 +7280,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6817,
+          "checklist_line": 6837,
           "evidence_note": "`evidence.validation_issue_tracker.REAL_FINDINGS`; live `/dashboard/validation-issues` route; 8 new tests",
           "id_column": "MGR-10 (first evidence)",
           "requirement_note": "validation issue tracking and remediation"
@@ -7304,7 +7304,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6815,
+          "checklist_line": 6835,
           "evidence_note": "`evidence.model_inventory.authorize_model_usage`; live `/dashboard/model-usage` route; 7 new tests",
           "id_column": "MGR-11 (first evidence)",
           "requirement_note": "restrict model usage to intended applications"
@@ -7328,7 +7328,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6099,
+          "checklist_line": 6119,
           "evidence_note": "`evidence.model_serving.deploy_if_not_retired`; 3 new tests",
           "id_column": "MGR-12 (first evidence)",
           "requirement_note": "model decommissioning/rollback; retired version not served"
@@ -7352,7 +7352,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6105,
+          "checklist_line": 6125,
           "evidence_note": "no third-party pretrained model weights are used in this repository, confirmed via `docs/LICENSE_INVENTORY.md`",
           "id_column": "MGR-13 (first evidence, not-applicable confirmed)",
           "requirement_note": "vendor/pretrained component review"
@@ -7417,7 +7417,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6138,
+          "checklist_line": 6158,
           "evidence_note": "GitHub branch protection API, confirmed both before (unprotected) and after (protected, required status checks) via direct `gh api` calls",
           "id_column": "CIQ-02 (first evidence)",
           "requirement_note": "fast unit/property/numerical tests; main branch protected on successful suite"
@@ -7537,7 +7537,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6188,
+          "checklist_line": 6208,
           "evidence_note": "`evidence.release_provenance`; 6 new tests including a real tampered-statement and wrong-key verification failure",
           "id_column": "CIQ-07 (first evidence)",
           "requirement_note": "sign artifacts, independent signature/source verification"
@@ -7561,7 +7561,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6871,
+          "checklist_line": 6891,
           "evidence_note": "`evidence.model_registry.SinglePersonApprovalError`; `promote_to_approved` rejects `approved_by == actor`; 1 new test",
           "id_column": "CIQ-08 (first evidence, partial)",
           "requirement_note": "independent model-validation gate; two-person approval"
@@ -7585,7 +7585,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6281,
+          "checklist_line": 6301,
           "evidence_note": "`evidence.deployment_paths.ShadowDeployment`",
           "id_column": "CIQ-09 (first evidence)",
           "requirement_note": "staging/canary/shadow deployment paths"
@@ -7609,7 +7609,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6282,
+          "checklist_line": 6302,
           "evidence_note": "`evidence.deployment_paths.AutoRollbackMonitor`; real fault injection, 7 new tests total across both CIQ items",
           "id_column": "CIQ-10 (first evidence)",
           "requirement_note": "automatic rollback on critical metric regression"
@@ -7657,7 +7657,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6189,
+          "checklist_line": 6209,
           "evidence_note": "`service.deploy_manifest.BreakingChangeNotice`; 4 new tests",
           "id_column": "CIQ-12 (first evidence)",
           "requirement_note": "maintenance window/notification for breaking change"
@@ -8065,7 +8065,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6106,
+          "checklist_line": 6126,
           "evidence_note": "`evidence.incident_management.OutageCommunicationTemplate`/`STAKEHOLDER_TEMPLATES`",
           "id_column": "DRI-05 (first evidence)",
           "requirement_note": "outage communication templates"
@@ -8089,7 +8089,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6107,
+          "checklist_line": 6127,
           "evidence_note": "`evidence.incident_management.IncidentRota`/`page`",
           "id_column": "DRI-06 (first evidence)",
           "requirement_note": "incident commander/scribe/escalation rota, tested paging"
@@ -8161,7 +8161,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6108,
+          "checklist_line": 6128,
           "evidence_note": "no multi-region/zone deployment exists for this to apply to",
           "id_column": "DRI-09 (first evidence, not-applicable confirmed)",
           "requirement_note": "region/zone failure drill where applicable"
@@ -8185,7 +8185,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6109,
+          "checklist_line": 6129,
           "evidence_note": "`evidence.incident_management.PostmortemRecord`; demonstrated against the real PR-141 incident",
           "id_column": "DRI-10 (first evidence)",
           "requirement_note": "blameless postmortem, corrective action tracker"
@@ -8233,7 +8233,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6100,
+          "checklist_line": 6120,
           "evidence_note": "`evidence.model_serving.mark_unhealthy`/`cached_predict` fail-closed gate; 5 new tests",
           "id_column": "DRI-12 (first evidence)",
           "requirement_note": "safe-shutdown; unhealthy service stops serving unapproved outputs"
@@ -8683,7 +8683,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6110,
+          "checklist_line": 6130,
           "evidence_note": "`docs/compliance/NIST_AI_RMF_MAPPING.md`",
           "id_column": "CMP-01 (first evidence)",
           "requirement_note": "NIST AI RMF applicability matrix"
@@ -8707,7 +8707,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6111,
+          "checklist_line": 6131,
           "evidence_note": "`docs/compliance/NIST_SSDF_MAPPING.md`",
           "id_column": "CMP-02 (first evidence)",
           "requirement_note": "NIST SSDF gap assessment"
@@ -8731,7 +8731,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6112,
+          "checklist_line": 6132,
           "evidence_note": "`docs/compliance/NIST_CSF_MAPPING.md`",
           "id_column": "CMP-03 (first evidence)",
           "requirement_note": "NIST CSF 2.0 profile"
@@ -8772,7 +8772,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6966,
+          "checklist_line": 6986,
           "evidence_note": "`docs/compliance/BCBS_239_MAPPING.md`; cites 11 pre-existing, re-confirmed tests",
           "id_column": "CMP-05 (first evidence)",
           "requirement_note": "map to BCBS 239; reconciliation/completeness/timeliness tests"
@@ -8847,7 +8847,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6967,
+          "checklist_line": 6987,
           "evidence_note": "`evidence/gate_report_r0.json`'s NO-GO/`scope_prohibited`; EXT category confirmed at 0 repository notes",
           "id_column": "CMP-09 (first evidence, not-applicable confirmed)",
           "requirement_note": "market-access controls review, if planned"
@@ -8871,7 +8871,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 7158,
+          "checklist_line": 7178,
           "evidence_note": "`docs/compliance/VENDOR_RISK_CATALOGUE.md`; extends PRV-08; cites `LICENSE_INVENTORY.md` and `security_scan`",
           "id_column": "CMP-10 (first evidence)",
           "requirement_note": "vendor risk catalogue; due diligence/concentration/exit plans"
@@ -8895,7 +8895,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6819,
+          "checklist_line": 6839,
           "evidence_note": "pre-existing `evidence.data_retention`; schedule signature not claimed",
           "id_column": "CMP-11 (first credited, partial)",
           "requirement_note": "audit retention/recordkeeping schedule"
@@ -8919,7 +8919,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 7157,
+          "checklist_line": 7177,
           "evidence_note": "`evidence.security_scan.claims_scan`; real zero-finding sweep of README/docs; 9 new tests; human review not claimed",
           "id_column": "CMP-12 (first evidence, partial)",
           "requirement_note": "marketing-claims review; no statutory-approval/guaranteed-return statements"
@@ -9237,7 +9237,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6190,
+          "checklist_line": 6210,
           "evidence_note": "pre-existing `evidence/gate_report_r0.json`'s real `scope_prohibited` field; \"signed\" not claimed for the current NO-GO record",
           "id_column": "LCH-01 (first credited, partial)",
           "requirement_note": "release feature scope, hard exclusions"
@@ -9261,7 +9261,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6287,
+          "checklist_line": 6307,
           "evidence_note": "`uv.lock` + `tools/reproducible_build.py`; staging N/A",
           "id_column": "LCH-02 (first evidence, partial)",
           "requirement_note": "dependency lock, candidate hash matches staging"
@@ -9285,7 +9285,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6963,
+          "checklist_line": 6983,
           "evidence_note": "`evidence.validation_issue_tracker.open_p0_findings`; reuses `alert_routing.canonical_severity`; 2 new tests",
           "id_column": "LCH-03 (first credited, partial)",
           "requirement_note": "independent review; open P0 findings closed or blocked"
@@ -9309,7 +9309,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6471,
+          "checklist_line": 6491,
           "evidence_note": "real zero-finding scans + UIX-10's real 403 test; formal sign-off not claimed",
           "id_column": "LCH-04 (first evidence, partial)",
           "requirement_note": "security/privacy sign-off, no critical vuln/unauthorized flow"
@@ -9333,7 +9333,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6472,
+          "checklist_line": 6492,
           "evidence_note": "`runbook_catalog`/`incident_management`/`retraining_trigger`/`model_monitoring`; formal review event not claimed",
           "id_column": "LCH-05 (first evidence, partial)",
           "requirement_note": "ops readiness: runbooks/alerts/monitoring/escalation"
@@ -9357,7 +9357,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6680,
+          "checklist_line": 6700,
           "evidence_note": "pre-existing DRI-08 drill + `RecoveryLimits.operation_seconds` (enforced, tested); \"signed\" not claimed",
           "id_column": "LCH-06 (first credited, partial)",
           "requirement_note": "DR restore drill, RTO evidence"
@@ -9381,7 +9381,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6473,
+          "checklist_line": 6493,
           "evidence_note": "`cost_benchmark`/`soak_test`/`scale_benchmark`/`deployment_paths.AutoRollbackMonitor`; consolidated single artifact not yet built",
           "id_column": "LCH-07 (first evidence, partial)",
           "requirement_note": "load/soak/failure-injection benchmark evidence"
@@ -9405,7 +9405,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6286,
+          "checklist_line": 6306,
           "evidence_note": "pre-existing `evidence.security_scan.license_scan`/`pii_scan`",
           "id_column": "LCH-08 (first credited)",
           "requirement_note": "no prohibited data/artifacts in release"
@@ -9429,7 +9429,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 7035,
+          "checklist_line": 7055,
           "evidence_note": "`evidence.user_acceptance`; 9 real cases against a live `uvicorn` process; 6 new tests",
           "id_column": "LCH-09 (first credited, partial)",
           "requirement_note": "controlled UAT for analysts/reviewers"
@@ -9453,7 +9453,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6467,
+          "checklist_line": 6487,
           "evidence_note": "`tests/unit/test_lch10_versioned_rollback_demonstration.py`, composing `ShadowDeployment`/`ModelRegistryEntry`/`deploy_if_not_retired`",
           "id_column": "LCH-10 (first evidence)",
           "requirement_note": "versioned rollback and model invalidation, canary + audit chain"
@@ -9477,7 +9477,7 @@
       "owner": null,
       "repository_notes": [
         {
-          "checklist_line": 6721,
+          "checklist_line": 6741,
           "evidence_note": "pre-existing, consistent `SIMULATION_DISCLAIMER` wording across README/dashboard/governance docs; human approval not claimed",
           "id_column": "LCH-11 (first credited, partial)",
           "requirement_note": "external communications/limitation wording approved"

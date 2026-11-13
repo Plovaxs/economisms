@@ -58,6 +58,17 @@ the crossover measured rather than assumed.** The classical grid wins
 outright in 1D (faster AND more accurate); grid cost scales as `M^d`
 while the neural solvers' wall time does not, which is the actual
 mechanism by which complexity could pay off in higher dimensions.
+**Evidence revised 2026-11-13 (PR-177), per this document's own rule
+above — what changed and why:** the 1D accuracy comparison originally
+cited an undertrained deep-BSDE baseline (400 epochs; a 4-seed sweep
+found this a consistent, real undertraining effect, not noise).
+Fixing it (1600 epochs, plus a higher PINN learning rate at the same
+epoch budget) cut deep-BSDE's price error by ~300x, narrowing the
+grid's accuracy advantage over it from ~580x to ~2x. The verdict itself
+is unchanged — the grid still wins outright in 1D on both speed and
+accuracy, and the `M^d`-vs-flat scaling mechanism is untouched — only
+the specific accuracy-gap magnitude cited as evidence changed. See
+`docs/RESULTS_AND_LIMITATIONS.md`'s Finding 6 for the full numbers.
 
 **H4 (methodology).** Naive fixed-epoch training and unaudited reward
 design can each, independently, produce a false conclusion about model

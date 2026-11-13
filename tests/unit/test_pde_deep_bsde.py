@@ -60,6 +60,32 @@ def test_1d_delta_estimate_matches_closed_form(trained_1d: DeepBSDEResult) -> No
     assert trained_1d.delta_estimate == pytest.approx(greeks.delta, abs=0.1)
 
 
+def test_more_epochs_materially_closes_the_price_gap_to_closed_form() -> None:
+    """PR-176: a direct sweep (4 seeds, see `benchmark.compute_cost_
+    comparison`'s own docstring for the full numbers) found 400 epochs
+    -- this file's own `trained_1d` fixture, and the value
+    `pde_solvers.benchmark.compute_cost_comparison` used until this PR
+    -- genuinely undertrains this model (price error ~1.43-1.48,
+    consistent across seeds, not noise): quadrupling to 1600 epochs
+    drops it to ~0.005-0.06, within ~2x of the classical grid's own
+    error rather than ~580x. Locked in at seed 0 (deterministic,
+    already the seed `compute_cost_comparison` itself uses) as a
+    permanent regression check that this is a real training-budget
+    effect, not a one-off measurement."""
+    closed_form = black_scholes_price(_MARKET, _OPTION)
+    undertrained = train_deep_bsde(
+        _SPEC_1D, np.array([100.0]), seed=0, n_time=20, n_paths=512, n_epochs=400,
+        learning_rate=0.03,
+    )
+    well_trained = train_deep_bsde(
+        _SPEC_1D, np.array([100.0]), seed=0, n_time=20, n_paths=512, n_epochs=1600,
+        learning_rate=0.03,
+    )
+    undertrained_error = abs(undertrained.price - closed_form)
+    well_trained_error = abs(well_trained.price - closed_form)
+    assert well_trained_error < undertrained_error / 10
+
+
 def test_basket_delta_estimate_is_not_reported() -> None:
     """PDE-08's Greeks benchmark only reports what it has validated --
     a basket's Z_0 does not have the same scalar sigma*S*Delta identity

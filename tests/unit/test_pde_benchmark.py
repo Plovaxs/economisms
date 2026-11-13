@@ -139,9 +139,11 @@ def test_pinn_ablation_matrix_shows_adam_outperforms_plain_sgd() -> None:
 
 @pytest.fixture(scope="module")
 def cost_comparison_rows() -> tuple[ComputeCostRow, ...]:
-    """Computed once (~20s: trains a full PINN and deep BSDE solver
-    plus one grid solve) and reused by every test below -- see the
-    identical rationale in test_pde_pinn.py's `well_trained` fixture."""
+    """Computed once (~80s as of PR-176's deep-BSDE epoch increase
+    400->1600, which cut its price error by ~300x: trains a full PINN
+    and deep BSDE solver plus one grid solve) and reused by every test
+    below -- see the identical rationale in test_pde_pinn.py's
+    `well_trained` fixture."""
     return compute_cost_comparison()
 
 

@@ -61,3 +61,42 @@ def test_run_neural_sde_job_produces_a_real_manifest_and_evidence_bundle() -> No
     assert payload["config"] == asdict(config)
     assert "benchmark_report" in payload
     assert result.evidence_bundle["run_manifest"]["result_hash"] == result.manifest.result_hash
+
+
+def test_more_patience_improves_in_distribution_score_but_destroys_ood_robustness() -> None:
+    """PR-176: checked whether `patience=20` (the production default)
+    is simply undertraining this model, the same confound this session
+    fixed for several other subsystems. It is NOT -- the opposite is
+    true, and this matters because the project's OWN headline positive
+    finding for `neural_sde` (RQ2/H2: real OOD robustness under the
+    2020 COVID shock) depends on it. `benchmark_report`'s "held-out"
+    evaluation set is the SAME `validation_examples` early stopping
+    selects on, so a better in-distribution log_score at higher
+    patience is partly expected, not necessarily a better model -- and
+    checking the genuinely untouched COVID OOD window settles it: at
+    `patience=60`, in-distribution log_score improves (~4.82 -> ~3.92)
+    but COVID-window degradation EXPLODES (~5.58 -> ~48.75, now WORSE
+    than the ~29.97 the classical GBM baseline degrades by) -- the
+    model has overfit the in-distribution set at the direct expense of
+    the real, valuable property this subsystem actually has. This is
+    positive evidence FOR keeping `patience=20`, not a reason to raise
+    it -- "train harder" is the wrong instinct here, confirmed by
+    checking rather than assumed."""
+    low_patience = run_neural_sde_job(NeuralSdeRunConfig(seed=0, patience=20))
+    high_patience = run_neural_sde_job(NeuralSdeRunConfig(seed=0, patience=60))
+    low_ood = low_patience.evidence_bundle["neural_sde"]["ood_report"]
+    high_ood = high_patience.evidence_bundle["neural_sde"]["ood_report"]
+
+    assert (
+        high_patience.evidence_bundle["neural_sde"]["benchmark_report"]["log_score"]["neural_sde"]
+        < low_patience.evidence_bundle["neural_sde"]["benchmark_report"]["log_score"]["neural_sde"]
+    ), "higher patience should improve the in-distribution score measured on its own selection set"
+    assert high_ood["neural_degradation"] > 5 * low_ood["neural_degradation"], (
+        "the same higher patience should badly worsen real, untouched COVID-window robustness"
+    )
+    assert low_ood["neural_degradation"] < low_ood["baseline_degradation"], (
+        "at the production default, neural_sde still beats the classical baseline here"
+    )
+    assert high_ood["neural_degradation"] > high_ood["baseline_degradation"], (
+        "at higher patience, it no longer does -- the positive finding is specifically lost"
+    )

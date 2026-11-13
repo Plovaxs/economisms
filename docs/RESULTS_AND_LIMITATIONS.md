@@ -64,6 +64,40 @@ particular dataset; it is reported here exactly because it's an
 unflattering result for every model that took more effort to build, not
 despite that.
 
+**Follow-up (PR-177): patience=20 (the production default here) turned
+out to genuinely undertrain this model too -- but the fix surfaced a
+new, separate methodological pitfall worth disclosing on its own
+terms.** A 5-seed sweep at `patience=60` found `hybrid_quantum`
+reaching real, well-calibrated discrimination (ROC-AUC 0.86-0.92,
+calibration slope 0.95-1.17) that beats every classical candidate in
+4 of 5 seeds -- a genuine improvement, not an artifact, confirmed by
+checking a second, independent diagnostic (AUC/calibration) rather
+than trusting the Brier-based verdict alone. Seed 0, however, is a
+real cautionary counter-example: its own "quantum_better" verdict (the
+bootstrap CI genuinely excludes zero) coincides with ROC-AUC 0.479 --
+worse than random ranking -- because `base_rate_probability` is
+computed from the TRAIN set's positive rate (5.4%) while the TEST set's
+own rate differs (8.0%); after 344 epochs the quantum model drifts
+toward a near-constant output that happens to match the test set's
+class balance better, without learning any real per-example signal. A
+THIRD instance (after Finding 1 and Finding 7) of this project's
+recurring lesson: a single scalar acceptance criterion can be gamed
+without the model doing anything real, and a second, independent
+diagnostic is what catches it. **Not promoted to the production
+default** — raising `patience` would also raise this failure mode's
+own frequency (1 of 5 seeds checked), and shipping a result measured
+once, without further validation across more seeds/an AUC-aware
+verdict, would repeat exactly the mistake Finding 1 already corrected
+once. See `tests/unit/test_recessionnet_kaggle_run.py::
+test_patience_60_reveals_both_real_signal_and_a_brier_score_blind_spot`.
+Separately, the ORIGINAL (Kenneth-French-factor) RECESSIONNET dataset
+behind Finding 1/2 was checked the same way at `patience=60`: no
+Brier/AUC divergence appears (both classical and quantum candidates
+show real AUC throughout, 0.73-0.87), and the result shifts mildly
+TOWARD classical (0/5 quantum-favoring, 2/5 classical-favoring, 3/5
+inconclusive, vs. 5/5 inconclusive at `patience=20`) — consistent
+with, and not contradicting, Finding 1/2's existing verdict.
+
 ## Finding 4 (PR-146): real market events used as correctness checks, not just backtests
 
 The Treasury yield-curve connector's test suite deliberately checks the
@@ -88,17 +122,56 @@ by +5.58 while a constant-parameter GBM baseline degrades by +29.97.
 **Limitation:** one historical shock, not a distribution of shocks;
 "more robust under this shock" is not a general robustness guarantee.
 
-## Finding 6 (PR-153): the classical grid solver wins today, but the crossover this motivates is real and measured, not assumed
+**Follow-up (PR-177): checked whether `patience=20` is simply
+undertraining this model -- the opposite turned out to be true, which
+matters because this finding depends on it.** `benchmark_report`'s
+"held-out" evaluation set is the SAME validation set early stopping
+selects on, so a better in-distribution log-score at higher patience
+is partly expected, not necessarily a better model; the genuinely
+untouched COVID window settles it. At `patience=60`: in-distribution
+log-score improves (4.82 -> 3.92) but COVID-window degradation
+EXPLODES (+5.58 -> +48.75) -- now worse than the GBM baseline's
++29.97, destroying the exact property this finding reports. The model
+overfits the in-distribution set at the direct expense of real OOD
+robustness. This is positive evidence FOR `patience=20` as a
+deliberate, correct choice, not an oversight -- "train harder" was
+the wrong instinct here, and checking (not assuming) is what caught
+it. See `tests/unit/test_neural_sde_run.py::
+test_more_patience_improves_in_distribution_score_but_destroys_ood_robustness`.
 
-In 1D, the classical Crank-Nicolson grid is simultaneously faster
-(0.013s vs. 9.3s/11.4s) **and** more accurate than either a PINN or a
-deep-BSDE solver. But grid cost scales as `M^d` — 200, 40,000 and
-8,000,000 nodes at d = 1, 2, 3 respectively at this package's own
-resolution — while the deep-BSDE solver's walltime stays ≈flat
-(≈10–13s) across the same dimensions. **Limitation:** the d = 3 grid
-case is reported analytically (node count), not actually run in this
-sandbox — see `pde_solvers.benchmark.grid_node_count`'s own docstring
-for why.
+## Finding 6 (PR-153, revised PR-177): the classical grid solver wins today, but the crossover this motivates is real and measured, not assumed
+
+**Revised honestly: the original 1D comparison used undertrained
+neural solvers, and a direct check closed most of the accuracy gap
+it reported.** `pde_solvers.benchmark.compute_cost_comparison`
+originally trained the deep-BSDE net for 400 epochs and the PINN at
+its default learning rate (3e-3); a multi-seed sweep found the former
+genuinely undertrained (price error a consistent ~1.43–1.48 across 4
+seeds, not noise) and the latter improvable at the SAME epoch budget
+by raising the learning rate (changing epoch count is not a clean
+test here — the PINN's cosine-annealing schedule is tied to
+`n_epochs`, so more epochs means a different LR trajectory, not just
+"the same schedule continued"). Both are now fixed in that function:
+deep-BSDE trains for 1600 epochs (price error 1.45 -> 0.005, a ~300x
+cut), and the PINN uses `learning_rate=1e-2` (mean error across 4
+seeds 1.58 -> 0.53). **Updated real numbers**: the classical
+Crank-Nicolson grid is still simultaneously faster (0.02s vs. 22s/54s)
+**and** more accurate than either neural method in 1D — but the
+accuracy gap to deep-BSDE specifically narrowed from ~580x to ~2x
+(price error 0.0025 vs. 0.0049), no longer the lopsided "neural loses
+on both axes" picture the original undertrained numbers suggested.
+Grid cost still scales as `M^d` — 200, 40,000 and 8,000,000 nodes at
+d = 1, 2, 3 respectively at this package's own resolution — while the
+deep-BSDE solver's walltime stays ≈flat across the same dimensions,
+the actual mechanism (unchanged by this revision) by which the
+neural solver's cost could pay off at higher dimensions. **Limitation
+(unchanged):** the d = 3 grid case is reported analytically (node
+count), not actually run in this sandbox — see `pde_solvers.
+benchmark.grid_node_count`'s own docstring for why. See
+`pde_solvers.benchmark.compute_cost_comparison`'s own docstring for
+the full sweep numbers, and `tests/unit/test_pde_deep_bsde.py`/
+`test_pde_pinn.py` for the permanent regression tests locking in both
+training-budget effects.
 
 ## Finding 7 (PR-154): a degenerate reward silently determined an RL agent's "conclusion" before any training happened
 

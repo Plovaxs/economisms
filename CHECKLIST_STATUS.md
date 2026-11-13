@@ -36,7 +36,7 @@ about the original 374-item register.
 | FP-03 | VERIFIED-BY-TEST (PR-055) | `econosim.pit.build_feature_vector`/`require_eligible` raise `FutureDataError` (fail closed on the WHOLE request) rather than silently returning partial data, confirmed by `test_build_feature_vector_rejects_unavailable_features_instead_of_partial_data`. Builds on the pre-existing `PointInTimeStore.as_of`/`all_eligible_as_of` predicate (already tested since the original PR-003), now additionally gated on an `asof_eligible_at` internal-ingestion-lag field, not just source `published_at`. |
 | FP-04 | VERIFIED-BY-TEST (PR-056) | `macrocore.baselines` implements Persistence, AR(p) (standing in for "ARIMA" -- see its module docstring for the deliberate scope cut against a full differenced/MA Box-Jenkins ARIMA) and VAR(p), all OLS-fit with closed-form Gaussian forecast intervals; `macrocore.evaluation`'s rolling-origin backtest harness runs all three reproducibly (fixed seed, deterministic OLS) through `econosim.pit`'s point-in-time store end to end, with MAE/RMSE/CRPS/coverage reported via `summarize_scores`. |
 | FP-05 | PARTIAL (PR-143) | FP-05's full scope -- a shared Transformer encoder forecasting GDP, rates AND unemployment across multiple horizons -- still does not exist; no real GDP/CPI/unemployment series are ingested anywhere in this repository (DAT-02..04 remain unimplemented). What PR-143 adds, honestly scoped to "rates" only: `macrocore.quantum_benchmark.run_qmacro_benchmark` regresses h-months-ahead Mkt-RF (market excess return -- the classic equity-premium-predictability task) from real trailing Kenneth French factor history (DAT-05), comparing naive persistence, AR(3) (genuinely refit at every real test month), linear regression, a parameter-matched classical MLP and a hybrid quantum regressor, all three learned models selected by early stopping on a real validation split (never the test set) -- the same PR-142 methodology applied to RECESSIONNET, reused here from the start. Real result: AR(3)/MLP/quantum land within a tight band (MAE ~0.034, MASE ~0.62), all clearly ahead of naive persistence (MASE ~0.89), with no statistically significant difference among them. Remains PARTIAL, not VERIFIED-BY-TEST, because this is Q-MACRO's narrow "matched regression benchmark" deliverable, not FP-05's own multihorizon GDP/rate/unemployment ask. |
-| FP-06 | VERIFIED-BY-TEST (PR-139, corrected PR-141, methodology corrected PR-142) | `recessionnet` now exists end to end: real point-in-time-safe features (Kenneth French monthly factors, DAT-05, trailing 6-month windows) and real labels (the actual NBER business-cycle chronology, confirmed live against nber.org, with real announcement dates for the six recessions 1980 onward used by a SEPARATE point-in-time leakage test -- see `recessionnet.labels`'s flagship `test_as_of_does_not_leak_the_great_recession_before_it_was_announced`). `run_recessionnet_benchmark` trains and evaluates four candidate architectures (base rate, logistic regression, a parameter-matched classical MLP, and a hybrid quantum classifier built on the new `prometheus.quantum` primitives) on a strict chronological split (train < 2000, test >= 2000), reporting Brier score, ROC-AUC and a fitted calibration slope/intercept for every model -- "calibrated probabilities" exactly as worded, not just a bare accuracy number. PR-141 fixed a genuine angle-embedding gradient-dead-zone bug (AUC ~0.61 to ~0.70). PR-142 then diagnosed and fixed a SECOND, more consequential problem: a diagnostic training-curve trace showed the quantum model (493 parameters) and classical MLP (same width) overfitting badly past epoch ~20-60 at PR-139's fixed 150/300-epoch budget, while logistic regression (25 parameters) never overfit in that range -- comparing all three at one fixed epoch count was not a fair comparison once capacity differs this much. `run_recessionnet_benchmark_with_early_stopping` selects each model's stopping point by a VALIDATION split (1988-1999, carved out of the training era, never the test set), then scores the selected checkpoint once on the untouched 2000+ test set. Real result at seed=0: quantum Brier ~0.087 vs its best classical challenger's ~0.083 -- genuinely close, not the robust loss PR-139's fixed-budget evaluation showed. Across 5 seeds checked by hand, 4/5 are statistically inconclusive (CI includes zero) and 1/5 favors classical by a small margin; none favor quantum significantly. The honest final finding: once evaluated fairly, this task shows no significant quantum advantage AND no significant quantum disadvantage against logistic regression/classical MLP -- a materially different, more defensible conclusion than PR-139/141's "quantum is robustly worse," reached by fixing the evaluation methodology rather than by re-running until a result looked better. PR-145 adds a SECOND, independent real-data grounding: `data_ingestion.kaggle_macro` loads real US GDP growth, unemployment-claims growth, the Fed funds rate, M2 growth and NASDAQ returns (Kaggle dataset `mikoajfish99/us-recession-and-financial-indicators`, ODbL-1.0, itself built from real FRED series) -- genuine GDP/unemployment/rate data, closer to the blueprint's own original "GDP, rates, unemployment" framing than the market-factor proxy DAT-05 provided. Reuses every RECESSIONNET/`prometheus.quantum` primitive unchanged (zero new benchmark code). Real result (seed=0, validation 2001-2007, test 2008+): base rate is the strongest classical candidate on this dataset/split; quantum again shows no significant difference against it. Not claimed as DAT-02/03/04 (FRED-MD/QD, ALFRED vintages, Treasury yield curve all have narrower, specific acceptance criteria this Kaggle mirror does not meet -- no real vintage data, no standardized FRED-MD panel, no yield-curve tenors). |
+| FP-06 | VERIFIED-BY-TEST (PR-139, corrected PR-141, methodology corrected PR-142) | `recessionnet` now exists end to end: real point-in-time-safe features (Kenneth French monthly factors, DAT-05, trailing 6-month windows) and real labels (the actual NBER business-cycle chronology, confirmed live against nber.org, with real announcement dates for the six recessions 1980 onward used by a SEPARATE point-in-time leakage test -- see `recessionnet.labels`'s flagship `test_as_of_does_not_leak_the_great_recession_before_it_was_announced`). `run_recessionnet_benchmark` trains and evaluates four candidate architectures (base rate, logistic regression, a parameter-matched classical MLP, and a hybrid quantum classifier built on the new `prometheus.quantum` primitives) on a strict chronological split (train < 2000, test >= 2000), reporting Brier score, ROC-AUC and a fitted calibration slope/intercept for every model -- "calibrated probabilities" exactly as worded, not just a bare accuracy number. PR-141 fixed a genuine angle-embedding gradient-dead-zone bug (AUC ~0.61 to ~0.70). PR-142 then diagnosed and fixed a SECOND, more consequential problem: a diagnostic training-curve trace showed the quantum model (493 parameters) and classical MLP (same width) overfitting badly past epoch ~20-60 at PR-139's fixed 150/300-epoch budget, while logistic regression (25 parameters) never overfit in that range -- comparing all three at one fixed epoch count was not a fair comparison once capacity differs this much. `run_recessionnet_benchmark_with_early_stopping` selects each model's stopping point by a VALIDATION split (1988-1999, carved out of the training era, never the test set), then scores the selected checkpoint once on the untouched 2000+ test set. Real result at seed=0: quantum Brier ~0.087 vs its best classical challenger's ~0.083 -- genuinely close, not the robust loss PR-139's fixed-budget evaluation showed. Across 5 seeds checked by hand, 4/5 are statistically inconclusive (CI includes zero) and 1/5 favors classical by a small margin; none favor quantum significantly. The honest final finding: once evaluated fairly, this task shows no significant quantum advantage AND no significant quantum disadvantage against logistic regression/classical MLP -- a materially different, more defensible conclusion than PR-139/141's "quantum is robustly worse," reached by fixing the evaluation methodology rather than by re-running until a result looked better. PR-145 adds a SECOND, independent real-data grounding: `data_ingestion.kaggle_macro` loads real US GDP growth, unemployment-claims growth, the Fed funds rate, M2 growth and NASDAQ returns (Kaggle dataset `mikoajfish99/us-recession-and-financial-indicators`, ODbL-1.0, itself built from real FRED series) -- genuine GDP/unemployment/rate data, closer to the blueprint's own original "GDP, rates, unemployment" framing than the market-factor proxy DAT-05 provided. Reuses every RECESSIONNET/`prometheus.quantum` primitive unchanged (zero new benchmark code). Real result (seed=0, validation 2001-2007, test 2008+): base rate is the strongest classical candidate on this dataset/split; quantum again shows no significant difference against it. Not claimed as DAT-02/03/04 (FRED-MD/QD, ALFRED vintages, Treasury yield curve all have narrower, specific acceptance criteria this Kaggle mirror does not meet -- no real vintage data, no standardized FRED-MD panel, no yield-curve tenors). **PR-177**: a direct patience sweep on the Kaggle dataset found `patience=20` genuinely undertrains this model too -- but surfaced a real Brier-score-vs-ROC-AUC divergence in 1/5 seeds that is its own, separately disclosed finding; not promoted to the production default. See `docs/RESULTS_AND_LIMITATIONS.md` Finding 3's follow-up for the full account. |
 | FP-07 | VERIFIED-BY-TEST (PR-173) | INFLATIONCAST now exists end to end. `inflationcast.data.build_inflationcast_dataset` builds a real, point-in-time-safe mixed-frequency CPI nowcasting dataset over real BLS CPI-U data (`data_cache/us_cpi_monthly.csv`, BLS Public Data API `CUUR0000SA0`, public domain, real 2008/2020/2022 sanity-checked) and the existing real Kaggle macro snapshot (GDP/claims/Fed-funds/M2/NASDAQ, FP-06's own source): every (window-month, series) feature slot carries BOTH a value and an explicit availability mask bit, computed via genuine `econosim.pit.PointInTimeStore.as_of` queries, never assumed. The target month's own CPI slot is masked 100% of the time by construction (`test_build_inflationcast_dataset_masks_the_target_months_own_cpi`), and a direct bypass attempt via `require_eligible` at the same decision date raises `FutureDataError` (`test_require_eligible_rejects_the_target_months_cpi_at_decision_time`) -- the literal "respects mixed-frequency release timing" wording, both soft- and hard-enforced. `inflationcast.training`/`inflationcast.evaluation.run_inflationcast_benchmark` compare naive persistence, linear regression, a parameter-matched classical MLP and a hybrid quantum regressor (all four reusing `recessionnet.training.train_classifier_with_early_stopping`/`quantum.models` UNCHANGED, the same composition Q-MACRO already established) against a genuinely new architecture, `InflationGRU` -- a recurrent encoder trained by Gaussian negative log-likelihood to output a CALIBRATED `(mean, log-variance)` forecast, not just a point estimate, answering the "uncertainty calibration" half of this project's research question, which no other forecasting task here attempts. `evaluation.gaussian_interval_coverage_test` generalizes `titan.risk_metrics.var_exception_coverage_test`'s exact binomial coverage test to a per-observation varying threshold. Real result on the real committed data (seed=0, validation split 2019-01-01, test split 2022-01-01): naive persistence is the strongest point-forecast candidate (CPI YoY is a highly persistent series month to month, a well-known real property, not an artifact of this pipeline), and the GRU is badly MISCALIBRATED (observed ~11% coverage against a 90% nominal target, p<<0.001) -- an honest negative finding reported as-is, not hidden or re-run until it looked better. `orchestration.inflationcast_run` is a real, fully offline CLI (both CPI and macro CSVs are already-committed snapshots, no live network call at run time). Separately, the real-webapp GUI this course's final-project demo explicitly required is also met: `dashboard.inflationcast_view.render_inflationcast` is wired into the existing real ASGI `dashboard.app` service at `/dashboard/inflationcast` (confirmed reachable over real HTTP against a live running `uvicorn` process, auth-gated identically to every other view) -- explicitly NOT the separate Claude-Artifact project-status page. New `dashboard.charts` gives this dashboard its first genuine visual animation (plain CSS `@keyframes`, zero new JS dependency, `prefers-reduced-motion` respected): a real bar chart of MAE by candidate, a real actual-vs-predicted line chart, and a real pass/fail calibration indicator, every coordinate computed from the real benchmark run, never a placeholder. Not claimed as DAT-02/03 (FRED-MD/QD, ALFRED vintages) -- this real BLS CPI ingestion is a separate, narrower real source, the same disclosed scope limit already applied to FP-06's French-factor and Kaggle ingestions. 40 new tests (`inflationcast` package) plus 25 more (dashboard charts/view/routing), 100% coverage on new code. |
 | FP-08 | NOT VERIFIED | No shared-vs-independent encoder ablation; no encoder exists. |
 | FP-09 | VERIFIED-BY-TEST (pre-existing, confirmed PR-057) | `tests/property/test_ledger_invariants.py::test_random_action_sequences_preserve_identities_and_total_equity` is a Hypothesis property test (100 generated examples, 1-40 randomized actions each, drawn from 9 action kinds: income/consume/wages/loan/repay/tax/transfer/gov_loan/gov_repay) that calls `check_integrity()` after EVERY action and asserts total equity equals exactly the sum of exogenous injections -- this is literally "transaction and stock-flow identities pass" under randomized sequences, not hand-picked examples, which is what the FP-09 wording asks for. |
@@ -5790,7 +5790,12 @@ maximum -- both independently verified against the raw CSV in
 neural SDE's log-score degrades by +5.58 while a constant-parameter GBM
 baseline degrades by +29.97 -- the regime-conditioning genuinely helps
 under a real shock, a substantive result found by running the real
-comparison, not asserted in advance.
+comparison, not asserted in advance. **Checked, not assumed, PR-177**:
+whether `patience=20` undertrains this model -- it does not; raising
+patience to 60 improves the in-distribution score but makes COVID
+degradation explode to +48.75 (worse than the GBM baseline), destroying
+this exact finding. `patience=20` is confirmed a deliberate, correct
+choice, strengthening rather than weakening the result above.
 
 | ID | Requirement (abridged) | Evidence |
 |----|-------------------------|----------|
@@ -5933,18 +5938,26 @@ design-record and seeded-ablation-matrix halves of each are built and
 tested, the human-review half is not claimed.
 
 Real, non-cherry-picked findings: the **classical grid solver wins
-outright where it is reachable** -- 0.013s vs. PINN's 9.3s vs. deep
-BSDE's 11.4s in 1D, with the grid ALSO the most accurate (price error
-0.065 vs. PINN's ~0.70) -- the same "classical beats neural when
-available" pattern as PR-142/143/145. The grid's reach stops
-combinatorially, though: node count is `M^d`, so 200/40,000/8,000,000
-nodes at d=1/2/3 at this package's own resolution, while deep BSDE's
-walltime stays nearly flat (~10-13s) across d=1,2,3 -- deep BSDE's
-actual justification is exactly this crossover, demonstrated, not
-asserted. A real, measured fix during development: boundary-only PINN
-training left a 58% model-free no-arbitrage violation rate under
-stress; an explicit penalty term reduced it to ~17-20%, confirmed by a
-real before/after test.
+outright where it is reachable** -- 0.02s vs. PINN's 22s vs. deep
+BSDE's 54s in 1D, with the grid ALSO the most accurate (price error
+0.0025 vs. PINN's 0.20 and deep BSDE's 0.0049) -- the same "classical
+beats neural when available" pattern as PR-142/143/145. The grid's
+reach stops combinatorially, though: node count is `M^d`, so
+200/40,000/8,000,000 nodes at d=1/2/3 at this package's own
+resolution, while deep BSDE's walltime stays nearly flat across
+d=1,2,3 -- deep BSDE's actual justification is exactly this
+crossover, demonstrated, not asserted. **Revised PR-177**: the
+numbers above reflect a fix to a real undertraining confound in
+`compute_cost_comparison` itself -- a 4-seed sweep found its original
+400-epoch deep-BSDE budget genuinely undertrained (price error a
+consistent ~1.43-1.48, not noise); raising it to 1600 epochs (plus a
+higher PINN learning rate at the same epoch count) cut deep BSDE's
+error by ~300x, narrowing the grid's accuracy advantage over it from
+~580x to ~2x -- the grid still wins outright, now on a fair fight, not
+an undertrained one. A real, measured fix during development:
+boundary-only PINN training left a 58% model-free no-arbitrage
+violation rate under stress; an explicit penalty term reduced it to
+~17-20%, confirmed by a real before/after test.
 
 | ID | Requirement (abridged) | Evidence |
 |----|-------------------------|----------|
@@ -5959,7 +5972,7 @@ real before/after test.
 | PDE-09 (first evidence) | worst-case error surfaces, near-expiry/ATM audit | `benchmark.audit_near_expiry_and_at_the_money_errors`; real worst-case location empirically confirmed at the shortest maturity tested, at-the-money |
 | PDE-10 (first evidence, partial) | optimizer/sampling ablations, independent validation | `benchmark.pinn_ablation_matrix`; real seeded 2x2x2 matrix, Adam beats plain-momentum SGD on every seed; independent human validation not claimed |
 | PDE-11 (first evidence, 2 of 3 solvers) | refuses false precision on high residuals | `pinn.PDEResidualError` + `benchmark.GridConvergenceError`, both tested via deliberately-under-converged inputs that trigger the raise; deep BSDE has no equivalent hard-refusal gate yet, disclosed |
-| PDE-12 (first evidence) | neural compute cost vs. reliable numerical methods, reported fairly | `benchmark.compute_cost_comparison`; real wall-clock on this sandbox's CPU; grid ~700x faster AND more accurate than either neural method in 1D |
+| PDE-12 (first evidence, revised PR-177) | neural compute cost vs. reliable numerical methods, reported fairly | `benchmark.compute_cost_comparison`; real wall-clock on this sandbox's CPU; grid ~1100x faster than PINN / ~2700x faster than deep BSDE, and ~80x more accurate than PINN / ~2x more accurate than deep BSDE, on a properly-trained (not undertrained) neural comparison |
 
 Not covered: PDE-01/PDE-10's independent-human-review/validation halves;
 deep BSDE's PDE-11 refusal gate and PDE-08 Gamma; all walltime figures
@@ -6003,7 +6016,14 @@ fails, so the log cannot silently go stale.
 Real, non-cherry-picked findings: co-learning (household+firm trained
 simultaneously) is measurably less stable than single-agent training
 -- utility std across 3 seeds is ~0.2-0.3 single-agent vs. ~1.0-1.5
-co-learning (MAR-09/11). An adversarial always-max-consume exploit
+co-learning (MAR-09/11). **Extended PR-177**: the pre-existing finding
+above is about VARIANCE only; a direct check of the MEAN found
+co-learning is not just less stable but robustly WORSE for the
+household on average -- 0/20 real runs (10 seeds at the job default
+config, plus 5 more at 2x the epochs and 2x the episodes-per-epoch)
+favored co-learning, by an effect size (~10-20) far exceeding
+co-learning's own seed-to-seed std (~1-2), and the gap WIDENS, not
+narrows, with more training. An adversarial always-max-consume exploit
 attempt is confirmed to no longer win once the reward bug above was
 fixed (MAR-10). A real out-of-distribution wage shock (firm capital
 100k->30k, a recession proxy) degrades a frozen trained policy's
@@ -6022,7 +6042,7 @@ disclosed as a real finding, not smoothed over (MAR-05).
 | MAR-06 (first evidence) | bank underwriting/risk-limit agent, guardrails enforced | `marl.policies.RiskLimitedBankPolicy`; 30 real loan originations, `CreditLimitExceededError` never raised |
 | MAR-07 (first evidence) | central-bank controller, constrained action set | `marl.spaces.CentralBankAction` + `marl.policies.TaylorRuleCentralBankPolicy`; property-tested against adversarial gaps |
 | MAR-08 (first evidence) | PPO or comparable, deterministic seeding | `marl.training.train_joint_ppo` (real clipped-surrogate PPO); same-seed reproducibility test |
-| MAR-09 (first evidence) | multi-agent nonstationarity/instability report | `marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning |
+| MAR-09 (first evidence, extended PR-177) | multi-agent nonstationarity/instability report | `marl.diagnostics.single_vs_colearning_report`; real ~4-5x std increase under co-learning, and (PR-177) a robustly lower mean household utility under co-learning, 0/20 real runs favoring it |
 | MAR-10 (first evidence) | reward-hacking adversarial tests | `tests/unit/test_mar_adversarial.py`; real overspend/exploit attempts, ledger and fixed reward bug both confirmed to hold |
 | MAR-11 (first evidence) | single-agent vs. co-learning ablation | same experiment as MAR-09, isolates co-learning's effect |
 | MAR-12 (first evidence, disclosed simplification) | welfare/inequality/distributional metrics | `marl.diagnostics.welfare_report_across_heterogeneous_households`; real Gini ~0.23 over independent heterogeneous conditions, not a simultaneous N-household market |
@@ -7330,6 +7350,58 @@ smaller, CI-fast scale. `RlHedgeLab.tsx` and the regenerated
 **Verification.** 15 new/modified tests across the two subsystems;
 `ruff`/`mypy --strict` clean; full suite 2,999/2,999 passing (up from
 2,985).
+
+## Evidenced today (PR-177: the remaining five deep-learning subsystems trained harder, with real confounds ruled out -- including two that confirmed a default was already correct)
+
+Continuation of PR-176's "train the models as much as you can" effort
+across the other five DL subsystems. Not new blueprint/FP-table items
+-- every change below strengthens an already-evidenced finding with a
+real confound tested rather than assumed; none newly evidences
+anything. Full numbers for each are in `docs/RESULTS_AND_LIMITATIONS.md`
+(Findings 3, 5, 6) and `docs/RESEARCH_CONTRIBUTIONS.md` (RQ1-RQ3);
+summarized here per subsystem:
+
+- **Q-MACRO**: checked `patience` 20 vs. 60 -- bit-identical results
+  (every candidate's `selected_epoch` is already far below either
+  ceiling). Confirms there is no training-budget headroom here;
+  nothing changed.
+- **RECESSIONNET (Kaggle)**: `patience=60` finds real, well-calibrated
+  signal in 4/5 seeds (ROC-AUC 0.86-0.92) but exposes a genuine
+  Brier-score blind spot in the 5th (ROC-AUC 0.479, worse than random,
+  from a train/test base-rate mismatch) -- a third instance of "a
+  single scalar criterion can be gamed," caught by a second
+  diagnostic. Not promoted to the production default. The original
+  French-factor dataset shows no such divergence at `patience=60` (if
+  anything, a mild shift toward classical) -- consistent with the
+  existing finding.
+- **neural SDE**: checked whether `patience=20` undertrains this
+  model -- the opposite is true. `patience=60` improves the
+  in-distribution score (the model's own selection metric, on its own
+  selection set) but makes real COVID-window degradation explode from
+  +5.58 to +48.75, worse than the GBM baseline -- destroying the
+  exact OOD-robustness property this subsystem's headline finding
+  reports. `patience=20` is confirmed a deliberate, correct choice.
+- **PDE solvers**: a 4-seed sweep found `compute_cost_comparison`'s
+  own deep-BSDE budget (400 epochs) genuinely undertrained (price
+  error a consistent ~1.43-1.48, not noise). Fixed (1600 epochs, plus
+  a higher PINN learning rate at the same epoch count): deep-BSDE's
+  error cut by ~300x, narrowing the grid's 1D accuracy advantage over
+  it from ~580x to ~2x. The grid still wins outright on speed and
+  accuracy -- now on a fair comparison, not an undertrained one.
+- **MARL**: the pre-existing co-learning-instability finding (MAR-09/
+  11) is about VARIANCE only. A direct 20-run sweep (10 seeds at the
+  job default, 5 more at 2x epochs, 5 more at 2x episodes-per-epoch)
+  found co-learning is also robustly WORSE for the household on
+  average -- 0/20 runs favored it, by an effect size far exceeding its
+  own seed-to-seed noise, and the gap widens with more training.
+
+**Verification.** 7 new/modified tests across the five subsystems;
+`ruff`/`mypy --strict` clean; full suite 3,006/3,006 passing (up from
+2,999). `docs/FINAL_PROJECT_HYPOTHESES.md`'s H3 evidence text was
+revised with an explicit disclosure per that document's own rule (the
+PDE-solver accuracy-gap magnitude changed; the verdict did not); H1/H2
+were left unrevised since their own cited evidence numbers, at their
+production-default configurations, are unchanged by this PR.
 
 ## Explicitly NOT done (do not infer otherwise)
 
