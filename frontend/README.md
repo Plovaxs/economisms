@@ -13,9 +13,28 @@ local research/demo tool, not a deployed service.
 
 ## Running it locally
 
-Four processes, in four terminals, from the repository root
-(`/home/plovax/research/ECONS`), all sharing one credentials file and
-one `--root` job-storage directory:
+### One command (recommended)
+
+From the repository root (`/home/plovax/research/ECONS`):
+
+```bash
+./run_dev.sh
+```
+
+This starts all four processes -- job worker, job API (:8765),
+dashboard (:8766), frontend (:5173) -- in the background, provisions a
+bearer token on first run, installs frontend dependencies on first
+run, and prints the token plus the URL to open. Logs for each process
+go to `/tmp/econosim-web/logs/*.log`. **Ctrl+C stops everything.**
+
+Open the printed `http://localhost:5173` URL and paste in the printed
+token.
+
+### Manual (four terminals)
+
+Useful if you want to see each process's own output live, or restart
+one without the others. All four share one credentials file and one
+`--root` job-storage directory:
 
 ```bash
 source .venv/bin/activate

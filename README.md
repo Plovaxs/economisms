@@ -96,7 +96,9 @@ every dashboard view above plus a "Deep Learning Lab" section — submit a
 real job for RECESSIONNET, Q-MACRO, INFLATIONCAST, the neural SDE, the
 PDE solvers, multi-agent RL, or the REINFORCE hedging agent, and watch
 it resolve through the real SQLite-backed job queue to a real rendered
-chart. See [frontend/README.md](./frontend/README.md) to run it, and
+chart. Run the whole stack — job worker, job API, dashboard, frontend —
+with one command: `./run_dev.sh`. See
+[frontend/README.md](./frontend/README.md) for details, and
 [FP-19](./CHECKLIST_STATUS.md) for the real end-to-end job trace this
 adds across all seven deep-learning subsystems.
 
