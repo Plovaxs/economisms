@@ -48,9 +48,9 @@ function NavSection({
             to={link.to}
             end={link.to === "/"}
             className={({ isActive }) =>
-              `rounded-lg px-3 py-2 text-sm transition-colors ${
+              `relative rounded-lg px-3 py-2 text-sm transition-colors duration-200 ${
                 isActive
-                  ? "bg-white/10 text-slate-50"
+                  ? "bg-white/10 text-slate-50 shadow-glow before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:bg-accent-gradient"
                   : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
               }`
             }
@@ -68,10 +68,12 @@ export function AppShell({ children }: AppShellProps) {
     <div className="flex min-h-screen">
       <aside className="w-64 shrink-0 border-r border-white/10 bg-white/[0.02] px-3 py-6 backdrop-blur-xl">
         <div className="px-3 pb-6">
-          <span className="bg-accent-gradient bg-clip-text text-lg font-semibold text-transparent">
+          <span className="bg-accent-gradient bg-clip-text text-lg font-semibold tracking-tight text-transparent">
             ECONOSIM
           </span>
-          <p className="text-xs text-slate-500">PROMETHEUS-X</p>
+          <p className="font-mono text-[11px] tracking-widest text-slate-500">
+            PROMETHEUS-X
+          </p>
         </div>
         <div className="flex flex-col gap-6">
           <NavSection title="Dashboard" links={DASHBOARD_LINKS} />

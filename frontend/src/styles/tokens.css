@@ -13,11 +13,93 @@
   }
 }
 
+html {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
 body {
-  background: radial-gradient(ellipse at top, #141822 0%, #0b0d12 60%);
+  position: relative;
   min-height: 100vh;
+  background: #0a0b10;
+  overflow-x: hidden;
+}
+
+/* The Hyprland/omarchy-rice ambient glow: a few large, soft, slowly
+   drifting color blobs behind the glass panels -- fixed so they never
+   scroll with content, and far enough below z-index 0 that every
+   real page element still sits on top. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+body::before {
+  top: -10%;
+  left: -10%;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  animation: aurora-drift-a 26s ease-in-out infinite alternate;
+}
+
+body::after {
+  bottom: -15%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
+  animation: aurora-drift-b 32s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-a {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(6vw, 4vh) scale(1.15);
+  }
+}
+
+@keyframes aurora-drift-b {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(-5vw, -6vh) scale(1.1);
+  }
 }
 
 ::selection {
   background: rgba(139, 92, 246, 0.35);
+}
+
+/* A thin, glassy scrollbar instead of the platform default -- most
+   Hyprland rice screenshots never show a chunky native scrollbar. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
 }
