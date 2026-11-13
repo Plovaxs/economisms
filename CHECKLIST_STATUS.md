@@ -7328,7 +7328,7 @@ smaller, CI-fast scale. `RlHedgeLab.tsx` and the regenerated
 `docs/api/openapi-v1.json` fixture were updated to match.
 
 **Verification.** 15 new/modified tests across the two subsystems;
-`ruff`/`mypy --strict` clean; full suite 2,994/2,994 passing (up from
+`ruff`/`mypy --strict` clean; full suite 2,999/2,999 passing (up from
 2,985).
 
 ## Explicitly NOT done (do not infer otherwise)
