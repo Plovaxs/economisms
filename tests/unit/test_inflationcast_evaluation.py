@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from prometheus.inflationcast.evaluation import (
+    fit_variance_temperature,
     gaussian_interval_coverage_test,
     run_inflationcast_benchmark,
 )
@@ -69,6 +70,43 @@ def test_gaussian_interval_coverage_test_rejects_empty_input() -> None:
         gaussian_interval_coverage_test(empty, empty, empty, coverage=0.9)
 
 
+def test_fit_variance_temperature_recovers_a_known_inflation_factor() -> None:
+    """A forecaster whose predicted variance is systematically too small
+    by a known factor (here 25x -- sigma too small by 5x) should have
+    its NLL-minimizing temperature recover close to that true factor,
+    not drift off to 1.0 (no correction) or something unrelated."""
+    rng = np.random.default_rng(0)
+    n = 2000
+    true_sigma = 3.0
+    mean = rng.normal(size=n)
+    actual = mean + rng.normal(scale=true_sigma, size=n)
+    reported_log_var = np.full(n, np.log((true_sigma / 5.0) ** 2))  # 5x too confident
+    alpha = fit_variance_temperature(mean, reported_log_var, actual)
+    assert alpha == pytest.approx(5.0, rel=0.25)
+
+
+def test_fit_variance_temperature_is_near_one_for_an_already_calibrated_forecaster() -> None:
+    rng = np.random.default_rng(0)
+    n = 2000
+    true_sigma = 1.5
+    mean = rng.normal(size=n)
+    actual = mean + rng.normal(scale=true_sigma, size=n)
+    log_var = np.full(n, np.log(true_sigma**2))
+    alpha = fit_variance_temperature(mean, log_var, actual)
+    assert alpha == pytest.approx(1.0, abs=0.3)
+
+
+def test_fit_variance_temperature_rejects_mismatched_shapes() -> None:
+    with pytest.raises(ValueError, match="shape"):
+        fit_variance_temperature(np.zeros(5), np.zeros(5), np.zeros(4))
+
+
+def test_fit_variance_temperature_rejects_empty_input() -> None:
+    empty = np.zeros(0)
+    with pytest.raises(ValueError, match="non-empty"):
+        fit_variance_temperature(empty, empty, empty)
+
+
 def test_run_inflationcast_benchmark_produces_every_expected_candidate() -> None:
     x_train, y_train, x_val, y_val, x_test, y_test = _synthetic_arrays()
     report = run_inflationcast_benchmark(
@@ -81,6 +119,8 @@ def test_run_inflationcast_benchmark_produces_every_expected_candidate() -> None
     }
     assert report.best_point_challenger in report.metrics
     assert report.gru_calibration.n_observations == len(y_test)
+    assert report.gru_calibration_after_temperature.n_observations == len(y_test)
+    assert report.gru_calibration_temperature > 0.0
     assert report.gru_vs_best_classical.n_resamples == 100
     assert report.run_manifest.model_id == "inflationcast-gru-v1"
     assert report.test_targets == tuple(float(v) for v in y_test)

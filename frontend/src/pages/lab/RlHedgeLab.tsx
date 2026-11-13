@@ -17,7 +17,7 @@ interface RlHedgePayload {
 
 export function RlHedgeLab() {
   const { state, submit } = useJobPolling("rl_hedge");
-  const [nEpochs, setNEpochs] = useState(40);
+  const [nEpochs, setNEpochs] = useState(400);
   const [seed, setSeed] = useState(0);
 
   const payload = state.phase === "done" ? (state.artifact.rl_hedge as RlHedgePayload) : null;
@@ -26,11 +26,11 @@ export function RlHedgeLab() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="RL hedging"
-        description="A REINFORCE-trained hedging policy, risk-bounded against a static delta-hedge-with-no-trade-band baseline's own CVaR, computed on the same simulated GBM paths."
+        description="A REINFORCE-trained hedging policy, risk-bounded against a static delta-hedge-with-no-trade-band baseline's own CVaR, computed on the same simulated GBM paths. Trained with a CVaR-aligned reward (PR-176) -- rewarding each path by its own excess over the batch's VaR threshold, directly targeting the metric it's judged on, rather than mean loss."
       />
       <RunJobPanel
         state={state}
-        onRun={() => submit({ seed, n_epochs: nEpochs, s0: 100.0, mu: 0.05, sigma: 0.2, maturity: 1.0, n_steps: 20, n_paths: 2000, strike: 100.0, option_type: "call", risk_free_rate: 0.03, cost_rate: 0.001, initial_premium: 5.0, cvar_alpha: 0.95, learning_rate: 0.01, band_width: 0.05 })}
+        onRun={() => submit({ seed, n_epochs: nEpochs, s0: 100.0, mu: 0.05, sigma: 0.2, maturity: 1.0, n_steps: 20, n_paths: 2000, strike: 100.0, option_type: "call", risk_free_rate: 0.03, cost_rate: 0.001, initial_premium: 5.0, cvar_alpha: 0.95, learning_rate: 0.01, band_width: 0.05, reward_objective: "cvar" })}
         configFields={
           <>
             <NumberField label="Seed" value={seed} onChange={setSeed} min={0} />

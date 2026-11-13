@@ -43,6 +43,7 @@ from prometheus.inflationcast.models import (
     HybridQuantumRegressor,
     LinearRegressionModel,
     NaivePersistence,
+    gaussian_nll,
 )
 from prometheus.inflationcast.training import (
     train_flattened_candidate_with_early_stopping,
@@ -129,6 +130,34 @@ def gaussian_interval_coverage_test(
     )
 
 
+def fit_variance_temperature(
+    mean: np.ndarray, log_var: np.ndarray, actual: np.ndarray
+) -> float:
+    """The scalar variance-inflation factor `alpha` minimizing Gaussian
+    NLL when `log_var` is replaced by `log_var + 2*log(alpha)` -- the
+    standard post-hoc "temperature scaling" fix for a miscalibrated
+    predictive variance (Guo et al. 2017's classification temperature,
+    the regression/NLL analogue). A grid search, not gradient descent:
+    this is one scalar, and a fixed log-spaced grid is both exact enough
+    and trivially auditable. MUST be called on a validation split, never
+    on the test split the returned `alpha` will later be applied to --
+    callers are responsible for that separation; this function has no
+    way to enforce it from the arrays alone."""
+    if mean.shape != log_var.shape or mean.shape != actual.shape:
+        raise ValueError("mean, log_var and actual must all have the same shape")
+    if mean.size == 0:
+        raise ValueError("mean must be non-empty")
+    mean_t = torch.tensor(mean, dtype=torch.float32)
+    actual_t = torch.tensor(actual, dtype=torch.float32)
+    best_alpha, best_nll = 1.0, float("inf")
+    for log_alpha in np.linspace(np.log(0.1), np.log(10.0), 41):
+        scaled_log_var = torch.tensor(log_var + 2.0 * log_alpha, dtype=torch.float32)
+        nll = float(gaussian_nll(mean_t, scaled_log_var, actual_t).item())
+        if nll < best_nll:
+            best_nll, best_alpha = nll, float(np.exp(log_alpha))
+    return best_alpha
+
+
 def _predict(model: nn.Module, features: np.ndarray) -> np.ndarray:
     model.eval()
     with torch.no_grad():
@@ -153,6 +182,14 @@ class InflationcastBenchmarkReport:
     `metrics` so a caller (e.g. the dashboard's real-vs-predicted chart)
     can show the actual series without re-running training itself."""
     gru_calibration: CalibrationResult
+    gru_calibration_temperature: float
+    """The variance-inflation factor fit on the VALIDATION split alone
+    (`fit_variance_temperature`) -- 1.0 means no adjustment was needed."""
+    gru_calibration_after_temperature: CalibrationResult
+    """The same calibration test on the TEST split, after applying
+    `gru_calibration_temperature` to the GRU's predicted variance --
+    the honest post-hoc-calibrated counterpart to `gru_calibration`,
+    fit without ever looking at the test split itself."""
     gru_vs_best_classical: BootstrapResult
     """CI for mean(gru squared error) - mean(best-classical squared
     error) over the paired test set. `excludes_zero()` and a NEGATIVE
@@ -245,12 +282,16 @@ def run_inflationcast_benchmark(
         patience=patience,
     )
     window = input_dim // (2 * n_series)
-    test_x = torch.tensor(
-        test_features.reshape(test_features.shape[0], window, 2 * n_series), dtype=torch.float32
-    )
+
+    def reshape_for_gru(features: np.ndarray) -> torch.Tensor:
+        return torch.tensor(
+            features.reshape(features.shape[0], window, 2 * n_series), dtype=torch.float32
+        )
+
     gru_trained.model.eval()
     with torch.no_grad():
-        gru_mean_t, gru_log_var_t = gru_trained.model(test_x)
+        gru_mean_t, gru_log_var_t = gru_trained.model(reshape_for_gru(test_features))
+        gru_val_mean_t, gru_val_log_var_t = gru_trained.model(reshape_for_gru(validation_features))
     gru_mean, gru_log_var = gru_mean_t.numpy(), gru_log_var_t.numpy()
     metrics["gru"] = _metrics_from_predictions(gru_mean, test_targets, naive_mae)
     parameter_counts["gru"] = gru_trained.n_parameters
@@ -260,6 +301,15 @@ def run_inflationcast_benchmark(
 
     gru_calibration = gaussian_interval_coverage_test(
         gru_mean, gru_log_var, test_targets, coverage=calibration_coverage
+    )
+    gru_calibration_temperature = fit_variance_temperature(
+        gru_val_mean_t.numpy(), gru_val_log_var_t.numpy(), validation_targets
+    )
+    gru_calibration_after_temperature = gaussian_interval_coverage_test(
+        gru_mean,
+        gru_log_var + 2.0 * np.log(gru_calibration_temperature),
+        test_targets,
+        coverage=calibration_coverage,
     )
 
     best_point_challenger = min(_ALL_CANDIDATE_NAMES, key=lambda name: metrics[name].mae)
@@ -315,6 +365,8 @@ def run_inflationcast_benchmark(
         test_targets=tuple(float(v) for v in test_targets),
         predictions=predictions,
         gru_calibration=gru_calibration,
+        gru_calibration_temperature=gru_calibration_temperature,
+        gru_calibration_after_temperature=gru_calibration_after_temperature,
         gru_vs_best_classical=bootstrap,
         run_manifest=manifest,
     )

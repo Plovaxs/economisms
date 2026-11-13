@@ -142,7 +142,15 @@ mean-head gradient) that predated this finding; re-verified post-fix,
 the same qualitative conclusion holds, now for the genuine reason
 (sample-inefficient terminal-only REINFORCE) rather than a broken
 gradient — see `CHECKLIST_STATUS.md`'s PR-162 entry for the full
-before/after numbers.
+before/after numbers. **Follow-up (PR-176):** a second confound —
+training minimized mean terminal loss while `static_baseline_cvar`
+sat unused except as a precondition gate, a metric/objective mismatch
+— was found and fixed with a CVaR-aligned reward, combined with a
+10-20x longer (still fast: 82 parameters) training budget. This
+narrowed the gap from ~2.5x the static baseline's CVaR to
+~1.04x-1.41x across 8 seeds, still 0/8 wins — the conclusion holds,
+now with both an undertrained budget and a misaligned reward ruled
+out as alternative explanations, not merely asserted.
 
 **Finding: not supported, reported honestly.** Consistent with RQ1/RQ3:
 across five independent subsystems this session, "the more complex

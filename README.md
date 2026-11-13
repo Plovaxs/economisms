@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C985%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-2%2C994%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -65,9 +65,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **2,985 / 2,985** passing (Python; see `frontend/` for its own separate Vitest suite) |
+| Test suite | **2,994 / 2,994** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 174, each independently verified |
+| Pull requests | 176, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -101,6 +101,20 @@ with one command: `./run_dev.sh`. See
 [frontend/README.md](./frontend/README.md) for details, and
 [FP-19](./CHECKLIST_STATUS.md) for the real end-to-end job trace this
 adds across all seven deep-learning subsystems.
+
+**Two of this project's own named limitations were re-tested directly,
+not left as speculation.** `InflationGRU`'s miscalibration survived an
+8-hidden-size × 10-seed capacity-matching sweep (80 real runs) and a
+new post-hoc variance-calibration step — narrowed substantially, not
+closed, consistent with a genuine 2022+ inflation-surge regime shift
+rather than an undertrained model. The REINFORCE hedging agent's loss
+to its static baseline survived fixing a real reward/metric mismatch
+(it was trained to minimize mean loss, not the CVaR it's judged on)
+plus a 10–20× longer training budget — the gap narrowed from ~2.5× to
+~1.04×–1.41× across 8 seeds, still a real loss. Both honest,
+unchanged conclusions, now with the obvious confounds ruled out
+instead of assumed away. See `docs/RESULTS_AND_LIMITATIONS.md`'s
+Finding 8 and Finding 11 follow-ups.
 
 **New here?** [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real

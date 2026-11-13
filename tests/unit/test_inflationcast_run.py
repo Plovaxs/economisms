@@ -63,6 +63,8 @@ def test_main_runs_fully_offline_against_the_real_committed_snapshots(tmp_path, 
         "hybrid_quantum", "gru",
     }
     assert "gru_calibration" in saved
+    assert "gru_calibration_temperature" in saved
+    assert "gru_calibration_after_temperature" in saved
     assert "gru_vs_best_classical" in saved
 
 
@@ -127,6 +129,36 @@ def test_config_from_dict_decodes_string_dates() -> None:
     payload["validation_split_date"] = "2020-01-01"
     config = InflationcastRunConfig.from_dict(payload)
     assert config.validation_split_date == date(2020, 1, 1)
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_gru_calibration_is_robustly_bad_but_post_hoc_scaling_robustly_helps(seed: int) -> None:
+    """A direct numeric sweep (80 real training runs: 8 hidden sizes x
+    10 seeds, see docs/PR_LEDGER.md's PR-176 entry) found InflationGRU's
+    raw miscalibration is not a seed-0 fluke or a capacity artifact --
+    it rejects at every hidden size and every seed tried -- and that
+    post-hoc variance temperature scaling (fit on the validation split
+    alone, `fit_variance_temperature`) reliably raises observed test
+    coverage without ever fully closing the gap to the 90% nominal
+    target. This locks in that exact finding on the real, committed
+    BLS CPI-U / Kaggle snapshot, at the production default hidden_size
+    (24), across 5 of the swept seeds, rather than leaving it as a
+    one-off script result."""
+    config = InflationcastRunConfig(seed=seed, bootstrap_resamples=20)
+    result = run_inflationcast_job(config)
+    payload = result.evidence_bundle["inflationcast"]
+    raw = payload["gru_calibration"]
+    calibrated = payload["gru_calibration_after_temperature"]
+
+    assert raw["p_value"] < 0.01, "raw GRU calibration should fail (this is the known finding)"
+    assert calibrated["observed_coverage"] > raw["observed_coverage"], (
+        "post-hoc temperature scaling should raise observed coverage relative to raw"
+    )
+    assert calibrated["p_value"] < 0.05, (
+        "temperature scaling helps but should NOT fully fix calibration on this real, "
+        "regime-shifted test split -- a passing calibration here would mean this test's "
+        "own premise (a partial, not full, fix) has silently changed and needs re-checking"
+    )
 
 
 def test_run_inflationcast_job_produces_a_real_manifest_and_evidence_bundle() -> None:

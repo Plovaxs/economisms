@@ -199,6 +199,13 @@ def summary_payload(result: InflationcastDemoResult) -> dict[str, Any]:
             "observed_coverage": calibration.observed_coverage,
             "p_value": calibration.p_value,
         },
+        "gru_calibration_temperature": report.gru_calibration_temperature,
+        "gru_calibration_after_temperature": {
+            "n_observations": report.gru_calibration_after_temperature.n_observations,
+            "nominal_coverage": report.gru_calibration_after_temperature.nominal_coverage,
+            "observed_coverage": report.gru_calibration_after_temperature.observed_coverage,
+            "p_value": report.gru_calibration_after_temperature.p_value,
+        },
         "gru_vs_best_classical": {
             "point_estimate": bootstrap.point_estimate,
             "ci_low": bootstrap.ci_low,

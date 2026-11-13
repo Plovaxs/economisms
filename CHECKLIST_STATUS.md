@@ -7249,6 +7249,88 @@ runtime bugs (e.g. a nested per-dimension CRPS object the frontend
 had assumed was a flat number; several job configs missing required
 fields the backend's strict schema check would otherwise reject).
 
+## Evidenced today (PR-175: a one-command dev launcher, and a token-expiry UX fix)
+
+Not a blueprint or FP-table item -- local dev tooling and a frontend UX
+fix, the same "additional scope, recorded honestly" precedent PR-174
+set. New `run_dev.sh` starts all four PR-174 processes (job worker,
+job API, dashboard, Vite dev server) from one command instead of four
+manual terminals, provisioning credentials and running `npm install`
+on first use only, with per-process logs and a clean Ctrl+C teardown
+(verified end to end: both backends reach "Application startup
+complete", Vite serves a real 200, SIGTERM cleanup kills every child).
+While using it, a real bug surfaced: a bearer token stops authenticating
+the instant either backend restarts (a fresh one is provisioned), and
+the SPA had no way to recover beyond rendering a raw `{"error": "..."}`
+body wherever the failing fetch happened to be used. `client.ts` now
+parses both backends' real, differently-shaped error bodies into one
+clean message and, on any 401, clears the stored token and bounces
+back to `TokenGate`'s unlock screen with an explanation. 6 new frontend
+tests (`client.test.ts` x4, `TokenGate.test.tsx` x2); `npm run lint`/
+`typecheck`/`test` clean.
+
+## Evidenced today (PR-176: INFLATIONCAST's miscalibration and RL-hedging's loss, re-tested with real confounds ruled out)
+
+Directly prompted by the explicit request to push training effort on
+this project's deep-learning subsystems as far as legitimately
+possible. Not new blueprint or FP-table items -- both strengthen
+already-evidenced findings (FP-07, HDG-14) with real confounds ruled
+out; neither newly evidences either item.
+
+**INFLATIONCAST (FP-07).** Finding 11 named two untested confounds
+behind `InflationGRU`'s ~11% observed coverage against a 90% nominal
+target: capacity mismatch (2,786 parameters vs. its classical
+challengers' ~1,261-1,265) and no post-hoc calibration attempt. An
+8-hidden-size x 10-seed sweep (80 real training runs) found
+capacity-matching does **not** explain the failure -- raw calibration
+rejects (p<0.05) in all 80 runs regardless of hidden size (226-2,786
+parameters), and point MAE stays ~3.5 throughout. New
+`inflationcast.evaluation.fit_variance_temperature` (post-hoc
+variance/temperature scaling, fit by Gaussian NLL on the validation
+split only) raises observed coverage substantially (0%-48% raw to
+57%-71% calibrated, seeds 0-9 at the production hidden_size=24) but
+does not close the gap in any of the 80 runs -- consistent with the
+test split (2022+) being the real 2021-2022 inflation-surge regime,
+genuinely out-of-distribution relative to the calmer fitting period,
+the same regime-shift mechanism this project's neural-SDE finding
+already demonstrated for a different subsystem. Both results are now
+real, parametrized regression tests against the real committed BLS
+CPI-U/Kaggle data (`test_inflationcast_evaluation.py`'s
+`fit_variance_temperature` tests; `test_inflationcast_run.py::
+test_gru_calibration_is_robustly_bad_but_post_hoc_scaling_robustly_helps`,
+5 real seeds), and the calibrated numbers are now part of the real
+production payload (`gru_calibration_temperature`,
+`gru_calibration_after_temperature`).
+
+**RL hedging (HDG-14).** `static_baseline_cvar` was passed into
+`train_reinforce_hedge_policy` only as a precondition gate -- never
+part of the training signal, which minimized mean terminal loss, a
+different objective from the CVaR metric the policy is judged on, the
+same reward/metric-mismatch failure mode this project already found
+once in MARL's reward design (PR-154). New `reward_objective:
+Literal["mean_loss","cvar"]` parameter; `"cvar"` rewards each path by
+its own (batch-detached) excess over the empirical VaR threshold --
+the Rockafellar-Uryasev CVaR estimator's differentiable half.
+Combined with a 10x-20x longer, still-fast training budget (82
+parameters; 400-800 vs. the original 40 epochs), this narrows the gap
+from ~2.5x the static baseline's CVaR down to ~1.04x-1.41x across 8
+seeds at 800 epochs -- but does not close it: 0/8 seeds beat the
+static baseline at either budget. **The qualitative conclusion
+(REINFORCE loses) is unchanged**, now with both an undertrained budget
+and a misaligned reward ruled out rather than merely asserted.
+`reward_objective="cvar"` and `n_epochs=400` are the new
+`RlHedgeRunConfig`/CLI production defaults; the original `"mean_loss"`
+objective remains available and is exactly what this file's
+pre-existing loss-to-baseline regression test still exercises, keeping
+that test's original claim unchanged. A new paired same-seed/
+same-budget comparison test locks in the direction at this file's
+smaller, CI-fast scale. `RlHedgeLab.tsx` and the regenerated
+`docs/api/openapi-v1.json` fixture were updated to match.
+
+**Verification.** 15 new/modified tests across the two subsystems;
+`ruff`/`mypy --strict` clean; full suite 2,994/2,994 passing (up from
+2,985).
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

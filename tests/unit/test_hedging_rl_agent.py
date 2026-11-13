@@ -163,6 +163,56 @@ def test_multi_seed_stability_report_has_real_nonzero_variance_across_seeds() ->
     assert report.cvar_std >= 0.0
 
 
+def test_cvar_reward_objective_rejects_an_invalid_value() -> None:
+    paths = _real_paths()
+    baseline_cvar = _static_baseline_cvar(paths)
+    with pytest.raises(ValueError, match="reward_objective"):
+        train_reinforce_hedge_policy(
+            paths, _DT, _STRIKE, "call", _R, 0.001, 5.0,
+            static_baseline_cvar=baseline_cvar, seed=0, n_epochs=2,
+            reward_objective="worst_case",  # type: ignore[arg-type]
+        )
+
+
+def test_cvar_reward_objective_beats_mean_loss_reward_given_the_same_training_budget() -> None:
+    """`static_baseline_cvar` is only ever used as a precondition gate in
+    the DEFAULT `reward_objective="mean_loss"` -- the policy is trained
+    to minimize mean terminal loss, a different objective from the CVaR
+    metric it is judged on. A direct sweep (80 real runs at the
+    production scale, see `docs/RESULTS_AND_LIMITATIONS.md`'s Finding 8
+    follow-up) found `reward_objective="cvar"` (reward = each path's own
+    excess over the batch's empirical VaR, the Rockafellar-Uryasev CVaR
+    estimator's differentiable half) reliably trains a materially better
+    -- though still not baseline-beating -- policy. This locks in the
+    same direction at this file's smaller, CI-fast scale: a real,
+    paired, same-seed, same-training-budget comparison, not a claim
+    that `cvar` reaches the static baseline."""
+    paths = _real_paths(seed=1)
+    baseline_cvar = _static_baseline_cvar(paths)
+    mean_loss_trained = train_reinforce_hedge_policy(
+        paths, _DT, _STRIKE, "call", _R, 0.001, 5.0,
+        static_baseline_cvar=baseline_cvar, seed=1, n_epochs=150, reward_objective="mean_loss",
+    )
+    cvar_trained = train_reinforce_hedge_policy(
+        paths, _DT, _STRIKE, "call", _R, 0.001, 5.0,
+        static_baseline_cvar=baseline_cvar, seed=1, n_epochs=150, reward_objective="cvar",
+    )
+
+    def evaluated_cvar(trained: TrainedReinforceHedge) -> float:
+        ratios = hedge_ratios_from_policy(trained.policy, paths)
+        sim = simulate_self_financing_hedge(paths, _DT, _STRIKE, "call", _R, 0.001, 5.0, ratios)
+        sorted_loss = np.sort(sim.terminal_loss)
+        tail_start = int(np.ceil(0.95 * len(sorted_loss)))
+        return float(np.mean(sorted_loss[tail_start:]))
+
+    mean_loss_cvar = evaluated_cvar(mean_loss_trained)
+    cvar_reward_cvar = evaluated_cvar(cvar_trained)
+    assert cvar_reward_cvar < mean_loss_cvar
+    # Still an honest loss to the static baseline at this budget/scale --
+    # this test is about the comparative direction, not claiming parity.
+    assert cvar_reward_cvar > baseline_cvar
+
+
 def test_real_comparison_against_the_static_baseline_on_the_same_paths() -> None:
     """A real, paired comparison (same price paths for both candidates,
     this project's own established paired-comparison discipline). Real,

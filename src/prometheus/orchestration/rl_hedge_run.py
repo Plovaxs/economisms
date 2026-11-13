@@ -30,7 +30,11 @@ from prometheus.evidence.export import build_evidence_bundle
 from prometheus.evidence.repository_status import current_repository_gate_report
 from prometheus.experiments.manifest import RunManifest, compute_result_hash, new_run_id, now_iso
 from prometheus.hedging.baseline import apply_no_trade_band, black_scholes_delta_hedge_ratios
-from prometheus.hedging.rl_agent import TrainedReinforceHedge, train_reinforce_hedge_policy
+from prometheus.hedging.rl_agent import (
+    RewardObjective,
+    TrainedReinforceHedge,
+    train_reinforce_hedge_policy,
+)
 from prometheus.hedging.simulate import simulate_self_financing_hedge
 from prometheus.stochastica.gbm import simulate_gbm_paths
 from prometheus.volterra.instruments import OptionType
@@ -54,9 +58,18 @@ class RlHedgeRunConfig:
     cost_rate: float = 0.001
     initial_premium: float = 5.0
     cvar_alpha: float = 0.95
-    n_epochs: int = 40
+    n_epochs: int = 400
     learning_rate: float = 0.01
     band_width: float = 0.05
+    reward_objective: RewardObjective = "cvar"
+    """"cvar" (the default): the policy is rewarded by its own excess
+    over the batch's empirical VaR threshold, directly targeting the
+    CVaR metric it is judged against -- see `hedging.rl_agent`'s module
+    docstring for why this is a real, measured fix (not merely a more
+    aggressive setting) for an objective/metric mismatch that previously
+    went unaudited. "mean_loss" reproduces the original (PR-158/162)
+    behavior, where `static_baseline_cvar` is used only as a
+    precondition gate, never in the training signal."""
 
     def __post_init__(self) -> None:
         if self.seed < 0:
@@ -79,6 +92,8 @@ class RlHedgeRunConfig:
             raise ValueError("n_epochs must be a positive integer")
         if not 0.0 <= self.band_width < 1.0:
             raise ValueError("band_width must be in [0, 1)")
+        if self.reward_objective not in ("mean_loss", "cvar"):
+            raise ValueError("reward_objective must be 'mean_loss' or 'cvar'")
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> RlHedgeRunConfig:
@@ -142,6 +157,7 @@ def run_rl_hedge(config: RlHedgeRunConfig) -> RlHedgeRunResult:
         n_epochs=config.n_epochs,
         cvar_alpha=config.cvar_alpha,
         learning_rate=config.learning_rate,
+        reward_objective=config.reward_objective,
     )
     verdict = _verdict(static_baseline_cvar, trained.final_cvar)
     payload: dict[str, Any] = {
@@ -187,9 +203,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--cost-rate", type=float, default=0.001)
     parser.add_argument("--initial-premium", type=float, default=5.0)
     parser.add_argument("--cvar-alpha", type=float, default=0.95)
-    parser.add_argument("--n-epochs", type=int, default=40)
+    parser.add_argument("--n-epochs", type=int, default=400)
     parser.add_argument("--learning-rate", type=float, default=0.01)
     parser.add_argument("--band-width", type=float, default=0.05)
+    parser.add_argument("--reward-objective", choices=("mean_loss", "cvar"), default="cvar")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
@@ -200,6 +217,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             cost_rate=args.cost_rate, initial_premium=args.initial_premium,
             cvar_alpha=args.cvar_alpha, n_epochs=args.n_epochs,
             learning_rate=args.learning_rate, band_width=args.band_width,
+            reward_objective=args.reward_objective,
         )
     except ValueError as exc:
         parser.error(str(exc))

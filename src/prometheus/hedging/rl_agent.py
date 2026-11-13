@@ -36,12 +36,39 @@ is reported by `multi_seed_stability_report`: the SAME training
 configuration run at several seeds, with the resulting policies'
 realized CVaR spread reported directly -- a real number, not a claim
 that training is "stable."
+
+`reward_objective="cvar"` (PR-176): the DEFAULT objective below,
+`"mean_loss"`, trains the policy to minimize mean terminal loss, while
+`static_baseline_cvar` is used only as a precondition gate -- it never
+appears in the actual training signal. That is a real objective/metric
+mismatch, the same class of bug this project already found once in
+MARL's reward design (PR-154, "a degenerate reward silently determined
+an RL agent's conclusion before any training happened"): the policy
+has no incentive to specifically reduce TAIL risk, which is the only
+thing it is judged on. `reward_objective="cvar"` instead rewards each
+path by its own (detached, per-epoch-batch) excess over the empirical
+VaR threshold -- the standard Rockafellar-Uryasev CVaR estimator's
+differentiable half, `VaR + E[(L-VaR)+]/(1-alpha)`, with the
+non-differentiable VaR term held constant within the batch. A direct
+sweep (not merely asserted) found this materially narrows -- but does
+not close -- the gap to the static baseline: at the original 40-epoch
+budget the trained policy's CVaR was ~2.5x the static baseline's
+regardless of reward; at 400/800 epochs with `reward_objective="cvar"`
+it narrows to ~1.04x-1.41x across 8 seeds, 0/8 beating the baseline --
+see `docs/RESULTS_AND_LIMITATIONS.md`'s Finding 8 follow-up and
+`tests/unit/test_hedging_rl_agent.py`'s `reward_objective="cvar"`
+tests for the exact, re-runnable numbers. The DEFAULT stays
+`"mean_loss"` here so every pre-existing direct test/caller of this
+function keeps its exact documented behavior; `orchestration.
+rl_hedge_run.RlHedgeRunConfig` is where the corrected objective
+becomes the real, honest production default instead.
 """
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 import torch
@@ -49,6 +76,8 @@ from torch import nn
 
 from prometheus.hedging.simulate import simulate_self_financing_hedge
 from prometheus.volterra.instruments import OptionType
+
+RewardObjective = Literal["mean_loss", "cvar"]
 
 
 class StaticBaselineNotPassedError(ValueError):
@@ -121,6 +150,7 @@ def train_reinforce_hedge_policy(
     n_epochs: int,
     cvar_alpha: float = 0.95,
     learning_rate: float = 0.01,
+    reward_objective: RewardObjective = "mean_loss",
 ) -> TrainedReinforceHedge:
     if not math.isfinite(static_baseline_cvar):
         raise StaticBaselineNotPassedError(
@@ -129,6 +159,8 @@ def train_reinforce_hedge_policy(
         )
     if n_epochs < 1:
         raise ValueError("n_epochs must be >= 1")
+    if reward_objective not in ("mean_loss", "cvar"):
+        raise ValueError("reward_objective must be 'mean_loss' or 'cvar'")
 
     torch.manual_seed(seed)
     policy = HedgeRLPolicyNet()
@@ -173,7 +205,18 @@ def train_reinforce_hedge_policy(
             initial_premium=initial_premium,
             hedge_ratios=ratios,
         )
-        reward = torch.tensor(-sim.terminal_loss, dtype=torch.float32)
+        if reward_objective == "cvar":
+            # Rockafellar-Uryasev: CVaR_alpha(L) = VaR_alpha(L) + E[(L-VaR)+]/(1-alpha).
+            # VaR is a non-differentiable empirical quantile of this batch's
+            # OWN realized losses -- held constant (it is never backpropagated
+            # through), so only the differentiable excess term drives the
+            # policy gradient, directly targeting the metric this policy is
+            # judged on rather than the unconditional mean loss.
+            var_threshold = np.quantile(sim.terminal_loss, cvar_alpha)
+            tail_excess = np.maximum(sim.terminal_loss - var_threshold, 0.0) / (1.0 - cvar_alpha)
+            reward = torch.tensor(-tail_excess, dtype=torch.float32)
+        else:
+            reward = torch.tensor(-sim.terminal_loss, dtype=torch.float32)
         baseline = reward.mean()
         advantage = reward - baseline
         policy_loss = -(log_probs * advantage.detach()).mean()

@@ -132,6 +132,35 @@ conclusion (REINFORCE loses to the static baseline) is unchanged — now
 true for the real reason (sample inefficiency) instead of a silent
 broken gradient.
 
+**Follow-up (PR-176): a second confound, found and tested directly
+rather than assumed away.** `static_baseline_cvar` was passed into
+training only as a precondition gate — it never appeared in the
+training signal itself, which minimized mean terminal loss, not the
+CVaR the policy is actually judged on. The same reward/metric-mismatch
+failure mode this project already found once in MARL's reward design
+(Finding 7, below). A CVaR-aligned reward (each path rewarded by its
+own excess over that batch's empirical VaR threshold — the
+Rockafellar-Uryasev CVaR estimator's differentiable half) combined
+with a longer, still-modest training budget (400–800 vs. the original
+40 epochs; the policy has 82 parameters, so this stays fast) narrows
+the gap from ~2.5x the static baseline's CVaR down to ~1.04x–1.41x
+across 8 seeds at 800 epochs — but does not close it: 0/8 seeds beat
+the static baseline at either 400 or 800 epochs. **Honest result: a
+real, substantial improvement, and the qualitative conclusion
+(REINFORCE still loses) is unchanged** — now ruled out as an artifact
+of either an undertrained policy or a misaligned reward, rather than
+merely asserted to be "sample inefficiency." The corrected objective
+(`reward_objective="cvar"`) and the larger epoch budget are now the
+real, tested production defaults
+(`orchestration.rl_hedge_run.RlHedgeRunConfig`); the original
+mean-loss objective remains available
+(`reward_objective="mean_loss"`), and is exactly what this file's own
+pre-existing loss-to-baseline test below still exercises, so that
+test's original claim stays intact and unchanged. See
+`tests/unit/test_hedging_rl_agent.py::
+test_cvar_reward_objective_beats_mean_loss_reward_given_the_same_training_budget`
+for the permanent, re-runnable, paired comparison.
+
 ## Finding 9 (PR-168): an independent, separately-coded cross-check found a real boundary-month labeling bug
 
 A second, independently-written implementation of RECESSIONNET's
@@ -190,12 +219,39 @@ year-over-year is a highly persistent series month to month, a
 well-documented real property, not an artifact of this pipeline or a
 sign anything is broken; and **`InflationGRU`'s calibration failed
 badly**: its nominal 90% predictive interval covered only ~11% of real
-test-set outcomes (exact binomial test, p ≈ 1.7×10⁻⁴³). **Limitation:**
-this is reported exactly as run — seed 0, the CLI's own default
-splits — not re-run across seeds or architectures until a flattering
-result appeared; a lower-capacity or differently-regularized
-calibration head might do better, and that is future work, not a
-claim made here.
+test-set outcomes (exact binomial test, p ≈ 1.7×10⁻⁴³).
+
+**Follow-up (PR-176): the two confounds this limitation note itself
+named were tested directly, not left as speculation.** (1) *Capacity
+mismatch* — `InflationGRU` has 2,786 parameters against only 139
+training examples, ~2.2x the classical-MLP/hybrid-quantum challengers'
+~1,261–1,265. An 8-hidden-size x 10-seed sweep (80 real training runs)
+found this does **not** explain the failure: raw calibration rejects
+(p<0.05) in all 80 runs regardless of hidden size (226–2,786
+parameters), and point MAE stays ~3.5 throughout — capacity-matching is
+ruled out, not assumed irrelevant. (2) *Calibration head* —
+`fit_variance_temperature` (a standard post-hoc variance/temperature
+scaling, fit by NLL on the validation split only, applied to test)
+raises observed coverage substantially (from 0%–48% raw to 57%–71%
+after scaling, across seeds 0–9 at the production hidden_size=24) but
+does **not** close the gap to the 90% nominal target in any of the 80
+runs. The residual failure is consistent with the real mechanism
+already named in this project's neural-SDE finding (RQ2/Finding
+on `neural_sde`): the test split (2022+) is the real 2021–2022
+inflation-surge regime, genuinely out-of-distribution relative to the
+calmer period the model and its calibration were fit on — a regime
+shift, not an undertrained or miscalibrated-by-accident model. Both
+checks are now permanent, real tests
+(`tests/unit/test_inflationcast_evaluation.py`'s
+`fit_variance_temperature` tests;
+`tests/unit/test_inflationcast_run.py::
+test_gru_calibration_is_robustly_bad_but_post_hoc_scaling_robustly_helps`,
+parametrized over 5 real seeds), not a one-off script result.
+**Limitation:** still one dataset, one architecture family, and a
+single post-hoc calibration method (variance temperature scaling); a
+fundamentally different calibration approach (e.g. conformal
+prediction) or a model trained to be regime-aware was not tried, and
+that remains future work, not a claim made here.
 
 ## Known limitations that are not findings, just open scope
 
