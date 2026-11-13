@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C006%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C014%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -65,9 +65,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,006 / 3,006** passing (Python; see `frontend/` for its own separate Vitest suite) |
+| Test suite | **3,014 / 3,014** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 177, each independently verified |
+| Pull requests | 178, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -115,6 +115,18 @@ plus a 10–20× longer training budget — the gap narrowed from ~2.5× to
 unchanged conclusions, now with the obvious confounds ruled out
 instead of assumed away. See `docs/RESULTS_AND_LIMITATIONS.md`'s
 Finding 8 and Finding 11 follow-ups.
+
+**A real recession-predictor feature — the US Treasury yield-curve
+spread — was added to RECESSIONNET and made things worse, not
+better.** Rather than chase an arbitrary data-volume target (this
+repository's entire real dataset is ~136KB; monthly macro data is
+structurally small, not a big-data domain), a genuinely new, textbook-
+motivated real feature (the 10Y-3M spread, Estrella-Mishkin) was
+ingested from `home.treasury.gov` and directly ablated. Honest result:
+ROC-AUC is consistently decent without it (0.68–0.86 across 5 seeds)
+and erratic, usually worse, with it (0.36–0.82) — plausibly because an
+already data-starved model gains one more dimension to fit. See
+`docs/RESULTS_AND_LIMITATIONS.md`'s Finding 12.
 
 **The same check was then run across the remaining five DL
 subsystems, with mixed and genuinely interesting results.** The PDE

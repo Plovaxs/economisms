@@ -87,7 +87,15 @@ second diagnostic catches before it could be mistaken for a win. On
 the original factor dataset, the same check found no such divergence
 and, if anything, a mild shift toward classical. Neither result is
 promoted to a production default; see `docs/RESULTS_AND_LIMITATIONS.md`
-Finding 3's follow-up for the full account and why.
+Finding 3's follow-up for the full account and why. Separately
+(PR-178): a real feature neither dataset had -- the US Treasury 10Y-3M
+yield-curve spread, one of the most-studied real recession predictors
+in the literature -- was added and directly ablated (same
+range/seeds/patience, with vs. without). It did not help, and mostly
+hurt: ROC-AUC was consistently decent (0.68-0.86) without it, erratic
+and usually worse (0.36-0.82) with it. See Finding 12 for the full
+account, including the likely cause (an already data-starved model
+gaining one more input dimension to fit).
 
 ### RQ2 — Can a neural stochastic differential equation outperform classical SDE models (GBM) and econometric baselines (GARCH) on real macro data, and does it degrade more gracefully under a genuine out-of-distribution shock?
 

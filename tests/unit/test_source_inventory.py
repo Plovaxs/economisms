@@ -43,16 +43,21 @@ def test_discovers_exactly_the_real_connectors_in_this_repository() -> None:
     `data_ingestion` package -- not a hand-built fixture -- confirming
     `transport` (shared infra, not a source) and `__init__` are
     correctly excluded. `kaggle_macro` (real US GDP/claims/Fed-funds/
-    M2/NASDAQ data, PR-145) and `treasury_yield_curve` (real US
-    Treasury par yield curve data via FRED, PR-146) are genuinely new
-    real sources this scanner is correctly expected to pick up;
-    `monthly_matrix` has no `*_URL`/`*LICENSE` constants of its own (it
-    is a shared helper, not a source) and is correctly NOT picked up."""
+    M2/NASDAQ data, PR-145), `treasury_yield_curve` (real US Treasury
+    par yield curve data via FRED, PR-146), and `treasury_yield_spread`
+    (the real US Treasury 10Y-3M spread via `home.treasury.gov`
+    directly, PR-178 -- a separate, narrower module, not a duplicate
+    of `treasury_yield_curve`, see its own module docstring for why)
+    are genuinely new real sources this scanner is correctly expected
+    to pick up; `monthly_matrix` has no `*_URL`/`*LICENSE` constants of
+    its own (it is a shared helper, not a source) and is correctly NOT
+    picked up."""
     discovered = discover_data_sources(_repo_data_ingestion_root())
     assert discovered == (
         "french_factors",
         "kaggle_macro",
         "treasury_yield_curve",
+        "treasury_yield_spread",
         "worldbank",
     )
 

@@ -1,0 +1,27 @@
+{
+  "source": "US Treasury daily par yield curve rates",
+  "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv",
+  "license": "US Government work, public domain",
+  "downloaded_at": "2026-11-13",
+  "underlying_series": {
+    "TREASURY_3MO": "3 Month Treasury par yield, daily, averaged within each calendar month",
+    "TREASURY_10YR": "10 Year Treasury par yield, daily, averaged within each calendar month",
+    "TREASURY_10Y_3M_SPREAD": "TREASURY_10YR - TREASURY_3MO, in percentage points -- the Estrella-Mishkin / NY Fed recession-probability model's own spread, not the media-popular '2s10s' framing"
+  },
+  "resampling": "Each calendar month's value is the mean of that month's real daily par yields (the same noise-reduction convention the NY Fed's own published recession-probability model uses for this exact spread), not an end-of-month snapshot.",
+  "publication_lag_assumption_days": {
+    "TREASURY_3MO": 0,
+    "TREASURY_10YR": 0,
+    "TREASURY_10Y_3M_SPREAD": 0
+  },
+  "publication_lag_note": "Treasury publishes each business day's par yield curve rates same-day, so a given month's average is honestly knowable by that month's own end -- no forward-fill or lag re-keying needed, unlike kaggle_us_macro_monthly.csv's GDP/claims series.",
+  "sanity_checks": {
+    "TREASURY_10Y_3M_SPREAD 2000-07": "-0.0885 (real inversion preceding the 2001 recession)",
+    "TREASURY_10Y_3M_SPREAD 2007-01": "-0.3457 (real inversion preceding the Dec 2007 recession)",
+    "TREASURY_10Y_3M_SPREAD 2019-08": "-0.3641 (the real, widely-reported August 2019 inversion preceding the Feb 2020 recession)"
+  },
+  "real_date_range": {"first_month": "199001", "last_month": "202312"},
+  "fetch_method": "year-by-year GET against home.treasury.gov's own public CSV download endpoint (type=daily_treasury_yield_curve), no auth, no API key; not committed as project code since it is a one-off fetch, same convention as kaggle_us_macro_monthly.csv's own prep script -- see docs/PR_LEDGER.md for the PR entry describing its exact logic",
+  "note_on_earlier_years": "home.treasury.gov's CSV endpoint returns no data before 1990 (confirmed by direct request for 1982); this is why this series starts at 1990-01 rather than kaggle_us_macro_monthly.csv's own 1981-12 start.",
+  "relationship_to_dat_04": "A separate, more general Treasury connector already exists (data_ingestion.treasury_yield_curve, DAT-04/PR-146): a live, multi-tenor fetch via FRED's fredgraph.csv with day-count/holiday conventions recorded. That module's own FRED source was unreachable from this environment both at its original implementation time and independently reconfirmed unreachable here; home.treasury.gov (this file's source) was independently confirmed reachable instead. This file is a narrower, derived feature (one spread, monthly-averaged) for a different, specific use (data_ingestion.treasury_yield_spread, feeding RECESSIONNET), not a replacement for or duplicate of DAT-04's own broader scope."
+}

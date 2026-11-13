@@ -59,7 +59,12 @@ from prometheus.recessionnet.labels import NBER_RECESSIONS
 DEFAULT_SERIES_IDS: tuple[str, ...] = ("FF3_Mkt-RF", "FF3_SMB", "FF3_HML", "FF3_RF")
 DEFAULT_CACHE_PATH = Path(__file__).resolve().parents[3] / "data_cache" / "ff3_monthly_snapshot.csv"
 Verdict = Literal["quantum_better", "classical_better", "inconclusive"]
-DataSource = Literal["live", "cached_snapshot_fallback", "kaggle_local_snapshot"]
+DataSource = Literal[
+    "live",
+    "cached_snapshot_fallback",
+    "kaggle_local_snapshot",
+    "kaggle_and_treasury_local_snapshot",
+]
 
 
 @dataclass(frozen=True, slots=True)

@@ -326,6 +326,52 @@ fundamentally different calibration approach (e.g. conformal
 prediction) or a model trained to be regime-aware was not tried, and
 that remains future work, not a claim made here.
 
+## Finding 12 (PR-178): a textbook recession predictor, added as a real feature, made things worse rather than better
+
+Neither RECESSIONNET's original Kenneth French factors nor its Kaggle
+macro snapshot include any direct measure of the yield curve, despite
+a curve inversion (short rates above long rates) being one of the
+most-studied real recession predictors in the macro-finance literature
+(Estrella-Mishkin; the NY Fed's own published recession-probability
+model uses exactly this 10Y-3M spread). New `data_ingestion.treasury_
+yield_spread` ingests the real US Treasury 10-Year and 3-Month par
+yields from `home.treasury.gov`'s own public CSV endpoint (US
+government work, public domain; independently sanity-checked against
+three well-known historical inversions: 2000-07 before the 2001
+recession, 2007-01 before the Dec 2007 recession, and the
+widely-reported August 2019 inversion before the Feb 2020 recession),
+committed as a monthly snapshot. A real, disclosed constraint: this
+source has no data before 1990 (confirmed by direct request), so the
+combined dataset (`orchestration.recessionnet_yield_curve_run`) covers
+only the real 1990-2023 overlap with the Kaggle snapshot, not its full
+1981-2023 range — `recessionnet.dataset.build_monthly_series_matrix`
+requires every feature to have a value for every month, with no
+per-series masking the way `inflationcast.data` has.
+
+**A direct, same-range, same-seed, same-patience ablation (spread
+added vs. not, 5 seeds) found the spread does not help
+`hybrid_quantum`, and mostly hurts.** Without it, ROC-AUC is
+consistently decent across all 5 seeds (0.68–0.86); with it, ROC-AUC
+becomes erratic and usually worse (0.36–0.82) — 4 of 5 seeds now favor
+classical where only 1 of 5 did before. **Limitation, stated plainly:**
+this is plausibly an artifact of an already data-starved model (689
+parameters against only 127 training examples in the truncated range)
+getting one more input dimension to fit, not evidence that the yield
+curve itself carries no signal — a feature that is this well-motivated
+making things worse is itself the honest, informative result, not a
+reason to drop it from this record. See
+`tests/unit/test_recessionnet_yield_curve_run.py::
+test_adding_the_yield_curve_spread_does_not_help_and_mostly_hurts` for
+the permanent, re-runnable comparison. This is a deliberately
+separate, narrower module from the pre-existing `data_ingestion.
+treasury_yield_curve` (DAT-04/PR-146) connector — that one fetches 11
+tenors live via FRED's `fredgraph.csv` with recorded day-count/holiday
+conventions, and was unreachable from this environment both at its own
+original implementation time and when independently reconfirmed here;
+`home.treasury.gov` was independently confirmed reachable instead,
+which is why this is a second connector rather than an extension of
+that one.
+
 ## Known limitations that are not findings, just open scope
 
 - **No independent human review of any claim in this repository has
