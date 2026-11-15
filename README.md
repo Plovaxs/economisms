@@ -96,7 +96,10 @@ could pass as a win. See
 [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md)
 (12 numbered findings, each with its own re-runnable test) and
 [docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md) for
-the full account behind every line above.
+the full account behind every line above, or
+[docs/FINAL_PAPER.md](./docs/FINAL_PAPER.md) for all of it assembled
+into one linear final-project paper, limitations and null/negative
+experiments included by name.
 
 ## The evidence discipline
 
@@ -114,7 +117,7 @@ and every PR states plainly what it does *not* cover.
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
 | Test suite | **3,014 / 3,014** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 178, each independently verified |
+| Pull requests | 179, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -143,6 +146,10 @@ found — including the ones where the more complex approach lost.
 [docs/FINAL_PROJECT_HYPOTHESES.md](./docs/FINAL_PROJECT_HYPOTHESES.md)
 freezes a title and five falsifiable hypotheses against those same
 findings, honestly disclosed as a retrospective freeze.
+[docs/FINAL_PAPER.md](./docs/FINAL_PAPER.md) is the final project paper
+itself — the same material assembled into one abstract-to-conclusion
+document, with limitations and null/negative experiments included by
+name, not left implicit.
 
 ## Quickstart
 
