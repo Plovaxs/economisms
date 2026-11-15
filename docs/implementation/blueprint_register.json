@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "339f7b1dc1520d2e4004e0b0c95a437bccb14b5637fa1ec08a2fab29bb655c6a",
+    "content_sha256": "41a7a942e0403e02ab2794ca9d29165ecf7e84a87508f744d64ff4b0b3dd6cd3",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "965abd3c4583838529326532ad43a2dcd4901ffa7f5ea725925952e5e0d434aa",
+  "checklist_notes_sha256": "abedb3ade023a26053c403b86d8b60303ef48e8e2819ddb831e4d7c142dcf193",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -8968,7 +8968,7 @@
       "repository_notes": [
         {
           "checklist_line": 5629,
-          "evidence_note": "`docs/PROBLEM_STATEMENT.md`; states H1/H2/H3 as specific pre-stated claims against named primary metrics (Brier score; MAE/MASE; real-holiday discrimination), citing the real PRs that tested each one, including H1/H2's real non-support outcomes",
+          "evidence_note": "`docs/PROBLEM_STATEMENT.md`; states P1/P2/P3 (renamed PR-180 from an earlier H1/H2/H3 that collided with `docs/FINAL_PROJECT_HYPOTHESES.md`'s later, frozen H1-H5 -- see that document's own note) as specific pre-stated claims against named primary metrics (Brier score; MAE/MASE; real-holiday discrimination), citing the real PRs that tested each one, including P1/P2's real non-support outcomes",
           "id_column": "DOC-02",
           "requirement_note": "research problem statement and falsifiable hypotheses"
         }

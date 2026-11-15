@@ -541,21 +541,22 @@ not more of the same kind of test.
   maintainer. The fastest way to check that is named explicitly in
   [`docs/RESEARCH_CONTRIBUTIONS.md`](./RESEARCH_CONTRIBUTIONS.md): open
   one cited test and confirm it tests what this paper claims.
-- **Document-numbering inconsistency, disclosed rather than silently
-  reconciled.** An earlier document in this repository,
-  [`docs/PROBLEM_STATEMENT.md`](./PROBLEM_STATEMENT.md), labels a
+- **Document-numbering inconsistency, found while writing this paper and
+  fixed the same day (PR-180).** An earlier document in this repository,
+  [`docs/PROBLEM_STATEMENT.md`](./PROBLEM_STATEMENT.md), had labeled a
   different, earlier set of three hypotheses H1–H3 (RECESSIONNET,
   Q-MACRO, and a Treasury-holiday-detection check), predating and
   distinct from the later, frozen H1–H5 set this paper follows as
   authoritative per
   [`docs/FINAL_PROJECT_HYPOTHESES.md`](./FINAL_PROJECT_HYPOTHESES.md)'s
-  explicit freeze. The two labels were never reconciled when the later
-  document superseded the earlier one. This is a real, minor
-  documentation gap, named here rather than left for a reader to
-  discover and wonder whether it reflects something wrong with the
-  underlying evidence — it does not; the underlying tests and numbers
-  in both documents are independently correct, only the shared "H1–H3"
-  label across two documents is a leftover naming collision.
+  explicit freeze. The two label sets collided for several PRs with no
+  functional consequence — the underlying tests and numbers in both
+  documents were always independently correct, only the shared "H1–H3"
+  label across two documents was a leftover naming collision — but it
+  risked a reader conflating a frozen, citable hypothesis with that
+  document's own earlier, narrower framing. Fixed by renaming that
+  document's hypotheses to P1–P3, with an explicit note pointing to this
+  paper for how the collision was found.
 - **Small sample sizes**, stated per-finding in §6.5, limit how far any
   single verdict above should be generalized.
 

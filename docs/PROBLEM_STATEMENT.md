@@ -31,9 +31,20 @@ it.
 
 Stated before the fact in the sense that each is a specific, checkable
 claim a result could have confirmed OR refuted — and in at least one case
-below, did refute:
+below, did refute. **Labeled P1-P3, not H1-H3** — deliberately, to avoid
+colliding with the later, frozen H1-H5 hypothesis set in
+[docs/FINAL_PROJECT_HYPOTHESES.md](./FINAL_PROJECT_HYPOTHESES.md), which
+is the authoritative source for this project's title and five frozen
+hypotheses. **Renamed PR-180** (originally labeled H1-H3, predating that
+later freeze): the two label sets collided for several PRs with no
+functional consequence — the tests, numbers, and verdicts below were
+always independently correct — but a shared "H1-H3" label across two
+different documents risked a reader conflating a frozen, citable
+hypothesis with this document's own earlier, narrower research-problem
+framing. See `docs/FINAL_PAPER.md`'s "Threats to validity" section for
+how this was found, and this note for how it was fixed.
 
-- **H1 (RECESSIONNET, PR-139/142/144/145)**: a hybrid quantum-classical
+- **P1 (RECESSIONNET, PR-139/142/144/145)**: a hybrid quantum-classical
   classifier achieves a lower Brier score than capacity-matched classical
   baselines (logistic regression, classical MLP) on point-in-time-safe
   U.S. recession prediction, across multiple real data sources and
@@ -45,7 +56,7 @@ below, did refute:
   base rate — not any trained model — was the strongest classical
   candidate, with quantum again showing no significant difference
   (PR-145).
-- **H2 (Q-MACRO, PR-143)**: a hybrid quantum regressor achieves lower MAE/
+- **P2 (Q-MACRO, PR-143)**: a hybrid quantum regressor achieves lower MAE/
   MASE than AR(3) and a classical MLP for h-months-ahead real-market-
   factor (Mkt-RF) prediction, using the same early-stopping methodology
   from the start.
@@ -53,7 +64,7 @@ below, did refute:
   significant difference among AR(3)/MLP/quantum); **supported** for the
   weaker, still-real claim that all three beat naive persistence
   (MASE ≈ 0.62 vs ≈ 0.89).
-- **H3 (DAT-04, PR-146)**: a derived-from-real-data-gaps holiday detector
+- **P3 (DAT-04, PR-146)**: a derived-from-real-data-gaps holiday detector
   (rather than a hardcoded federal-holiday calendar) correctly
   distinguishes a genuine bond-market closure from an ordinary trading
   day, including the discriminating case of Good Friday — a bond-market

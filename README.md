@@ -117,7 +117,7 @@ and every PR states plainly what it does *not* cover.
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
 | Test suite | **3,014 / 3,014** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 179, each independently verified |
+| Pull requests | 180, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
