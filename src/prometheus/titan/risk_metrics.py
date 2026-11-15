@@ -102,6 +102,66 @@ def max_drawdown(cumulative_values: np.ndarray) -> float:
 
 
 @dataclass(frozen=True, slots=True)
+class HorizonRiskReport:
+    """FP-16: "TITAN risk/optimization reports include horizon, units,
+    costs." Every function above this point is, by design, horizon-
+    agnostic (the caller decides what period the `losses` array spans)
+    and unit-agnostic (a bare `float`, no declared denomination), and
+    none of them carry a realized cost at all -- an audit (see
+    `CHECKLIST_STATUS.md`'s FP-16 row) found no single TITAN output
+    literally bundles all three together, which is this item's exact,
+    narrow ask. This report is that bundle: it does not replace
+    `historical_var`/`historical_expected_shortfall`/`max_drawdown`
+    (still horizon-agnostic utilities, used unchanged to compute the
+    fields below), it packages their output together with the horizon
+    and unit the caller actually used and a real realized cost over
+    that same horizon, in one object.
+    """
+
+    horizon_periods: int
+    unit: str
+    alpha: float
+    value_at_risk: float
+    expected_shortfall: float
+    max_drawdown: float
+    cost: float
+
+    def __post_init__(self) -> None:
+        if self.horizon_periods < 1:
+            raise ValueError("horizon_periods must be >= 1")
+        if not self.unit:
+            raise ValueError("unit must be a non-empty string")
+        if self.cost < 0:
+            raise ValueError("cost must be non-negative")
+
+
+def build_horizon_risk_report(
+    losses: np.ndarray,
+    alpha: float,
+    horizon_periods: int,
+    unit: str,
+    cumulative_values: np.ndarray,
+    cost: float,
+    interpolation: QuantileInterpolation = "linear",
+) -> HorizonRiskReport:
+    """Build a `HorizonRiskReport` from a real loss sample and a real
+    cumulative-value series spanning the SAME declared `horizon_periods`
+    -- VaR/ES/max-drawdown are computed by the existing, unchanged
+    functions above; `cost` is supplied by the caller (e.g. a
+    `RebalancingResult.total_cost`/`PeriodRecord.transaction_cost`
+    already measured over that same horizon), not invented here."""
+    return HorizonRiskReport(
+        horizon_periods=horizon_periods,
+        unit=unit,
+        alpha=alpha,
+        value_at_risk=historical_var(losses, alpha, interpolation),
+        expected_shortfall=historical_expected_shortfall(losses, alpha),
+        max_drawdown=max_drawdown(cumulative_values),
+        cost=cost,
+    )
+
+
+@dataclass(frozen=True, slots=True)
 class VarCoverageResult:
     n_observations: int
     n_exceptions: int

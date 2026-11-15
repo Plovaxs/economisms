@@ -474,11 +474,19 @@ named here rather than left to be discovered by omission:
 - **FP-15** (POLICYLAB-RL): a dedicated policy-intervention RL
   laboratory does not exist, distinct from the multi-agent RL that does
   (§3; §5.4's second instance).
-- **FP-16** (a single TITAN report carrying horizon, units, and cost
-  together): an audit found this claim inaccurate as stated — every
-  TITAN risk function returns a bare float or a report object missing at
-  least one of horizon, units, or cost, individually. The gap is
-  specific and disclosed, not glossed as "mostly done."
+
+A fifth item in this category, **FP-16** (a single TITAN report
+carrying horizon, units, and cost together), was closed after this
+paper's first draft: an audit had found the original claim inaccurate
+— every TITAN risk function returned a bare float or a report object
+missing at least one of horizon, units, or cost, individually. **Fixed
+PR-181**: new `titan.risk_metrics.HorizonRiskReport` bundles all three,
+built from a real `titan.rebalancing.simulate_rebalancing` run over
+realistic correlated GBM paths rather than a synthetic report shape —
+see `CHECKLIST_STATUS.md`'s FP-16 row for the full account. It is kept
+in this section's list, rather than silently moved to §5, because it
+documents the same disclosure norm this section is for: a specific,
+named gap, stated plainly, closed by a specific, named fix.
 
 Each of FP-08/10/13/15 represents a full new subsystem the original
 blueprint called for and this project's scope did not reach; they are

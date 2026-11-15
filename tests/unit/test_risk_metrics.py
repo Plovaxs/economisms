@@ -2,7 +2,12 @@ import numpy as np
 import pytest
 from scipy import stats
 
+from prometheus.stochastica.gbm import simulate_correlated_gbm_paths
+from prometheus.titan.portfolio import PortfolioConstraints
+from prometheus.titan.rebalancing import RebalancingConfig, simulate_rebalancing
 from prometheus.titan.risk_metrics import (
+    HorizonRiskReport,
+    build_horizon_risk_report,
     es_unconditional_calibration_test,
     expected_shortfall_exceedance_residual_test,
     historical_expected_shortfall,
@@ -280,3 +285,86 @@ def test_es_calibration_statistic_rejects_too_few_bootstrap_resamples() -> None:
             rng=np.random.default_rng(10),
             n_bootstrap=1,
         )
+
+
+def test_horizon_risk_report_rejects_invalid_fields() -> None:
+    losses = np.array([1.0, 2.0, 3.0])
+    cumulative = np.array([1.0, 0.98, 1.01])
+    with pytest.raises(ValueError, match="horizon_periods"):
+        HorizonRiskReport(
+            horizon_periods=0, unit="x", alpha=0.95, value_at_risk=1.0,
+            expected_shortfall=1.0, max_drawdown=0.0, cost=0.0,
+        )
+    with pytest.raises(ValueError, match="unit"):
+        HorizonRiskReport(
+            horizon_periods=1, unit="", alpha=0.95, value_at_risk=1.0,
+            expected_shortfall=1.0, max_drawdown=0.0, cost=0.0,
+        )
+    with pytest.raises(ValueError, match="cost"):
+        HorizonRiskReport(
+            horizon_periods=1, unit="x", alpha=0.95, value_at_risk=1.0,
+            expected_shortfall=1.0, max_drawdown=0.0, cost=-0.01,
+        )
+    # build_horizon_risk_report surfaces the same validation through its own call.
+    with pytest.raises(ValueError, match="cost"):
+        build_horizon_risk_report(
+            losses, 0.95, horizon_periods=3, unit="x",
+            cumulative_values=cumulative, cost=-1.0,
+        )
+
+
+def test_horizon_risk_report_bundles_horizon_units_and_cost_from_a_real_rebalancing_run() -> None:
+    """FP-16's own exact wording: "TITAN risk/optimization reports
+    include horizon, units, costs." This grounds the new report in a
+    REAL `simulate_rebalancing` run over realistic correlated GBM
+    paths (the same fixture pattern `test_rebalancing.py` uses) --
+    not a synthetic report shape built from numbers invented just for
+    this test."""
+    rng = np.random.default_rng(0)
+    n_assets = 5
+    s0 = np.full(n_assets, 100.0)
+    mu = np.full(n_assets, 0.06)
+    sigma = np.full(n_assets, 0.2)
+    corr = np.eye(n_assets) * 0.6 + np.full((n_assets, n_assets), 0.4)
+    total_steps = 120
+    paths = simulate_correlated_gbm_paths(
+        s0, mu, sigma, corr, total_steps / 12, total_steps, 1, rng
+    )[0]
+    returns = paths[1:] / paths[:-1] - 1.0
+
+    config = RebalancingConfig(
+        n_periods=100,
+        estimation_window=20,
+        cost_rate=0.001,
+        constraints=PortfolioConstraints(min_weight=0.0, max_weight=1.0),
+    )
+    result = simulate_rebalancing(returns, config)
+
+    period_returns = np.array([p.period_return for p in result.periods])
+    # Prepend the starting wealth of 1.0, exactly as `simulate_rebalancing`
+    # does internally for its own `max_drawdown` field -- otherwise a
+    # drawdown relative to the true starting point could be missed.
+    cumulative_wealth = np.array([1.0] + [p.wealth for p in result.periods])
+    losses = pnl_to_losses(period_returns)
+
+    report = build_horizon_risk_report(
+        losses,
+        alpha=0.95,
+        horizon_periods=len(result.periods),
+        unit="fraction_of_initial_wealth",
+        cumulative_values=cumulative_wealth,
+        cost=result.total_cost,
+    )
+
+    assert report.horizon_periods == 100
+    assert report.unit == "fraction_of_initial_wealth"
+    assert report.cost == result.total_cost
+    assert report.cost > 0.0
+    assert report.value_at_risk == historical_var(losses, 0.95)
+    assert report.expected_shortfall == historical_expected_shortfall(losses, 0.95)
+    assert report.max_drawdown == max_drawdown(cumulative_wealth)
+    assert report.max_drawdown == result.max_drawdown
+    # All three of FP-16's named fields are readable off of ONE object.
+    assert (report.horizon_periods, report.unit, report.cost) == (
+        100, "fraction_of_initial_wealth", result.total_cost,
+    )
