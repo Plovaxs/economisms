@@ -17,15 +17,16 @@ from prometheus.volterra.market import MarketSnapshot
 
 
 def _snapshot(spot: float = 100.0) -> MarketSnapshot:
-    return MarketSnapshot(
-        as_of=date(2026, 1, 1), spot=spot, risk_free_rate=0.03, volatility=0.2
-    )
+    return MarketSnapshot(as_of=date(2026, 1, 1), spot=spot, risk_free_rate=0.03, volatility=0.2)
 
 
 def _pricing_report(**overrides: object) -> PricingReportResponse:
     defaults: dict = dict(
-        snapshot=_snapshot(), model_version="black_scholes@1.0", measure="Q",
-        price=10.45, price_tolerance=0.01,
+        snapshot=_snapshot(),
+        model_version="black_scholes@1.0",
+        measure="Q",
+        price=10.45,
+        price_tolerance=0.01,
     )
     defaults.update(overrides)
     return build_pricing_report(**defaults)  # type: ignore[arg-type]
@@ -33,9 +34,14 @@ def _pricing_report(**overrides: object) -> PricingReportResponse:
 
 def _risk_report(**overrides: object) -> RiskReportResponse:
     defaults: dict = dict(
-        snapshot=_snapshot(), model_version="historical_var@1.0", measure="P", alpha=0.95,
-        value_at_risk=2.33, value_at_risk_tolerance=0.05,
-        expected_shortfall=2.90, expected_shortfall_tolerance=0.05,
+        snapshot=_snapshot(),
+        model_version="historical_var@1.0",
+        measure="P",
+        alpha=0.95,
+        value_at_risk=2.33,
+        value_at_risk_tolerance=0.05,
+        expected_shortfall=2.90,
+        expected_shortfall_tolerance=0.05,
     )
     defaults.update(overrides)
     return build_risk_report(**defaults)  # type: ignore[arg-type]
@@ -137,8 +143,11 @@ def test_check_pricing_tolerance_flags_a_violation_outside_budget() -> None:
     report = _pricing_report()
     violation = check_pricing_tolerance(report, reference_price=10.50)
     assert violation == ToleranceViolation(
-        field="price", reported=10.45, reference=10.50,
-        absolute_error=pytest.approx(0.05), tolerance=0.01,
+        field="price",
+        reported=10.45,
+        reference=10.50,
+        absolute_error=pytest.approx(0.05),
+        tolerance=0.01,
     )
 
 
@@ -228,7 +237,11 @@ def test_build_pricing_report_requires_measure_to_be_passed_explicitly() -> None
 def test_build_risk_report_requires_measure_to_be_passed_explicitly() -> None:
     with pytest.raises(TypeError):
         build_risk_report(  # type: ignore[call-arg]
-            _snapshot(), "historical_var@1.0", alpha=0.95,
-            value_at_risk=2.33, value_at_risk_tolerance=0.05,
-            expected_shortfall=2.90, expected_shortfall_tolerance=0.05,
+            _snapshot(),
+            "historical_var@1.0",
+            alpha=0.95,
+            value_at_risk=2.33,
+            value_at_risk_tolerance=0.05,
+            expected_shortfall=2.90,
+            expected_shortfall_tolerance=0.05,
         )
