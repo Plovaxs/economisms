@@ -136,6 +136,9 @@ class BasketOptionPDESpec:
         equal-weighted mean of the terminal prices."""
         s_terminal = np.asarray(s_terminal, dtype=float)
         basket = s_terminal.mean(axis=-1)
+        payoff_values: np.ndarray
         if self.option_type == "call":
-            return np.maximum(basket - self.strike, 0.0)
-        return np.maximum(self.strike - basket, 0.0)
+            payoff_values = np.maximum(basket - self.strike, 0.0)
+        else:
+            payoff_values = np.maximum(self.strike - basket, 0.0)
+        return payoff_values
