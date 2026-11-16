@@ -460,7 +460,9 @@ direction:
 
 Five final-project-addendum items were, at this paper's first draft,
 explicitly **not verified**, named plainly rather than left to be
-discovered by omission. All five have since been closed; each is kept
+discovered by omission; a sixth, FP-05, was explicitly **PARTIAL**
+rather than unverified (Q-MACRO's own narrower "rates"-only deliverable
+already existed). All six have since been closed; each is kept
 in this section rather than silently moved to §5, because it documents
 the same disclosure norm this section is for — a specific, named gap,
 stated plainly, closed by a specific, named fix:
@@ -532,6 +534,34 @@ internals, `titan.contagion`'s clearing simulator, `inflationcast`'s
 Gaussian-NLL/coverage-test helpers) was modified to build it. See
 `CHECKLIST_STATUS.md`'s FP-08/10/13/15 rows for the full account of
 each.
+
+- **FP-05** (MACROCORE's full multihorizon scope): **fixed PR-183**.
+  Q-MACRO (PR-143) had already honestly narrowed this item to a single
+  target (Mkt-RF) at a single horizon; FP-05's own wording asks for a
+  SHARED Transformer encoder forecasting GDP, rates AND unemployment
+  across MULTIPLE horizons. New `macrocore.multihorizon_dataset`/
+  `shared_transformer`/`multihorizon_benchmark` build exactly that: one
+  `SharedMultihorizonTransformer` (2,569 parameters, one encoder, 9
+  joint output heads — 3 real target series, `KAGGLE_GDP_YOY`,
+  `KAGGLE_CLAIMS_YOY`, `KAGGLE_FEDFUNDS`, at 3 horizons, 1/3/6 months —
+  with a direct test confirming every output's gradient reaches the
+  same shared encoder weights) against classical challengers that reuse
+  pre-existing, already-tested code unchanged: persistence, AR(3) and
+  VAR(3) (both genuinely refit at every real test month from
+  `macrocore.baselines`), ordinary linear regression, and a classical
+  MLP matched to the Transformer's EXACT parameter count. Real result,
+  checked across 3 seeds: naive persistence is the best classical
+  challenger on 7 of 9 (target, horizon) pairs, and the shared
+  Transformer loses to its own best classical challenger on all 9 of 9,
+  every seed, with a paired-bootstrap 95% CI on the squared-error gap
+  excluding zero (significantly worse, not noise) every time — the same
+  "persistence is a hard bar to beat on real, highly persistent macro
+  series" finding §6.1's INFLATIONCAST result already made, now
+  independently replicated on GDP/unemployment/rates data with a
+  genuinely different, multi-task architecture. Reported as the real,
+  negative result it is. See `CHECKLIST_STATUS.md`'s FP-05 row for the
+  full account, including why DAT-02/03 (FRED-MD/QD, ALFRED) remain out
+  of scope (both unreachable from this environment).
 
 ### 6.5 What five or six experiments do not establish
 
