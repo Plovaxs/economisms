@@ -1,5 +1,10 @@
+from pathlib import Path
+
 import numpy as np
 
+from prometheus.evidence.contracts import read_evidence_bundle
+from prometheus.evidence.export import build_evidence_bundle
+from prometheus.evidence.integrity import seal_evidence_bundle
 from prometheus.evidence.repository_status import (
     build_deep_hedge_model_card,
     current_repository_gate_report,
@@ -19,6 +24,32 @@ def test_current_repository_gate_report_is_no_go_with_no_approvers() -> None:
     assert report.security_ops_approval is None
     assert len(report.open_findings) > 0
     assert len(report.scope_prohibited) > 0
+
+
+def test_tracked_gate_report_matches_current_code() -> None:
+    """The same drift class test_blueprint_requirements.py's tracked-register
+    test catches: evidence/gate_report_r0.json is a committed SNAPSHOT of
+    current_repository_gate_report(), not a live view of it, so nothing
+    forces it to be re-exported after a PR changes what the function
+    reports. It went stale for ~130 PRs (scope_enabled stopped at PR-047)
+    before this test existed. decided_at and runtime (source hash/platform/
+    dependency versions) are excluded because they are expected to differ
+    on every run by construction, not because they are allowed to drift."""
+    root = Path(__file__).resolve().parents[2]
+    tracked = read_evidence_bundle(root / "evidence/gate_report_r0.json", require_integrity=True)
+    # Round-trip through the same JSON sealing step export_evidence_bundle
+    # uses, so tuple-vs-list typing doesn't produce a false mismatch.
+    fresh_bundle = build_evidence_bundle(None, [], current_repository_gate_report())
+    rebuilt = seal_evidence_bundle(fresh_bundle)
+
+    tracked.pop("artifact_integrity")
+    rebuilt.pop("artifact_integrity")
+    tracked.pop("runtime")
+    rebuilt.pop("runtime")
+    tracked["gate_report"].pop("decided_at")
+    rebuilt["gate_report"].pop("decided_at")
+
+    assert tracked == rebuilt
 
 
 def test_policy_content_hash_is_deterministic_for_identical_weights() -> None:

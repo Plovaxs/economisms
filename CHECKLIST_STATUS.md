@@ -7474,6 +7474,87 @@ table -- additional, disclosed scope the same way PR-174's frontend
 was, strengthening FP-06's existing record with a negative-but-honest
 result, not newly evidencing it.
 
+## Evidenced today (PR-184: `evidence/gate_report_r0.json` had gone stale for ~135 PRs; fixed, with a permanent regression test -- strengthens AUD-11, no new blueprint ID)
+
+Prompted by a direct "what now" with the FP-01..FP-24 addendum at
+22/24 VERIFIED/VERIFIED-BY-TEST (PR-183) and no obvious next FP item
+to close. Audited the remaining 23 of 374 original-blueprint items
+with no repository evidence note at all (via
+`docs/implementation/blueprint_register.json`'s `repository_notes`
+field) rather than inventing busywork: they are DAT-02/03 (FRED-MD/QD,
+ALFRED -- confirmed unreachable from this environment, many times
+over), SEC-14 (an independent penetration test -- cannot be self-
+performed by the project's own sole contributor), 6 compliance/
+governance items (PRV-06/10, MGR-07/14, CMP-04/06/07/08) requiring
+real external legal/regulatory review no solo academic project has an
+institution to provide, and all 12 `EXT-*` items (broker connectivity,
+kill switches, capital/liquidity review, multi-function live-order
+authorization) -- a connected chain that presupposes exactly the real
+regulatory/brokerage authorization this project has never sought.
+Writing hollow code against any of these (a kill switch wired to no
+real broker, a "penetration test" performed by the same person who
+wrote the code under test) would be theater, not evidence, against
+this project's own stated discipline -- so none of the 23 were forced.
+
+**A real, different bug found while checking that conclusion.**
+`prometheus.evidence.repository_status.current_repository_gate_report`
+-- the function every orchestration job's evidence bundle embeds via
+`build_evidence_bundle(manifest, [], current_repository_gate_report())`,
+including all 16 job kinds added since PR-139 -- still described this
+repository's enabled scope as of PR-048 only. Every real subsystem
+built since (RECESSIONNET, `prometheus.quantum`, Q-MACRO, INFLATIONCAST,
+MACROCORE's multihorizon Transformer, CONTAGION-GNN, VOLTERRA-GEN,
+POLICYLAB-RL, the PDE/MARL/RL-hedge orchestration, and the PR-174
+React frontend -- effectively this entire final-project addendum) was
+invisible to it. Worse, its `scope_prohibited` still unconditionally
+listed "use of real (non-synthetic) market or portfolio data" as
+excluded, even though RECESSIONNET's Kenneth French Mkt-RF factor and
+the Kaggle snapshot's NASDAQ returns are both real market data, and
+FP-02/06/07 have each separately, proudly disclosed using real
+external data for exactly this project's research purpose -- a real
+internal contradiction between what the gate record claimed and what
+the repository actually, honestly does. `docs/governance/
+RELEASE_GOVERNANCE.md` independently describes this file as "the
+real, enforced floor" and "**Real, current**," which it had not
+actually been since PR-047.
+
+**Fix.** `scope_enabled` now lists every subsystem through PR-183
+(citing the same PR numbers each one's own FP-table/ledger entry
+already uses -- no new claim invented here, only restated). The
+`scope_prohibited` market-data line now distinguishes live/real-time
+feeds and real client or portfolio holdings (still fully excluded)
+from the historical, licensed macro/market datasets already disclosed
+elsewhere in this repository and used for offline research only.
+`open_findings` gained the 93.9%-with-23-exceptions figure
+`docs/FINAL_PAPER.md` already reports, corrected a claim that model-
+lifecycle tooling "remains unimplemented" (FP-20 populated real
+`RunManifest` code/data hashes back in PR-139 -- the gap is independent
+*review* of it, not its existence), and now names exactly why each of
+the 23 remaining original-blueprint items is out of this project's
+reach rather than leaving that reasoning only in a chat transcript.
+The committed `evidence/gate_report_r0.json` snapshot was then
+regenerated through the real, unchanged `build_evidence_bundle`/
+`export_evidence_bundle` pipeline (never hand-edited JSON), so its
+`artifact_integrity` hash is genuine. The gate decision itself is
+unchanged and correctly still `NO-GO` -- nothing above changes whether
+this project is production-ready; it only corrects what the record
+says about what exists.
+
+**Regression test.** `test_repository_status.py::
+test_tracked_gate_report_matches_current_code` rebuilds the bundle
+fresh from `current_repository_gate_report()` and compares it against
+the committed file (excluding `decided_at`/`runtime`, which differ by
+construction on every run), the same drift-detection pattern
+`test_blueprint_requirements.py`'s tracked-register test already uses
+for `blueprint_register.json` and `test_replay.py`'s PR-169 test
+already uses for the 11 reference bundles -- so this specific file
+cannot go silently stale again.
+
+No new blueprint ID: AUD-11 ("one-command gate evidence bundle") was
+already evidenced by this file's existence and stays evidenced: the
+mechanism was never broken, only its last-exported content. 1 new
+test; `ruff`/`mypy --strict` clean.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

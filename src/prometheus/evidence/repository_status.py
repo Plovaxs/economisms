@@ -139,23 +139,74 @@ def current_repository_gate_report() -> GateDecisionForm:
             "Hash-locked CPU dependency/build profiles, two-snapshot wheel rebuild checks, "
             "dependency SBOM and encrypted verified local snapshot/restore with lease fencing "
             "(PR-048; no container/offsite/production acceptance)",
+            "The PROMETHEUS-X final-project addendum (ECONOSIM-X): point-in-time-safe "
+            "feature/label eligibility gating, classical persistence/AR(p)/VAR(p) "
+            "forecasting baselines, and a real World Bank Open Data ingestion "
+            "(PR-055/056/060)",
+            "RECESSIONNET recession classifier (base rate/logistic/classical-MLP/"
+            "hybrid-quantum, validation-selected early stopping) and the "
+            "`prometheus.quantum` differentiable circuit layer it introduced "
+            "(PR-139, corrected PR-141/142), independently re-grounded on a real "
+            "Kaggle macro snapshot (GDP/unemployment-claims/Fed-funds/M2/NASDAQ, "
+            "PR-145) and a real US Treasury yield-curve feature (PR-178)",
+            "Q-MACRO quantum-vs-classical regression benchmark (PR-143) and "
+            "MACROCORE's classical AR/VAR/persistence baselines extended to a "
+            "shared-Transformer-encoder multihorizon GDP/rate/unemployment "
+            "forecaster benchmarked against them (PR-183)",
+            "INFLATIONCAST mixed-frequency CPI nowcasting against real BLS CPI "
+            "data, with an uncertainty-calibrated recurrent model and a real "
+            "browser dashboard view (PR-173)",
+            "CONTAGION-GNN interbank-contagion graph classifier, VOLTERRA-GEN a "
+            "labeled conditional scenario generator, POLICYLAB-RL a constrained-"
+            "PPO-vs-Taylor-rule policy benchmark, and a shared-vs-independent "
+            "multi-task encoder ablation (PR-182)",
+            "PDE solvers (PINN/deep BSDE), multi-agent RL household/firm policy "
+            "training, and a REINFORCE hedging agent each newly orchestrated as a "
+            "submittable job kind, alongside a unified React/TypeScript frontend "
+            "and JSON dashboard views over all of the above (16 job kinds total, "
+            "PR-174)",
+            "A frozen, dated final-project hypotheses document and a final paper "
+            "assembling every frozen and disclosed null/negative result "
+            "(PR-172/179)",
         ),
         scope_prohibited=(
             "Live trading, order routing, or any connection to a brokerage",
-            "Use of real (non-synthetic) market or portfolio data",
+            "Live or real-time market data feeds, and any real client or "
+            "portfolio holdings -- the historical, licensed macro/market "
+            "datasets used for offline research and backtesting (World Bank, "
+            "Kenneth French factors, a Kaggle FRED mirror, BLS CPI, the US "
+            "Treasury yield curve; see scope_enabled) are a disclosed, narrow "
+            "exception to this, never live or client data",
             "Any claim of regulatory, model-risk, or security certification",
         ),
         evidence_index=("CHECKLIST_STATUS.md", "README.md"),
         open_findings=(
             "No independent review of any module (MGR-07 not satisfied)",
-            "The blueprint's 374-item checklist remains NOT VERIFIED pending "
-            "review; CHECKLIST_STATUS.md distinguishes test evidence from full acceptance",
-            "A basic lint/type/test CI workflow exists; deployment security, model "
-            "lifecycle, data-governance and compliance controls remain unimplemented",
-            "Reference scenarios use synthetic single-asset GBM and separate economic/hedge "
-            "balance sheets; price and policy response rules are not empirically calibrated",
+            "The blueprint's 374-item checklist remains formally NOT VERIFIED "
+            "pending independent review, per its own protocol; 351 of 374 items "
+            "carry a repository evidence note tying them to a real test or "
+            "finding, 23 do not (see the next finding)",
+            "Model-lifecycle provenance (RunManifest code/data hashes, model_id) "
+            "is now populated by real trained models (FP-20); independent review, "
+            "model-risk sign-off, and data-governance/compliance processes remain "
+            "unimplemented regardless (MGR-07/14, CMP-04/06/07/08, PRV-06/10)",
+            "The original econosim reference scenarios still use synthetic "
+            "single-asset GBM with response rules that are not empirically "
+            "calibrated; RECESSIONNET/Q-MACRO/INFLATIONCAST/MACROCORE separately "
+            "train against real licensed data, but neither track has been "
+            "independently reviewed",
             "Black-Scholes marks and conditional risk freeze the closing rate; no joint "
             "stochastic-rate Q valuation or full dynamic-policy risk forecast is implemented",
+            "The 23 original-blueprint items with no repository evidence note are "
+            "not closeable by further code in this project's own context: "
+            "DAT-02/03 (FRED-MD/QD, ALFRED) are unreachable from this "
+            "environment; SEC-14 (an independent penetration test) cannot be "
+            "self-performed; PRV-06/10, MGR-07/14, CMP-04/06/07/08 require real "
+            "external legal/regulatory/compliance review this solo research "
+            "project has no institution to provide; and all 12 EXT-* items "
+            "(broker connectivity, kill switches, capital/liquidity review, "
+            "multi-function live-order authorization) presuppose exactly the "
+            "live-trading deployment scope_prohibited already rules out",
         ),
         scientific_approval=None,
         security_ops_approval=None,
