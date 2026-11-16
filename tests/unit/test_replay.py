@@ -3,6 +3,7 @@ import json
 from dataclasses import replace
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from prometheus.core.money import Money
@@ -403,6 +404,27 @@ regenerated via the exact same `execute_recipe`/`export_evidence_bundle`
 pipeline this test now re-checks on every future change."""
 
 
+_REFERENCE_NUMPY_VERSION = "2.5.4"
+"""uv.lock locks a DIFFERENT numpy for Python < 3.12 (2.4.6) than for
+>= 3.12 (2.5.4), by design. Exact-hash replay is pinned-thread
+reproducible WITHIN one numpy version (confirmed: regenerating these
+bundles under OMP/OPENBLAS/MKL/NUMEXPR_NUM_THREADS=1 makes them replay
+identically across machines running the SAME numpy version), but a
+different numpy version can legitimately compute a different low-level
+floating-point result for the same seeded config -- not a claim this
+project makes or needs to. These bundles were regenerated under
+2.5.4; skip the exact-hash assertion under any other numpy, the same
+way ci.yml already restricts its own explicit replay-and-compare step
+to one named "reference Python profile" rather than the whole matrix."""
+
+
+@pytest.mark.skipif(
+    np.__version__ != _REFERENCE_NUMPY_VERSION,
+    reason=(
+        f"exact-hash replay is only asserted under numpy=={_REFERENCE_NUMPY_VERSION} "
+        f"(this run has numpy=={np.__version__}); see the module-level note above"
+    ),
+)
 @pytest.mark.parametrize("name", _ADVERTISED_REFERENCE_BUNDLES)
 def test_every_advertised_reference_bundle_still_replays_exactly(name: str) -> None:
     path = _REPOSITORY_ROOT / "evidence" / name
