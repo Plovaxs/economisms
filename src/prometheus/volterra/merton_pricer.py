@@ -91,6 +91,25 @@ zero weight), so the fix is to collapse the loop to its single `n=0`
 term directly in that case, rather than guard the log call -- confirmed
 to reduce EXACTLY (not approximately) to this module's own Black-Scholes
 degenerate limit.
+
+SDE-12 property-based testing found a SIXTH, independent crash, this
+time in `merton_option_price` rather than `merton_call_price`: the five
+guards above all protect the Poisson-sum loop's own jump-adjusted `r_n`,
+but a put's forward-value leg (`put = call - forward_value`, via
+put-call parity) discounts at the RAW, un-adjusted `market.risk_free_rate`/
+`market.dividend_yield` directly -- a separate exponential this module's
+own five internal guards never see. Confirmed directly: risk_free_rate=
+-5.0, maturity=142.0 overflows `math.exp(-risk_free_rate*maturity) =
+exp(710)` outright (past float64's ~709.78 limit); risk_free_rate=-5.0,
+maturity=141.0 keeps the bare exponential just under that limit
+(`exp(705)`) but then silently overflows to `inf` once multiplied by a
+strike greater than 1 -- the same two-stage failure mode (first the raw
+exponent, then the post-multiply product) `volterra.heston_pricer`'s own
+`_guarded_exp` already guards against for its own, different exponential
+terms. Fixed by checking BOTH legs in log-space (`exponent +
+math.log(scale) <= _MAX_EXP_ARG`) before exponentiating, catching the
+overflowing-product case the first fix attempt at this (checking only
+the bare exponent) would have missed.
 """
 
 from __future__ import annotations
@@ -220,7 +239,23 @@ def merton_option_price(
     )
     if option.option_type == "call":
         return call
-    forward_value = market.spot * math.exp(
-        -market.dividend_yield * option.maturity
-    ) - option.strike * math.exp(-market.risk_free_rate * option.maturity)
+    dividend_exponent = -market.dividend_yield * option.maturity
+    rate_exponent = -market.risk_free_rate * option.maturity
+    for exponent, scale, leg in (
+        (dividend_exponent, market.spot, "spot * exp(-dividend_yield * maturity)"),
+        (rate_exponent, option.strike, "strike * exp(-risk_free_rate * maturity)"),
+    ):
+        # Checked in log-space (exponent + log(scale)) rather than on the
+        # bare exponent alone: a bare exponent just under _MAX_EXP_ARG can
+        # still overflow to inf once multiplied by scale > 1 (see this
+        # module's docstring, SDE-12's sixth finding).
+        if exponent + math.log(scale) > _MAX_EXP_ARG:
+            raise ValueError(
+                f"put-call parity's forward-value leg pushes {leg} beyond what "
+                "float64 can represent -- this input combination has no computable "
+                "answer under this closed form"
+            )
+    forward_value = market.spot * math.exp(dividend_exponent) - option.strike * math.exp(
+        rate_exponent
+    )
     return call - forward_value

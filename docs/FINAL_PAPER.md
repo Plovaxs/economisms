@@ -456,42 +456,82 @@ direction:
   win. Neither result was promoted to this project's production default
   on the strength of one favorable aggregate metric alone.
 
-### 6.4 Scope cuts in the original 374-item blueprint, disclosed rather than hidden
+### 6.4 Scope cuts in the original 374-item blueprint, disclosed and then closed
 
-Several final-project-addendum items remain explicitly **not verified**,
-named here rather than left to be discovered by omission:
+Five final-project-addendum items were, at this paper's first draft,
+explicitly **not verified**, named plainly rather than left to be
+discovered by omission. All five have since been closed; each is kept
+in this section rather than silently moved to §5, because it documents
+the same disclosure norm this section is for — a specific, named gap,
+stated plainly, closed by a specific, named fix:
 
-- **FP-08** (shared-vs-independent encoder ablation): no shared
-  multi-task encoder exists in this repository; each forecasting task
-  (RECESSIONNET, Q-MACRO, INFLATIONCAST) uses its own independent model,
-  so the ablation this item asks for has no object to test.
-- **FP-10** (CONTAGION-GNN): a graph neural network for interbank
-  contagion does not exist; `titan.contagion`'s existing synthetic-bank-
-  network primitive is a different, non-GNN approach to a related
-  problem.
-- **FP-13** (VOLTERRA-GEN): a conditional market-scenario generator does
-  not exist.
-- **FP-15** (POLICYLAB-RL): a dedicated policy-intervention RL
-  laboratory does not exist, distinct from the multi-agent RL that does
-  (§3; §5.4's second instance).
+- **FP-16** (a single TITAN report carrying horizon, units, and cost
+  together): an audit had found the original claim inaccurate — every
+  TITAN risk function returned a bare float or a report object missing
+  at least one of horizon, units, or cost, individually. **Fixed
+  PR-181**: new `titan.risk_metrics.HorizonRiskReport` bundles all
+  three, built from a real `titan.rebalancing.simulate_rebalancing` run
+  over realistic correlated GBM paths rather than a synthetic report
+  shape — see `CHECKLIST_STATUS.md`'s FP-16 row for the full account.
+- **FP-08** (shared-vs-independent encoder ablation): **fixed PR-182**.
+  New `encoders.shared_dataset`/`shared_encoder`/`ablation` build the
+  object this item asks for — a shared temporal GRU encoder feeding a
+  recession head and an inflation head, trained jointly, against two
+  independently-initialized, matched-capacity (1,104 parameters each)
+  encoders trained single-task — over the real chronological overlap
+  between RECESSIONNET's and INFLATIONCAST's existing Kaggle-macro/
+  BLS-CPI data (2007-01 to 2023-01, 187 examples). Real result (seed
+  0): shared encoder's recession Brier 0.116 vs. independent 0.109
+  (independent slightly ahead); inflation MAE 2.347 vs. 2.364
+  (inconclusive, within 1%). Checked across seeds 1–4: no consistent
+  winner either way — a genuine mixed/null finding, not retrained until
+  it looked better, and a legitimate instance of H1's own framing that
+  a null result here is valid.
+- **FP-10** (CONTAGION-GNN): **fixed PR-182**. New
+  `titan.contagion_gnn.ContagionGNN` is a message-passing network
+  trained on labels from the existing, unmodified Eisenberg-Noe
+  clearing simulator (`titan.contagion.eisenberg_noe_clearing`) run
+  over many synthetic bank networks — every edge explicitly labeled
+  synthetic, since no real observed interbank exposure data is licensed
+  here, the same limitation the original blueprint's country-graph
+  guidance already anticipated. Held out by network instance (disjoint
+  seeds between train and test, not nodes within one network): test
+  ROC-AUC 0.906 vs. 0.881 for a no-graph logistic baseline on the same
+  node features — the graph structure measurably helps on this
+  synthetic benchmark.
+- **FP-13** (VOLTERRA-GEN): **fixed PR-182**. New
+  `volterra.volterra_gen.ConditionalScenarioGenerator` is a conditional
+  Gaussian generator forecasting next-month NASDAQ return from real
+  macro state; every sampled scenario is explicitly labeled
+  (`GeneratedScenario.is_synthetic` cannot be constructed `False` by
+  accident). Diagnosed, not just labeled, as the item's wording asks:
+  on the real 2020+ held-out test window (which includes the COVID
+  crash/recovery, real range −33% to +72%), the model is badly
+  miscalibrated (16.7% observed coverage against a 90% nominal target)
+  and loses to a classical unconditional-Gaussian baseline on held-out
+  NLL (12.48 vs. 4.80) — reported as-is, the same standard already
+  applied to INFLATIONCAST's miscalibrated GRU (§5.3).
+- **FP-15** (POLICYLAB-RL): **fixed PR-182**. New `policylab` package
+  adds a real Taylor-rule baseline (genuinely responsive to inflation/
+  output deviations, unlike the pre-existing `econosim.policy_rate`
+  mean-reverting rate process, which that module's own docstring
+  already disclosed was not one) and a constrained PPO policy reusing
+  `marl.training`'s existing PPO machinery unmodified. Both the action
+  constraint (checked against an adversarial policy proposing rates of
+  ±1000 across 480 sampled steps: zero violations) and the reward
+  formula (checked against 6 hand-computed cases) are directly audited
+  by test — the item's literal wording. Real held-out result (10 train
+  seeds, 10 disjoint test seeds): PPO mean reward −0.000152 vs. Taylor
+  rule's −0.000232 — PPO narrowly ahead on this single actual run,
+  reported as run rather than re-tuned.
 
-A fifth item in this category, **FP-16** (a single TITAN report
-carrying horizon, units, and cost together), was closed after this
-paper's first draft: an audit had found the original claim inaccurate
-— every TITAN risk function returned a bare float or a report object
-missing at least one of horizon, units, or cost, individually. **Fixed
-PR-181**: new `titan.risk_metrics.HorizonRiskReport` bundles all three,
-built from a real `titan.rebalancing.simulate_rebalancing` run over
-realistic correlated GBM paths rather than a synthetic report shape —
-see `CHECKLIST_STATUS.md`'s FP-16 row for the full account. It is kept
-in this section's list, rather than silently moved to §5, because it
-documents the same disclosure norm this section is for: a specific,
-named gap, stated plainly, closed by a specific, named fix.
-
-Each of FP-08/10/13/15 represents a full new subsystem the original
-blueprint called for and this project's scope did not reach; they are
-listed here as what this paper's title's claims do *not* cover, not
-quietly folded into "future work" without specifics.
+All four PR-182 items were built in parallel, each as an isolated,
+additive module touching none of this repository's existing code —
+every PR-182 file is new; nothing it reuses (`marl.training`'s PPO
+internals, `titan.contagion`'s clearing simulator, `inflationcast`'s
+Gaussian-NLL/coverage-test helpers) was modified to build it. See
+`CHECKLIST_STATUS.md`'s FP-08/10/13/15 rows for the full account of
+each.
 
 ### 6.5 What five or six experiments do not establish
 

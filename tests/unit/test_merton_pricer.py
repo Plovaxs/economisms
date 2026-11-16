@@ -279,6 +279,45 @@ def test_large_jump_std_with_small_intensity_raises_a_clear_error_not_an_overflo
         merton_call_price(1.0, 1.0, 1.0, 0.0, 0.0, p)
 
 
+def test_put_with_very_negative_rate_raises_a_clear_error_not_an_overflow_crash() -> None:
+    """SDE-12 regression guard (sixth finding, this module's own
+    docstring): `merton_call_price`'s five guards all protect its
+    jump-adjusted `r_n`, but `merton_option_price`'s put-call-parity
+    forward-value leg discounts at the raw, un-adjusted
+    `risk_free_rate`/`maturity` directly -- an exponential none of those
+    five guards ever see. maturity=142.0 overflows the bare exponential
+    outright; this case (found by Hypothesis) instead has the bare
+    exponential survive but the post-multiply product overflow to inf,
+    the two-stage failure this fix's log-space check catches."""
+    market = _market(risk_free_rate=-5.0, spot=1.0)
+    option = EuropeanOption(strike=120.0, maturity=141.0, option_type="put")
+    params = _params(jump_intensity=5.0, jump_mean=-1.0, jump_std=0.0)
+    with pytest.raises(ValueError, match="forward-value leg"):
+        merton_option_price(market, option, params)
+
+
+def test_put_with_maturity_overflowing_the_bare_exponential_raises_a_clear_error() -> None:
+    """SDE-12 regression guard: maturity=142.0 at risk_free_rate=-5.0
+    overflows `math.exp(-risk_free_rate*maturity) = exp(710)` outright
+    (past float64's ~709.78 limit), before any multiplication -- the
+    other half of the two-stage failure mode this fix guards against."""
+    market = _market(risk_free_rate=-5.0, spot=1.0)
+    option = EuropeanOption(strike=1.0, maturity=142.0, option_type="put")
+    params = _params(jump_intensity=6.0, jump_mean=-1.0, jump_std=0.0)
+    with pytest.raises(ValueError, match="forward-value leg"):
+        merton_option_price(market, option, params)
+
+
+def test_put_forward_value_leg_still_prices_without_error_at_ordinary_inputs() -> None:
+    """Confirms the new log-space check does not accidentally reject
+    ordinary, already-working inputs (SDE-12 should tighten validation,
+    never silently narrow what the pricer actually supports)."""
+    market = _market()
+    option = EuropeanOption(strike=100.0, maturity=1.0, option_type="put")
+    price = merton_option_price(market, option, _params())
+    assert math.isfinite(price)
+
+
 def test_zero_jump_intensity_matches_black_scholes_exactly_not_a_log_zero_crash() -> None:
     """VAL-11 regression guard (see this module's own docstring): a
     perfectly ordinary, non-extreme parameter (jump_intensity=0.0, "no
