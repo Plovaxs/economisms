@@ -154,9 +154,10 @@ name, not left implicit.
 ## Quickstart
 
 ```bash
-python3 -m pip install --require-hashes --only-binary=:all: -r requirements/bootstrap.txt
+python3 -m pip install --require-hashes --only-binary=':all:' -r requirements/bootstrap.txt
 uv sync --locked --all-extras --group build
-uv run --locked --all-extras pytest
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
+  uv run --locked --all-extras pytest
 uv run --locked --all-extras ruff check src tests tools
 uv run --locked --all-extras mypy --strict src tools/reproducible_build.py
 ```

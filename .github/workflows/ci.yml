@@ -5,6 +5,20 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  # Reproducibility, not performance: multi-threaded BLAS reductions sum in a
+  # different order depending on how many cores are available, which changes
+  # floating-point results in the last bit or two -- enough to break the
+  # exact result-hash comparisons in tests/unit/test_replay.py across
+  # machines with different core counts. Pinning every thread pool to 1
+  # makes the committed evidence/*_reference.json bundles (recorded under
+  # this same pinning) replay identically here, not just on the machine that
+  # happened to generate them.
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+
 jobs:
   test:
     runs-on: ubuntu-latest
