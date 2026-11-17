@@ -7691,6 +7691,58 @@ new tests (`test_webgateway_static_files.py`,
 only, confirmed zero content drift). No new blueprint ID claimed --
 additional, disclosed scope the same way PR-174's frontend itself was.
 
+## Evidenced today (PR-188: `prometheus.trading_readiness` -- the first 5 EXT-* mechanisms, honestly bounded -- Thrust C part 1 of the approved "industrial-grade pass" plan)
+
+PR-184 named all 12 EXT-* ("separately gated live extension") items as
+out of this project's reach, and PR-185's own commit message called
+building a kill switch wired to no real broker "theater, not
+evidence." That conclusion was correct about the INSTITUTIONAL half of
+every EXT-* item (a real broker agreement, real named officers, real
+capital) and remains correct here -- nothing below changes it. What it
+did not separately distinguish: the acceptance criteria for 10 of the
+12 items each also name a *recurring system behavior* a mechanism can
+implement and prove even while staying permanently inert (a kill
+switch that can trip but never untrip; a risk gate that rejects before
+an order is sent), as opposed to a *one-time external deliverable* no
+code can produce (EXT-02's regulatory opinion; EXT-09's independent
+model validation, covered in PR-189). Building the mechanism half
+honestly, tested only against an obviously-fake in-memory broker that
+makes no real network call, is real engineering, not theater -- the
+test target is "does this control trip/reject/reconcile correctly,"
+never "does this move real money."
+
+New `prometheus.trading_readiness` package, explicitly never imported
+by `prometheus.service`/`dashboard`/`jobs`/`orchestration` (enforced by
+an import-graph test in PR-189's `charter_guard.py`, not just claimed
+here): `orders.py` (shared `Order`/`Fill`/`Position`/
+`AccountStatement` vocabulary, prices reusing `core.money.Money`
+unchanged rather than inventing a second price type), `mock_broker.py`,
+`risk_gate.py`, `kill_switch.py`, `reconciliation.py`, `signoff_gate.py`.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| EXT-03 (partial) | Define broker/exchange connectivity | `trading_readiness.mock_broker.BrokerAdapter` is the one connectivity contract this repository defines, and `InMemoryMockBroker` the only implementation anywhere in its import graph (confirmed directly, not merely asserted -- `test_charter_guard.py`'s import-graph scan in PR-189 enforces this). "Agreement, certification and authorized network path" is not met: there is no real agreement with any real venue. |
+| EXT-04 (partial) | Define pre-trade credit, position and erroneous-order controls | `trading_readiness.risk_gate.PreTradeRiskGate.check` enforces a per-order quantity bound (erroneous-order/"fat-finger"), a notional bound (credit), and a resulting-position bound, evaluated before any order reaches `mock_broker` -- never after. 10 new tests (`test_trading_readiness_risk_gate.py`) confirm each limit type rejects independently and by name, that multiple simultaneous breaches are all named at once, and that a reducing trade can exceed the opposing-direction cap while staying within its own. "Independent tests verify limits before an order is sent" is literally true of this test file; it does not and cannot mean independently reviewed. |
+| EXT-05 (partial) | Implement market access permission separation and kill switch | `trading_readiness.kill_switch.KillSwitch`, modeled directly on `econosim.monetary_operations`'s existing `_risk_frozen` one-way circuit breaker (PR-036): defaults un-tripped, `trip()` has no corresponding `untrip`/`reset`/`clear` method anywhere in the class -- not merely unused, absent, confirmed by a test asserting exactly that (`hasattr` checks, not a docstring claim). 6 new tests confirm the default state, that `check()` raises once tripped, and that re-tripping is idempotent for `is_tripped` while still appending to a complete trip history. "Trading pathway defaults disabled" is real; "can be halted externally" by a real external operator at a real broker cannot be, since there is no real broker. |
+| EXT-06 (partial) | Implement real-time P&L, positions, and execution reconciliation | `trading_readiness.reconciliation.reconcile` compares a system-tracked `AccountStatement` against `mock_broker`'s own, independently-computed one, per instrument and in cash. 5 new tests confirm matching books produce zero breaks, that a position or cash discrepancy produces an exact, named break (instrument, signed delta), and that multiple simultaneous breaks are all reported. "Independent broker statement" here means independently *computed within the mock*, not a real brokerage's statement -- no such statement exists to reconcile against. |
+| EXT-12 (partial) | Obtain multi-function final authorization for any live orders | `trading_readiness.signoff_gate.ArmingDecision` generalizes `evidence.model_registry.SinglePersonApprovalError`'s existing 2-identity distinctness check (CIQ-08) from 2 to 5 named, pairwise-distinct roles (trading/risk/compliance/security/legal); validation lives in `__post_init__` itself, the same place `evidence.gate_report.GateDecisionForm` puts its own "no GO without named approvers" check, so there is no code path that constructs an `ArmingDecision` with a missing or duplicated role. 7 new tests include a direct, honest demonstration: signing off every one of the 5 roles with this project's own single real identity (`"PROMETHEUS maintainer"`) is rejected exactly as it should be -- this gate is not just theoretically constrained but PRACTICALLY un-armable with the real names available today. "Trading, risk, compliance, IT security and legal sign-off" is the mechanism this enforces; it is not 5 real people, because none exist on this project. |
+
+`evidence.repository_status.current_repository_gate_report`'s
+`scope_enabled`/`open_findings` updated to describe this package
+accurately (the 374-item "no repository evidence note" count drops
+from 23 to 18); `evidence/gate_report_r0.json` regenerated through the
+real export pipeline. The gate decision stays `NO-GO`, correctly
+unchanged -- nothing above is a claim that this repository is any
+closer to live-trading readiness in the sense that matters (a real
+broker, real capital, real independent review); it is a claim that the
+*mechanism* half of 5 EXT-* items is now real, tested engineering
+rather than an unaddressed gap. 51 new tests
+(`test_trading_readiness_orders.py`, `test_trading_readiness_mock_broker.py`,
+`test_trading_readiness_risk_gate.py`, `test_trading_readiness_kill_switch.py`,
+`test_trading_readiness_reconciliation.py`,
+`test_trading_readiness_signoff_gate.py`); `ruff check`/`mypy --strict`
+clean.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

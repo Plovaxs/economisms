@@ -168,6 +168,22 @@ def current_repository_gate_report() -> GateDecisionForm:
             "A frozen, dated final-project hypotheses document and a final paper "
             "assembling every frozen and disclosed null/negative result "
             "(PR-172/179)",
+            "A real-vs-known-fixed CI pipeline (eight genuine bugs found and "
+            "fixed by actually running it, not just editing it -- a YAML "
+            "syntax error, a missing lockfile extra, a wheel-install path "
+            "assumption, a numpy-version-specific type error, and three "
+            "distinct classes of cross-machine floating-point/timing "
+            "non-determinism), and a `prometheus.webgateway` reverse-proxy "
+            "that serves the existing React frontend's real build output "
+            "plus Docker packaging for the whole stack, independently "
+            "verified on a real Docker-capable CI runner (PR-185/187)",
+            "`prometheus.trading_readiness`: real, tested EXT-* mechanisms "
+            "(a mock broker, a pre-trade risk gate, a one-way kill switch, "
+            "position/cash reconciliation, a 5-distinct-role arming gate) "
+            "run only against an in-memory mock broker that makes no real "
+            "network call -- the institutional half of each EXT-* item "
+            "(a real broker agreement, real named officers) remains "
+            "exactly as unmet as before this package existed (PR-188)",
         ),
         scope_prohibited=(
             "Live trading, order routing, or any connection to a brokerage",
@@ -183,9 +199,9 @@ def current_repository_gate_report() -> GateDecisionForm:
         open_findings=(
             "No independent review of any module (MGR-07 not satisfied)",
             "The blueprint's 374-item checklist remains formally NOT VERIFIED "
-            "pending independent review, per its own protocol; 351 of 374 items "
+            "pending independent review, per its own protocol; 356 of 374 items "
             "carry a repository evidence note tying them to a real test or "
-            "finding, 23 do not (see the next finding)",
+            "finding, 18 do not (see the next finding)",
             "Model-lifecycle provenance (RunManifest code/data hashes, model_id) "
             "is now populated by real trained models (FP-20); independent review, "
             "model-risk sign-off, and data-governance/compliance processes remain "
@@ -197,16 +213,22 @@ def current_repository_gate_report() -> GateDecisionForm:
             "independently reviewed",
             "Black-Scholes marks and conditional risk freeze the closing rate; no joint "
             "stochastic-rate Q valuation or full dynamic-policy risk forecast is implemented",
-            "The 23 original-blueprint items with no repository evidence note are "
-            "not closeable by further code in this project's own context: "
+            "The 18 original-blueprint items with no repository evidence note "
+            "are not closeable by further code in this project's own context: "
             "DAT-02/03 (FRED-MD/QD, ALFRED) are unreachable from this "
             "environment; SEC-14 (an independent penetration test) cannot be "
             "self-performed; PRV-06/10, MGR-07/14, CMP-04/06/07/08 require real "
             "external legal/regulatory/compliance review this solo research "
-            "project has no institution to provide; and all 12 EXT-* items "
-            "(broker connectivity, kill switches, capital/liquidity review, "
-            "multi-function live-order authorization) presuppose exactly the "
-            "live-trading deployment scope_prohibited already rules out",
+            "project has no institution to provide; and EXT-02/09 each ask for "
+            "a one-time external deliverable (a named entity's regulatory "
+            "opinion; independent model validation) no code can produce. "
+            "`prometheus.trading_readiness` (PR-188) closes the MECHANISM half "
+            "of EXT-03/04/05/06/12 -- a real, tested control exists for each -- "
+            "but the INSTITUTIONAL half of every EXT-* item (a real broker "
+            "agreement, real named officers, real capital) remains exactly as "
+            "unmet as the live-trading deployment scope_prohibited already "
+            "rules out; see CHECKLIST_STATUS.md's EXT-* rows for exactly which "
+            "half of each is, and is not, met",
         ),
         scientific_approval=None,
         security_ops_approval=None,

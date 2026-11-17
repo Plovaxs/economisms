@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "f0aba2bfb72007da7ef2c148dd5bc0109fcec9f7b353c53f5d3d2008c01df52e",
+    "content_sha256": "1b96c8b3755785a4bab4f6e5b75216512161d6d7713a31303575bf0479d171ab",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "68b010de61276ed6f9ecd091f428e4194545c624915617789449e4cd96052572",
+  "checklist_notes_sha256": "3f5fd5f5d52b74f3841e650dfd7b6a5059f11b1db577bae860e9828ffef41eff",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -9554,10 +9554,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-03",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7724,
+          "evidence_note": "`trading_readiness.mock_broker.BrokerAdapter` is the one connectivity contract this repository defines, and `InMemoryMockBroker` the only implementation anywhere in its import graph (confirmed directly, not merely asserted -- `test_charter_guard.py`'s import-graph scan in PR-189 enforces this). \"Agreement, certification and authorized network path\" is not met: there is no real agreement with any real venue.",
+          "id_column": "EXT-03 (partial)",
+          "requirement_note": "Define broker/exchange connectivity"
+        }
+      ],
       "requirement": "Define broker/exchange connectivity and contractual obligations",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9571,10 +9578,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-04",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7725,
+          "evidence_note": "`trading_readiness.risk_gate.PreTradeRiskGate.check` enforces a per-order quantity bound (erroneous-order/\"fat-finger\"), a notional bound (credit), and a resulting-position bound, evaluated before any order reaches `mock_broker` -- never after. 10 new tests (`test_trading_readiness_risk_gate.py`) confirm each limit type rejects independently and by name, that multiple simultaneous breaches are all named at once, and that a reducing trade can exceed the opposing-direction cap while staying within its own. \"Independent tests verify limits before an order is sent\" is literally true of this test file; it does not and cannot mean independently reviewed.",
+          "id_column": "EXT-04 (partial)",
+          "requirement_note": "Define pre-trade credit, position and erroneous-order controls"
+        }
+      ],
       "requirement": "Define pre-trade credit, position and erroneous-order controls",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9588,10 +9602,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-05",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7726,
+          "evidence_note": "`trading_readiness.kill_switch.KillSwitch`, modeled directly on `econosim.monetary_operations`'s existing `_risk_frozen` one-way circuit breaker (PR-036): defaults un-tripped, `trip()` has no corresponding `untrip`/`reset`/`clear` method anywhere in the class -- not merely unused, absent, confirmed by a test asserting exactly that (`hasattr` checks, not a docstring claim). 6 new tests confirm the default state, that `check()` raises once tripped, and that re-tripping is idempotent for `is_tripped` while still appending to a complete trip history. \"Trading pathway defaults disabled\" is real; \"can be halted externally\" by a real external operator at a real broker cannot be, since there is no real broker.",
+          "id_column": "EXT-05 (partial)",
+          "requirement_note": "Implement market access permission separation and kill switch"
+        }
+      ],
       "requirement": "Implement market access permission separation and kill switch",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9605,10 +9626,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-06",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7727,
+          "evidence_note": "`trading_readiness.reconciliation.reconcile` compares a system-tracked `AccountStatement` against `mock_broker`'s own, independently-computed one, per instrument and in cash. 5 new tests confirm matching books produce zero breaks, that a position or cash discrepancy produces an exact, named break (instrument, signed delta), and that multiple simultaneous breaks are all reported. \"Independent broker statement\" here means independently *computed within the mock*, not a real brokerage's statement -- no such statement exists to reconcile against.",
+          "id_column": "EXT-06 (partial)",
+          "requirement_note": "Implement real-time P&L, positions, and execution reconciliation"
+        }
+      ],
       "requirement": "Implement real-time P&L, positions, and execution reconciliation",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9707,10 +9735,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-12",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7728,
+          "evidence_note": "`trading_readiness.signoff_gate.ArmingDecision` generalizes `evidence.model_registry.SinglePersonApprovalError`'s existing 2-identity distinctness check (CIQ-08) from 2 to 5 named, pairwise-distinct roles (trading/risk/compliance/security/legal); validation lives in `__post_init__` itself, the same place `evidence.gate_report.GateDecisionForm` puts its own \"no GO without named approvers\" check, so there is no code path that constructs an `ArmingDecision` with a missing or duplicated role. 7 new tests include a direct, honest demonstration: signing off every one of the 5 roles with this project's own single real identity (`\"PROMETHEUS maintainer\"`) is rejected exactly as it should be -- this gate is not just theoretically constrained but PRACTICALLY un-armable with the real names available today. \"Trading, risk, compliance, IT security and legal sign-off\" is the mechanism this enforces; it is not 5 real people, because none exist on this project.",
+          "id_column": "EXT-12 (partial)",
+          "requirement_note": "Obtain multi-function final authorization for any live orders"
+        }
+      ],
       "requirement": "Obtain multi-function final authorization for any live orders",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9728,7 +9763,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 351,
-    "without_repository_notes": 23
+    "with_repository_notes": 356,
+    "without_repository_notes": 18
   }
 }
