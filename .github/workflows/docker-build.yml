@@ -52,6 +52,27 @@ jobs:
         run: curl -sf http://localhost:8080/ | grep -q "ECONOSIM" || (echo "::error::frontend shell not served" && exit 1)
       - name: Extract the real provisioned bearer token
         run: echo "TOKEN=$(docker compose exec -T webgateway cat /data/token)" >> "$GITHUB_ENV"
+      - name: Wait for the dashboard and jobs API to accept connections through the gateway
+        # jobs-api/dashboard/worker start in parallel with webgateway, not
+        # after it -- the gateway itself can answer /health/live before
+        # their own uvicorn processes have finished binding their ports.
+        # A real run confirmed this race (Connection refused on :8766
+        # roughly 0.4s after the dashboard container reported "Started"),
+        # so this retries rather than assumes instant readiness once the
+        # gateway alone responds.
+        run: |
+          for _ in $(seq 1 30); do
+            dash=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${TOKEN}" "http://localhost:8080/api/dashboard?format=json")
+            jobs=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${TOKEN}" "http://localhost:8080/api/jobs/v1/jobs")
+            if [ "$dash" != "502" ] && [ "$jobs" != "502" ]; then
+              echo "dashboard ($dash) and jobs API ($jobs) are both reachable"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::dashboard/jobs API never became reachable through the gateway"
+          docker compose logs
+          exit 1
       - name: Proxies the dashboard with real auth
         run: |
           status=$(curl -s -o /tmp/dashboard.json -w "%{http_code}" \

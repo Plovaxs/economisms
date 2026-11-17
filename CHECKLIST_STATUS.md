@@ -7656,6 +7656,20 @@ as root inside a local, disclosed, non-production demo container is
 common practice, not a silent gap, and getting the "right" fix wrong
 against slow CI round-trips was the worse trade here.
 
+**A second real run, a second real bug** -- not `network_mode` after
+all, a plain startup race: the dashboard proxy returned `502 upstream
+unavailable: http://127.0.0.1:8766/...: [Errno 111] Connection
+refused`, roughly 0.4 seconds after Compose itself reported the
+`dashboard` container "Started." `jobs-api`/`dashboard`/`worker` start
+IN PARALLEL with `webgateway`, not after it, so the gateway's own
+`/health/live` can answer before their uvicorn processes have finished
+binding their ports -- the workflow's wait loop only checked the
+gateway, wrongly assuming the other three were equally ready the
+moment it was. Fixed with a second wait loop, inserted right after
+token extraction, polling both proxy routes through the gateway and
+retrying on `502` specifically (distinguishing "not up yet" from a
+real failure) before the auth/job-submission checks run.
+
 `CHECKLIST_STATUS.md`'s own prior "no production static-file serving"
 disclosure (this file, "Explicitly NOT done") is corrected above to
 describe what's real now and what still isn't (no TLS termination, no
