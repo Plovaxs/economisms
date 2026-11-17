@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "1b96c8b3755785a4bab4f6e5b75216512161d6d7713a31303575bf0479d171ab",
+    "content_sha256": "37c14d7dd254c256979ad05251017bef09c02d06d0289aae7d49430835515435",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "3f5fd5f5d52b74f3841e650dfd7b6a5059f11b1db577bae860e9828ffef41eff",
+  "checklist_notes_sha256": "80a7a4da1e3252b99d31c747e83f86c990b5c2a29c5875316afb1c472add1497",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -9520,10 +9520,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-01",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7762,
+          "evidence_note": "`trading_readiness.charter_guard.default_research_api_is_isolated` walks the real AST of `service`/`dashboard`/`jobs`/`orchestration` (not grep -- a comment or docstring mentioning the package name is confirmed NOT to count, nor is a relative import a blind spot) and confirms none of them import `prometheus.trading_readiness`, anywhere, today. \"No change to default research API without new charter\" is checkable, not asserted -- `test_the_real_default_research_api_is_isolated_today` runs this against the actual, current codebase, and a separate planted-violation test confirms the scanner would actually catch a real one. A companion check, `live_trading_exclusion_is_still_declared`, confirms `current_repository_gate_report().scope_prohibited` still names live trading/order routing/brokerage as excluded. \"Legally reviewed\" is not met -- no real legal review of any charter has happened, because no charter has been proposed to anyone; this package's own existence, with this import-graph guarantee, is the closest honest substitute for \"no change without one.\"",
+          "id_column": "EXT-01 (partial)",
+          "requirement_note": "Propose separate legally reviewed product scope for execution"
+        }
+      ],
       "requirement": "Propose separate legally reviewed product scope for execution",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9650,10 +9657,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-07",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7763,
+          "evidence_note": "`trading_readiness.fault_injection.FaultInjector.attempt_with_fault` configures a simulated fault (timeout/disconnect/erroneous-fill -- parametrized across all three in the tests) on the mock broker, attempts an order, and responds by tripping `kill_switch` (controlled shutdown) and writing a `surveillance_log` entry (operator escalation) -- the fault is handled, not re-raised, so a caller checks `kill_switch.is_tripped`/`surveillance.entries` afterward rather than catching an exception. 6 new tests confirm each fault kind trips the switch and is escalated, that a clean order trips nothing, and that the fault is genuinely handled rather than propagated.",
+          "id_column": "EXT-07 (partial)",
+          "requirement_note": "Implement latency/failure handling and manual intervention"
+        }
+      ],
       "requirement": "Implement latency/failure handling and manual intervention",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9667,10 +9681,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-08",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7764,
+          "evidence_note": "`trading_readiness.surveillance_log.SurveillanceLog` records every order attempt, accepted or rejected, append-only, with a `retention_until` date required at construction (not optional -- omitting it is a `TypeError`, not a default). 6 new tests confirm both accepted and rejected attempts are recorded in order, that an entry requires a non-empty reason and actor, and that the log has no mutate/delete/clear/update method anywhere. \"Reviewed by compliance\" is not met: there is no compliance function on this solo project to review it.",
+          "id_column": "EXT-08 (partial)",
+          "requirement_note": "Implement trading surveillance, recordkeeping and retention"
+        }
+      ],
       "requirement": "Implement trading surveillance, recordkeeping and retention",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9701,10 +9722,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-10",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7765,
+          "evidence_note": "`trading_readiness.shadow_trading.ShadowTradingSession.run` runs a sequence of orders through `risk_gate` then `mock_broker`, in that order, for every order -- a risk-violating order partway through a sequence stops the session (raising) rather than silently skipping it, confirmed by a dedicated test showing the orders before it still filled. \"Live-like environment with no actual order placement\" is real by construction: `mock_broker.py`'s own test already confirms `InMemoryMockBroker` is the only `BrokerAdapter` anywhere in this repository's import graph, so nothing this session runs can place a real order. \"Institution-approved period\" is not met -- there is no institution to approve one.",
+          "id_column": "EXT-10 (partial)",
+          "requirement_note": "Conduct paper/shadow trading over institution-approved period"
+        }
+      ],
       "requirement": "Conduct paper/shadow trading over institution-approved period",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9718,10 +9746,17 @@
       "acceptance_status": "NOT VERIFIED",
       "category": "EXT",
       "id": "EXT-11",
-      "implementation_evidence_status": "not_evidenced",
+      "implementation_evidence_status": "repository_notes_present",
       "independent_reviewer": null,
       "owner": null,
-      "repository_notes": [],
+      "repository_notes": [
+        {
+          "checklist_line": 7766,
+          "evidence_note": "`trading_readiness.capital_risk_budget.build_risk_budget_report` reuses `titan.risk_metrics.historical_var`/`historical_expected_shortfall`/`max_drawdown` completely unchanged (closing the \"not yet wired to any portfolio, position book or the ledger/economy\" gap that module's own `__init__.py` already names, narrowly, for this package's P&L series) -- a test confirms the report's figures match direct calls to the same functions on the same input, bit for bit. \"Signed by accountable officers\" is represented by constructing a real `evidence.gate_report.GateDecisionForm` rather than inventing a second, parallel approval type: `not_assessed_budget_approval` returns a real, honestly `\"NOT ASSESSED\"` decision, and a test confirms the SAME, already-tested LCH-12 constraint (no `GO`/`CONDITIONAL` without named `scientific_approval`/`security_ops_approval`) still holds from this new call site -- there is no risk-budget-specific carve-out.",
+          "id_column": "EXT-11 (partial)",
+          "requirement_note": "Perform capital, liquidity and operational risk review"
+        }
+      ],
       "requirement": "Perform capital, liquidity and operational risk review",
       "source_pdf_page": 47,
       "source_rows": [
@@ -9763,7 +9798,7 @@
     "requirements": 374,
     "research_enterprise": 362,
     "separately_gated_live_extension": 12,
-    "with_repository_notes": 356,
-    "without_repository_notes": 18
+    "with_repository_notes": 361,
+    "without_repository_notes": 13
   }
 }

@@ -7743,6 +7743,61 @@ rather than an unaddressed gap. 51 new tests
 `test_trading_readiness_signoff_gate.py`); `ruff check`/`mypy --strict`
 clean.
 
+## Evidenced today (PR-189: `prometheus.trading_readiness` -- the remaining EXT-* mechanisms, and an honest explanation for the two that stay NOT VERIFIED -- Thrust C part 2, closing the approved "industrial-grade pass" plan)
+
+PR-188 split the 12 EXT-* items into two kinds: 10 ask for a
+*recurring system behavior* a mechanism can implement and prove while
+staying permanently inert; 2 (EXT-02, EXT-09) ask for a *one-time
+external deliverable* -- a named entity's regulatory opinion; an
+independent reviewer's model-validation sign-off -- that no code can
+produce or honestly simulate. This PR closes the mechanism half of the
+remaining 5 of the first kind, and explains, in prose rather than a
+hollow schema, exactly why the 2 of the second kind stay untouched.
+
+New modules: `fault_injection.py`, `surveillance_log.py`,
+`shadow_trading.py`, `capital_risk_budget.py`, `charter_guard.py`.
+
+| ID | Requirement (abridged) | Evidence |
+|----|-------------------------|----------|
+| EXT-01 (partial) | Propose separate legally reviewed product scope for execution | `trading_readiness.charter_guard.default_research_api_is_isolated` walks the real AST of `service`/`dashboard`/`jobs`/`orchestration` (not grep -- a comment or docstring mentioning the package name is confirmed NOT to count, nor is a relative import a blind spot) and confirms none of them import `prometheus.trading_readiness`, anywhere, today. "No change to default research API without new charter" is checkable, not asserted -- `test_the_real_default_research_api_is_isolated_today` runs this against the actual, current codebase, and a separate planted-violation test confirms the scanner would actually catch a real one. A companion check, `live_trading_exclusion_is_still_declared`, confirms `current_repository_gate_report().scope_prohibited` still names live trading/order routing/brokerage as excluded. "Legally reviewed" is not met -- no real legal review of any charter has happened, because no charter has been proposed to anyone; this package's own existence, with this import-graph guarantee, is the closest honest substitute for "no change without one." |
+| EXT-07 (partial) | Implement latency/failure handling and manual intervention | `trading_readiness.fault_injection.FaultInjector.attempt_with_fault` configures a simulated fault (timeout/disconnect/erroneous-fill -- parametrized across all three in the tests) on the mock broker, attempts an order, and responds by tripping `kill_switch` (controlled shutdown) and writing a `surveillance_log` entry (operator escalation) -- the fault is handled, not re-raised, so a caller checks `kill_switch.is_tripped`/`surveillance.entries` afterward rather than catching an exception. 6 new tests confirm each fault kind trips the switch and is escalated, that a clean order trips nothing, and that the fault is genuinely handled rather than propagated. |
+| EXT-08 (partial) | Implement trading surveillance, recordkeeping and retention | `trading_readiness.surveillance_log.SurveillanceLog` records every order attempt, accepted or rejected, append-only, with a `retention_until` date required at construction (not optional -- omitting it is a `TypeError`, not a default). 6 new tests confirm both accepted and rejected attempts are recorded in order, that an entry requires a non-empty reason and actor, and that the log has no mutate/delete/clear/update method anywhere. "Reviewed by compliance" is not met: there is no compliance function on this solo project to review it. |
+| EXT-10 (partial) | Conduct paper/shadow trading over institution-approved period | `trading_readiness.shadow_trading.ShadowTradingSession.run` runs a sequence of orders through `risk_gate` then `mock_broker`, in that order, for every order -- a risk-violating order partway through a sequence stops the session (raising) rather than silently skipping it, confirmed by a dedicated test showing the orders before it still filled. "Live-like environment with no actual order placement" is real by construction: `mock_broker.py`'s own test already confirms `InMemoryMockBroker` is the only `BrokerAdapter` anywhere in this repository's import graph, so nothing this session runs can place a real order. "Institution-approved period" is not met -- there is no institution to approve one. |
+| EXT-11 (partial) | Perform capital, liquidity and operational risk review | `trading_readiness.capital_risk_budget.build_risk_budget_report` reuses `titan.risk_metrics.historical_var`/`historical_expected_shortfall`/`max_drawdown` completely unchanged (closing the "not yet wired to any portfolio, position book or the ledger/economy" gap that module's own `__init__.py` already names, narrowly, for this package's P&L series) -- a test confirms the report's figures match direct calls to the same functions on the same input, bit for bit. "Signed by accountable officers" is represented by constructing a real `evidence.gate_report.GateDecisionForm` rather than inventing a second, parallel approval type: `not_assessed_budget_approval` returns a real, honestly `"NOT ASSESSED"` decision, and a test confirms the SAME, already-tested LCH-12 constraint (no `GO`/`CONDITIONAL` without named `scientific_approval`/`security_ops_approval`) still holds from this new call site -- there is no risk-budget-specific carve-out. |
+
+**EXT-02 and EXT-09 stay entirely NOT VERIFIED, with no new code, on
+purpose.** EXT-02 ("obtain regulatory/legal applicability and
+licensing opinion," accept: "named entity, venue, geography and
+activity documented") asks for a licensed opinion from real counsel
+about a real named entity operating in a real venue -- none exists.
+EXT-09 ("perform separate financial model validation for specific
+products," accept: "valuation/risk outputs independently approved for
+intended use") asks for an independent reviewer's sign-off on specific
+products -- the same gap `evidence.model_registry`/MGR-07/MGR-14
+already name generically for every model in this repository. Writing
+a declaration schema that stays permanently empty for either would add
+a second, EXT-specific copy of an already-disclosed gap -- duplicated
+theater, not new evidence -- so neither gets a module.
+
+`evidence.repository_status.current_repository_gate_report`'s
+`scope_enabled`/`open_findings` updated to describe the complete,
+now-closed-out package (the 374-item "no repository evidence note"
+count: 18 -> 13, confirmed via the real register regeneration);
+`evidence/gate_report_r0.json` regenerated through the real export
+pipeline. The gate decision stays `NO-GO`, correctly unchanged. Of the
+374-item blueprint's original 23 items with zero repository evidence
+note, 10 now carry one (all 10 EXT-* items whose acceptance criteria
+name a mechanism rather than a one-time external deliverable); the
+remaining 13 (EXT-02/09, DAT-02/03, SEC-14, PRV-06/10, MGR-07/14,
+CMP-04/06/07/08) are, for the reasons given across this and PR-184's
+own entry, genuinely not closeable by further code written from this
+sandbox. 25 new tests (`test_trading_readiness_fault_injection.py`,
+`test_trading_readiness_surveillance_log.py`,
+`test_trading_readiness_shadow_trading.py`,
+`test_trading_readiness_capital_risk_budget.py`,
+`test_trading_readiness_charter_guard.py`); `ruff check`/`mypy --strict`
+clean.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
