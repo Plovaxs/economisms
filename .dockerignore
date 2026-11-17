@@ -1,0 +1,26 @@
+# Rebuilt or installed fresh inside the image -- never sent as build context.
+.venv/
+frontend/node_modules/
+frontend/dist/
+
+# Test-only / dev-tooling weight with no runtime role (confirmed unreferenced
+# by any runtime code path -- see the Dockerfile's own top comment).
+evidence/
+tests/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+dist/
+
+# VCS and CI config -- irrelevant inside the image.
+.git/
+.github/
+
+# Large reference docs not read by anything at runtime.
+docs/*.pdf
+
+# Editor/OS noise.
+.vscode/
+__pycache__/
+*.pyc

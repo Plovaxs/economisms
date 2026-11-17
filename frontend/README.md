@@ -8,8 +8,11 @@ backend, not a mock.
 ## Stack
 
 Vite + React + TypeScript + Tailwind CSS + Framer Motion + Recharts.
-No production static-file serving is set up on purpose: this is a
-local research/demo tool, not a deployed service.
+`npm run build`'s output (`dist/`) is served for real by
+`prometheus.webgateway` (see "Running the built artifact with Docker"
+below) -- still a local research/demo tool, not a deployed service: no
+TLS termination, no multi-tenant routing, nothing beyond what
+Docker's own port-publishing already isolates.
 
 ## Running it locally
 
@@ -73,11 +76,31 @@ npm run dev
 Open the printed `http://localhost:5173` URL and paste in the token
 from `/tmp/econosim-web/token`.
 
+## Running the built artifact with Docker
+
+An alternative to the four-process local workflow above, for trying the
+demo with nothing installed locally but Docker -- complementary, not a
+replacement: this still does not develop the frontend (no hot reload),
+`npm run dev` above remains the way to do that.
+
+```bash
+cd ..  # repository root
+docker compose up --build
+```
+
+Then open `http://localhost:8080` and paste in the token printed by
+`docker compose exec webgateway cat /data/token`. See the repository
+root's `Dockerfile`/`docker-compose.yml` for exactly what each of the
+five containers (one-shot credential provisioning, job worker, job
+API, dashboard, and `prometheus.webgateway` -- the one that actually
+serves this built frontend and reverse-proxies the other two APIs,
+replaying this same `vite.config.ts` proxy's own rewrites) runs.
+
 ## Scripts
 
 - `npm run dev` -- Vite dev server with the API proxy.
-- `npm run build` -- typecheck + production build (`dist/`, unused
-  today -- see above).
+- `npm run build` -- typecheck + production build (`dist/`, served for
+  real by `prometheus.webgateway` -- see above).
 - `npm run lint` -- ESLint.
 - `npm run typecheck` -- `tsc --noEmit`.
 - `npm run test` -- Vitest + React Testing Library.

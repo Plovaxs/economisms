@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "94e70a3ca742c4082e351a667be800eb1c064bf37d8265f2053f2260ec8ac133",
+    "content_sha256": "223daabfe4f93461dd075d55f67c3d1392809d1cf63e3a2e9e5fc212ab9e1544",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "ba800b0e5d375b3a2be4f418f932055636c6659632118761e54022ca83d8214c",
+  "checklist_notes_sha256": "97ecb466f2e729723fcec155f9f61145a40583e85c1776f26e03c959c0293432",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {

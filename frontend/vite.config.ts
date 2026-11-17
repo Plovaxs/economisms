@@ -10,8 +10,10 @@ import { defineConfig } from "vite";
 // default port 8766. See README.md for the full process list --
 // ResearchService also needs a separate `python -m prometheus.jobs work`
 // worker process actually picking jobs off the queue, or submissions
-// will sit in "queued" forever. No production proxy/build step is
-// provided -- this is a local research/demo tool, not a deployed service.
+// will sit in "queued" forever. This proxy is for `npm run dev` only;
+// `prometheus.webgateway` (see ../Dockerfile, ../docker-compose.yml)
+// replays these same two rewrites for real against the built `dist/`
+// output -- still a local research/demo tool, not a deployed service.
 export default defineConfig({
   plugins: [react()],
   server: {

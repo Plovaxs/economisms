@@ -1,0 +1,98 @@
+# Run the already-built ECONOSIM/PROMETHEUS-X demo with nothing installed
+# locally but Docker -- a complementary alternative to run_dev.sh's own
+# local npm/uv-based workflow (which stays the way to actively develop the
+# frontend with hot reload), not a replacement for it. SIMULATED DATA,
+# RESEARCH ONLY; see evidence/gate_report_r0.json -- nothing here is a
+# production deployment.
+#
+# Networking: worker/jobs-api/dashboard share the webgateway container's
+# network namespace (`network_mode: "service:webgateway"`) rather than each
+# binding 0.0.0.0 on the compose bridge network. This lets all three keep
+# their EXISTING, unchanged loopback-or-TLS validation (service.__main__/
+# dashboard.__main__ already require TLS for any non-loopback bind) by
+# genuinely binding 127.0.0.1 -- reachable from webgateway precisely because
+# it shares that same network namespace. Only webgateway itself is
+# published to the host, and only it needs the explicit
+# --allow-non-loopback-without-tls opt-in (Docker's own port-publishing
+# isolation is its trust boundary here: nothing outside the host can reach
+# it unless this mapping is published further).
+#
+#   docker compose up --build
+#   open http://localhost:8080
+#   cat <the printed token, or `docker compose exec webgateway cat /data/token`>
+
+services:
+  init-auth:
+    build: .
+    volumes:
+      - econosim-data:/data
+    command:
+      [
+        "python", "-m", "prometheus.service", "init-auth",
+        "--credentials", "/data/auth.json",
+        "--token-file", "/data/token",
+        "--owner", "alice",
+      ]
+
+  webgateway:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - econosim-data:/data
+    depends_on:
+      init-auth:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    network_mode: "service:webgateway"
+    volumes:
+      - econosim-data:/data
+    depends_on:
+      webgateway:
+        condition: service_started
+      init-auth:
+        condition: service_completed_successfully
+    command: ["python", "-m", "prometheus.jobs", "--root", "/data", "work"]
+
+  jobs-api:
+    build: .
+    network_mode: "service:webgateway"
+    volumes:
+      - econosim-data:/data
+    depends_on:
+      webgateway:
+        condition: service_started
+      init-auth:
+        condition: service_completed_successfully
+    command:
+      [
+        "python", "-m", "prometheus.service", "serve",
+        "--root", "/data",
+        "--credentials", "/data/auth.json",
+        "--host", "127.0.0.1",
+        "--port", "8765",
+      ]
+
+  dashboard:
+    build: .
+    network_mode: "service:webgateway"
+    volumes:
+      - econosim-data:/data
+    depends_on:
+      webgateway:
+        condition: service_started
+      init-auth:
+        condition: service_completed_successfully
+    command:
+      [
+        "python", "-m", "prometheus.dashboard", "serve",
+        "--credentials", "/data/auth.json",
+        "--host", "127.0.0.1",
+        "--port", "8766",
+        "--demo",
+      ]
+
+volumes:
+  econosim-data:

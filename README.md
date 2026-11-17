@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C079%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C107%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-351%2F374%20(93.9%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -52,7 +52,9 @@ subsystems behind that one evidence discipline:
   live computed output from every subsystem above, with owner-scoped
   portfolio access and real HTTP authorization boundaries, not a mockup.
   `./run_dev.sh` starts the whole stack with one command; see
-  [frontend/README.md](./frontend/README.md).
+  [frontend/README.md](./frontend/README.md). `docker compose up --build`
+  runs the already-built artifact with nothing installed locally but
+  Docker, via a `prometheus.webgateway` reverse-proxy service.
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
@@ -115,9 +117,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **351 / 374** (93.9%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,079 / 3,079** passing (Python; see `frontend/` for its own separate Vitest suite) |
+| Test suite | **3,107 / 3,107** passing (Python; see `frontend/` for its own separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 185, each independently verified |
+| Pull requests | 187, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

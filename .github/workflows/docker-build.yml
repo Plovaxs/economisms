@@ -1,0 +1,98 @@
+name: docker-build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "docker-compose.yml"
+      - "src/**"
+      - "frontend/**"
+      - "requirements/**"
+      - "data_cache/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docker-build.yml"
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "docker-compose.yml"
+      - "src/**"
+      - "frontend/**"
+      - "requirements/**"
+      - "data_cache/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docker-build.yml"
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build every service's image
+        run: docker compose build
+      - name: Start the full stack
+        run: docker compose up -d
+      - name: Wait for the gateway to accept connections
+        run: |
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health/live >/dev/null; then
+              echo "gateway is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::gateway never became reachable"
+          docker compose logs
+          exit 1
+      - name: Serves the real built frontend shell
+        run: curl -sf http://localhost:8080/ | grep -q "ECONOSIM" || (echo "::error::frontend shell not served" && exit 1)
+      - name: Extract the real provisioned bearer token
+        run: echo "TOKEN=$(docker compose exec -T webgateway cat /data/token)" >> "$GITHUB_ENV"
+      - name: Proxies the dashboard with real auth
+        run: |
+          status=$(curl -s -o /tmp/dashboard.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            "http://localhost:8080/api/dashboard?format=json")
+          test "$status" = "200" || (echo "::error::dashboard proxy returned $status" && cat /tmp/dashboard.json && exit 1)
+          grep -q "economy" /tmp/dashboard.json
+      - name: Submits a real job through the gateway and polls it to completion
+        run: |
+          set -e
+          body='{"kind":"neural_sde","config":{"seed":0,"max_epochs":3,"patience":2}}'
+          job_id=$(curl -sf -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "Idempotency-Key: ci-docker-smoke-test" \
+            --data "$body" \
+            http://localhost:8080/api/jobs/v1/jobs | python3 -c "import json,sys; print(json.load(sys.stdin)['job_id'])")
+          echo "submitted job $job_id"
+          for _ in $(seq 1 30); do
+            status=$(curl -sf -H "Authorization: Bearer ${TOKEN}" \
+              "http://localhost:8080/api/jobs/v1/jobs/${job_id}" | python3 -c "import json,sys; print(json.load(sys.stdin)['status'])")
+            echo "job status: $status"
+            if [ "$status" = "succeeded" ]; then
+              curl -sf -H "Authorization: Bearer ${TOKEN}" \
+                "http://localhost:8080/api/jobs/v1/jobs/${job_id}/artifact" >/dev/null
+              echo "artifact fetched successfully through the gateway"
+              exit 0
+            fi
+            if [ "$status" = "failed" ] || [ "$status" = "cancelled" ]; then
+              echo "::error::job ended in $status"
+              docker compose logs worker
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "::error::job never reached a terminal state"
+          docker compose logs worker
+          exit 1
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
