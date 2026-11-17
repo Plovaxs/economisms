@@ -7641,7 +7641,20 @@ shell, authenticated dashboard proxy, a real job submitted and polled
 to completion through the gateway) -- genuine verification via a
 different, Docker-capable machine, the same resolution this project
 already reached for CI itself in PR-185, not a claim made without
-having actually run it somewhere real.
+having actually run it somewhere real. The first real run found
+exactly that: `docker compose build` succeeded, but `docker compose up`
+failed outright -- `init-auth` couldn't write `/data/token`,
+`Permission denied`, because the non-root `USER econosim` this
+Dockerfile's first draft added finds a freshly created named Docker
+volume already root-owned. Confirmed via the real failing log
+(`docker compose logs` dumped by the workflow itself), not guessed at.
+Fixed by removing the non-root user -- correctly fixing a fresh
+volume's ownership before dropping privileges is real added complexity
+for a secondary hardening concern on a container with no other
+elevated capability and exactly one explicitly published port; running
+as root inside a local, disclosed, non-production demo container is
+common practice, not a silent gap, and getting the "right" fix wrong
+against slow CI round-trips was the worse trade here.
 
 `CHECKLIST_STATUS.md`'s own prior "no production static-file serving"
 disclosure (this file, "Explicitly NOT done") is corrected above to

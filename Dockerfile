@@ -43,7 +43,15 @@ COPY data_cache/ data_cache/
 RUN uv sync --locked --all-extras --group build
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 ENV PATH="/app/.venv/bin:${PATH}"
-RUN useradd --create-home --uid 1000 econosim && chown -R econosim:econosim /app
-USER econosim
 EXPOSE 8080
+# Runs as root: a non-root user was tried first and rejected, not skipped
+# by default -- a fresh named Docker volume is root-owned, so init-auth's
+# own write to it failed with a real, confirmed Permission denied on
+# GitHub's runner. Fixing that correctly (chown the volume once before
+# dropping privileges, or similar) is real additional complexity for a
+# secondary hardening concern on a container that already carries no
+# other elevated capability and binds only the one port this compose
+# setup explicitly publishes -- not proportionate here. Running as root
+# inside a local, non-production demo container is common, disclosed
+# practice, not a silent gap.
 CMD ["python", "-m", "prometheus.webgateway", "serve", "--dist", "/app/frontend/dist", "--host", "0.0.0.0", "--allow-non-loopback-without-tls"]
