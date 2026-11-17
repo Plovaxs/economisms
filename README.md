@@ -162,11 +162,24 @@ uv run --locked --all-extras ruff check src tests tools
 uv run --locked --all-extras mypy --strict src tools/reproducible_build.py
 ```
 
-One-command smoke test — replays a recorded deterministic reference run and
-checks the result hash, rather than waiting on the full suite:
+(Two tests are skipped above by default — see "How to verify the evidence
+above yourself" in [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md) for the
+optional, own-machine-only way to run them.)
+
+One-command smoke test — replays a recorded reference run and checks the
+result hash, rather than waiting on the full suite. This is a genuine,
+repeatedly-confirmed reproducibility guarantee on one consistent machine
+(seed, dependency versions and thread count all pinned); it is NOT a claim
+that any two different machines compute an identical hash — confirmed
+directly when this project's own CI runner, matching every pinned
+dependency version and thread setting, still diverged from this
+sandbox's recorded hash in the last bit or two of an `exp`/`log` call
+(IEEE 754 does not require those bit-exact across different hardware,
+only the four basic arithmetic operations):
 
 ```bash
-uv run --locked --all-extras python -m prometheus.orchestration.replay \
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
+  uv run --locked --all-extras python -m prometheus.orchestration.replay \
   evidence/api_reference.json --require-integrity --output dist/reference-replay.json
 ```
 
