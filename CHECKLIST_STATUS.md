@@ -7670,6 +7670,14 @@ token extraction, polling both proxy routes through the gateway and
 retrying on `502` specifically (distinguishing "not up yet" from a
 real failure) before the auth/job-submission checks run.
 
+**Third run, fully green**: [run 44088221331](https://github.com/Plovaxs/economisms/actions/runs/44088221331),
+every step passing, including a real job submitted through the
+gateway, picked up by the real worker container, reaching `succeeded`,
+with its real artifact fetched back through the gateway -- all inside
+the actual compose stack on GitHub's Docker-capable runner, not just
+this sandbox's direct-process verification. Confirmed via
+`gh run view`, step by step, not just the summary checkmark.
+
 `CHECKLIST_STATUS.md`'s own prior "no production static-file serving"
 disclosure (this file, "Explicitly NOT done") is corrected above to
 describe what's real now and what still isn't (no TLS termination, no
