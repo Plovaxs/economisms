@@ -5,6 +5,17 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege, stated in the file rather than inherited from a repository
+# setting: nothing here writes to the repository, so the token cannot.
+permissions:
+  contents: read
+
+# A newer push to the same pull request supersedes an older one; a push to main
+# is never cancelled, so every commit on main gets a complete run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   # Reproducibility, not performance: multi-threaded BLAS reductions sum in a
   # different order depending on how many cores are available, which changes
@@ -23,12 +34,15 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14.7"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install blueprint extraction dependency

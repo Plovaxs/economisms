@@ -405,7 +405,9 @@ class JobStore:
         if not isinstance(identifier, str) or len(identifier) != 36:
             raise JobNotFound("job not found")
         row = connection.execute(
-            "SELECT * FROM jobs WHERE job_id=?" + (" AND owner=?" if owner is not None else ""),
+            # S608: both fragments are constants; every VALUE is a bound parameter
+            "SELECT * FROM jobs WHERE job_id=?"  # noqa: S608
+            + (" AND owner=?" if owner is not None else ""),
             (identifier, owner) if owner is not None else (identifier,),
         ).fetchone()
         if row is None:

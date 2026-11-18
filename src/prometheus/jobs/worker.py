@@ -184,7 +184,9 @@ class Worker:
                 deadline = time.monotonic() + job.timeout_seconds
                 interval = min(0.1, self.store.policy.lease_seconds / 5)
                 heartbeat_at = time.monotonic()
-                process = subprocess.Popen(
+                # S603: argv is [sys.executable, -m, a fixed module, validated paths/ints];
+                # no shell, no inherited secrets (_child_environment), its own session
+                process = subprocess.Popen(  # noqa: S603
                     command,
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,

@@ -278,7 +278,7 @@ class MonetaryOperationsProcess:
 
     def compute_actions(self, ctx: StepContext) -> MonetaryAction:
         previous_rate = self.central_bank_ledger.current_rate
-        assert previous_rate is not None  # guaranteed by __init__'s rate_rule/initial_rate
+        assert previous_rate is not None  # guaranteed by __init__'s rate_rule/initial_rate  # noqa: S101
         new_rate = self.central_bank_ledger.step_rate(list(ctx.shocks))
         rate_change = new_rate - previous_rate
 

@@ -217,7 +217,8 @@ class ResearchClient:
         if body is not None:
             data = json.dumps(body, allow_nan=False).encode("utf-8")
             headers["Content-Type"] = "application/json"
-        request = Request(self.origin + path, data=data, headers=headers, method=method)
+        # S310: `origin` is validated in __init__ (https, or http to a loopback IP)
+        request = Request(self.origin + path, data=data, headers=headers, method=method)  # noqa: S310
         try:
             with self._opener.open(request, timeout=self.timeout_seconds) as response:
                 return self._decode(response)

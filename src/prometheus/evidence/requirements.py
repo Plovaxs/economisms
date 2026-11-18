@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 from collections import Counter
 from pathlib import Path
@@ -122,8 +123,11 @@ def link_repository_notes(items: list[dict[str, Any]], checklist: str) -> list[d
 
 
 def build_requirement_register(pdf_path: Path, checklist_path: Path) -> dict[str, Any]:
-    completed = subprocess.run(
-        ["pdftotext", "-layout", str(pdf_path), "-"],
+    pdftotext = shutil.which("pdftotext")
+    if pdftotext is None:
+        raise RuntimeError("pdftotext was not found on PATH (install poppler-utils)")
+    completed = subprocess.run(  # noqa: S603 -- fixed argv, no shell; the only variable is a path
+        [pdftotext, "-layout", str(pdf_path), "-"],
         check=True,
         capture_output=True,
         text=True,

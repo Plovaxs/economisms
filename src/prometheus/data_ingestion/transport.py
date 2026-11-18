@@ -50,10 +50,16 @@ class UrllibTransport:
         self.timeout = timeout
 
     def get(self, url: str, params: dict[str, str]) -> HttpResponse:
+        # `urlopen` also speaks file:, ftp: and data:. Every connector in this
+        # repository fetches an https URL, so anything else is refused before any
+        # I/O -- including a URL built from a value that turned out to be hostile.
+        if urllib.parse.urlsplit(url).scheme != "https":
+            raise HttpRequestError("only https URLs are fetched")
         query = urllib.parse.urlencode(params)
         full_url = f"{url}?{query}" if query else url
         try:
-            with urllib.request.urlopen(full_url, timeout=self.timeout) as response:
+            # the scheme is verified above
+            with urllib.request.urlopen(full_url, timeout=self.timeout) as response:  # noqa: S310
                 return HttpResponse(status_code=response.status, body=response.read())
         except urllib.error.HTTPError as exc:
             raise HttpRequestError(f"HTTP {exc.code} fetching {full_url}: {exc.reason}") from exc

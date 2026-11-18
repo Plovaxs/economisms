@@ -281,7 +281,7 @@ def run_rate_study(
     cards: list[ModelCard] = []
     if not reasons:
         for seed, (paths, rates) in zip(rows, inputs, strict=True):
-            assert paths is not None and rates is not None
+            assert paths is not None and rates is not None  # noqa: S101
             trained = {}
             for arm in ("rate_blind", "rate_aware"):
                 model = train_rate_hedge(

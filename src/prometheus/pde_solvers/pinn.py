@@ -323,7 +323,7 @@ def train_pinn(
     train_seconds = time.perf_counter() - start
 
     solver = PINNSolver(net, spec)
-    assert first_interior_points is not None
+    assert first_interior_points is not None  # noqa: S101
     held_out_rms = solver.residual_rms(gen, n_points=512)
 
     diagnostics = PINNDiagnostics(

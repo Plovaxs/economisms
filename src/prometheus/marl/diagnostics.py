@@ -85,7 +85,7 @@ def single_vs_colearning_report(
             firm_opening_capital=firm_opening_capital, train_household=True, train_firm=False,
             firm_fixed_rule=FixedWageRule(0.5),
         )
-        assert single.household_net is not None
+        assert single.household_net is not None  # noqa: S101
         policy = deterministic_household_policy(single.household_net, n_steps)
         result = run_rollout(
             household_policy=policy, firm_policy=FixedWageRule(0.5), n_steps=n_steps,
@@ -103,7 +103,7 @@ def single_vs_colearning_report(
             seed=seed, n_epochs=n_epochs, episodes_per_epoch=episodes_per_epoch, n_steps=n_steps,
             firm_opening_capital=firm_opening_capital, train_household=True, train_firm=True,
         )
-        assert co.household_net is not None and co.firm_net is not None
+        assert co.household_net is not None and co.firm_net is not None  # noqa: S101
         hh_policy = deterministic_household_policy(co.household_net, n_steps)
         fm_policy = deterministic_firm_policy(co.firm_net, n_steps)
         co_result = run_rollout(
@@ -240,7 +240,7 @@ def evaluate_ood_wage_shock(
             firm_opening_capital=training_firm_capital, train_household=True, train_firm=False,
             firm_fixed_rule=FixedWageRule(0.5),
         )
-        assert trained.household_net is not None
+        assert trained.household_net is not None  # noqa: S101
         policy = deterministic_household_policy(trained.household_net, n_steps)
         in_result = run_rollout(
             household_policy=policy, firm_policy=FixedWageRule(0.5), n_steps=n_steps,

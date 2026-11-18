@@ -241,7 +241,7 @@ def train_joint_ppo(
                     ep_fm_actions.append(sample.detach())
                     ep_fm_logp.append(logp.detach())
                 else:
-                    assert firm_fixed_rule is not None
+                    assert firm_fixed_rule is not None  # noqa: S101
                     firm_action = firm_fixed_rule(f_obs)
                 wage = project_fraction_to_amount(firm_action.wage_fraction, firm.cash_balance)
                 if wage.is_positive():
@@ -261,7 +261,7 @@ def train_joint_ppo(
                     ep_hh_actions.append(sample.detach())
                     ep_hh_logp.append(logp.detach())
                 else:
-                    assert household_fixed_rule is not None
+                    assert household_fixed_rule is not None  # noqa: S101
                     household_action = household_fixed_rule(h_obs)
                 spend = project_fraction_to_amount(
                     household_action.consumption_fraction, household.cash_balance

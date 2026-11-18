@@ -159,10 +159,10 @@ def build_reproducibly(
         ]
         if offline:
             commands.append("--offline")
-        subprocess.run(commands, env=env, check=True, stdout=sys.stderr, stderr=sys.stderr)
+        subprocess.run(commands, env=env, check=True, stdout=sys.stderr, stderr=sys.stderr)  # noqa: S603 -- fixed argv list, no shell
         interpreter = environment / "bin/python"
         versions = json.loads(
-            subprocess.check_output(
+            subprocess.check_output(  # noqa: S603 -- fixed argv list, no shell
                 [
                     str(interpreter),
                     "-I",
@@ -180,7 +180,7 @@ def build_reproducibly(
             snapshot = working / directory
             snapshot_source(project, snapshot, inputs, mtime=SOURCE_DATE_EPOCH + 3600 * (index + 1))
             artifacts = working / f"dist-{index}"
-            subprocess.run(
+            subprocess.run(  # noqa: S603 -- fixed argv list, no shell
                 [
                     str(interpreter),
                     "-I",
@@ -213,7 +213,7 @@ def build_reproducibly(
             "scope": "Local two-snapshot wheel reproducibility; no signing/approval",
             "project": metadata["project"]["name"],
             "version": metadata["project"]["version"],
-            "uv_version": subprocess.check_output([str(uv), "--version"], text=True).strip(),
+            "uv_version": subprocess.check_output([str(uv), "--version"], text=True).strip(),  # noqa: S603 -- fixed argv list, no shell
             "build_environment": versions,
             "source_date_epoch": SOURCE_DATE_EPOCH,
             "source_inputs": inputs,

@@ -103,7 +103,7 @@ class AllowlistedTransport:
         host = _hostname(url)
         if host not in self.allowed_hosts:
             route = route_alert("P1", self.alert_routing_table)
-            assert route is not None  # route_alert never returns None for P1; raises instead
+            assert route is not None  # route_alert never returns None for P1; raises instead  # noqa: S101
             self.denials.append(EgressDenial(url=url, host=host, alert_route=route))
             raise EgressDeniedError(
                 f"egress to {host!r} denied: not in the configured ingestion allowlist "

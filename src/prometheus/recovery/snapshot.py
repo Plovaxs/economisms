@@ -163,7 +163,8 @@ def _inspect_database(
         ):
             raise RecoveryError("snapshot database failed schema/integrity checks")
         counts = [
-            connection.execute("SELECT COUNT(*) FROM " + table).fetchone()[0]
+            # S608: `table` iterates a constant two-name tuple, never caller input
+            connection.execute("SELECT COUNT(*) FROM " + table).fetchone()[0]  # noqa: S608
             for table in ("jobs", "events")
         ]
         if counts[0] > limits.max_jobs or counts[1] > limits.max_events:

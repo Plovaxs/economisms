@@ -76,9 +76,9 @@ def _identifying_terms_match(current: Instrument, original: Instrument) -> bool:
     if type(current) is not type(original):
         return False
     if isinstance(current, (EuropeanOption, AmericanOption)):
-        assert isinstance(original, (EuropeanOption, AmericanOption))
+        assert isinstance(original, (EuropeanOption, AmericanOption))  # noqa: S101
         return (current.strike, current.option_type) == (original.strike, original.option_type)
-    assert isinstance(current, ForwardContract) and isinstance(original, ForwardContract)
+    assert isinstance(current, ForwardContract) and isinstance(original, ForwardContract)  # noqa: S101
     return current.delivery_price == original.delivery_price
 
 

@@ -309,7 +309,7 @@ def train_scenario_generator(
             if epochs_without_improvement >= patience:
                 break
 
-    assert best_state is not None
+    assert best_state is not None  # noqa: S101
     model.load_state_dict(best_state)
     return TrainedScenarioGenerator(model=model, epoch_log=tuple(log), best_epoch=best_epoch)
 

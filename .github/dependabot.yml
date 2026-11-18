@@ -1,0 +1,54 @@
+version: 2
+
+# Version-update PRs, grouped so one ecosystem produces one PR a week. These are
+# proposals: every one still has to pass the full CI matrix and be merged by a
+# human. The numerics stack is excluded from major bumps on purpose -- a new
+# torch/numpy/scipy changes floating-point results, which this repository's
+# committed reference bundles pin to the bit, so that is a deliberate PR of its
+# own (with the bundles regenerated), never an automated one.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      frontend-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      python-minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "numpy"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "scipy"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "pennylane*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 2

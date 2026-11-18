@@ -201,7 +201,7 @@ def predict_candidate(
     n_obs, state_dim = state.shape
 
     if name == "neural_sde":
-        assert neural_model is not None and state_scaler is not None and regime_scaler is not None
+        assert neural_model is not None and state_scaler is not None and regime_scaler is not None  # noqa: S101
         t = torch.tensor([[e.t_scaled] for e in held_out], dtype=torch.float32)
         x = torch.tensor(
             state_scaler.transform(np.array([e.state for e in held_out])), dtype=torch.float32

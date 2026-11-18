@@ -137,7 +137,7 @@ def _scenario_loss(
                 f"scenario {scenario.name!r} is factor-based but no betas were supplied"
             )
         return stress_scenario_loss_from_factor_shock(weights, betas, scenario.factor_shocks)
-    assert scenario.asset_return_shocks is not None  # enforced by StressScenario.__post_init__
+    assert scenario.asset_return_shocks is not None  # enforced by StressScenario.__post_init__  # noqa: S101
     return stress_scenario_loss_from_asset_shock(weights, scenario.asset_return_shocks)
 
 
