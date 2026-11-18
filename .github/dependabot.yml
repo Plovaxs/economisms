@@ -32,6 +32,9 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # 0.x "minor" bumps are breaking: 0.5 of this plugin needs ESLint 9 (the project is on 8,
+      # which is itself end-of-life), so it moves with a deliberate ESLint migration.
+      - dependency-name: "eslint-plugin-react-refresh"
 
   - package-ecosystem: "uv"
     directory: "/"
@@ -50,6 +53,9 @@ updates:
       - dependency-name: "setuptools"
       - dependency-name: "wheel"
       - dependency-name: "build"
+      # uv is pinned in three places that must move together (the hash-pinned bootstrap,
+      # [tool.uv] required-version, and the lock): a lone bump fails CI by design.
+      - dependency-name: "uv"
 
   - package-ecosystem: "docker"
     directory: "/"
