@@ -38,15 +38,15 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools==78.1.0", "wheel==0.45.1"]
+requires = ["setuptools==78.1.0", "wheel==0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
-build = ["build==1.3.0", "setuptools==78.1.0", "wheel==0.45.1"]
+build = ["build==1.6.1", "setuptools==78.1.0", "wheel==0.48.0"]
 # Installed only by .github/workflows/security.yml (`uv sync --only-group security`),
 # hash-locked in uv.lock like everything else -- never fetched ad hoc.
 security = ["pip-audit==2.10.1"]
-tooling = ["uv==0.13.7"]
+tooling = ["uv==0.13.8"]
 
 [tool.uv]
 required-version = "==0.13.7"
