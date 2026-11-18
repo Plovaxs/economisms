@@ -522,3 +522,34 @@ def test_lifespan_drain_and_websocket_denial(app):
         assert sent[-1] == {"type": "websocket.close", "code": 1008}
 
     asyncio.run(exercise())
+
+
+def test_every_service_response_carries_the_enforced_security_headers(app) -> None:
+    enforced = {
+        b"x-content-type-options": b"nosniff",
+        b"x-frame-options": b"DENY",
+        b"referrer-policy": b"no-referrer",
+        b"cross-origin-opener-policy": b"same-origin",
+        b"cross-origin-resource-policy": b"same-origin",
+        b"content-security-policy": b"default-src 'none'; frame-ancestors 'none'",
+    }
+    responses = [
+        request(app, "GET", "/v1/jobs"),  # 200
+        request(app, "GET", "/v1/jobs", token=None),  # 401
+        request(app, "GET", "/v1/nope"),  # 404
+        request(app, "DELETE", "/v1/jobs"),  # 405
+        request(app, "GET", "/health/live", token=None),  # public probe
+    ]
+    assert [status for status, _, _ in responses] == [200, 401, 404, 405, 200]
+    for status, _, headers in responses:
+        for name, value in enforced.items():
+            assert headers[name] == value, (status, name)
+        assert b"camera=()" in headers[b"permissions-policy"]
+        assert b"strict-transport-security" not in headers
+
+
+def test_hsts_is_only_sent_when_the_request_arrived_over_https(app) -> None:
+    _, _, secure = request(app, "GET", "/v1/jobs", scheme="https", client=("203.0.113.9", 1))
+    assert b"max-age=" in secure[b"strict-transport-security"]
+    _, _, plain = request(app, "GET", "/v1/jobs", scheme="http")
+    assert b"strict-transport-security" not in plain

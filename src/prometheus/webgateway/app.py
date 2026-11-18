@@ -34,6 +34,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
+from prometheus.httpsec.concurrency import BoundedExecutor, Overloaded
+from prometheus.httpsec.ratelimit import TokenBucketLimiter, client_key
 from prometheus.webgateway.headers import (
     IMMUTABLE_CACHE,
     NO_STORE_CACHE,
@@ -50,7 +52,6 @@ from prometheus.webgateway.proxy import (
     UpstreamTransport,
     UpstreamUnavailableError,
 )
-from prometheus.webgateway.ratelimit import TokenBucketLimiter, client_key
 from prometheus.webgateway.routing import (
     PathRejected,
     Route,
@@ -193,7 +194,7 @@ class WebGatewayService:
             else None
         )
         self._clock = clock
-        self._inflight = 0
+        self._executor = BoundedExecutor(self.config.max_upstream_inflight)
         self._denied_logged_at: dict[str, float] = {}
 
     async def __call__(self, scope: dict[str, Any], receive: Receive, send: Send) -> None:
@@ -357,7 +358,16 @@ class WebGatewayService:
             )
         if body is None:
             return too_large
-        if self._inflight >= self.config.max_upstream_inflight:
+        try:
+            upstream: UpstreamResponse = await self._executor.run(
+                self.transport.request,
+                method,
+                url,
+                headers,
+                body,
+                timeout=self.config.upstream_timeout_seconds,
+            )
+        except Overloaded:
             return _error(
                 503,
                 "overloaded",
@@ -366,23 +376,6 @@ class WebGatewayService:
                 headers=[(b"retry-after", b"1")],
                 route=name,
             )
-        # Capacity is released when the worker thread actually finishes, not
-        # when this request is cancelled: a client that disconnects mid-call
-        # must not let the gateway oversubscribe the backend.
-        self._inflight += 1
-        task = asyncio.ensure_future(
-            asyncio.to_thread(
-                self.transport.request,
-                method,
-                url,
-                headers,
-                body,
-                timeout=self.config.upstream_timeout_seconds,
-            )
-        )
-        task.add_done_callback(self._release)
-        try:
-            upstream: UpstreamResponse = await asyncio.shield(task)
         except UpstreamResponseTooLargeError:
             LOGGER.warning("upstream response too large request_id=%s route=%s", request_id, name)
             return _error(
@@ -402,11 +395,6 @@ class WebGatewayService:
                 400, "invalid_request", "request cannot be forwarded", request_id, route=name
             )
         return self._relay(upstream, route, base, name)
-
-    def _release(self, task: asyncio.Future[UpstreamResponse]) -> None:
-        self._inflight -= 1
-        if not task.cancelled():
-            task.exception()  # mark retrieved; the awaiting request already handled it
 
     def _relay(self, upstream: UpstreamResponse, route: Route, base: str, name: str) -> _Response:
         headers: HeaderList = []

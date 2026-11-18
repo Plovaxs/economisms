@@ -53,7 +53,35 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   instead of loaded from Google Fonts on every page load -- which is what makes
   the strict CSP possible, and means the UI no longer contacts a third party.
 
+- **The research dashboard was hardened the same way (PR-192).** Every numeric
+  query parameter used to go through a bare `int()`/`float()` with no range --
+  `portfolio-risk?n=100000000000` made numpy try to allocate 745 GiB (reproduced:
+  an unhandled `MemoryError`; the OS refused that one, but nothing bounded a value
+  just under the limit) for a caller holding only a read-only token. Every
+  parameter now has an explicit range (plain decimal numbers only -- no
+  `nan`/`inf`/`1_000`/Unicode digits; repeats refused; array-size product caps),
+  identifier parameters are a closed character set, and validation happens before
+  anything is computed. Views no longer run on the event loop (one slow view used
+  to freeze every request, `/health/live` included): they run in worker threads
+  under a hard cap with a per-owner rate limit, behind a generic catch-all, with a
+  JSON audit line per request and security headers on every response.
+- **A shared `prometheus.httpsec` package** (security headers, the bounded
+  rate limiter, the bounded executor, and the one hardened uvicorn configuration)
+  now backs the gateway, the dashboard and the job API, replacing three
+  hand-copied keyword lists so they cannot drift apart. uvicorn's `server:`
+  banner is no longer sent by any of them, and the job API gained the standard
+  security headers it lacked.
+
 ### Fixed
+- The dashboard's HTML error pages reflected caller-supplied text unescaped
+  (`model-usage?model_id=<script>...` and `export?view=<img onerror=...>` came
+  back with the raw markup; reproduced against the previous code). Hostile
+  identifier values are now rejected outright, and the one place every error
+  page passes through escapes whatever it is given. Not remotely exploitable in
+  practice -- the routes require an `Authorization` header a cross-site link
+  cannot supply -- but wrong, and now fixed.
+- A non-numeric parameter or a non-ASCII query string raised an unhandled
+  exception in the dashboard; both are now 400s.
 - Every proxied response carried two `Date` headers (found by driving the real
   stack in a browser, not by a unit test).
 - A missing `/assets/x.js` was answered with the HTML shell and status 200, and
@@ -62,9 +90,9 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 - A non-ASCII query string or a NUL byte in a static path raised an unhandled
   exception; both are now clean 400s.
 
-Python test suite: 3,434/3,434 passing, 12 skipped by design (was 3,181 + 12
-skipped; the gateway's tests went from 28 in 4 files to 281 in 8). Frontend
-test suite: 21/21 passing.
+Python test suite: 3,590/3,590 passing, 12 skipped by design (was 3,181 + 12
+skipped; the gateway's tests went from 28 in 4 files to 281 in 8, and the
+dashboard gained 122). Frontend test suite: 21/21 passing.
 
 ## [0.2.0] -- 2026-11-18 -- a "feels like real software" pass: error handling, a CLI, and the project's first version bump (PR-190)
 

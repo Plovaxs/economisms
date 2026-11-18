@@ -28,6 +28,7 @@ from urllib.parse import parse_qs
 from jsonschema import Draft202012Validator, FormatChecker
 
 from prometheus.evidence.jsonio import strict_json_loads
+from prometheus.httpsec.headers import finalize_headers
 from prometheus.jobs.__main__ import job_response
 from prometheus.jobs.artifacts import ArtifactError, ArtifactStore
 from prometheus.jobs.store import (
@@ -219,6 +220,7 @@ class ResearchService:
         data = json.dumps(body, sort_keys=True, allow_nan=False).encode("utf-8")
         headers.extend(extra)
         headers.append((b"content-length", str(len(data)).encode("ascii")))
+        headers = finalize_headers(headers, https=scope.get("scheme") == "https")
         await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": data})
 

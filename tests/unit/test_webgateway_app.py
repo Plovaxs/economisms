@@ -979,14 +979,16 @@ def test_a_cancelled_request_keeps_its_slot_until_the_backend_thread_really_fini
         task.cancel()
         with pytest.raises(asyncio.CancelledError):
             await task
-        assert app._inflight == 1, "the backend call is still running; its slot is still taken"
+        assert app._executor.inflight == 1, (
+            "the backend call is still running; its slot is still taken"
+        )
         blocked = await request_async(app, "GET", "/api/jobs/v1/jobs")
         transport.release.set()
         for _ in range(100):
-            if app._inflight == 0:
+            if app._executor.inflight == 0:
                 break
             await asyncio.sleep(0.02)
-        return blocked, app._inflight
+        return blocked, app._executor.inflight
 
     blocked, inflight = asyncio.run(scenario())
     assert blocked is not None and blocked.status == 503

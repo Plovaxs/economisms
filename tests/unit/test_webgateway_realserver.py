@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 import uvicorn
 
-from prometheus.webgateway.__main__ import uvicorn_options
+from prometheus.httpsec.server import uvicorn_options
 from prometheus.webgateway.app import GatewayConfig, WebGatewayService
 
 

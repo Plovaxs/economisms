@@ -4,7 +4,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from prometheus.webgateway.ratelimit import TokenBucketLimiter, client_key
+from prometheus.httpsec.ratelimit import TokenBucketLimiter, client_key
 
 
 class _Clock:

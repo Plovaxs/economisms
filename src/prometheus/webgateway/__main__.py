@@ -11,48 +11,12 @@ import argparse
 import ipaddress
 import logging
 from pathlib import Path
-from typing import Any
 
+from prometheus.httpsec.server import uvicorn_options
 from prometheus.webgateway.app import GatewayConfig, WebGatewayService
 
 _DEFAULT_DIST = Path(__file__).resolve().parents[3] / "frontend" / "dist"
 _DEFAULTS = GatewayConfig()
-
-
-def uvicorn_options(
-    *,
-    host: str,
-    port: int,
-    tls_cert: Path | None,
-    tls_key: Path | None,
-    max_connections: int,
-) -> dict[str, Any]:
-    """The exact uvicorn settings the gateway ships with. A function, not
-    inline in `main`, so the real-socket tests run the SAME hardened
-    configuration that production does instead of a lookalike."""
-    return {
-        "host": host,
-        "port": port,
-        "workers": 1,
-        "loop": "asyncio",
-        "http": "h11",
-        "ws": "none",
-        "interface": "asgi3",
-        "lifespan": "on",
-        "proxy_headers": False,
-        "access_log": False,
-        # The gateway writes its own structured access log, and uvicorn's
-        # `server: uvicorn` banner is implementation detail a client has no
-        # use for.
-        "server_header": False,
-        "limit_concurrency": max_connections,
-        "backlog": 64,
-        "timeout_keep_alive": 5,
-        "timeout_graceful_shutdown": 20,
-        "h11_max_incomplete_event_size": 16384,
-        "ssl_certfile": str(tls_cert) if tls_cert else None,
-        "ssl_keyfile": str(tls_key) if tls_key else None,
-    }
 
 
 def main(argv: list[str] | None = None) -> int:

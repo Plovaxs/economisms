@@ -88,6 +88,13 @@ discovered during a dependency bump, not necessarily proactively.
   from independent source snapshots to confirm reproducibility
   (`tools/reproducible_build.py`) before installing it with `--no-deps
   --offline`.
+- **Shared hardening** (`prometheus.httpsec`, PR-192): the gateway, the dashboard and
+  the job API share one set of response security headers, one bounded
+  per-client rate limiter, one bounded executor that keeps blocking work off the
+  event loop, and one hardened uvicorn configuration (no server banner, no
+  trusted proxy headers, bounded connections). The dashboard additionally bounds
+  every numeric parameter, escapes every error page, caps concurrent
+  computation and rate-limits per owner.
 - **Web gateway edge controls** (`prometheus.webgateway`, PR-191): a closed
   request-target grammar with whole-segment routing, so a client cannot choose
   the host the gateway contacts; a transport that never follows redirects,

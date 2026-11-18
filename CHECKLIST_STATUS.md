@@ -7866,6 +7866,43 @@ global bucket are carried to the following PRs); live dependency-CVE
 scanning remains open (SEC-07); SEC-14 (an independent penetration test)
 cannot be self-performed.
 
+## Evidenced today (PR-192: dashboard and job-API hardening, and a shared `prometheus.httpsec` package -- strengthens SEC-11 and SEC-01; no new blueprint ID closed)
+
+Continues PR-191's audit onto the two backends. The dashboard had gaps of its
+own, each confirmed against the unmodified code first: every numeric query
+parameter went through a bare `int()`/`float()` with no range (reproduced as an
+unhandled 745 GiB `MemoryError` from `portfolio-risk?n=100000000000`, for a
+caller holding only a read-only token); a non-numeric value or a non-ASCII query
+was an unhandled exception; the HTML error pages reflected `<script>`/`<img
+onerror>` unescaped (not remotely exploitable in practice -- the routes need an
+`Authorization` header a cross-site link cannot supply -- but wrong); and the
+views computed on the event loop, so one slow view froze the health probe. The
+job API was already well bounded and needed only the standard security headers.
+
+New `prometheus.httpsec` (shared by the gateway, dashboard and job API):
+`headers`, `ratelimit`, `concurrency.BoundedExecutor` and `server.uvicorn_options`
+-- one hardened uvicorn configuration instead of three hand-copied lists. New
+`dashboard/params.py` gives every parameter an explicit range (plain decimal
+numbers only, repeats refused, identifier parameters a closed character set,
+array-size product caps) and `dashboard/app.py` was rebuilt as a pipeline:
+validation before computation, one escaping error path, computation off the event
+loop under a hard cap, a per-owner token bucket, a generic catch-all, a script-less
+CSP on HTML pages and a JSON audit line per request. 156 new tests, including a
+real-uvicorn raw-socket suite that fails 6 of 7 against the old code.
+
+| ID | Acceptance criterion | Evidence |
+|---|---|---|
+| SEC-11 (strengthened, partial) | rate-limiting, per-tenant budgets, load test | `dashboard.app` gains a per-owner token bucket (unauthenticated calls spend nobody's budget), `httpsec.concurrency.BoundedExecutor` capping concurrent computation, and `dashboard.params` bounding every numeric parameter and array size before anything is computed; process-local like the service's own limits; no load test of the dashboard is claimed |
+| SEC-01 (extended) | threat model with assets, trust boundaries, misuse cases | `docs/THREAT_MODEL.md` gains the dashboard trust boundary and three misuse cases (resource exhaustion by a read-only caller, reflected markup in an error page, an event-loop stall), each marked with whether the previous code was confirmed vulnerable; still not independently reviewed |
+
+Not covered: limits are process-local; CPU use inside the permitted ranges is
+bounded and rate-limited but not metered per caller; the dashboard's `NaN` JSON
+output is untouched; ruff's `S` rules flagged 23 spots in `src` -- the SQL and
+subprocess hits in the job runtime were read and are safe, the remaining
+`urlopen`/`assert` findings are for a later PR; live dependency-CVE scanning
+remains open (SEC-07); SEC-14 (an independent penetration test) cannot be
+self-performed.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

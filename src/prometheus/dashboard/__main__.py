@@ -24,6 +24,7 @@ from prometheus.core.ledger import Ledger
 from prometheus.core.money import Money
 from prometheus.dashboard.app import DashboardService
 from prometheus.econosim.agents import Firm, Household
+from prometheus.httpsec.server import uvicorn_options
 from prometheus.service.__main__ import provision_credentials
 from prometheus.service.auth import CredentialStore
 
@@ -54,7 +55,8 @@ def main(argv: list[str] | None = None) -> int:
     serve.add_argument("--tls-cert", type=Path)
     serve.add_argument("--tls-key", type=Path)
     serve.add_argument(
-        "--demo", action="store_true",
+        "--demo",
+        action="store_true",
         help="seed a real demo portfolio ('alice') so there is something to browse immediately",
     )
     args = parser.parse_args(argv)
@@ -82,23 +84,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"serving on http://{args.host}:{args.port}/dashboard")
             uvicorn.run(
                 app,
-                host=args.host,
-                port=args.port,
-                workers=1,
-                loop="asyncio",
-                http="h11",
-                ws="none",
-                interface="asgi3",
-                lifespan="on",
-                proxy_headers=False,
-                access_log=False,
-                limit_concurrency=32,
-                backlog=64,
-                timeout_keep_alive=5,
-                timeout_graceful_shutdown=20,
-                h11_max_incomplete_event_size=16384,
-                ssl_certfile=str(args.tls_cert) if args.tls_cert else None,
-                ssl_keyfile=str(args.tls_key) if args.tls_key else None,
+                **uvicorn_options(
+                    host=args.host,
+                    port=args.port,
+                    tls_cert=args.tls_cert,
+                    tls_key=args.tls_key,
+                    max_connections=32,
+                ),
             )
     except (ValueError, OSError) as exc:
         parser.error(str(exc))

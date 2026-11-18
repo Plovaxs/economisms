@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from prometheus.webgateway.__main__ import main, uvicorn_options
+from prometheus.httpsec.server import uvicorn_options
+from prometheus.webgateway.__main__ import main
 
 
 @pytest.fixture

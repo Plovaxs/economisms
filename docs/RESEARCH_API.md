@@ -121,7 +121,10 @@ and market-snapshot/model-version pricing/risk report APIs remain open.
 
 Artifact reads verify the content pin, schema and complete job/trace/recipe/
 attempt/result association. ETag hashes the exact JSON response bytes.
-Responses use `Cache-Control: no-store`, `nosniff` and server-generated
+Responses use `Cache-Control: no-store`, `nosniff`, `X-Frame-Options: DENY`,
+`Referrer-Policy: no-referrer`, a deny-all `Permissions-Policy`, COOP/CORP
+`same-origin`, a `default-src 'none'` Content-Security-Policy, HSTS when (and
+only when) the request arrived over HTTPS, and a server-generated
 `X-Request-ID`. Checksums do not establish authorship or scientific approval.
 
 Compatibility policy: `/v1` preserves existing field meanings, required

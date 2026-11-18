@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "c610676ca0be71e57a7fc8ca0dbb54efd57e23691e460cb86f659d62375dce73",
+    "content_sha256": "a75e698c06054d3812c3e47f74daae06c41a47c8b7b516026d2db4207a248a90",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "4f32db9e6d71fbf8e3ffd924b669f413ded5bb6152a0669d17f2a65d3e7bf036",
+  "checklist_notes_sha256": "2b6ba2af5f90899beee480cf4fc0f9b6e1764fb88c5d681d3d43d6e4c78a1c1d",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6442,6 +6442,12 @@
           "evidence_note": "`docs/THREAT_MODEL.md` gains the gateway trust boundary and six misuse cases (authority injection, redirect credential re-send, pre-auth budget exhaustion, body/slow-backend resource pressure, script injection, log forging), including the finding that the first gateway was confirmed vulnerable; still not independently reviewed",
           "id_column": "SEC-01 (extended)",
           "requirement_note": "threat model with assets, trust boundaries, misuse cases"
+        },
+        {
+          "checklist_line": 7896,
+          "evidence_note": "`docs/THREAT_MODEL.md` gains the dashboard trust boundary and three misuse cases (resource exhaustion by a read-only caller, reflected markup in an error page, an event-loop stall), each marked with whether the previous code was confirmed vulnerable; still not independently reviewed",
+          "id_column": "SEC-01 (extended)",
+          "requirement_note": "threat model with assets, trust boundaries, misuse cases"
         }
       ],
       "requirement": "Create threat model with assets, trust boundaries and misuse cases",
@@ -6704,6 +6710,12 @@
         {
           "checklist_line": 7855,
           "evidence_note": "`webgateway.ratelimit.TokenBucketLimiter`, a per-client edge limiter in front of `service.application.Admission`'s pre-authentication global bucket (which an unauthenticated flood could otherwise exhaust); memory bounded (`max_keys`, idle reclamation, a shared overflow bucket), IPv6 keyed by /64; Hypothesis-checked bounds; process-local like the service's own limits, so a single gateway process only",
+          "id_column": "SEC-11 (strengthened, partial)",
+          "requirement_note": "rate-limiting, per-tenant budgets, load test"
+        },
+        {
+          "checklist_line": 7895,
+          "evidence_note": "`dashboard.app` gains a per-owner token bucket (unauthenticated calls spend nobody's budget), `httpsec.concurrency.BoundedExecutor` capping concurrent computation, and `dashboard.params` bounding every numeric parameter and array size before anything is computed; process-local like the service's own limits; no load test of the dashboard is claimed",
           "id_column": "SEC-11 (strengthened, partial)",
           "requirement_note": "rate-limiting, per-tenant budgets, load test"
         }
