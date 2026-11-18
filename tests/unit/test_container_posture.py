@@ -75,6 +75,33 @@ def test_the_build_toolchain_is_not_installed_into_the_runtime_image() -> None:
     assert "PYTHONPATH=/app/src" in DOCKERFILE
 
 
+def test_the_base_images_bundled_packaging_tools_are_removed() -> None:
+    """The official image ships pip/setuptools/wheel (and a vendored jaraco.context); the
+    image scan flagged fixable HIGH vulnerabilities in them. A runtime image that installs
+    nothing at run time has no use for them."""
+    assert re.search(r"python -m pip uninstall --yes setuptools wheel pip", DOCKERFILE)
+    install = DOCKERFILE.index("pip install --no-cache-dir --require-hashes")
+    uninstall = DOCKERFILE.index("pip uninstall --yes setuptools wheel pip")
+    assert uninstall > install, "uv must be installed BEFORE pip removes itself"
+
+
+def test_the_pinned_build_tooling_is_past_every_known_advisory() -> None:
+    import tomllib
+
+    config = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    requires = dict(item.split("==") for item in config["build-system"]["requires"])
+    group = dict(item.split("==") for item in config["dependency-groups"]["build"])
+    assert requires["setuptools"] == group["setuptools"]
+    assert requires["wheel"] == group["wheel"]
+
+    def parts(version: str) -> tuple[int, ...]:
+        return tuple(int(x) for x in version.split("."))
+
+    # the first fixed releases for the advisories pip-audit reported against 78.1.0 / 0.45.1
+    assert parts(requires["setuptools"]) >= (84, 1, 0)
+    assert parts(requires["wheel"]) >= (0, 46, 2)
+
+
 def test_frontend_dependencies_are_installed_without_running_package_scripts() -> None:
     assert re.search(r"^RUN npm ci --ignore-scripts$", DOCKERFILE, re.M)
 

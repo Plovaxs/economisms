@@ -67,7 +67,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY requirements/bootstrap.txt requirements/bootstrap.txt
-RUN python -m pip install --no-cache-dir --require-hashes --only-binary=':all:' -r requirements/bootstrap.txt
+# The official image bundles pip, setuptools and wheel in its system site-packages (and
+# setuptools vendors jaraco.context). Once uv is installed the runtime needs none of
+# them -- nothing here builds or installs a package at run time -- and the image scan
+# flagged fixable HIGH vulnerabilities in setuptools, wheel and the vendored
+# jaraco.context that came with the BASE image, not with this project. Removing them
+# leaves nothing to patch.
+RUN python -m pip install --no-cache-dir --require-hashes --only-binary=':all:' -r requirements/bootstrap.txt \
+    && python -m pip uninstall --yes setuptools wheel pip
 COPY pyproject.toml uv.lock ./
 # Bytecode is compiled NOW, as root: at run time the code is read-only and the
 # user cannot write __pycache__, so without this every process (and every job

@@ -5,7 +5,11 @@ function from (root, request path) to file bytes, fully unit-testable.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import gzip
+import hashlib
+import threading
+from collections import OrderedDict
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 _FALLBACK_CONTENT_TYPE = "application/octet-stream"
@@ -40,12 +44,23 @@ _CONTENT_TYPES = {
 }
 
 
+_COMPRESSIBLE = (
+    "text/",
+    "application/json",
+    "application/manifest+json",
+    "image/svg+xml",
+)
+_MIN_COMPRESS_BYTES = 1024
+
+
 @dataclass(frozen=True, slots=True)
 class StaticFile:
     body: bytes
     content_type: str
     relative_path: str
     is_spa_fallback: bool
+    etag: str = ""
+    gzipped: bytes | None = None
 
     @property
     def is_html(self) -> bool:
@@ -58,7 +73,7 @@ class StaticFileNotFoundError(ValueError):
     that names a file (it has an extension) matches nothing."""
 
 
-def resolve_static_file(dist_root: Path, request_path: str) -> StaticFile:
+def locate_static_file(dist_root: Path, request_path: str) -> tuple[Path, str, bool]:
     """Resolve `request_path` (an already percent-decoded, already
     validated absolute path, e.g. "/assets/index-abc123.js") to a file
     under `dist_root`.
@@ -100,10 +115,72 @@ def resolve_static_file(dist_root: Path, request_path: str) -> StaticFile:
                 f"under {resolved_root} -- has the frontend actually been built "
                 f"('npm run build' in frontend/)?"
             )
+    return target, target.relative_to(resolved_root).as_posix(), is_fallback
+
+
+def _load(target: Path, relative_path: str, is_fallback: bool) -> StaticFile:
+    body = target.read_bytes()
     content_type = _CONTENT_TYPES.get(target.suffix.lower(), _FALLBACK_CONTENT_TYPE)
+    packed: bytes | None = None
+    if len(body) >= _MIN_COMPRESS_BYTES and content_type.startswith(_COMPRESSIBLE):
+        # mtime=0 and a fixed level: the same bytes always compress to the same bytes.
+        candidate = gzip.compress(body, compresslevel=6, mtime=0)
+        packed = candidate if len(candidate) < len(body) else None
     return StaticFile(
-        body=target.read_bytes(),
+        body=body,
         content_type=content_type,
-        relative_path=target.relative_to(resolved_root).as_posix(),
+        relative_path=relative_path,
         is_spa_fallback=is_fallback,
+        etag='"' + hashlib.sha256(body).hexdigest()[:32] + '"',
+        gzipped=packed,
     )
+
+
+def resolve_static_file(dist_root: Path, request_path: str) -> StaticFile:
+    return _load(*locate_static_file(dist_root, request_path))
+
+
+class StaticCache:
+    """A bounded in-memory cache over `locate_static_file`.
+
+    Without it the gateway re-reads, re-hashes and re-compresses the ~740 kB
+    bundle from disk on every request. An entry is reused only while the file's
+    (mtime, size) is unchanged, so a rebuilt frontend is picked up without a
+    restart; the cache is capped by entry count AND total bytes (least recently
+    used out first), so it cannot grow with what a client asks for -- the set of
+    files under the dist root is finite, and the paths are validated before they
+    ever reach it."""
+
+    def __init__(self, *, max_entries: int = 512, max_bytes: int = 64 * 1024 * 1024) -> None:
+        self.max_entries, self.max_bytes = max_entries, max_bytes
+        self._entries: OrderedDict[str, tuple[tuple[int, int], StaticFile]] = OrderedDict()
+        self._lock = threading.Lock()
+        self.total_bytes = 0
+
+    def __len__(self) -> int:
+        return len(self._entries)
+
+    def get(self, dist_root: Path, request_path: str) -> StaticFile:
+        target, relative, fallback = locate_static_file(dist_root, request_path)
+        info = target.stat()
+        signature = (info.st_mtime_ns, info.st_size)
+        key = str(target)
+        with self._lock:
+            cached = self._entries.get(key)
+            if cached is not None and cached[0] == signature:
+                self._entries.move_to_end(key)
+                return replace(cached[1], relative_path=relative, is_spa_fallback=fallback)
+        loaded = _load(target, relative, fallback)
+        size = len(loaded.body) + len(loaded.gzipped or b"")
+        with self._lock:
+            old = self._entries.pop(key, None)
+            if old is not None:
+                self.total_bytes -= len(old[1].body) + len(old[1].gzipped or b"")
+            self._entries[key] = (signature, loaded)
+            self.total_bytes += size
+            while len(self._entries) > self.max_entries or self.total_bytes > self.max_bytes:
+                if len(self._entries) <= 1:
+                    break
+                _, (_, evicted) = self._entries.popitem(last=False)
+                self.total_bytes -= len(evicted.body) + len(evicted.gzipped or b"")
+        return loaded

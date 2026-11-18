@@ -65,6 +65,7 @@ class PathRejected(ValueError):
 
 class RouteKind(Enum):
     HEALTH = "health"
+    READY = "ready"
     STATIC = "static"
     JOBS = "jobs"
     DASHBOARD = "dashboard"
@@ -151,6 +152,8 @@ def match_route(raw_path: str) -> Route:
     decoded_segments = _validate_path(raw_path)
     if raw_path == "/health/live":
         return Route(RouteKind.HEALTH)
+    if raw_path == "/health/ready":
+        return Route(RouteKind.READY)
     jobs_rest = _under(raw_path, _JOBS_PREFIX)
     if jobs_rest is not None:
         return Route(RouteKind.JOBS, jobs_rest or "/")

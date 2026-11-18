@@ -95,6 +95,7 @@ def gateway(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Fixture]:
     (dist / "assets").mkdir()
     (dist / "index.html").write_text("<!doctype html><title>shell</title>")
     (dist / "assets" / "app.js").write_text("console.log(1)")
+    (dist / "assets" / "big.js").write_text("console.log('hello from the bundle');\n" * 200)
     evil, evil_server = _start_stub("evil")
     jobs, jobs_server = _start_stub("jobs", evil.base)
     dashboard, dashboard_server = _start_stub("dashboard")
@@ -327,3 +328,41 @@ def test_an_unreachable_backend_is_a_502_that_names_nothing_internal(tmp_path_fa
     finally:
         server.should_exit = True
         thread.join(15)
+
+
+def test_gzip_is_negotiated_over_a_real_connection(gateway) -> None:
+    import gzip
+
+    plain = get(gateway.port, "/assets/big.js")
+    packed = get(gateway.port, "/assets/big.js", extra="Accept-Encoding: gzip\r\n")
+    assert plain.status == packed.status == 200
+    assert "content-encoding" not in plain.headers
+    assert packed.headers["content-encoding"] == "gzip"
+    assert packed.headers["vary"] == "accept-encoding"
+    assert int(packed.headers["content-length"]) == len(packed.body) < len(plain.body)
+    assert gzip.decompress(packed.body) == plain.body
+
+
+def test_a_conditional_request_is_a_bodyless_304_over_a_real_connection(gateway) -> None:
+    first = get(gateway.port, "/assets/big.js")
+    again = get(gateway.port, "/assets/big.js", extra=f"If-None-Match: {first.headers['etag']}\r\n")
+    assert again.status == 304
+    assert again.body == b""
+    assert again.headers["etag"] == first.headers["etag"]
+    assert "immutable" in again.headers["cache-control"]
+    assert again.headers["content-security-policy"] == first.headers["content-security-policy"]
+
+
+def test_the_html_shell_304_keeps_the_spa_csp_over_a_real_connection(gateway) -> None:
+    first = get(gateway.port, "/")
+    again = get(gateway.port, "/", extra=f"If-None-Match: {first.headers['etag']}\r\n")
+    assert again.status == 304
+    assert again.headers["content-security-policy"] == first.headers["content-security-policy"]
+    assert "script-src 'self'" in again.headers["content-security-policy"]
+
+
+def test_readiness_reflects_the_real_backends(gateway) -> None:
+    reply = get(gateway.port, "/health/ready")
+    assert reply.status == 200
+    assert json.loads(reply.body) == {"status": "ready"}
+    assert reply.headers["cache-control"] == "no-store"

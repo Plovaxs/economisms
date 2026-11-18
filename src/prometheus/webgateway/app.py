@@ -61,7 +61,7 @@ from prometheus.webgateway.routing import (
     rewrite_location,
     validate_query,
 )
-from prometheus.webgateway.static_files import StaticFileNotFoundError, resolve_static_file
+from prometheus.webgateway.static_files import StaticCache, StaticFileNotFoundError
 
 Receive = Callable[[], Awaitable[dict[str, Any]]]
 Send = Callable[[dict[str, Any]], Awaitable[None]]
@@ -195,6 +195,10 @@ class WebGatewayService:
         )
         self._clock = clock
         self._executor = BoundedExecutor(self.config.max_upstream_inflight)
+        self.static_cache = StaticCache()
+        self._probe_executor = BoundedExecutor(2)
+        self._ready_cache: tuple[float, list[str]] | None = None
+        self._ready_task: asyncio.Future[list[str]] | None = None
         self._denied_logged_at: dict[str, float] = {}
 
     async def __call__(self, scope: dict[str, Any], receive: Receive, send: Send) -> None:
@@ -230,7 +234,8 @@ class WebGatewayService:
             response.headers, https=scope.get("scheme") == "https", is_html=response.is_html
         )
         headers.append((b"x-gateway-request-id", request_id.encode("ascii")))
-        headers.append((b"content-length", str(len(response.body)).encode("ascii")))
+        if response.status != 304:
+            headers.append((b"content-length", str(len(response.body)).encode("ascii")))
         await send({"type": "http.response.start", "status": response.status, "headers": headers})
         await send(
             {"type": "http.response.body", "body": b"" if method == "HEAD" else response.body}
@@ -263,8 +268,10 @@ class WebGatewayService:
             return self._health(method, request_id)
         if route.kind is RouteKind.UNKNOWN_API:
             return _error(404, "not_found", "endpoint was not found", request_id, route="api")
+        if route.kind is RouteKind.READY:
+            return await self._ready(method, request_id)
         if route.kind is RouteKind.STATIC:
-            return await self._static(method, route, request_id)
+            return await self._static(scope, method, route, request_id)
         if method not in _PROXIED_METHODS:
             return _error(
                 405,
@@ -294,7 +301,9 @@ class WebGatewayService:
             route="health",
         )
 
-    async def _static(self, method: str, route: Route, request_id: str) -> _Response:
+    async def _static(
+        self, scope: dict[str, Any], method: str, route: Route, request_id: str
+    ) -> _Response:
         if method not in _READ_METHODS:
             return _error(
                 405,
@@ -305,20 +314,87 @@ class WebGatewayService:
                 route="static",
             )
         try:
-            static = await asyncio.to_thread(resolve_static_file, self.dist_root, route.target)
+            static = await asyncio.to_thread(self.static_cache.get, self.dist_root, route.target)
         except StaticFileNotFoundError:
             return _error(404, "not_found", "no such file", request_id, route="static")
+        request_headers = headers_of(scope)
+        use_gzip = static.gzipped is not None and _accepts_gzip(
+            request_headers.get("accept-encoding", "")
+        )
+        etag = static.etag[:-1] + '-gzip"' if use_gzip else static.etag
         immutable = not static.is_spa_fallback and static.relative_path.startswith("assets/")
+        headers: HeaderList = [
+            (b"cache-control", IMMUTABLE_CACHE if immutable else REVALIDATE_CACHE),
+            (b"etag", etag.encode("ascii")),
+        ]
+        if static.gzipped is not None:
+            headers.append((b"vary", b"accept-encoding"))
+        if _etag_matches(request_headers.get("if-none-match"), etag):
+            # A 304 updates the headers a browser has cached for the document, so it must
+            # carry the SAME Content-Security-Policy class as the 200 it stands in for.
+            return _Response(304, headers, b"", is_html=static.is_html, route="static")
+        headers.append((b"content-type", static.content_type.encode("ascii")))
+        body = static.body
+        if use_gzip and static.gzipped is not None:
+            headers.append((b"content-encoding", b"gzip"))
+            body = static.gzipped
+        return _Response(200, headers, body, is_html=static.is_html, route="static")
+
+    async def _ready(self, method: str, request_id: str) -> _Response:
+        if method not in _READ_METHODS:
+            return _error(
+                405,
+                "method_not_allowed",
+                "GET or HEAD is required",
+                request_id,
+                headers=[(b"allow", b"GET, HEAD")],
+                route="ready",
+            )
+        now = self._clock()
+        if self._ready_cache is not None and now - self._ready_cache[0] < 1.0:
+            unavailable = self._ready_cache[1]
+        else:
+            # One refresh at a time: concurrent probes share it instead of each starting
+            # backend calls (which would trip the executor cap and report a false outage).
+            if self._ready_task is None or self._ready_task.done():
+                self._ready_task = asyncio.ensure_future(self._refresh_ready())
+            unavailable = await asyncio.shield(self._ready_task)
+        if unavailable:
+            body = json.dumps({"status": "not_ready", "unavailable": unavailable}).encode()
+            return _Response(
+                503,
+                [
+                    (b"content-type", b"application/json"),
+                    (b"cache-control", NO_STORE_CACHE),
+                    (b"retry-after", b"1"),
+                ],
+                body,
+                route="ready",
+            )
         return _Response(
             200,
-            [
-                (b"content-type", static.content_type.encode("ascii")),
-                (b"cache-control", IMMUTABLE_CACHE if immutable else REVALIDATE_CACHE),
-            ],
-            static.body,
-            is_html=static.is_html,
-            route="static",
+            [(b"content-type", b"application/json"), (b"cache-control", NO_STORE_CACHE)],
+            b'{"status": "ready"}',
+            route="ready",
         )
+
+    async def _refresh_ready(self) -> list[str]:
+        results = await asyncio.gather(
+            self._probe("jobs", self.jobs_url + "/health/ready"),
+            self._probe("dashboard", self.dashboard_url + "/health/live"),
+        )
+        unavailable = sorted(name for name, ok in results if not ok)
+        self._ready_cache = (self._clock(), unavailable)
+        return unavailable
+
+    async def _probe(self, name: str, url: str) -> tuple[str, bool]:
+        try:
+            response = await self._probe_executor.run(
+                self.transport.request, "GET", url, (), b"", timeout=2.0
+            )
+        except (Overloaded, UpstreamUnavailableError, UpstreamRequestError):
+            return name, False
+        return name, response.status == 200
 
     async def _proxy(
         self,
@@ -493,12 +569,49 @@ class WebGatewayService:
         ACCESS_LOGGER.info(json.dumps(event, sort_keys=True))
 
 
+def _accepts_gzip(value: str) -> bool:
+    """Whether an `Accept-Encoding` value permits gzip (an explicit q=0 refuses it)."""
+    for item in value.split(","):
+        name, _, params = item.strip().partition(";")
+        if name.strip().lower() not in ("gzip", "x-gzip", "*"):
+            continue
+        quality = 1.0
+        for param in params.split(";"):
+            key, _, number = param.strip().partition("=")
+            if key.strip().lower() == "q":
+                try:
+                    quality = float(number)
+                except ValueError:
+                    quality = 0.0
+        return quality > 0
+    return False
+
+
+def _etag_matches(header: str | None, etag: str) -> bool:
+    """`If-None-Match` evaluation with the weak comparison GET/HEAD use."""
+    if header is None:
+        return False
+    if header.strip() == "*":
+        return True
+    wanted = etag.removeprefix("W/")
+    return any(candidate.strip().removeprefix("W/") == wanted for candidate in header.split(","))
+
+
 def _is_ip(text: str) -> bool:
     try:
         ipaddress.ip_address(text)
     except ValueError:
         return False
     return True
+
+
+def headers_of(scope: dict[str, Any]) -> dict[str, str]:
+    """Lower-cased request headers; a repeated header keeps its first value (used for
+    content negotiation and conditional requests, never for authentication)."""
+    out: dict[str, str] = {}
+    for name, value in scope.get("headers", []):
+        out.setdefault(name.decode("latin-1").lower(), value.decode("latin-1"))
+    return out
 
 
 def _declared_length(scope: dict[str, Any]) -> int | None:
