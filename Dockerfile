@@ -25,7 +25,7 @@
 #      reference-bundle directory (confirmed unreferenced by any
 #      runtime code path) are left out on purpose.
 
-FROM node:20-slim AS frontend-build
+FROM node:26-slim AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
