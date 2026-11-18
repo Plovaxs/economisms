@@ -32,7 +32,7 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-FROM python:3.11-slim AS runtime
+FROM python:3.15-slim AS runtime
 LABEL org.opencontainers.image.description="ECONOSIM/PROMETHEUS-X research demo -- SIMULATED DATA, RESEARCH ONLY, not financial advice, no live trading"
 WORKDIR /app
 COPY requirements/bootstrap.txt requirements/bootstrap.txt
