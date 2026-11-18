@@ -91,6 +91,7 @@ def test_build_will_never_clobber_an_existing_output_directory(tmp_path):
 
 def test_lock_is_hashed_and_explicitly_scopes_the_cpu_index_to_torch():
     import tomllib
+    from urllib.parse import urlsplit
 
     root = TOOL.parents[1]
     config = tomllib.loads((root / "pyproject.toml").read_text())
@@ -103,5 +104,7 @@ def test_lock_is_hashed_and_explicitly_scopes_the_cpu_index_to_torch():
         assert package["wheels"]
         for archive in package["wheels"]:
             assert archive["hash"].startswith("sha256:") and len(archive["hash"]) == 71
-        if "pytorch.org" in package["source"]["registry"]:
+        # the parsed HOSTNAME, not a substring: "pytorch.org" in the URL would also match
+        # https://pytorch.org.attacker.example/...
+        if urlsplit(package["source"]["registry"]).hostname == "download.pytorch.org":
             assert package["name"] == "torch"

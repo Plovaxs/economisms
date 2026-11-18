@@ -59,6 +59,10 @@ jobs:
         run: uv sync --locked --only-group security --no-install-project --no-build --python 3.12
       - name: Export every locked dependency, all extras and groups
         run: uv export --locked --all-extras --all-groups --no-emit-project --format requirements-txt -o "${RUNNER_TEMP}/locked.txt"
+      - name: Strip local-version tags for the advisory lookup (torch 2.15.0+cpu is the CPU build of PyPI's 2.15.0)
+        # PyPI has no "2.15.0+cpu", so pip-audit --strict rightly refuses to guess; advisories are keyed by
+        # the upstream release, which is what the tag-less line names. Only the lookup file is changed.
+        run: sed -E -i 's/^([A-Za-z0-9_.-]+==[0-9][A-Za-z0-9.!_-]*)\+[A-Za-z0-9._]+/\1/' "${RUNNER_TEMP}/locked.txt"
       - name: Audit them against the PyPI advisory database (nothing is installed)
         run: .venv/bin/pip-audit -r "${RUNNER_TEMP}/locked.txt" --no-deps --disable-pip --strict --progress-spinner off
 
@@ -74,7 +78,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: "20"
+          node-version: "24"
       - name: Install exactly what the lockfile says, running no package scripts
         run: npm ci --ignore-scripts
       - name: Audit runtime and build-time dependencies
