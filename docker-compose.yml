@@ -3,7 +3,21 @@
 # local npm/uv-based workflow (which stays the way to actively develop the
 # frontend with hot reload), not a replacement for it. SIMULATED DATA,
 # RESEARCH ONLY; see evidence/gate_report_r0.json -- nothing here is a
-# production deployment.
+# claim that this project is cleared for production use.
+#
+# Hardening applied to every container (the `x-hardening` block below):
+#   - runs as an unprivileged user (uid 10001, set in the Dockerfile);
+#   - a read-only root filesystem -- the only writable places are /data (a
+#     named volume) and a small tmpfs /tmp;
+#   - every Linux capability dropped, and no-new-privileges set, so even a
+#     compromised process cannot regain any;
+#   - an init process (reaps the zombies a job worker's children leave),
+#     a process-count ceiling, and CPU/memory limits;
+#   - rotated JSON logs (so a log flood cannot fill the host disk);
+#   - health checks, so "running" is not mistaken for "serving".
+# The one published port is bound to the host's LOOPBACK only: this stack
+# speaks cleartext HTTP, so it must not be reachable from the network. To
+# expose it, use docker-compose.prod.yml (TLS), not a wider port mapping.
 #
 # Networking: worker/jobs-api/dashboard share the webgateway container's
 # network namespace (`network_mode: "service:webgateway"`) rather than each
@@ -14,16 +28,34 @@
 # it shares that same network namespace. Only webgateway itself is
 # published to the host, and only it needs the explicit
 # --allow-non-loopback-without-tls opt-in (Docker's own port-publishing
-# isolation is its trust boundary here: nothing outside the host can reach
-# it unless this mapping is published further).
+# isolation, plus the loopback-only mapping below, is its trust boundary).
 #
 #   docker compose up --build
 #   open http://localhost:8080
 #   cat <the printed token, or `docker compose exec webgateway cat /data/token`>
 
+x-hardening: &hardening
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  init: true
+  pids_limit: 1024
+  tmpfs:
+    - /tmp:size=256m,mode=1777
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   init-auth:
+    <<: *hardening
     build: .
+    restart: "no"
+    mem_limit: 1g
     volumes:
       - econosim-data:/data
     command:
@@ -35,17 +67,35 @@ services:
       ]
 
   webgateway:
+    <<: *hardening
     build: .
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - econosim-data:/data
     depends_on:
       init-auth:
         condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health/live', timeout=3).status == 200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   worker:
+    <<: *hardening
     build: .
+    restart: unless-stopped
+    mem_limit: 4g
+    cpus: 2.0
     network_mode: "service:webgateway"
     volumes:
       - econosim-data:/data
@@ -57,7 +107,11 @@ services:
     command: ["python", "-m", "prometheus.jobs", "--root", "/data", "work"]
 
   jobs-api:
+    <<: *hardening
     build: .
+    restart: unless-stopped
+    mem_limit: 1g
+    cpus: 1.0
     network_mode: "service:webgateway"
     volumes:
       - econosim-data:/data
@@ -74,9 +128,23 @@ services:
         "--host", "127.0.0.1",
         "--port", "8765",
       ]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8765/health/ready', timeout=3).status == 200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   dashboard:
+    <<: *hardening
     build: .
+    restart: unless-stopped
+    mem_limit: 2g
+    cpus: 2.0
     network_mode: "service:webgateway"
     volumes:
       - econosim-data:/data
@@ -93,6 +161,16 @@ services:
         "--port", "8766",
         "--demo",
       ]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8766/health/live', timeout=3).status == 200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   econosim-data:

@@ -35,6 +35,7 @@ dev = [
     "scipy-stubs>=1.11",
     "scikit-learn>=1.5",
     "types-jsonschema>=4.23",
+    "pyyaml>=6.0",
 ]
 
 [build-system]

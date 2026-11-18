@@ -7,6 +7,7 @@ on:
       - "Dockerfile"
       - ".dockerignore"
       - "docker-compose.yml"
+      - "docker-compose.prod.yml"
       - "src/**"
       - "frontend/**"
       - "requirements/**"
@@ -19,6 +20,7 @@ on:
       - "Dockerfile"
       - ".dockerignore"
       - "docker-compose.yml"
+      - "docker-compose.prod.yml"
       - "src/**"
       - "frontend/**"
       - "requirements/**"
@@ -46,6 +48,39 @@ jobs:
         run: docker compose build
       - name: Start the full stack
         run: docker compose up -d
+      - name: Every long-running service reports healthy
+        run: |
+          for _ in $(seq 1 90); do
+            pending=0
+            for svc in webgateway jobs-api dashboard; do
+              status=$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose ps -q "$svc")" 2>/dev/null || echo missing)
+              [ "$status" = "healthy" ] || pending=1
+            done
+            if [ "$pending" = 0 ]; then
+              echo "webgateway, jobs-api and dashboard are all healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::a service never became healthy"
+          docker compose ps
+          docker compose logs
+          exit 1
+      - name: Containers are unprivileged, read-only and capability-free
+        run: |
+          fail() { echo "::error::$1"; exit 1; }
+          for svc in webgateway jobs-api dashboard worker; do
+            id=$(docker compose ps -q "$svc")
+            [ "$(docker compose exec -T "$svc" id -u)" = "10001" ] || fail "$svc does not run as uid 10001"
+            [ "$(docker inspect -f '{{.HostConfig.ReadonlyRootfs}}' "$id")" = "true" ] || fail "$svc has a writable root filesystem"
+            [ "$(docker inspect -f '{{.HostConfig.CapDrop}}' "$id")" = "[ALL]" ] || fail "$svc keeps Linux capabilities"
+            docker inspect -f '{{.HostConfig.SecurityOpt}}' "$id" | grep -q 'no-new-privileges' || fail "$svc may gain privileges"
+            [ "$(docker inspect -f '{{.HostConfig.Init}}' "$id")" = "true" ] || fail "$svc has no init process"
+            echo "$svc: uid 10001, read-only rootfs, all capabilities dropped, no-new-privileges, init"
+          done
+          docker compose port webgateway 8080 | grep -q '^127.0.0.1:' || fail "the published port is not loopback-only"
+          if docker compose exec -T webgateway sh -c 'touch /app/should-not-exist' 2>/dev/null; then fail "wrote to the read-only root filesystem"; fi
+          echo "the published port is loopback-only and the root filesystem rejects writes"
       - name: Wait for the gateway to accept connections
         run: |
           for _ in $(seq 1 30); do
@@ -60,6 +95,14 @@ jobs:
           exit 1
       - name: Serves the real built frontend shell
         run: curl -sf http://localhost:8080/ | grep -q "ECONOSIM" || (echo "::error::frontend shell not served" && exit 1)
+      - name: Responses carry the security headers and a strict CSP
+        run: |
+          headers=$(curl -sfI http://localhost:8080/)
+          for h in x-content-type-options x-frame-options referrer-policy permissions-policy content-security-policy; do
+            echo "$headers" | grep -qi "^$h:" || (echo "::error::missing $h" && echo "$headers" && exit 1)
+          done
+          echo "$headers" | grep -qi "^content-security-policy:.*default-src 'none'" || (echo "::error::CSP is not strict" && exit 1)
+          if echo "$headers" | grep -qi '^server:'; then echo "::error::server banner is exposed"; exit 1; fi
       - name: Extract the real provisioned bearer token
         run: echo "TOKEN=$(docker compose exec -T webgateway cat /data/token)" >> "$GITHUB_ENV"
       - name: Wait for the dashboard and jobs API to accept connections through the gateway
@@ -127,3 +170,55 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down -v
+
+  tls-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Generate a throwaway self-signed certificate readable by uid 10001
+        run: |
+          mkdir tls
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=localhost" \
+            -addext "subjectAltName=DNS:localhost,IP:127.0.0.1" \
+            -keyout tls/key.pem -out tls/cert.pem
+          sudo chown 10001:10001 tls/key.pem tls/cert.pem
+          chmod 0400 tls/key.pem
+          chmod 0444 tls/cert.pem
+      - name: Start the stack with the TLS overlay
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+      - name: The gateway reports healthy over TLS
+        run: |
+          for _ in $(seq 1 90); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose -f docker-compose.yml -f docker-compose.prod.yml ps -q webgateway)" 2>/dev/null || echo missing)
+            if [ "$status" = "healthy" ]; then
+              echo "webgateway is healthy over TLS"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::the TLS gateway never became healthy"
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml logs webgateway
+          exit 1
+      - name: HTTPS serves the shell with HSTS and an upgrade-insecure-requests CSP
+        run: |
+          curl -sf --cacert tls/cert.pem https://localhost:8443/health/live
+          headers=$(curl -sfI --cacert tls/cert.pem https://localhost:8443/)
+          echo "$headers"
+          echo "$headers" | grep -qi '^strict-transport-security:' || (echo "::error::no HSTS over HTTPS" && exit 1)
+          echo "$headers" | grep -qi '^content-security-policy:.*upgrade-insecure-requests' || (echo "::error::no upgrade-insecure-requests over HTTPS" && exit 1)
+          curl -sf --cacert tls/cert.pem https://localhost:8443/ | grep -q "ECONOSIM"
+      - name: TLS 1.3 negotiates, cleartext on the TLS port is refused, and a wrong CA is rejected
+        run: |
+          curl -sf --tlsv1.3 --tls-max 1.3 --cacert tls/cert.pem https://localhost:8443/health/live
+          if curl -s --max-time 5 http://localhost:8443/health/live; then echo "::error::cleartext HTTP was answered on the TLS port"; exit 1; fi
+          if curl -s --max-time 5 https://localhost:8443/health/live; then echo "::error::the self-signed certificate was trusted without --cacert"; exit 1; fi
+          echo "TLS 1.3 works; cleartext and an untrusted certificate are refused"
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml logs
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v
