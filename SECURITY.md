@@ -15,7 +15,9 @@ for local/research use, not public deployment.
 This policy covers vulnerabilities in:
 
 - the Python package under [`src/prometheus/`](./src/prometheus/);
-- the optional local service and client (`prometheus.service`);
+- the optional local service and client (`prometheus.service`), the
+  research dashboard (`prometheus.dashboard`) and the web gateway that
+  fronts them (`prometheus.webgateway`);
 - the build/CI tooling under [`tools/`](./tools) and
   [`.github/workflows/`](./.github/workflows).
 
@@ -86,14 +88,31 @@ discovered during a dependency bump, not necessarily proactively.
   from independent source snapshots to confirm reproducibility
   (`tools/reproducible_build.py`) before installing it with `--no-deps
   --offline`.
-- **Not implemented** (see `CHECKLIST_STATUS.md`'s `SEC` category for the
-  current count): live vulnerability/dependency CVE scanning, a formal
-  threat model document, branch-protection/MFA enforcement (GitHub account
-  settings, outside this repository's own code), a network egress
-  allowlist for ingestion/model-serving, per-tenant rate limiting, and an
-  independent penetration test. These require either a live external
-  service this sandboxed environment cannot reliably query, or real
-  organizational/platform configuration outside what a repository's source
-  tree can itself prove — see
-  [CONTRIBUTING.md](./CONTRIBUTING.md) for why this project will not mark
+- **Web gateway edge controls** (`prometheus.webgateway`, PR-191): a closed
+  request-target grammar with whole-segment routing, so a client cannot choose
+  the host the gateway contacts; a transport that never follows redirects,
+  never reads proxy environment variables and can be pinned to the two
+  configured origins; per-client rate limiting in front of the backends' own
+  budgets; bounded request/response bodies and upstream concurrency; security
+  headers and a Content-Security-Policy with no third-party origin on every
+  response; generic 500s, and a structured access log that never contains a
+  query string or a credential. See
+  [docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md) for what each control is
+  mapped to. Limits are process-local, and uvicorn has no header-read
+  timeout, so a TLS-terminating front proxy remains the right answer for
+  anything beyond a single host.
+- **Not implemented / not claimed** (see `CHECKLIST_STATUS.md`'s `SEC`
+  category for the current state of each): live dependency-vulnerability
+  scanning, MFA/SSO and branch-commit signing (GitHub account settings,
+  outside this repository's own code), an independent penetration test
+  (SEC-14), and verification of deployed certificates and key management.
+  A formal threat model ([docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md)), a
+  network egress allowlist for ingestion (SEC-10), request-rate limiting
+  (the service's per-owner budgets plus the gateway's per-client edge
+  limiter) and branch protection with required reviews (SEC-02, partial) ARE
+  implemented -- an earlier version of this list said otherwise and had gone
+  stale. These gaps need either a live external service this sandboxed
+  environment cannot reliably query, or real organizational/platform
+  configuration outside what a repository's source tree can itself prove --
+  see [CONTRIBUTING.md](./CONTRIBUTING.md) for why this project will not mark
   something "evidenced" on the strength of a plan alone.

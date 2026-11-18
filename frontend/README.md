@@ -96,6 +96,15 @@ API, dashboard, and `prometheus.webgateway` -- the one that actually
 serves this built frontend and reverse-proxies the other two APIs,
 replaying this same `vite.config.ts` proxy's own rewrites) runs.
 
+The built app is served under a strict Content-Security-Policy
+(`default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self';
+connect-src 'self'; ...`, defined as `SPA_CSP` in
+`src/prometheus/webgateway/headers.py`) with no third-party origin -- which is
+why the fonts are bundled from `@fontsource/*` rather than loaded from Google
+Fonts. Anything that needs an inline script/style or an external origin (a CDN
+stylesheet, an analytics snippet) must be added to that policy deliberately,
+not worked around.
+
 ## Scripts
 
 - `npm run dev` -- Vite dev server with the API proxy.

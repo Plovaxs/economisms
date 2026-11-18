@@ -11,10 +11,48 @@ import argparse
 import ipaddress
 import logging
 from pathlib import Path
+from typing import Any
 
-from prometheus.webgateway.app import WebGatewayService
+from prometheus.webgateway.app import GatewayConfig, WebGatewayService
 
 _DEFAULT_DIST = Path(__file__).resolve().parents[3] / "frontend" / "dist"
+_DEFAULTS = GatewayConfig()
+
+
+def uvicorn_options(
+    *,
+    host: str,
+    port: int,
+    tls_cert: Path | None,
+    tls_key: Path | None,
+    max_connections: int,
+) -> dict[str, Any]:
+    """The exact uvicorn settings the gateway ships with. A function, not
+    inline in `main`, so the real-socket tests run the SAME hardened
+    configuration that production does instead of a lookalike."""
+    return {
+        "host": host,
+        "port": port,
+        "workers": 1,
+        "loop": "asyncio",
+        "http": "h11",
+        "ws": "none",
+        "interface": "asgi3",
+        "lifespan": "on",
+        "proxy_headers": False,
+        "access_log": False,
+        # The gateway writes its own structured access log, and uvicorn's
+        # `server: uvicorn` banner is implementation detail a client has no
+        # use for.
+        "server_header": False,
+        "limit_concurrency": max_connections,
+        "backlog": 64,
+        "timeout_keep_alive": 5,
+        "timeout_graceful_shutdown": 20,
+        "h11_max_incomplete_event_size": 16384,
+        "ssl_certfile": str(tls_cert) if tls_cert else None,
+        "ssl_keyfile": str(tls_key) if tls_key else None,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -42,6 +80,40 @@ def main(argv: list[str] | None = None) -> int:
             "app in this project and is unchanged unless this is explicitly set."
         ),
     )
+    serve.add_argument(
+        "--max-connections",
+        type=int,
+        default=128,
+        help="concurrent connections accepted before new ones get 503",
+    )
+    serve.add_argument(
+        "--max-request-body-bytes", type=int, default=_DEFAULTS.max_request_body_bytes
+    )
+    serve.add_argument("--max-response-bytes", type=int, default=_DEFAULTS.max_response_bytes)
+    serve.add_argument(
+        "--upstream-timeout",
+        type=float,
+        default=_DEFAULTS.upstream_timeout_seconds,
+        help="seconds to wait for a backend before answering 502",
+    )
+    serve.add_argument("--max-upstream-inflight", type=int, default=_DEFAULTS.max_upstream_inflight)
+    serve.add_argument(
+        "--rate-limit-per-second",
+        type=float,
+        default=_DEFAULTS.rate_limit_per_second,
+        help="sustained requests/second allowed per client address; 0 disables limiting",
+    )
+    serve.add_argument("--rate-limit-burst", type=int, default=_DEFAULTS.rate_limit_burst)
+    serve.add_argument(
+        "--trusted-proxy-hops",
+        type=int,
+        default=0,
+        help=(
+            "number of trusted reverse proxies in front of this gateway; the client "
+            "address is then read from that many entries from the right of "
+            "X-Forwarded-For. 0 (the default) ignores X-Forwarded-For entirely"
+        ),
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -65,33 +137,35 @@ def main(argv: list[str] | None = None) -> int:
                 f"{args.dist} is not a directory -- has the frontend actually "
                 f"been built ('npm run build' in frontend/)?"
             )
-        app = WebGatewayService(args.dist, args.jobs_url, args.dashboard_url)
+        if args.max_connections < 1:
+            raise ValueError("--max-connections must be positive")
+        config = GatewayConfig(
+            max_request_body_bytes=args.max_request_body_bytes,
+            max_response_bytes=args.max_response_bytes,
+            upstream_timeout_seconds=args.upstream_timeout,
+            max_upstream_inflight=args.max_upstream_inflight,
+            rate_limit_per_second=args.rate_limit_per_second,
+            rate_limit_burst=args.rate_limit_burst,
+            trusted_proxy_hops=args.trusted_proxy_hops,
+        )
+        app = WebGatewayService(args.dist, args.jobs_url, args.dashboard_url, config=config)
         import uvicorn
 
         logging.basicConfig(level=logging.INFO, format="%(message)s")
-        print(f"serving on http://{args.host}:{args.port}")
+        scheme = "https" if args.tls_cert else "http"
+        print(f"serving on {scheme}://{args.host}:{args.port}")
         print(f"  static root:   {args.dist}")
         print(f"  jobs API:      {args.jobs_url} (proxied at /api/jobs)")
         print(f"  dashboard:     {args.dashboard_url} (proxied at /api/dashboard)")
         uvicorn.run(
             app,
-            host=args.host,
-            port=args.port,
-            workers=1,
-            loop="asyncio",
-            http="h11",
-            ws="none",
-            interface="asgi3",
-            lifespan="on",
-            proxy_headers=False,
-            access_log=False,
-            limit_concurrency=32,
-            backlog=64,
-            timeout_keep_alive=5,
-            timeout_graceful_shutdown=20,
-            h11_max_incomplete_event_size=16384,
-            ssl_certfile=str(args.tls_cert) if args.tls_cert else None,
-            ssl_keyfile=str(args.tls_key) if args.tls_key else None,
+            **uvicorn_options(
+                host=args.host,
+                port=args.port,
+                tls_cert=args.tls_cert,
+                tls_key=args.tls_key,
+                max_connections=args.max_connections,
+            ),
         )
     except (ValueError, OSError) as exc:
         parser.error(str(exc))

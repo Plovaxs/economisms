@@ -7798,6 +7798,74 @@ sandbox. 25 new tests (`test_trading_readiness_fault_injection.py`,
 `test_trading_readiness_charter_guard.py`); `ruff check`/`mypy --strict`
 clean.
 
+## Evidenced today (PR-191: gateway security hardening -- strengthens SEC-05, SEC-11 and SEC-01; no new blueprint ID closed)
+
+Prompted by the request to make the project "fully production-ready," more
+secure and "overengineered." Scoped to what is real: this hardens the
+*deployable software* -- `prometheus.webgateway` (PR-187), how it reaches
+the two backends, and how the frontend is delivered. It does not lift, and
+cannot lift, this project's NO-GO gate: what still blocks that (an
+independent penetration test, SEC-14; a real legal opinion, EXT-02;
+independent model validation, EXT-09) are institutional artifacts no pull
+request can produce.
+
+The gateway and both backends were audited read-only, and every suspected
+defect was confirmed against the real, unmodified code before anything was
+changed. The headline finding: the gateway built the upstream URL by
+prefix-matching and string concatenation, so a client chose the
+*authority* of the URL it requested. Reproduced over a real uvicorn
+socket: `/api/jobs.attacker.example/x` against a portless upstream
+(`--jobs-url http://jobs-api`) made the gateway resolve and dial
+`jobs-api.attacker.example`, and its 502 body echoed the internal URL. The
+`@` form (`/api/jobs@evil.example/x`) builds a URL whose RFC 3986 host is
+`evil.example`; on CPython 3.14 `urllib` fails that as a DNS error rather
+than connecting -- an earlier read of this finding overstated it as a
+direct SSRF, and the real-socket run corrected it. Also confirmed: the
+`urllib` transport followed redirects and re-sent the caller's
+`Authorization` header to the redirect target (two real local servers),
+honours `http_proxy` and speaks `file:`; blocking socket I/O on the event
+loop froze every request behind one slow backend call; request and
+response bodies were unbounded; there were no security headers; and a NUL
+byte or a non-ASCII query raised an unhandled exception.
+
+What was built, all under `src/prometheus/webgateway/`: `routing.py` (a
+pure closed grammar and whole-segment routing -- the client's
+still-encoded path is forwarded, dot-segments/encoded slashes/NUL/`?`/`#`
+are rejected), `proxy.py` (an `http.client` transport that never follows
+redirects, never reads proxy environment variables, can be pinned to the
+two configured origins, caps responses while streaming and enforces a
+total deadline), `headers.py` (security headers on every response, a CSP
+with no third-party origin and no `unsafe-*` source, enforced headers
+replaced rather than merged), `ratelimit.py` (a bounded per-client token
+bucket), and a rebuilt `app.py` pipeline (body caps, bounded upstream
+concurrency off the event loop, generic 500s, a structured access log with
+no query string or credential). Frontend fonts are now self-hosted
+(`@fontsource/*`), which is what lets the CSP forbid every third party.
+Verified by 281 tests in 8 files (up from 28 in 4) -- including Hypothesis
+properties over arbitrary input and 21 raw-socket tests against a real
+uvicorn on the production options -- and in a real Firefox session
+against the real stack: all 18 routes rendered with zero CSP violations
+and zero cross-origin requests, and a real `neural_sde` job submitted
+through the UI completed. That session also found a bug no unit test had
+(two `Date` headers on every proxied response), now pinned by a test.
+
+| ID | Acceptance criterion | Evidence |
+|---|---|---|
+| SEC-05 (strengthened, partial) | transport controls; spoofed forwarding is ignored | `webgateway.routing`/`proxy`/`headers` plus `app`: a closed request-target grammar, a transport that never follows redirects or reads proxy environment variables, HSTS and `upgrade-insecure-requests` only over HTTPS, no forwarding header trusted unless `--trusted-proxy-hops` is set; 281 `test_webgateway_*.py` tests incl. a real-uvicorn raw-socket suite; deployed certificates, key management and encrypted-at-rest controls remain unverified (unchanged) |
+| SEC-11 (strengthened, partial) | rate-limiting, per-tenant budgets, load test | `webgateway.ratelimit.TokenBucketLimiter`, a per-client edge limiter in front of `service.application.Admission`'s pre-authentication global bucket (which an unauthenticated flood could otherwise exhaust); memory bounded (`max_keys`, idle reclamation, a shared overflow bucket), IPv6 keyed by /64; Hypothesis-checked bounds; process-local like the service's own limits, so a single gateway process only |
+| SEC-01 (extended) | threat model with assets, trust boundaries, misuse cases | `docs/THREAT_MODEL.md` gains the gateway trust boundary and six misuse cases (authority injection, redirect credential re-send, pre-auth budget exhaustion, body/slow-backend resource pressure, script injection, log forging), including the finding that the first gateway was confirmed vulnerable; still not independently reviewed |
+
+Not covered: limits are process-local, so this is a single-host gateway,
+not a horizontally-scaled one; uvicorn has no header-read timeout, so
+slow-header connections are bounded only by `--max-connections`; no WAF;
+the CSP was verified on Firefox only; `dashboard.app` and
+`service.application` were audited but not changed here (unbounded numeric
+query parameters and event-loop compute in the dashboard, an unescaped
+message in its HTML error pages, and the service's pre-authentication
+global bucket are carried to the following PRs); live dependency-CVE
+scanning remains open (SEC-07); SEC-14 (an independent penetration test)
+cannot be self-performed.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.
@@ -7810,7 +7878,7 @@ clean.
 - `orchestration.demo_run.run_demo` (PR-011) remains a separate hard-coded pipeline. PR-015's packaged monthly scenario uses `StepHooks`, but only for one firm, two households, one European option and a classical single-asset GBM. No general scheduler, shared economic/hedging balance sheet or full dynamic-policy conditional-risk forecast exists.
 - No GRU/LSTM, actor-critic or robust-policy hedging families (section 07's table) -- only the MLP family.
 - Risk-neutral calibration (PR-022) covers only implied volatility, per quote, independently across strikes: `risk_free_rate` is still supplied directly, there is no smoothed/parametric surface, no cross-strike arbitrage-free-fit check, and no other code in this repository (hedging, benchmarks, the monetary/rate studies) consumes a calibrated value instead of a directly-supplied one.
-- The PR-174 React frontend's `npm run dev` build was, until PR-187, the only way to run it -- `npm run build`'s output went unused by anything in this repository. PR-187's `prometheus.webgateway` now serves `frontend/dist/` for real (a reverse-proxy gateway replaying Vite's own dev-proxy rewrites) and a `Dockerfile`/`docker-compose.yml` run the whole stack with nothing installed locally but Docker. Still a local research/demo tool (loopback by default; the published demo port is the one explicit, disclosed exception -- see the gateway's own module docstring and `docker-compose.yml`'s comments for exactly why), not a production deployment: no TLS termination, no multi-tenant routing, no autoscaling, nothing this repository's own NO-GO gate decision doesn't already cover. The `marl`/`rl_hedge` job kinds expose only a single `seed` field where the underlying `single_vs_colearning_report`/sensitivity functions can accept multiple seeds for a genuine multi-seed stability check -- a deliberate, disclosed scope cut to keep each job's config simple, not a limitation of the underlying primitives themselves.
+- The PR-174 React frontend's `npm run dev` build was, until PR-187, the only way to run it -- `npm run build`'s output went unused by anything in this repository. PR-187's `prometheus.webgateway` now serves `frontend/dist/` for real (a reverse-proxy gateway replaying Vite's own dev-proxy rewrites) and a `Dockerfile`/`docker-compose.yml` run the whole stack with nothing installed locally but Docker. Still a local research/demo tool (loopback by default; the published demo port is the one explicit, disclosed exception -- see the gateway's own module docstring and `docker-compose.yml`'s comments for exactly why), not a production deployment: no TLS termination of its own beyond `--tls-cert`/`--tls-key`, no multi-tenant routing, no autoscaling, nothing this repository's own NO-GO gate decision doesn't already cover. PR-191 hardened the gateway's edge (see its section above) without changing that: its limits are process-local and it is a single-host gateway. The `marl`/`rl_hedge` job kinds expose only a single `seed` field where the underlying `single_vs_colearning_report`/sensitivity functions can accept multiple seeds for a genuine multi-seed stability check -- a deliberate, disclosed scope cut to keep each job's config simple, not a limitation of the underlying primitives themselves.
 - No independent review of any item above — "evidenced" here means "covered by a passing automated test in this repository," not peer- or reviewer-approved per the blueprint's own evidence standard.
 
 ## How to verify the evidence above yourself

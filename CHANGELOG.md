@@ -14,6 +14,58 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
+## [Unreleased]
+
+### Security
+- **The web gateway was rewritten around a closed request-target grammar (PR-191).**
+  It used to build the upstream URL by prefix-matching and string
+  concatenation, so a client chose the authority of the URL the gateway
+  requested -- confirmed over a real socket: `/api/jobs.attacker.example/x`
+  against a portless upstream made it resolve and dial
+  `jobs-api.attacker.example`, and its 502 body echoed the internal upstream
+  URL. Routing is now a pure function (`webgateway/routing.py`) that matches
+  whole path segments only, rejects rather than "cleans" anything outside RFC
+  3986's path grammar (dot-segments, encoded slashes, NUL, `?`/`#`, non-ASCII),
+  forwards the client's still-encoded path, and has its final URL authority
+  re-checked against the configured upstream; a Hypothesis property test
+  proves a routed path can never change the authority, escape its prefix or
+  carry a query/fragment, for arbitrary input.
+- **A hardened upstream transport.** The old `urllib` transport followed
+  redirects (re-sending the caller's `Authorization` header to the redirect
+  target and hiding the 3xx from the client), honoured `http_proxy`, spoke
+  `file:`/`ftp:`, and buffered without limit. The replacement
+  (`webgateway/proxy.py`, on `http.client`) never follows a redirect, never
+  reads proxy environment variables, speaks http(s) only, can be pinned to the
+  two configured origins, caps response size while streaming and enforces a
+  total deadline, and returns generic error text.
+- **Edge controls.** Per-client token-bucket rate limiting (memory-bounded; it
+  sits in front of the backends' pre-authentication shared budget, which an
+  unauthenticated flood could otherwise exhaust), request and response body
+  ceilings, a bounded number of in-flight upstream calls, and proxied calls
+  moved off the event loop (one slow backend response used to freeze every
+  request, the health probe included).
+- **Security headers on every response**: a Content-Security-Policy with no
+  third-party origin and no `unsafe-*` source, `nosniff`, frame `DENY`,
+  `no-referrer`, a deny-all `Permissions-Policy`, COOP/CORP `same-origin`, HSTS
+  over HTTPS only. Enforced headers are replaced, never merged, so a backend
+  cannot weaken them; server banners are dropped.
+- **Fonts are self-hosted** (`@fontsource/inter`, `@fontsource/jetbrains-mono`)
+  instead of loaded from Google Fonts on every page load -- which is what makes
+  the strict CSP possible, and means the UI no longer contacts a third party.
+
+### Fixed
+- Every proxied response carried two `Date` headers (found by driving the real
+  stack in a browser, not by a unit test).
+- A missing `/assets/x.js` was answered with the HTML shell and status 200, and
+  so was any unknown `/api/*` path; both are now JSON/plain 404s. Static MIME
+  types come from a fixed table instead of the host's mime database.
+- A non-ASCII query string or a NUL byte in a static path raised an unhandled
+  exception; both are now clean 400s.
+
+Python test suite: 3,434/3,434 passing, 12 skipped by design (was 3,181 + 12
+skipped; the gateway's tests went from 28 in 4 files to 281 in 8). Frontend
+test suite: 21/21 passing.
+
 ## [0.2.0] -- 2026-11-18 -- a "feels like real software" pass: error handling, a CLI, and the project's first version bump (PR-190)
 
 ### Added

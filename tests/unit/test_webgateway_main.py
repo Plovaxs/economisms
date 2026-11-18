@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from prometheus.webgateway.__main__ import main
+from prometheus.webgateway.__main__ import main, uvicorn_options
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def dist_root(tmp_path):
 
 def _mock_uvicorn_run(monkeypatch):
     calls = []
-    monkeypatch.setattr("uvicorn.run", lambda app, **kwargs: calls.append(kwargs))
+    monkeypatch.setattr("uvicorn.run", lambda app, **kwargs: calls.append({"app": app, **kwargs}))
     return calls
 
 
@@ -89,3 +89,88 @@ def test_a_dist_root_that_was_never_built_is_rejected(tmp_path, monkeypatch) -> 
     _mock_uvicorn_run(monkeypatch)
     with pytest.raises(SystemExit):
         main(["serve", "--dist", str(tmp_path / "never-built")])
+
+
+def test_the_shipped_uvicorn_options_are_hardened(dist_root, monkeypatch) -> None:
+    calls = _mock_uvicorn_run(monkeypatch)
+    assert main(["serve", "--dist", str(dist_root)]) == 0
+    options = calls[0]
+    assert options["server_header"] is False
+    assert options["proxy_headers"] is False
+    assert options["access_log"] is False
+    assert options["ws"] == "none"
+    assert options["workers"] == 1
+    assert options["limit_concurrency"] == 128
+    assert options["timeout_keep_alive"] == 5
+    assert options["ssl_certfile"] is None
+
+
+def test_uvicorn_options_are_one_shared_function_so_tests_run_the_shipped_config() -> None:
+    options = uvicorn_options(
+        host="127.0.0.1", port=0, tls_cert=None, tls_key=None, max_connections=7
+    )
+    assert options["limit_concurrency"] == 7
+    assert options["server_header"] is False
+
+
+def test_tuning_flags_reach_the_app_config(dist_root, monkeypatch) -> None:
+    calls = _mock_uvicorn_run(monkeypatch)
+    main(
+        [
+            "serve",
+            "--dist",
+            str(dist_root),
+            "--max-connections",
+            "9",
+            "--max-request-body-bytes",
+            "2048",
+            "--max-response-bytes",
+            "4096",
+            "--upstream-timeout",
+            "7.5",
+            "--max-upstream-inflight",
+            "3",
+            "--rate-limit-per-second",
+            "2.5",
+            "--rate-limit-burst",
+            "11",
+            "--trusted-proxy-hops",
+            "2",
+        ]
+    )
+    config = calls[0]["app"].config
+    assert calls[0]["limit_concurrency"] == 9
+    assert config.max_request_body_bytes == 2048
+    assert config.max_response_bytes == 4096
+    assert config.upstream_timeout_seconds == 7.5
+    assert config.max_upstream_inflight == 3
+    assert config.rate_limit_per_second == 2.5
+    assert config.rate_limit_burst == 11
+    assert config.trusted_proxy_hops == 2
+
+
+def test_rate_limiting_is_on_by_default_and_trusts_no_proxy(dist_root, monkeypatch) -> None:
+    calls = _mock_uvicorn_run(monkeypatch)
+    main(["serve", "--dist", str(dist_root)])
+    app = calls[0]["app"]
+    assert app.limiter is not None
+    assert app.config.trusted_proxy_hops == 0
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        ["--max-connections", "0"],
+        ["--trusted-proxy-hops", "99"],
+        ["--rate-limit-per-second", "-1"],
+        ["--rate-limit-burst", "0"],
+        ["--upstream-timeout", "0"],
+        ["--max-request-body-bytes", "0"],
+        ["--jobs-url", "http://user:pw@127.0.0.1:1"],
+        ["--dashboard-url", "ftp://127.0.0.1:1"],
+    ],
+)
+def test_nonsense_tuning_values_are_rejected_at_startup(dist_root, monkeypatch, bad) -> None:
+    _mock_uvicorn_run(monkeypatch)
+    with pytest.raises(SystemExit):
+        main(["serve", "--dist", str(dist_root), *bad])

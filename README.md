@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C181%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C434%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.2.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
@@ -56,7 +56,13 @@ subsystems behind that one evidence discipline:
   `./run_dev.sh` starts the whole stack with one command; see
   [frontend/README.md](./frontend/README.md). `docker compose up --build`
   runs the already-built artifact with nothing installed locally but
-  Docker, via a `prometheus.webgateway` reverse-proxy service.
+  Docker, via a `prometheus.webgateway` reverse-proxy service -- which is
+  also the deployment's hardened edge: a closed request-target grammar,
+  per-client rate limiting, bounded bodies, security headers and a
+  Content-Security-Policy with no third-party origin (see
+  [SECURITY.md](./SECURITY.md) and
+  [docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md)). The project's NO-GO
+  gate for live trading is unchanged by any of it.
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
@@ -119,9 +125,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,181 / 3,181** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **3,434 / 3,434** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 190, each independently verified |
+| Pull requests | 191, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

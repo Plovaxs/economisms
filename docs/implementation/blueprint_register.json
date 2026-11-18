@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "37c14d7dd254c256979ad05251017bef09c02d06d0289aae7d49430835515435",
+    "content_sha256": "c610676ca0be71e57a7fc8ca0dbb54efd57e23691e460cb86f659d62375dce73",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "80a7a4da1e3252b99d31c747e83f86c990b5c2a29c5875316afb1c472add1497",
+  "checklist_notes_sha256": "4f32db9e6d71fbf8e3ffd924b669f413ded5bb6152a0669d17f2a65d3e7bf036",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6436,6 +6436,12 @@
           "evidence_note": "`docs/THREAT_MODEL.md`",
           "id_column": "SEC-01 (first evidence)",
           "requirement_note": "threat model with assets, trust boundaries, misuse cases"
+        },
+        {
+          "checklist_line": 7856,
+          "evidence_note": "`docs/THREAT_MODEL.md` gains the gateway trust boundary and six misuse cases (authority injection, redirect credential re-send, pre-auth budget exhaustion, body/slow-backend resource pressure, script injection, log forging), including the finding that the first gateway was confirmed vulnerable; still not independently reviewed",
+          "id_column": "SEC-01 (extended)",
+          "requirement_note": "threat model with assets, trust boundaries, misuse cases"
         }
       ],
       "requirement": "Create threat model with assets, trust boundaries and misuse cases",
@@ -6538,6 +6544,12 @@
           "evidence_note": "corruption/wrong-key/pin tests, fresh nonce, bounded regular-file key guard, no secret/recipe in CLI receipts; primary-storage encryption and deployed key-management verification remain open",
           "id_column": "SEC-05 (extended, partial)",
           "requirement_note": "local backup encryption and private binary key handling"
+        },
+        {
+          "checklist_line": 7854,
+          "evidence_note": "`webgateway.routing`/`proxy`/`headers` plus `app`: a closed request-target grammar, a transport that never follows redirects or reads proxy environment variables, HSTS and `upgrade-insecure-requests` only over HTTPS, no forwarding header trusted unless `--trusted-proxy-hops` is set; 281 `test_webgateway_*.py` tests incl. a real-uvicorn raw-socket suite; deployed certificates, key management and encrypted-at-rest controls remain unverified (unchanged)",
+          "id_column": "SEC-05 (strengthened, partial)",
+          "requirement_note": "transport controls; spoofed forwarding is ignored"
         }
       ],
       "requirement": "Encrypt transit and storage with documented key ownership",
@@ -6687,6 +6699,12 @@
           "checklist_line": 6714,
           "evidence_note": "pre-existing `service.application.Admission` + `test_service_http.py` (REL-10)",
           "id_column": "SEC-11 (first credited)",
+          "requirement_note": "rate-limiting, per-tenant budgets, load test"
+        },
+        {
+          "checklist_line": 7855,
+          "evidence_note": "`webgateway.ratelimit.TokenBucketLimiter`, a per-client edge limiter in front of `service.application.Admission`'s pre-authentication global bucket (which an unauthenticated flood could otherwise exhaust); memory bounded (`max_keys`, idle reclamation, a shared overflow bucket), IPv6 keyed by /64; Hypothesis-checked bounds; process-local like the service's own limits, so a single gateway process only",
+          "id_column": "SEC-11 (strengthened, partial)",
           "requirement_note": "rate-limiting, per-tenant budgets, load test"
         }
       ],
