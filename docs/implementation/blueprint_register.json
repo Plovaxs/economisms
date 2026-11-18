@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "a75e698c06054d3812c3e47f74daae06c41a47c8b7b516026d2db4207a248a90",
+    "content_sha256": "4c1a481375b7ad437f9fee32a018ce05d6b534480e5dbf55ba4c70985d484f30",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "2b6ba2af5f90899beee480cf4fc0f9b6e1764fb88c5d681d3d43d6e4c78a1c1d",
+  "checklist_notes_sha256": "7e400c90595cb26a7ce0087e21a02b1ae694b863b4a231c98088d11d83f5baa4",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -6472,6 +6472,12 @@
           "evidence_note": "live GitHub branch protection: `required_pull_request_reviews` added; signing/admin-enforcement not covered",
           "id_column": "SEC-02 (first credited, partial)",
           "requirement_note": "protected branches, peer-reviewed merges"
+        },
+        {
+          "checklist_line": 7941,
+          "evidence_note": "every workflow pins each action to a full commit SHA, declares read-only permissions, bounds each job, never persists the checkout token and uses no `pull_request_target` (`tests/unit/test_supply_chain_posture.py`); the branch-protection half is unchanged (required reviews, four test contexts, `enforce_admins` off) and the new scanners are NOT required checks -- a repository setting this code cannot assert",
+          "id_column": "SEC-02 (strengthened, partial)",
+          "requirement_note": "protected branches, peer-reviewed merges, hardened CI"
         }
       ],
       "requirement": "Require protected branches and peer-reviewed merges",
@@ -6556,6 +6562,12 @@
           "evidence_note": "`webgateway.routing`/`proxy`/`headers` plus `app`: a closed request-target grammar, a transport that never follows redirects or reads proxy environment variables, HSTS and `upgrade-insecure-requests` only over HTTPS, no forwarding header trusted unless `--trusted-proxy-hops` is set; 281 `test_webgateway_*.py` tests incl. a real-uvicorn raw-socket suite; deployed certificates, key management and encrypted-at-rest controls remain unverified (unchanged)",
           "id_column": "SEC-05 (strengthened, partial)",
           "requirement_note": "transport controls; spoofed forwarding is ignored"
+        },
+        {
+          "checklist_line": 7942,
+          "evidence_note": "DEPLOYED TLS is now observed, not assumed: real handshakes against a real uvicorn (TLS 1.2 and 1.3 negotiate, minimum protocol TLS 1.2, untrusted certificate refused, cleartext on the TLS port not answered, HSTS only over HTTPS -- `tests/unit/test_webgateway_tls.py`) and a CI job that runs `docker-compose.prod.yml` with a throwaway certificate; certificate issuance, rotation and key management remain the operator's and unverified",
+          "id_column": "SEC-05 (strengthened, partial)",
+          "requirement_note": "transport controls"
         }
       ],
       "requirement": "Encrypt transit and storage with documented key ownership",
@@ -6604,6 +6616,12 @@
           "evidence_note": "pre-existing SBOM credited; container pinning N/A; vuln reports open",
           "id_column": "SEC-07 (first evidence, partial)",
           "requirement_note": "container images pinned, SBOM/vuln reports"
+        },
+        {
+          "checklist_line": 7940,
+          "evidence_note": "both base images pinned by digest (`Dockerfile`; `tests/unit/test_container_posture.py`) -- the earlier \"container pinning N/A\" no longer applies, a Dockerfile exists; vulnerability reports exist as `.github/workflows/security.yml` (pip-audit over every locked requirement, all extras and groups, `npm audit`, Trivy on the image), weekly and on dependency changes, with the first real results triaged and fixed (PR-193); the SBOM is regenerated at 0.3.0; no image SBOM, no signing or provenance attestation, and a scanner only knows PUBLISHED advisories",
+          "id_column": "SEC-07 (strengthened, partial)",
+          "requirement_note": "pin container base images, SBOM, vulnerability reports"
         }
       ],
       "requirement": "Pin container base images and scan dependencies",
@@ -6807,6 +6825,12 @@
           "evidence_note": "`SECURITY.md` response-owner/patch-cadence section",
           "id_column": "SEC-15 (first evidence)",
           "requirement_note": "vulnerability disclosure and patch cadence documented"
+        },
+        {
+          "checklist_line": 7943,
+          "evidence_note": "`SECURITY.md`'s patch-cadence section previously said no automated advisory feed existed; a scheduled workflow and Dependabot now exist, and the section is corrected (still no SLA, still a single maintainer)",
+          "id_column": "SEC-15 (strengthened)",
+          "requirement_note": "vulnerability disclosure and patch cadence"
         }
       ],
       "requirement": "Document vulnerability disclosure and patch cadence",
@@ -7546,6 +7570,12 @@
           "checklist_line": 1702,
           "evidence_note": "independent source snapshots, wheel RECORD/source verification, `docs/release/dependency-sbom.cdx.json`; container rebuild, deployed inventory and vulnerability assessment remain open",
           "id_column": "CIQ-06 (partial)",
+          "requirement_note": "repeatable Python wheel and resolved-profile CycloneDX SBOM"
+        },
+        {
+          "checklist_line": 7944,
+          "evidence_note": "the committed SBOM's profile was reproduced exactly from `uv.lock` (27 components, `uv export --locked --extra service --extra recovery --no-dev --format cyclonedx1.5`) and regenerated at 0.3.0 (it still named project version 0.1.0); the wheel's double independent rebuild re-verified byte-identical under the patched build tooling (setuptools 84.2.1, wheel 0.46.3); a vulnerability assessment now exists as scans, not as an independent assessment",
+          "id_column": "CIQ-06 (strengthened, partial)",
           "requirement_note": "repeatable Python wheel and resolved-profile CycloneDX SBOM"
         }
       ],

@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:94823234-2d9d-49c0-bafe-1ff269670d0c",
+  "serialNumber": "urn:uuid:666a32b6-1785-45cc-84fa-e60c265b38c7",
   "metadata": {
-    "timestamp": "2026-11-03T11:15:35.515836402Z",
+    "timestamp": "2026-11-18T20:19:44.058595731Z",
     "tools": [
       {
         "vendor": "Astral Software Inc.",
@@ -14,9 +14,9 @@
     ],
     "component": {
       "type": "library",
-      "bom-ref": "prometheus-econ-1@0.1.0",
+      "bom-ref": "prometheus-econ-1@0.3.0",
       "name": "prometheus-econ",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "properties": [
         {
           "name": "uv:package:is_project_root",
@@ -7085,28 +7085,28 @@
     },
     {
       "type": "library",
-      "bom-ref": "setuptools-23@78.1.0",
+      "bom-ref": "setuptools-23@84.2.1",
       "name": "setuptools",
-      "version": "78.1.0",
-      "purl": "pkg:pypi/setuptools@78.1.0",
+      "version": "84.2.1",
+      "purl": "pkg:pypi/setuptools@84.2.1",
       "externalReferences": [
         {
           "type": "distribution",
-          "url": "https://files.pythonhosted.org/packages/a9/5a/0db4da3bc908df06e5efae42b44e75c81dd52716e10192ff36d0c1c8e379/setuptools-78.1.0.tar.gz",
+          "url": "https://files.pythonhosted.org/packages/70/b3/c19426f783614d625699a4b247faf628ea9ab1db228674491767b417f9e1/setuptools-84.2.1.tar.gz",
           "hashes": [
             {
               "alg": "SHA-256",
-              "content": "18fd474d4a82a5f83dac888df697af65afa82dec7323d09c3e37d1f14288da54"
+              "content": "3ff8b3b5492a0aa66960f4419365a86b84e013070d4313e4d4a6894f5d64d6bc"
             }
           ]
         },
         {
           "type": "distribution",
-          "url": "https://files.pythonhosted.org/packages/54/21/f43f0a1fa8b06b32812e0975981f4677d28e0f3271601dc88ac5a5b83220/setuptools-78.1.0-py3-none-any.whl",
+          "url": "https://files.pythonhosted.org/packages/ef/55/6dc6d6bb953bdfc52519a0059592c52b6e3b8ad51cf8256dffceb55b0610/setuptools-84.2.1-py3-none-any.whl",
           "hashes": [
             {
               "alg": "SHA-256",
-              "content": "3e386e96793c8702ae83d17b853fb93d3e09ef82ec62722e61da5cd22376dcd8"
+              "content": "ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2"
             }
           ]
         }
@@ -7658,6 +7658,21 @@
       "ref": "numpy-17@2.5.4"
     },
     {
+      "ref": "prometheus-econ-1@0.3.0",
+      "dependsOn": [
+        "cryptography-5@50.0.2",
+        "jsonschema-10@4.26.0",
+        "numpy-16@2.4.6",
+        "numpy-17@2.5.4",
+        "scipy-21@1.17.1",
+        "scipy-22@1.18.1",
+        "setuptools-23@84.2.1",
+        "torch-25@2.15.0",
+        "torch-26@2.15.0+cpu",
+        "uvicorn-28@0.54.0"
+      ]
+    },
+    {
       "ref": "pycparser-18@3.12"
     },
     {
@@ -7684,7 +7699,7 @@
       ]
     },
     {
-      "ref": "setuptools-23@78.1.0"
+      "ref": "setuptools-23@84.2.1"
     },
     {
       "ref": "sympy-24@1.14.0",
@@ -7700,7 +7715,7 @@
         "jinja2-9@3.1.6",
         "networkx-14@3.6.1",
         "networkx-15@3.7",
-        "setuptools-23@78.1.0",
+        "setuptools-23@84.2.1",
         "sympy-24@1.14.0",
         "typing-extensions-27@4.16.0"
       ]
@@ -7713,7 +7728,7 @@
         "jinja2-9@3.1.6",
         "networkx-14@3.6.1",
         "networkx-15@3.7",
-        "setuptools-23@78.1.0",
+        "setuptools-23@84.2.1",
         "sympy-24@1.14.0",
         "typing-extensions-27@4.16.0"
       ]

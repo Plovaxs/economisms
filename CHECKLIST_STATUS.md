@@ -7903,6 +7903,52 @@ subprocess hits in the job runtime were read and are safe, the remaining
 remains open (SEC-07); SEC-14 (an independent penetration test) cannot be
 self-performed.
 
+## Evidenced today (PR-193 through PR-195: supply-chain security, container hardening and gateway operations depth -- strengthens SEC-07, SEC-02, SEC-05, SEC-15 and CIQ-06; no new blueprint ID closed)
+
+Completes the "production-grade security" pass begun in PR-191/192, scoped as
+before to the *deployable software and its pipeline* -- it does not and cannot
+lift this project's NO-GO gate.
+
+**PR-193** put the repository's own supply chain under continuous scanning: a
+`security` workflow (pip-audit over every locked Python requirement, `npm
+audit` plus signature verification, Trivy over the built image) that also runs
+weekly, CodeQL for Python and TypeScript, Dependabot (grouped minor/patch only),
+every workflow's actions pinned to full commit SHAs with read-only tokens, job
+timeouts and no persisted credentials, and ruff's security rules. Its first
+real runs found real things: 16 frontend vulnerabilities (3 HIGH in the
+production router, `react-router-dom` 6.28.0 -- now 0 production findings), 6
+advisories in the pinned build tooling (`setuptools` 78.1.0, `wheel` 0.45.1 --
+patched, with the reproducible-build verification re-run), a gap in the ingestion
+transport (it would have fetched `file:`/`ftp:` URLs -- now https-only), one
+CodeQL alert in a test, and an end-of-life Node 20. Nothing else in the locked
+Python requirements had a known advisory.
+
+**PR-194** fixed the container: the image ran as root, its bases were pinned
+only by tag, it carried the build toolchain and the `dev` extra into a runtime
+that builds nothing, and its cleartext port was bound on every interface. It is
+now an unprivileged image (uid 10001, `/data` image-owned so a fresh volume
+inherits it) of digest-pinned bases and hash-verified wheels only, run with a
+read-only root, no capabilities, `no-new-privileges`, init, limits, rotated logs,
+health checks and a loopback-only port, plus a real TLS overlay. The CI job
+asserts those properties on the REAL containers, and 8 tests complete real TLS
+handshakes. **PR-195** added operations depth (a bounded static cache with ETag,
+gzip and 304; `/health/ready`; a graceful-shutdown test against a real process)
+and `docs/DEPLOYMENT.md`.
+
+| ID | Acceptance criterion | Evidence |
+|---|---|---|
+| SEC-07 (strengthened, partial) | pin container base images, SBOM, vulnerability reports | both base images pinned by digest (`Dockerfile`; `tests/unit/test_container_posture.py`) -- the earlier "container pinning N/A" no longer applies, a Dockerfile exists; vulnerability reports exist as `.github/workflows/security.yml` (pip-audit over every locked requirement, all extras and groups, `npm audit`, Trivy on the image), weekly and on dependency changes, with the first real results triaged and fixed (PR-193); the SBOM is regenerated at 0.3.0; no image SBOM, no signing or provenance attestation, and a scanner only knows PUBLISHED advisories |
+| SEC-02 (strengthened, partial) | protected branches, peer-reviewed merges, hardened CI | every workflow pins each action to a full commit SHA, declares read-only permissions, bounds each job, never persists the checkout token and uses no `pull_request_target` (`tests/unit/test_supply_chain_posture.py`); the branch-protection half is unchanged (required reviews, four test contexts, `enforce_admins` off) and the new scanners are NOT required checks -- a repository setting this code cannot assert |
+| SEC-05 (strengthened, partial) | transport controls | DEPLOYED TLS is now observed, not assumed: real handshakes against a real uvicorn (TLS 1.2 and 1.3 negotiate, minimum protocol TLS 1.2, untrusted certificate refused, cleartext on the TLS port not answered, HSTS only over HTTPS -- `tests/unit/test_webgateway_tls.py`) and a CI job that runs `docker-compose.prod.yml` with a throwaway certificate; certificate issuance, rotation and key management remain the operator's and unverified |
+| SEC-15 (strengthened) | vulnerability disclosure and patch cadence | `SECURITY.md`'s patch-cadence section previously said no automated advisory feed existed; a scheduled workflow and Dependabot now exist, and the section is corrected (still no SLA, still a single maintainer) |
+| CIQ-06 (strengthened, partial) | repeatable Python wheel and resolved-profile CycloneDX SBOM | the committed SBOM's profile was reproduced exactly from `uv.lock` (27 components, `uv export --locked --extra service --extra recovery --no-dev --format cyclonedx1.5`) and regenerated at 0.3.0 (it still named project version 0.1.0); the wheel's double independent rebuild re-verified byte-identical under the patched build tooling (setuptools 84.2.1, wheel 0.46.3); a vulnerability assessment now exists as scans, not as an independent assessment |
+
+Not covered: the 6 moderate DEV-only npm findings (`@typescript-eslint` /
+`minimatch` ReDoS) remain, the numerics stack is excluded from automated updates
+so its advisories are a manual watch, no image signing or provenance, no custom
+seccomp/AppArmor profile, a single-host stack with process-local limits, SSO and
+MFA, and SEC-14 (an independent penetration test) cannot be self-performed.
+
 ## Explicitly NOT done (do not infer otherwise)
 
 - No fixed-payment/level-principal amortization schedule (LED-05 covers capitalizing-compound accrual only). Multi-creditor insolvency now exists (`econosim.insolvency`, PR-049) but only resolves claims the caller has already broken out per creditor; it does not discover per-creditor exposure from the ledger's pooled borrower liability account on its own.

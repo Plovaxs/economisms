@@ -60,12 +60,15 @@ than as a fabricated SLA: a confirmed vulnerability in this project's own
 code is fixed and merged to `main` (this repository has no separate
 release-branch cadence to patch against) at the next available working
 session; there is no guaranteed turnaround time. Dependency advisories are
-addressed by bumping the pinned version in `uv.lock` once a confirmed fix
-is available upstream — this repository does not currently run an
-automated live-CVE feed (see
-[docs/SECURITY_AND_DATA_HANDLING.md](./docs/SECURITY_AND_DATA_HANDLING.md)
-for why), so a dependency vulnerability is addressed when reported or
-discovered during a dependency bump, not necessarily proactively.
+addressed by bumping the pinned version in `uv.lock` (or `frontend/package-lock.json`)
+once a confirmed fix is available upstream. A scheduled CI workflow
+([`security.yml`](./.github/workflows/security.yml): pip-audit over every locked
+Python requirement, `npm audit` with signature verification, and Trivy over the built
+image) runs weekly and on every change to what gets installed, CodeQL analyses the
+sources, and Dependabot proposes grouped minor/patch updates -- so a new advisory is
+noticed proactively, and a finding is fixed in the next working session after it is
+seen (still no SLA). The scan is not part of the hermetic test suite, and it only knows
+advisories that have been PUBLISHED.
 
 ## Existing controls (what's already in place, and what isn't)
 
@@ -88,6 +91,16 @@ discovered during a dependency bump, not necessarily proactively.
   from independent source snapshots to confirm reproducibility
   (`tools/reproducible_build.py`) before installing it with `--no-deps
   --offline`.
+- **Supply-chain controls on CI itself**: every GitHub Action is pinned to a full
+  commit SHA, every workflow declares read-only token permissions, every job has a
+  timeout, the checkout token is not persisted, and no workflow uses
+  `pull_request_target` -- all enforced by `tests/unit/test_supply_chain_posture.py`.
+- **Container hardening** (`Dockerfile`, `docker-compose.yml`): digest-pinned base
+  images, hash-locked wheels only, no build toolchain in the runtime image, an
+  unprivileged user, a read-only root filesystem, every capability dropped,
+  `no-new-privileges`, resource limits, health checks, and a loopback-only published
+  port; `docker-compose.prod.yml` adds TLS. CI asserts these on the real containers.
+  See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 - **Shared hardening** (`prometheus.httpsec`, PR-192): the gateway, the dashboard and
   the job API share one set of response security headers, one bounded
   per-client rate limiter, one bounded executor that keeps blocking work off the
@@ -109,8 +122,7 @@ discovered during a dependency bump, not necessarily proactively.
   timeout, so a TLS-terminating front proxy remains the right answer for
   anything beyond a single host.
 - **Not implemented / not claimed** (see `CHECKLIST_STATUS.md`'s `SEC`
-  category for the current state of each): live dependency-vulnerability
-  scanning, MFA/SSO and branch-commit signing (GitHub account settings,
+  category for the current state of each): MFA/SSO and branch-commit signing (GitHub account settings,
   outside this repository's own code), an independent penetration test
   (SEC-14), and verification of deployed certificates and key management.
   A formal threat model ([docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md)), a

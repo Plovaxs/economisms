@@ -14,9 +14,61 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
-## [Unreleased]
+## [0.3.0] -- 2026-11-18 -- a production-grade security and deployment pass (PR-191 through PR-196)
 
-### Security
+This release hardens the DEPLOYABLE software and its pipeline: the web gateway,
+the dashboard, the job API, the container, the CI, and the dependency supply chain.
+It does not change this project's NO-GO gate for live trading or real capital, whose
+remaining blockers (an independent penetration test, a legal opinion, independent
+model validation) are institutional artifacts no pull request can produce.
+
+### Security (supply chain, containers, operations, fuzzing -- PR-193 through PR-196)
+- **Continuous scanning (PR-193).** A `security` workflow audits every locked Python
+  dependency (pip-audit, hash-locked in its own dependency group), the frontend
+  (`npm audit` plus registry-signature verification) and the built container image
+  (Trivy), weekly and on every change to what gets installed; CodeQL analyses the
+  Python and TypeScript sources; Dependabot proposes grouped minor/patch updates only.
+  Every workflow now pins each action to a full commit SHA, declares read-only
+  permissions, bounds every job with a timeout and stops persisting the checkout token
+  -- all enforced by a mechanical test.
+- **Real vulnerabilities those scanners found, now fixed.** The routing library shipped
+  to every browser (`react-router-dom` 6.28.0) had 3 high advisories: it is now 7.18.5,
+  with 0 production findings (16 -> 6 moderate dev-only), alongside vite 6.4.5, vitest
+  4.1.12 and postcss 8.5.32. The pinned build tooling had 6 advisories (setuptools
+  78.1.0, wheel 0.45.1): now 84.2.1 and 0.46.3, with the byte-identical double-rebuild
+  verification re-run. Node 20, end-of-life since April 2026, is now Node 24. The data
+  ingestion transport would have fetched `file:`/`ftp:` URLs: it is https-only.
+  ruff's security rules are on, with no blanket ignore for `src/`.
+- **Container hardening (PR-194).** The image runs as an unprivileged user (it ran as
+  root) from digest-pinned bases (they were pinned by a mutable tag), installs only
+  hash-locked wheels and no build toolchain, and runs with a read-only root, no Linux
+  capabilities, `no-new-privileges`, an init process, resource limits, rotated logs and
+  health checks. The published port is bound to the host's loopback (it was bound on
+  every interface for a cleartext service). A new `docker-compose.prod.yml` adds real
+  TLS, and CI asserts all of this on the REAL containers and completes real TLS
+  handshakes.
+- **Gateway operations depth (PR-195).** A bounded static cache with ETag, gzip and 304
+  (the 742 kB bundle crosses the wire as 218 kB; a repeat load transfers 0 bytes), a
+  `/health/ready` endpoint that reports which backend is unavailable, a graceful-shutdown
+  test against a real process, and `docs/DEPLOYMENT.md`, the operator's guide.
+- **End-to-end fuzzing (PR-196).** Hypothesis drives about 900 generated requests per run at the
+  gateway, the dashboard and the job API -- arbitrary targets (including a grammar of hostile
+  path segments), headers, queries and bodies -- and checks that none ever reaches an app's
+  catch-all 500, that the gateway never contacts a host but its two configured upstreams, and
+  that the dashboard never reflects caller markup. Nothing was found; it is now a property, and
+  it was shown to fail when the gateway's validation is disabled.
+
+### Fixed (PR-193 through PR-195)
+- A cached 304 response of the HTML shell would have replaced the page's
+  Content-Security-Policy with the API's and blanked it on the next cached load; caught
+  in review before it shipped.
+- Concurrent readiness probes could report a false outage for a healthy system.
+- `SECURITY.md` and `docs/SECURITY_AND_DATA_HANDLING.md` still listed a threat model, an
+  egress allowlist, rate limiting and data classification as missing, and said no
+  advisory feed existed; all were stale and are corrected.
+- The committed SBOM still named project version 0.1.0; it is regenerated from the lock.
+
+### Security (the gateway and dashboard -- PR-191, PR-192)
 - **The web gateway was rewritten around a closed request-target grammar (PR-191).**
   It used to build the upstream URL by prefix-matching and string
   concatenation, so a client chose the authority of the URL the gateway
@@ -52,7 +104,6 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 - **Fonts are self-hosted** (`@fontsource/inter`, `@fontsource/jetbrains-mono`)
   instead of loaded from Google Fonts on every page load -- which is what makes
   the strict CSP possible, and means the UI no longer contacts a third party.
-
 - **The research dashboard was hardened the same way (PR-192).** Every numeric
   query parameter used to go through a bare `int()`/`float()` with no range --
   `portfolio-risk?n=100000000000` made numpy try to allocate 745 GiB (reproduced:
@@ -72,7 +123,7 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   banner is no longer sent by any of them, and the job API gained the standard
   security headers it lacked.
 
-### Fixed
+### Fixed (PR-191, PR-192)
 - The dashboard's HTML error pages reflected caller-supplied text unescaped
   (`model-usage?model_id=<script>...` and `export?view=<img onerror=...>` came
   back with the raw markup; reproduced against the previous code). Hostile
@@ -90,8 +141,8 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 - A non-ASCII query string or a NUL byte in a static path raised an unhandled
   exception; both are now clean 400s.
 
-Python test suite: 3,590/3,590 passing, 12 skipped by design (was 3,181 + 12
-skipped; the gateway's tests went from 28 in 4 files to 281 in 8, and the
+Python test suite: 3,710/3,710 passing, 12 skipped by design (was 3,181 + 12
+skipped at 0.2.0; the gateway's tests went from 28 in 4 files to over 350, and the
 dashboard gained 122). Frontend test suite: 21/21 passing.
 
 ## [0.2.0] -- 2026-11-18 -- a "feels like real software" pass: error handling, a CLI, and the project's first version bump (PR-190)

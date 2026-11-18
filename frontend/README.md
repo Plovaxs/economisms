@@ -105,6 +105,12 @@ Fonts. Anything that needs an inline script/style or an external origin (a CDN
 stylesheet, an analytics snippet) must be added to that policy deliberately,
 not worked around.
 
+## Node version
+
+CI, the npm audit and the container build use Node 24 LTS. Node 20 reached end-of-life
+in April 2026 and receives no security fixes; the toolchain (Vite 6, Vitest 4)
+still runs on it, but do not rely on that for anything you deploy.
+
 ## Scripts
 
 - `npm run dev` -- Vite dev server with the API proxy.

@@ -2,8 +2,8 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C590%20passing-brightgreen)](./docs/PR_LEDGER.md)
-[![Version](https://img.shields.io/badge/version-0.2.0-informational)](./CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C710%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Version](https://img.shields.io/badge/version-0.3.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -62,7 +62,10 @@ subsystems behind that one evidence discipline:
   Content-Security-Policy with no third-party origin (see
   [SECURITY.md](./SECURITY.md) and
   [docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md)). The project's NO-GO
-  gate for live trading is unchanged by any of it.
+  gate for live trading is unchanged by any of it. The container runs as an
+  unprivileged user with a read-only root, no capabilities and health checks, bound to
+  loopback by default, with a real TLS overlay; [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+  is the operator's guide, including what the deployment does NOT give you.
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
@@ -125,9 +128,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,590 / 3,590** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **3,710 / 3,710** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 192, each independently verified |
+| Pull requests | 196, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

@@ -49,7 +49,10 @@ in this project's own workflow (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
 This is deliberately **not** a live-CVE-database vulnerability scan — see
 that module's own docstring for why fabricating results against a
 database that was never actually queried would misrepresent what was
-checked.
+checked. Advisory scanning exists separately, as a CI workflow that really
+queries the advisory databases (`.github/workflows/security.yml`, see
+[SECURITY.md](../SECURITY.md)); it is outside the hermetic test suite on
+purpose, and it only knows advisories that have been published.
 
 ## Data licensing / provenance
 
@@ -79,23 +82,30 @@ software bill of materials is published at
 
 ## What is not implemented, and why that's stated here rather than silently assumed
 
-- **Live vulnerability/dependency CVE scanning** — needs a live, current
-  advisory database this hermetic test environment cannot reliably query.
-- **A formal written threat model** (assets, trust boundaries, misuse
-  cases) — not yet published as a standalone document.
-- **Branch protection / MFA / least-privilege maintainer enforcement** —
-  GitHub organization/account settings outside this repository's own
-  source tree; cannot be proven by a test in this repository.
-- **A network egress allowlist** for data ingestion and model serving —
-  not implemented; every connector in `data_ingestion/` currently reaches
-  whatever host its configuration names.
-- **Per-tenant rate limiting** on the local service — not implemented;
-  it is a single-local-user service today, not a multi-tenant one.
-- **Formal data classification** of confidential portfolio/user data —
-  not implemented; this project does not currently hold real user
-  portfolios or real personal data, only synthetic/public research data.
-- **An independent penetration test** — requires a real external party;
-  nothing in this repository can self-certify this.
+An earlier version of this list named a threat model, a network egress
+allowlist, rate limiting and data classification as missing; all four have
+since been built (see `CHECKLIST_STATUS.md`'s `SEC` rows) and the list had gone
+stale. What is genuinely not in place:
+
+- **Independent review of anything here** — the threat model
+  ([THREAT_MODEL.md](./THREAT_MODEL.md)), the data inventory and every control
+  are authored and maintained alongside the code by a single maintainer.
+- **An independent penetration test** — requires a real external party; nothing
+  in this repository can self-certify this (SEC-14).
+- **MFA, SSO and branch-commit signing** — GitHub account/organization settings
+  outside this repository's source tree. Branch protection with required
+  reviews is configured (SEC-02, partial); admin enforcement is not, and the
+  security scanners are not required status checks.
+- **Verified certificate management** — TLS is observed end to end with real
+  handshakes (SEC-05), but issuance, rotation and revocation are the operator's.
+- **Image signing and provenance attestation, a custom seccomp/AppArmor profile,
+  an image SBOM** — the runtime image is hardened and scanned, not signed.
+- **High availability, distributed rate limiting, a WAF, a secrets manager** —
+  this is a single-host service whose limits are process-local
+  ([DEPLOYMENT.md](./DEPLOYMENT.md)).
+- **Real personal data handling** — this project does not hold real user
+  portfolios or real personal data, only synthetic/public research data, so
+  privacy controls are inventoried rather than exercised.
 
 See `CHECKLIST_STATUS.md`'s `SEC` category for the item-by-item count
 this list corresponds to.
