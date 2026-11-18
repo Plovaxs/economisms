@@ -2,7 +2,8 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C183%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-3%2C181%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -48,7 +49,8 @@ subsystems behind that one evidence discipline:
   trustworthy evidence rather than a demo; and
 - **a real, authenticated research dashboard and a unified React
   frontend** — a separate ASGI service (`python -m prometheus.dashboard
-  serve`) and a Vite + React + TypeScript app (`frontend/`) rendering
+  serve`, or `econosim dashboard serve` once installed — see
+  [below](#cli)) and a Vite + React + TypeScript app (`frontend/`) rendering
   live computed output from every subsystem above, with owner-scoped
   portfolio access and real HTTP authorization boundaries, not a mockup.
   `./run_dev.sh` starts the whole stack with one command; see
@@ -117,13 +119,15 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,183 / 3,183** passing (Python; see `frontend/` for its own separate Vitest suite) |
+| Test suite | **3,181 / 3,181** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 189, each independently verified |
+| Pull requests | 190, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
-was verified, see [docs/PR_LEDGER.md](./docs/PR_LEDGER.md).
+was verified, see [docs/PR_LEDGER.md](./docs/PR_LEDGER.md). For a shorter,
+human-curated summary of what changed and when, see
+[CHANGELOG.md](./CHANGELOG.md).
 
 **Live visual dashboards** (Claude Artifacts, kept in sync with each PR):
 the [blueprint coverage dashboard](https://claude.ai/artifact/HChLfAPJQfvUasBbLP4fxj)
@@ -192,6 +196,26 @@ ML (`pennylane`, `pennylane-lightning` — see
 [`src/prometheus/quantum/`](./src/prometheus/quantum/)). See
 [`pyproject.toml`](./pyproject.toml) for the full dependency and extras
 list.
+
+## CLI
+
+Once installed (editable or otherwise), every subsystem is also reachable
+through one command, `econosim`, instead of its own `python -m
+prometheus.<name>` invocation:
+
+```bash
+econosim --help                     # list subsystems
+econosim dashboard serve --demo     # same as: python -m prometheus.dashboard serve --demo
+econosim webgateway serve --dist frontend/dist
+econosim recovery keygen --output recovery.key
+econosim --version
+```
+
+`econosim` is a thin dispatcher (`src/prometheus/cli.py`) over each
+subsystem's own, already-tested `main(argv)` — nothing is reimplemented.
+Each subsystem's import is lazy, so `econosim --help` and subsystems that
+need no extra dependency still work on a base install that never opted
+into `recovery` or `service`.
 
 ## Project structure
 

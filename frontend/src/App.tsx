@@ -1,7 +1,8 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { TokenGate } from "./auth/TokenGate";
 import { AppShell } from "./components/AppShell";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuditTrail } from "./pages/AuditTrail";
 import { BalanceSheets } from "./pages/BalanceSheets";
 import { EconomyExplorer } from "./pages/EconomyExplorer";
@@ -21,31 +22,40 @@ import { QMacroLab } from "./pages/lab/QMacroLab";
 import { RecessionNetLab } from "./pages/lab/RecessionNetLab";
 import { RlHedgeLab } from "./pages/lab/RlHedgeLab";
 
+function AppRoutes() {
+  const location = useLocation();
+  return (
+    <ErrorBoundary resetKey={location.pathname}>
+      <Routes>
+        <Route path="/" element={<Overview />} />
+        <Route path="/economy" element={<EconomyExplorer />} />
+        <Route path="/balance-sheets" element={<BalanceSheets />} />
+        <Route path="/market-paths" element={<MarketPaths />} />
+        <Route path="/pricing" element={<PricingDiagnostics />} />
+        <Route path="/hedge-actions" element={<HedgeActions />} />
+        <Route path="/portfolio-risk" element={<PortfolioRisk />} />
+        <Route path="/experiments" element={<Experiments />} />
+        <Route path="/audit-trail" element={<AuditTrail />} />
+        <Route path="/validation-issues" element={<ValidationIssues />} />
+        <Route path="/model-usage" element={<ModelUsage />} />
+        <Route path="/lab/qmacro" element={<QMacroLab />} />
+        <Route path="/lab/recessionnet" element={<RecessionNetLab />} />
+        <Route path="/lab/inflationcast" element={<InflationcastLab />} />
+        <Route path="/lab/neural-sde" element={<NeuralSdeLab />} />
+        <Route path="/lab/pde-solver" element={<PdeSolverLab />} />
+        <Route path="/lab/marl" element={<MarlLab />} />
+        <Route path="/lab/rl-hedge" element={<RlHedgeLab />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ErrorBoundary>
+  );
+}
+
 export default function App() {
   return (
     <TokenGate>
       <AppShell>
-        <Routes>
-          <Route path="/" element={<Overview />} />
-          <Route path="/economy" element={<EconomyExplorer />} />
-          <Route path="/balance-sheets" element={<BalanceSheets />} />
-          <Route path="/market-paths" element={<MarketPaths />} />
-          <Route path="/pricing" element={<PricingDiagnostics />} />
-          <Route path="/hedge-actions" element={<HedgeActions />} />
-          <Route path="/portfolio-risk" element={<PortfolioRisk />} />
-          <Route path="/experiments" element={<Experiments />} />
-          <Route path="/audit-trail" element={<AuditTrail />} />
-          <Route path="/validation-issues" element={<ValidationIssues />} />
-          <Route path="/model-usage" element={<ModelUsage />} />
-          <Route path="/lab/qmacro" element={<QMacroLab />} />
-          <Route path="/lab/recessionnet" element={<RecessionNetLab />} />
-          <Route path="/lab/inflationcast" element={<InflationcastLab />} />
-          <Route path="/lab/neural-sde" element={<NeuralSdeLab />} />
-          <Route path="/lab/pde-solver" element={<PdeSolverLab />} />
-          <Route path="/lab/marl" element={<MarlLab />} />
-          <Route path="/lab/rl-hedge" element={<RlHedgeLab />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AppRoutes />
       </AppShell>
     </TokenGate>
   );
