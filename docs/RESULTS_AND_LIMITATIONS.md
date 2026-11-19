@@ -520,7 +520,7 @@ of the 17 model-and-history variants is rejected by the conditional-coverage tes
 both 99% and 97.5%. The closest are GARCH-FHS on the full history (48 exceedances, 1.48%),
 on 10 years (52) and the 250-day historical simulation (56, 1.73%); every normal-quantile
 model produces 2.4% to 4.9% (79 to 159 exceedances), the fat-tail failure of a Gaussian
-quantile that Finding 13's data (excess kurtosis 22 in training) makes unsurprising. The
+quantile that the training returns' excess kurtosis of 22 makes unsurprising. The
 repository's strictly consistent quantile score (RISK-09's pinball loss, which ranks VaR
 forecasts without leaning on exceedance counts) agrees: GARCH-FHS on the full history is
 best at both levels (3.92 bp at 99%, 8.22 bp at 97.5%) against 5.63 / 10.40 for historical
@@ -537,9 +537,9 @@ whole project holds once more: the more complex model does not win.
 days) the neural ensemble scores -8.137 and produces 105 exceedances at 99%; on everything
 before 2000 it scores -8.258 and 79 -- a paired QLIKE difference of -0.120
 ([-0.252, -0.033]). GARCH benefits much less (-0.013, [-0.024, -0.004]; 93 to 87 normal
-exceedances), and GARCH-FHS is not monotonic (52, 73 and 48 exceedances for 10, 30 and all
-years -- the 1970s window makes its residual quantile less extreme). A small neural model
-is data-hungry in a way a three-parameter model is not.
+exceedances), and GARCH-FHS shows no monotonic pattern (52, 73 and 48 exceedances for 10, 30 and all
+years; why was not investigated). The result is consistent with a small neural model being
+data-hungry in a way a three-parameter model is not.
 
 **What this does not show.** One market and one test period dominated by two crises: a few
 exceedances move a rate by several tenths of a percent, and the coverage tests are
@@ -551,6 +551,51 @@ price returns (no dividends), close-to-close, and before 1983 the data are close
 intraday range. Nothing here concerns expected shortfall or a portfolio of assets, and
 nothing here tells a risk manager which model to deploy -- only that none of these
 unmodified models would have survived the two regime breaks in the test window.
+
+## Finding 16 (PR-200): the simulator's own Taylor baseline does not describe the real Fed; interest-rate smoothing and momentum do, a neural rule adds nothing over a linear one, and more history helps
+
+The policy simulator (`policylab`) trains a reinforcement-learning policy against a Taylor-rule
+baseline on a *synthetic* economy. This study (`orchestration.policy_rate_study`, no network
+call, all data committed) puts the same kind of rule in front of the Federal Reserve's own data
+(Kaggle `federalreserve/interest-rates`: effective federal funds rate, unemployment, inflation)
+and asks a modest question -- predict this month's effective rate from what was known at the
+start of the month (the previous month's values, a one-month publication delay). Fit on
+1958-1989, early-stop on 1990-1999, test on 2000-2017 (206 months, including the 2008 crisis and
+the zero lower bound; errors are also reported on the 106 months before the lower bound, 2008-11).
+
+**The simulator's default Taylor baseline is far from the real Fed.** `policylab.TaylorRuleBaseline`
+with the simulator's own parameters (3% neutral rate, 2% target, 1.5 on inflation, 0.5 on the
+output gap, the gap proxied from unemployment by Okun's law) has a pre-lower-bound RMSE of
+1.45 percentage points at best (1.96 and 2.44 with shorter training windows for the
+unemployment reference), against 0.23 for "the rate stays where it was" -- a paired squared-
+error difference of +2.06 (95% moving-block-bootstrap interval [+0.94, +3.16]). That is a
+statement about the *simulator's baseline*, not about Taylor's insight: it has no interest-rate
+smoothing, and the real rate is dominated by it. Fitting the standard partial-adjustment rule
+by least squares gives a persistence coefficient of 0.977 on the 1958-1989 sample, and a long-run
+inflation response of 0.53 with an interval of [-6.7, +2.9] (9% of the resamples have a unit
+root and no long-run response at all): the sample, which straddles the 1979 regime change,
+cannot say whether the Taylor principle (a response above 1, the simulator assumes 1.5) holds.
+
+**Smoothing and momentum, not non-linearity.** Persistence (RMSE 0.17 over the whole test
+period, 0.23 before the lower bound) is hard to beat. The three-input partial-adjustment rule
+does not beat it (+0.020, [-0.003, +0.041]); a linear rule that also sees the previous rate
+change is better but not significantly (-0.011, [-0.033, +0.007]); a small MLP on the same six
+inputs, early-stopped on validation and averaged over five seeds, is significantly better than
+persistence (RMSE 0.157 / 0.196; paired difference -0.015, [-0.027, -0.005]) but **not**
+better than the linear rule with the same inputs (-0.005, [-0.013, +0.008]). The gain
+comes from the momentum feature, not from the neural network -- the same lesson as Finding 5
+and Finding 15, and the reason the like-for-like linear baseline was added.
+
+**More history helps.** With the last 10 years of the training window (1980-1989, the Volcker
+disinflation) instead of all of it, the partial-adjustment rule's pre-lower-bound squared error
+is 0.21 higher ([+0.11, +0.30]) and the six-input linear rule's 0.23 higher; the neural rule's is
+0.011 higher ([+0.003, +0.019]).
+
+**What this does not show.** One central bank and 206 test months with a regime break (the lower
+bound) in the middle: every linear rule fails by construction after 2008-11, so the headline
+numbers are the pre-lower-bound ones. The output gap is proxied by an assumed Okun coefficient,
+inflation is the dataset's own measure, the dataset ends in 2017 and some columns are sparse,
+and nothing here evaluates the RL policy itself -- only the rule it is compared against.
 
 ## Known limitations that are not findings, just open scope
 

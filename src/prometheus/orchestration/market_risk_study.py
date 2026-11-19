@@ -139,7 +139,8 @@ def backtest_var(returns: np.ndarray, thresholds: np.ndarray, alpha: float) -> d
 def qlike(returns: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Per-day QLIKE loss of a volatility forecast against the squared-return proxy."""
     variance = np.square(sigma)
-    return np.log(variance) + np.square(returns) / variance
+    loss = np.log(variance) + np.square(returns) / variance
+    return np.asarray(loss, dtype=np.float64)
 
 
 # ------------------------------------------------------------------------------ forecasters
@@ -160,7 +161,7 @@ def ewma_sigma(returns: np.ndarray, decay: float, initial_variance: float) -> np
     for t in range(len(returns)):
         variance[t] = current
         current = decay * current + (1.0 - decay) * returns[t] ** 2
-    return np.sqrt(variance)
+    return np.asarray(np.sqrt(variance), dtype=np.float64)
 
 
 def trailing_features(returns: np.ndarray) -> np.ndarray:
@@ -206,7 +207,9 @@ class NeuralVolatility:
 
     def sigma(self, x: np.ndarray) -> np.ndarray:
         with torch.no_grad():
-            return np.exp(self.log_sigma(x).numpy().astype(np.float64))
+            return np.asarray(
+                np.exp(self.log_sigma(x).numpy().astype(np.float64)), dtype=np.float64
+            )
 
 
 def train_neural_volatility(

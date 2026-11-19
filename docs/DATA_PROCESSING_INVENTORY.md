@@ -28,7 +28,7 @@ list that could drift.
 | Kaggle extended US macro-financial series (`KAGGLEX_*`: unemployment, seasonally adjusted CPI, bank credit, S&P 500 return/volatility, re-derived GDP/claims/Fed funds) | Kaggle mirror of FRED and Investing.com data (ODbL-1.0) | Public aggregate | Real-data feature expansion for recession classification (PR-198) |
 | Kaggle US Treasury 10Y-3M term spread (`KAGGLE_TERM_SPREAD_10Y3M`) | Kaggle mirror of Treasury yields (CC BY-NC 4.0) | Public aggregate | Yield-curve recession feature from 1981 |
 | Kaggle S&P 500 daily closes | Kaggle (Yahoo Finance ^GSPC; ODbL-1.0) | Public aggregate | Real-return evaluation of the financial-risk models (PR-199) |
-| Kaggle Federal Reserve policy variables | Kaggle (Federal Reserve; CC0-1.0) | Public aggregate | Real-data policy-rule study (planned: PR-200) |
+| Kaggle Federal Reserve policy variables | Kaggle (Federal Reserve; CC0-1.0) | Public aggregate | Real-data policy-rule study (PR-200) |
 
 **No row above is Personal, Financial (individual), or Confidential.**
 Every ingested series is a published, aggregate, government- or

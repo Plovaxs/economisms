@@ -30,7 +30,7 @@
 #      (security.yml) found setuptools 78.1.0, wheel 0.45.1 and a vendored
 #      jaraco.context with fixable HIGH vulnerabilities, all of them there only
 #      because the build dependency group had been installed into a RUNTIME
-#      image that never builds anything. src/ and data_cache/ (156KB) are
+#      image that never builds anything. src/ and data_cache/ (0.7MB since PR-197) are
 #      copied in at the same relative layout a checkout has; test fixtures,
 #      caches, node_modules and the separate 97MB evidence/ reference-bundle
 #      directory (confirmed unreferenced by any runtime code path) are left

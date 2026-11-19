@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "10ae19f8a2fb6c604e67f10972f4cc6fc551442b6af6565cdb098f7f87cb9f0d",
+    "content_sha256": "643b0979e2c2c63396d86e600228859915b93e14322df1dcfb032283d661a299",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "bd42261515c19af550d75fe1366e539746bbf663930ab088e964c69a3008af68",
+  "checklist_notes_sha256": "2cac99438ad455f15f2c5363a87f7acb2b26b581046bb3f28ebc1d20aa909ef6",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3561,7 +3561,7 @@
         },
         {
           "checklist_line": 8043,
-          "evidence_note": "the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_the_best_var_model`",
+          "evidence_note": "the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_among_the_best_var_models`",
           "id_column": "RISK-09 (extended, real data)",
           "requirement_note": "quantile (pinball) score for per-observation VaR forecasts"
         }

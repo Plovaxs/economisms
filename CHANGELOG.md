@@ -27,6 +27,9 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   are unchanged). See `docs/RESULTS_AND_LIMITATIONS.md` Finding 13.
 
 ### Added
+- `orchestration.policy_rate_study` (PR-200): the policy simulator's own Taylor baseline evaluated on
+  the real Federal Reserve data (Finding 16). It is far from the real Fed (no interest-rate smoothing);
+  a neural rule beats persistence but not a linear rule with the same inputs; more history helps.
 - `orchestration.market_risk_study` (PR-199): the financial-risk models evaluated on 93 years of real
   S&P 500 returns (Finding 15). No VaR model passes conditional coverage over 2008-2020; GARCH with
   filtered historical simulation is closest; the neural volatility model loses to GARCH but gains the

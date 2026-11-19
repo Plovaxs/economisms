@@ -183,7 +183,10 @@ eligible. This matters concretely for one of this paper's own findings:
 RECESSIONNET's real NBER-chronology labels are tested specifically for
 whether `as_of` queries would have leaked the Great Recession's label
 before its real 2008 NBER announcement date — not merely whether the
-code runs.
+code runs. The limit of this machinery is on record too: it checks
+timestamps, so a series whose timestamps were assigned wrongly passes. That
+is how a GDP look-ahead survived in a committed snapshot until a
+re-derivation from the raw data found it (§6.8, Finding 13).
 
 ### 4.3 Matched-capacity, validation-selected comparison
 
@@ -600,11 +603,12 @@ finding above is reported.
 
 ### 6.7 A recurring, independently-useful methodological lesson
 
-Four separate real bugs in this repository — a dashboard ASGI-lifespan
+Five separate real bugs in this repository — a dashboard ASGI-lifespan
 crash, the REINFORCE gradient silently zeroed by `rsample()` vs.
-`sample()` (§5.5), a recession-label boundary-month mismatch, and this
-project's own advertised smoke test having gone stale — were each found
-the same way: by independently re-deriving a result or actually
+`sample()` (§5.5), a recession-label boundary-month mismatch, this
+project's own advertised smoke test having gone stale, and a
+point-in-time look-ahead in a committed GDP column (§6.8) — were each
+found the same way: by independently re-deriving a result or actually
 executing a path, rather than trusting that passing tests meant the
 claim was true. Every one of them was invisible to this repository's own
 existing test suite specifically because the tests shared the same blind
@@ -613,6 +617,33 @@ transferable finding rather than a repository-specific anecdote: a test
 suite can be large, green, and still share its production code's own
 unstated assumptions — the fix is periodic independent re-derivation,
 not more of the same kind of test.
+
+### 6.8 More real data, a data-timing bug, and what "more data" buys (PR-197 to PR-200)
+
+Asked to train the models on more datasets for better accuracy, the first
+step was to make the existing Kaggle snapshot re-derivable by committed code.
+Re-deriving it from the raw files reproduced four of its five columns exactly
+and found that the fifth, GDP growth, had leaked each quarter's value one to
+two months before it was released (288 of 494 cells; Finding 13). Removing the
+look-ahead lowered the hybrid-quantum classifier's five-seed mean test ROC-AUC
+from 0.842 to 0.721 and moved the neural SDE's COVID-window degradation from
++5.58 versus +29.97 to +6.99 versus +26.45; the verdicts of H1 and H2 did not
+change, and a Brier-score "blind spot" reported earlier stopped reproducing.
+
+With four new real datasets committed, the question "does more data help?" was
+then asked three times, each time separating the kinds of "more". For recession
+classification, more *recessions to learn from* lowered the logistic regression's
+test Brier score from 0.147 to 0.095, while six more *features* improved no
+learned model (Finding 14). For market risk on 93 years of real S&P 500 returns,
+no value-at-risk model passed a conditional-coverage test over 2008-2020;
+GARCH with filtered historical simulation came closest, and a small neural
+volatility model lost to GARCH yet gained the most from more history
+(Finding 15). For monetary policy, the simulator's own Taylor baseline was far
+from the real Federal Reserve, and a neural rule beat persistence but not a
+linear rule given the same inputs (Finding 16). The pattern of §6.1-§6.3 held:
+the lever that helped was data volume or the right inputs, not model
+complexity, and the largest change to this paper's numbers came from fixing the
+data, not from training anything.
 
 ## 7. Threats to validity
 
@@ -643,6 +674,12 @@ not more of the same kind of test.
   paper for how the collision was found.
 - **Small sample sizes**, stated per-finding in §6.5, limit how far any
   single verdict above should be generalized.
+- **Publication lags are assumptions, and revision leakage is open (§6.8).**
+  Every real series is aligned with a fixed, documented lag, not a fetched
+  release vintage (ALFRED is unreachable from this environment), and GDP and
+  seasonally adjusted CPI are the latest-revised values, not as first
+  published. Only the one column that visibly disagreed with a release-aware
+  derivation was corrected.
 
 ## 8. Conclusion
 
@@ -678,7 +715,7 @@ to be falsified in minutes by anyone willing to run it.
   the frozen title, hypotheses, and one-line verdicts this paper expands.
 - [`docs/RESEARCH_CONTRIBUTIONS.md`](./RESEARCH_CONTRIBUTIONS.md) — the
   full research-questions account, with every cited test named.
-- [`docs/RESULTS_AND_LIMITATIONS.md`](./RESULTS_AND_LIMITATIONS.md) — 12
+- [`docs/RESULTS_AND_LIMITATIONS.md`](./RESULTS_AND_LIMITATIONS.md) — 16
   numbered findings, each with its own re-runnable test and the PR that
   produced it.
 - [`docs/PR_LEDGER.md`](./PR_LEDGER.md) — the complete, PR-by-PR build

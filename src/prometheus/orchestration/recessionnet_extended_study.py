@@ -3,8 +3,9 @@ the recession classifiers more accurate on the same, untouched test months?
 
 The tempting reading of "train it on more data" is "add more columns". This
 repository's own earlier evidence (Finding 12) says that can hurt a data-starved
-model: the Kaggle snapshot has only ~220 training months and two recession
-episodes before the 2001 validation split. So the study separates the two levers
+model: the Kaggle snapshot has only ~220 training months and three recession
+episodes before the 2001 validation split (two of them fragments: one month
+of 1982 and three of 2001). So the study separates the two levers
 instead of bundling them, on four feature sets that all share the SAME test months
 (decision months from 2008-01 on, 175 of them, 14 positive):
 
@@ -15,7 +16,8 @@ instead of bundling them, on four feature sets that all share the SAME test mont
                    restricted to the SAME 1981-12 onward window.
 - `macro_5_long`   the identical five features over their full common history
                    (1968-02 onward): MORE RECESSIONS in training (1969-70, 1973-75,
-                   1980, 1981-82, 1990-91) with the features held fixed.
+                   1980, 1981-82, 1990-91, and the start of 2001) with the
+                   features held fixed.
 - `extended_11`    `baseline_5` plus unemployment, seasonally adjusted CPI, bank
                    credit, S&P 500 return and realised volatility, and the 10Y-3M
                    term spread: MORE FEATURES with the history held fixed.

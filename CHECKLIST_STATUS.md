@@ -8040,4 +8040,14 @@ chronologically, with conditional-coverage tests added to the existing unconditi
 | ID | Requirement (abridged) | Evidence |
 |---|---|---|
 | RISK-08 (extended, conditional tests on real data) | VaR exception and coverage tests, expected frequency and CI | `orchestration.market_risk_study.kupiec_pof`/`christoffersen_independence`/`backtest_var`, cross-checked against `titan.risk_metrics.var_exception_coverage_test` (`test_market_risk_study.py::test_kupiec_agrees_with_the_repositorys_exact_binomial_coverage_test`) and against a known answer: the true conditional volatility of a simulated GARCH process is NOT rejected (`::test_a_correctly_specified_model_is_not_rejected_by_the_backtests`) while a constant-volatility model is (`::test_a_constant_volatility_model_is_rejected_on_volatility_clustered_data`); on the real 2008-2020 test period no model passes conditional coverage (`::test_no_var_model_passes_conditional_coverage_over_the_two_crises`) |
-| RISK-09 (extended, real data) | quantile (pinball) score for per-observation VaR forecasts | the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_the_best_var_model` |
+| RISK-09 (extended, real data) | quantile (pinball) score for per-observation VaR forecasts | the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_among_the_best_var_models` |
+
+
+## Evidenced today (PR-200: the policy simulator's Taylor baseline on real Federal Reserve data -- strengthens FP-15; no new blueprint ID closed)
+
+`policylab` trains and compares policies on a synthetic economy. PR-200 evaluates its
+Taylor-rule baseline, unchanged, against the real Fed (Finding 16).
+
+| ID | Requirement (abridged) | Evidence |
+|---|---|---|
+| FP-15 (strengthened, real-data check of the baseline) | POLICYLAB-RL compares a learned policy with a genuine Taylor-rule baseline | `orchestration.policy_rate_study` evaluates `policylab.TaylorRuleBaseline` with the simulator's own parameters on real data: `test_policy_rate_study.py::test_the_simulators_taylor_baseline_is_evaluated_in_percent_by_hand` (hand-computed), `::test_the_simulators_default_taylor_rule_does_not_describe_the_real_fed` (pre-lower-bound RMSE above 1.0 pp, paired error significantly above persistence); the fitted rule's long-run inflation response is shown to be unidentified on 1958-1989 (`::test_the_taylor_principle_cannot_be_established_from_1958_1989`); a neural rule is shown to add nothing over a linear rule with the same inputs (`::test_a_neural_rule_with_momentum_beats_persistence_but_not_a_linear_rule_with_the_same_inputs`) |
