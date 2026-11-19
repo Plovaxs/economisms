@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ec56ff47245944d47b0afe79a63572cdcf08e3911aee9cb5b5e00880b073b28d",
+    "content_sha256": "10ae19f8a2fb6c604e67f10972f4cc6fc551442b6af6565cdb098f7f87cb9f0d",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "77702e896925dc6087212b7b1a2f7e29227e2cfffc23371673e33dc8185adde8",
+  "checklist_notes_sha256": "bd42261515c19af550d75fe1366e539746bbf663930ab088e964c69a3008af68",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3528,6 +3528,12 @@
           "evidence_note": "`titan.risk_metrics.var_exception_coverage_test` (exact two-sided binomial test); tests confirm a correctly-calibrated model is not flagged and a badly miscalibrated one is",
           "id_column": "RISK-08",
           "requirement_note": "VaR exception and coverage tests, expected frequency and CI"
+        },
+        {
+          "checklist_line": 8042,
+          "evidence_note": "`orchestration.market_risk_study.kupiec_pof`/`christoffersen_independence`/`backtest_var`, cross-checked against `titan.risk_metrics.var_exception_coverage_test` (`test_market_risk_study.py::test_kupiec_agrees_with_the_repositorys_exact_binomial_coverage_test`) and against a known answer: the true conditional volatility of a simulated GARCH process is NOT rejected (`::test_a_correctly_specified_model_is_not_rejected_by_the_backtests`) while a constant-volatility model is (`::test_a_constant_volatility_model_is_rejected_on_volatility_clustered_data`); on the real 2008-2020 test period no model passes conditional coverage (`::test_no_var_model_passes_conditional_coverage_over_the_two_crises`)",
+          "id_column": "RISK-08 (extended, conditional tests on real data)",
+          "requirement_note": "VaR exception and coverage tests, expected frequency and CI"
         }
       ],
       "requirement": "Implement VaR exception and coverage tests",
@@ -3552,6 +3558,12 @@
           "evidence_note": "`titan.risk_metrics.quantile_score` (VaR pinball loss), `expected_shortfall_exceedance_residual_test` (McNeil-Frey residual t-test), `es_unconditional_calibration_test` (Acerbi-Szekely-style statistic with bootstrap p-value, handles zero exceedances); each confirmed by repeated-trial false-positive-rate and detection-power simulation against a known Gaussian reference before being pinned as a test",
           "id_column": "RISK-09 (first evidence)",
           "requirement_note": "ES forecasting evaluation and calibration diagnostics"
+        },
+        {
+          "checklist_line": 8043,
+          "evidence_note": "the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_the_best_var_model`",
+          "id_column": "RISK-09 (extended, real data)",
+          "requirement_note": "quantile (pinball) score for per-observation VaR forecasts"
         }
       ],
       "requirement": "Implement ES forecasting evaluation and calibration diagnostics",

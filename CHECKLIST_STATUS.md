@@ -8029,3 +8029,15 @@ identical test months, and reports the result either way (Finding 14).
 |---|---|---|
 | FP-06 (strengthened) | RECESSIONNET produces calibrated probabilities | `orchestration.recessionnet_extended_study`: with the features held fixed, 6 instead of 3 training recession episodes lowers the logistic regression's test Brier 0.147 -> 0.095; six extra features improve no learned model's Brier score and significantly worsen the matched MLP; tests: `test_recessionnet_extended_study.py::test_more_history_helps_the_logistic_regression_on_the_same_test_months`, `::test_more_features_does_not_improve_brier_and_hurts_the_matched_mlp`, `::test_every_feature_set_is_scored_on_exactly_the_same_test_months` |
 | FP-18 (strengthened) | multiple seeds and confidence intervals are reported | the study reports 5 seeds per feature set and a moving-block bootstrap interval (block length = the forecast horizon, because overlapping monthly forecasts are serially dependent) for every paired Brier difference: `test_recessionnet_extended_study.py::test_the_report_is_json_serialisable_and_complete` |
+
+
+## Evidenced today (PR-199: financial-risk models on real S&P 500 returns -- strengthens RISK-08 and RISK-09; no new blueprint ID closed)
+
+Every earlier financial-risk result in this repository came from simulated returns. PR-199
+scores the same kinds of models on 93 years of real S&P 500 data (Finding 15), strictly
+chronologically, with conditional-coverage tests added to the existing unconditional one.
+
+| ID | Requirement (abridged) | Evidence |
+|---|---|---|
+| RISK-08 (extended, conditional tests on real data) | VaR exception and coverage tests, expected frequency and CI | `orchestration.market_risk_study.kupiec_pof`/`christoffersen_independence`/`backtest_var`, cross-checked against `titan.risk_metrics.var_exception_coverage_test` (`test_market_risk_study.py::test_kupiec_agrees_with_the_repositorys_exact_binomial_coverage_test`) and against a known answer: the true conditional volatility of a simulated GARCH process is NOT rejected (`::test_a_correctly_specified_model_is_not_rejected_by_the_backtests`) while a constant-volatility model is (`::test_a_constant_volatility_model_is_rejected_on_volatility_clustered_data`); on the real 2008-2020 test period no model passes conditional coverage (`::test_no_var_model_passes_conditional_coverage_over_the_two_crises`) |
+| RISK-09 (extended, real data) | quantile (pinball) score for per-observation VaR forecasts | the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_the_best_var_model` |

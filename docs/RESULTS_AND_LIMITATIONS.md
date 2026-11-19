@@ -497,6 +497,61 @@ CPI are latest-revised values (Finding 13). The practical reading: if the goal i
 accurate recession classifier, the lever with evidence is **more recessions to learn from**,
 not more columns.
 
+## Finding 15 (PR-199): on 93 years of real S&P 500 returns no VaR model survives 2008 and 2020; GARCH with filtered historical simulation comes closest, and the neural volatility model loses to GARCH but gains the most from more history
+
+Until now every financial-risk module here ran on *simulated* returns. This study
+(`orchestration.market_risk_study`, no network call, all data committed) scores one-day-ahead
+Value-at-Risk and volatility forecasts on the real daily S&P 500 series from the Kaggle
+dataset `henryhan117/sp-500-historical-data` (23,322 returns, 1927-12 to 2020-11), strictly
+chronologically: parameters fit on returns before 2000, a validation window (2000-2007) that
+only early-stops the neural model, and a 3,235-day test period from 2008-01 that contains
+the financial crisis and COVID (worst day -12.77%). Every forecaster uses returns up to the
+previous day only -- a leak test per forecaster changes a *future* return and checks no
+earlier forecast moves. The models: a 250-day historical simulation, a constant-volatility
+normal, RiskMetrics EWMA (lambda 0.94), GARCH(1,1) with a normal quantile and with
+filtered historical simulation (the empirical quantile of its standardised training
+residuals), and a small MLP trained by Gaussian likelihood to map six past-return features to
+log volatility (a neural GARCH; 5 seeds, and a seed-averaged ensemble). The "more data" axis is
+how much history each fitted model sees: the last 10 years, the last 30, or everything
+before 2000 (70+ years).
+
+**No model passes.** At 99% the test period should contain about 32 exceedances. Every one
+of the 17 model-and-history variants is rejected by the conditional-coverage test at 5%, at
+both 99% and 97.5%. The closest are GARCH-FHS on the full history (48 exceedances, 1.48%),
+on 10 years (52) and the 250-day historical simulation (56, 1.73%); every normal-quantile
+model produces 2.4% to 4.9% (79 to 159 exceedances), the fat-tail failure of a Gaussian
+quantile that Finding 13's data (excess kurtosis 22 in training) makes unsurprising. The
+repository's strictly consistent quantile score (RISK-09's pinball loss, which ranks VaR
+forecasts without leaning on exceedance counts) agrees: GARCH-FHS on the full history is
+best at both levels (3.92 bp at 99%, 8.22 bp at 97.5%) against 5.63 / 10.40 for historical
+simulation, 4.61 / 8.67 for EWMA, 4.74 / 8.84 for the neural ensemble and 7.10 / 11.59 for the
+constant-volatility normal.
+
+**The neural model loses to GARCH.** On the volatility forecast itself (QLIKE against the
+squared-return proxy, lower is better) GARCH on the full history scores -8.2996 against
+-8.2577 for the neural ensemble, a paired difference of +0.042 (95% moving-block-bootstrap
+interval [+0.008, +0.086]); EWMA scores -8.2404 and a constant -7.593. The pattern of the
+whole project holds once more: the more complex model does not win.
+
+**But more history helps the neural model the most.** Trained on 10 years (about 2,500
+days) the neural ensemble scores -8.137 and produces 105 exceedances at 99%; on everything
+before 2000 it scores -8.258 and 79 -- a paired QLIKE difference of -0.120
+([-0.252, -0.033]). GARCH benefits much less (-0.013, [-0.024, -0.004]; 93 to 87 normal
+exceedances), and GARCH-FHS is not monotonic (52, 73 and 48 exceedances for 10, 30 and all
+years -- the 1970s window makes its residual quantile less extreme). A small neural model
+is data-hungry in a way a three-parameter model is not.
+
+**What this does not show.** One market and one test period dominated by two crises: a few
+exceedances move a rate by several tenths of a percent, and the coverage tests are
+asymptotic. QLIKE uses the squared return as its variance proxy, which is unbiased but
+noisy. The GARCH fit caps alpha + beta at 0.98 (a stationarity headroom in `fit_garch11`),
+understating the near-unit persistence of equity volatility, and the neural model was given
+only a normal quantile, so it is not compared with GARCH-FHS on equal terms. These are index
+price returns (no dividends), close-to-close, and before 1983 the data are closes with no
+intraday range. Nothing here concerns expected shortfall or a portfolio of assets, and
+nothing here tells a risk manager which model to deploy -- only that none of these
+unmodified models would have survived the two regime breaks in the test window.
+
 ## Known limitations that are not findings, just open scope
 
 - **No independent human review of any claim in this repository has

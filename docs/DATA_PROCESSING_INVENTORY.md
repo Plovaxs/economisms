@@ -25,9 +25,9 @@ list that could drift.
 | Kenneth French factors (`FF3_*`) | Kenneth French Data Library | Public aggregate | Market-factor research (RECESSIONNET, Q-MACRO) |
 | Kaggle US macro series (`KAGGLE_*`: GDP, claims, Fed funds, M2, NASDAQ) | Kaggle mirror of FRED series (ODbL-1.0) | Public aggregate | Recession classification, neural SDE training |
 | NBER recession dates | Public NBER chronology | Public aggregate | Recession labels (RECESSIONNET) |
-| Kaggle extended US macro-financial series (`KAGGLEX_*`: unemployment, seasonally adjusted CPI, bank credit, S&P 500 return/volatility, re-derived GDP/claims/Fed funds) | Kaggle mirror of FRED and Investing.com data (ODbL-1.0) | Public aggregate | Real-data feature expansion for recession classification (planned: PR-198) |
+| Kaggle extended US macro-financial series (`KAGGLEX_*`: unemployment, seasonally adjusted CPI, bank credit, S&P 500 return/volatility, re-derived GDP/claims/Fed funds) | Kaggle mirror of FRED and Investing.com data (ODbL-1.0) | Public aggregate | Real-data feature expansion for recession classification (PR-198) |
 | Kaggle US Treasury 10Y-3M term spread (`KAGGLE_TERM_SPREAD_10Y3M`) | Kaggle mirror of Treasury yields (CC BY-NC 4.0) | Public aggregate | Yield-curve recession feature from 1981 |
-| Kaggle S&P 500 daily closes | Kaggle (Yahoo Finance ^GSPC; ODbL-1.0) | Public aggregate | Real-return evaluation of the financial-risk models (planned: PR-199) |
+| Kaggle S&P 500 daily closes | Kaggle (Yahoo Finance ^GSPC; ODbL-1.0) | Public aggregate | Real-return evaluation of the financial-risk models (PR-199) |
 | Kaggle Federal Reserve policy variables | Kaggle (Federal Reserve; CC0-1.0) | Public aggregate | Real-data policy-rule study (planned: PR-200) |
 
 **No row above is Personal, Financial (individual), or Confidential.**
