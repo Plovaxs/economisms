@@ -1,0 +1,25 @@
+{
+  "source": "Kaggle dataset henryhan117/sp-500-historical-data (Yahoo Finance ^GSPC daily history)",
+  "source_url": "https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data",
+  "license": "ODbL-1.0 (Kaggle: henryhan117/sp-500-historical-data)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "SPX.csv": "54aa877d5d275b660bc8171642dc3a2eece16b9709e1d35f13a3b4e7972cc35c"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.write_close_csv",
+  "columns": {
+    "close": "daily closing level; Adj Close equals Close on every row (an index), so only Close is stored"
+  },
+  "rows": 23323,
+  "real_range": {
+    "first_date": "1927-12-30",
+    "last_date": "2020-11-04"
+  },
+  "caveat": "Open = High = Low = Close on 8,547 early rows (last 1983-06-30): a close-only era, so only close-based statistics are meaningful there.",
+  "sanity_checks": {
+    "worst daily log return": {
+      "date": "1987-10-19",
+      "value": -0.22899728680392292
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "source": "Kaggle dataset guillemservera/us-treasury-yields-daily (daily US Treasury constant-maturity yields)",
+  "source_url": "https://www.kaggle.com/datasets/guillemservera/us-treasury-yields-daily",
+  "license": "CC BY-NC 4.0 (Kaggle: guillemservera/us-treasury-yields-daily; non-commercial use)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "us_treasury_yields_daily.csv": "0467a612c3437da991d365ba54765c83d30363e615ed55e8a589df673d72c7fc"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.build_term_spread_grid",
+  "columns": {
+    "TERM_SPREAD_10Y3M": "mean over the month's trading days of (US10Y - US3M), percentage points; needs >= 10 days with both yields published"
+  },
+  "publication_lag_assumption_days": {
+    "TERM_SPREAD_10Y3M": 0
+  },
+  "real_ranges": {
+    "TERM_SPREAD_10Y3M": {
+      "first_row": "1981-09-30",
+      "last_row": "2024-05-31"
+    }
+  },
+  "excluded": "2024-06 (partial month at the dataset's last update)",
+  "sanity_checks": {
+    "row 2000-07 (inversion before the 2001 recession)": -0.08849999999999998,
+    "row 2007-01 (inversion before the Dec 2007 recession)": -0.34571428571428564,
+    "row 2019-08 (inversion before the Feb 2020 recession)": -0.364090909090909
+  },
+  "cross_check": "Against data_cache/treasury_yield_spread_monthly.csv (home.treasury.gov) on the 408 months both cover (1990-01..2023-12): max absolute difference 0.0093 percentage points, measured when this file was added."
+}

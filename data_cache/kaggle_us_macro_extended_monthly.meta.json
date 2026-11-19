@@ -1,0 +1,83 @@
+{
+  "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (FRED series plus Investing.com S&P 500 prices)",
+  "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+  "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "Bank Credit All Commercial Banks.csv": "00bca353171b34579b52f8377110ae5ced26e1c5ce07be3d46958b1874d37686",
+    "Consumer Price Index for All Urban Consumers All Items in U.S. City Average.csv": "822049d0eadb03a1e0a6d6c41a9b13b3a082b8401cc6b967e871adacd6038306",
+    "Continued Claims (Insured Unemployment).csv": "77deb49f3e14581d22dda3a5f563566ca127e93a52edf4b36217f08737a0df3f",
+    "Federal Funds Effective Rate.csv": "7fa2af9a71d6eba08b126b1996e24b80ef35f9411be7d1a37a80a82511d2565e",
+    "Gross Domestic Product.csv": "c47443fa09abc14f8dacf383a06f380a72a0a985d4dbf88accd8fa69fc2c88a8",
+    "SPX500.csv": "96fb963668e841e237671898f3a950331416857ee1580364e54bea88ab820c65",
+    "Unemployment Rate.csv": "6418c82beda4c8411e4d8f75063eba5e7c362f8138ad46cb8468a54adf2db392"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.build_extended_macro_grid",
+  "columns": {
+    "GDP_YOY": "FRED GDP (quarterly, nominal), YoY % vs the same quarter a year earlier; released once per quarter and HELD until the next release",
+    "CLAIMS_YOY": "FRED CCSA continued claims (weekly), last weekly value at or before month-end, YoY %",
+    "FEDFUNDS": "FRED DFF effective federal funds rate (daily), last value at or before month-end, level in percent",
+    "UNRATE": "FRED UNRATE unemployment rate (monthly, seasonally adjusted), level in percent",
+    "CPI_YOY_SA": "FRED CPIAUCSL CPI-U all items, SEASONALLY ADJUSTED (not the NSA series the INFLATIONCAST target uses), YoY %",
+    "BANK_CREDIT_YOY": "FRED TOTBKCR bank credit of all commercial banks (weekly), last weekly value at or before month-end, YoY %",
+    "SPX_YOY": "Investing.com S&P 500 daily close, last close at or before month-end, YoY %",
+    "SPX_VOL": "annualised realised volatility (%) of the month's daily log returns, needs >= 15 returns"
+  },
+  "publication_lag_assumption_days": {
+    "GDP_YOY": 30,
+    "CLAIMS_YOY": 7,
+    "FEDFUNDS": 0,
+    "UNRATE": 7,
+    "CPI_YOY_SA": 15,
+    "BANK_CREDIT_YOY": 9,
+    "SPX_YOY": 0,
+    "SPX_VOL": 0
+  },
+  "publication_lag_note": "FIXED, documented assumptions (not fetched release vintages; ALFRED is unreachable here). A period's value is re-keyed to the first month-end at or after (period end + lag), so the value on row M is knowable by M's own end.",
+  "grid": {
+    "first_row": "1960-01-31",
+    "last_row": "2023-01-31",
+    "note": "blank cell = series does not exist yet; the grid is NOT rectangular"
+  },
+  "real_ranges": {
+    "GDP_YOY": {
+      "first_row": "1960-01-31",
+      "last_row": "2023-01-31"
+    },
+    "CLAIMS_YOY": {
+      "first_row": "1968-02-29",
+      "last_row": "2023-01-31"
+    },
+    "FEDFUNDS": {
+      "first_row": "1960-01-31",
+      "last_row": "2023-01-31"
+    },
+    "UNRATE": {
+      "first_row": "1960-01-31",
+      "last_row": "2023-01-31"
+    },
+    "CPI_YOY_SA": {
+      "first_row": "1960-01-31",
+      "last_row": "2023-01-31"
+    },
+    "BANK_CREDIT_YOY": {
+      "first_row": "1974-02-28",
+      "last_row": "2023-01-31"
+    },
+    "SPX_YOY": {
+      "first_row": "1980-12-31",
+      "last_row": "2023-01-31"
+    },
+    "SPX_VOL": {
+      "first_row": "1980-01-31",
+      "last_row": "2023-01-31"
+    }
+  },
+  "sanity_checks": {
+    "SPX_YOY row 2008-10 (financial-crisis crash)": -37.474989995998406,
+    "UNRATE row 2020-05 (April-2020 COVID peak, published early May)": 14.7,
+    "CPI_YOY_SA row 2022-07 (June-2022 inflation peak, published mid-July)": 8.932986890105287,
+    "FEDFUNDS row 1981-06 (Volcker-era peak)": 18.64,
+    "SPX_VOL row 2008-10 (annualised realised volatility, %)": 79.94984279253795
+  }
+}

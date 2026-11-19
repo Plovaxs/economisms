@@ -80,10 +80,12 @@ the actual result, not reframed as a tuning problem.
 itself (not just capacity) was the limiting factor found a real,
 nuanced answer rather than a clean reversal. On the Kaggle dataset, a
 longer patience (60 vs. 20) lets the hybrid-quantum classifier reach
-genuine, well-calibrated discrimination (ROC-AUC 0.86–0.92) beating
-every classical candidate in 4 of 5 seeds — but the 5th seed shows a
-Brier-score blind spot (ROC-AUC 0.479, worse than random) that a
-second diagnostic catches before it could be mistaken for a win. On
+real discrimination in every seed (ROC-AUC 0.76–0.88) beating the
+classical candidates in 4 of 5 seeds. (PR-177 originally also reported
+a seed-0 Brier-score blind spot, ROC-AUC 0.479; PR-197 showed that was
+partly a GDP look-ahead in the input data, see Finding 13, and the
+trap now shows up as an inverted ranking at a different seed that only
+the second diagnostic exposes.) On
 the original factor dataset, the same check found no such divergence
 and, if anything, a mild shift toward classical. Neither result is
 promoted to a production default; see `docs/RESULTS_AND_LIMITATIONS.md`
@@ -92,19 +94,20 @@ Finding 3's follow-up for the full account and why. Separately
 yield-curve spread, one of the most-studied real recession predictors
 in the literature -- was added and directly ablated (same
 range/seeds/patience, with vs. without). It did not help, and mostly
-hurt: ROC-AUC was consistently decent (0.68-0.86) without it, erratic
-and usually worse (0.36-0.82) with it. See Finding 12 for the full
+hurt: ROC-AUC was consistently decent (0.71-0.85) without it, erratic
+and usually worse (0.35-0.83) with it (re-measured in PR-197). See Finding 12 for the full
 account, including the likely cause (an already data-starved model
 gaining one more input dimension to fit).
 
 ### RQ2 — Can a neural stochastic differential equation outperform classical SDE models (GBM) and econometric baselines (GARCH) on real macro data, and does it degrade more gracefully under a genuine out-of-distribution shock?
 
 **`neural_sde`** (PR-150): in-distribution, the neural SDE does *not*
-beat simple baselines (validation log-score 4.82 vs. baselines'
+beat simple baselines (validation log-score 4.83 vs. baselines'
 ≈4.0–4.1). Under the real 2020 COVID shock (the genuine sample-wide
-extremum in both GDP YoY and Claims YoY, independently verified
-against the raw CSV, not assumed), the neural SDE's log-score degrades
-by +5.58 while a constant-parameter GBM baseline degrades by +29.97.
+extremum of Claims YoY, independently verified against the raw CSV, not
+assumed), the neural SDE's log-score degrades by +6.99 while a
+constant-parameter GBM baseline degrades by +26.45 (re-measured in
+PR-197 after a GDP look-ahead was corrected; originally +5.58 vs. +29.97).
 
 **Finding: partially supported, in a specific and interesting way.**
 The neural SDE is not a better unconditional model, but its
@@ -117,7 +120,7 @@ a concrete, falsifiable distinction between "better on average" and
 (`patience=20`) was undertraining this model — the opposite turned out
 to be true. Raising patience to 60 improves the in-distribution score
 (the model's own selection metric, measured on its own selection set)
-but makes COVID-window degradation explode from +5.58 to +48.75, now
+but makes COVID-window degradation explode from +6.99 to +47.41, now
 worse than the GBM baseline — destroying the exact robustness property
 this finding reports. `patience=20` is a deliberate, correct choice,
 not an oversight; this strengthens the finding by ruling out

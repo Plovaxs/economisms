@@ -1,0 +1,41 @@
+{
+  "source": "Kaggle dataset federalreserve/interest-rates (Federal Reserve Interest Rates, 1954-Present)",
+  "source_url": "https://www.kaggle.com/datasets/federalreserve/interest-rates",
+  "license": "CC0-1.0 (Kaggle: federalreserve/interest-rates)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "index.csv": "091410052c817546c1d7d944d909fd58971af1b5ce204a57f0a9372c24c3450c"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.build_fed_policy_grid",
+  "columns": {
+    "FFR_EFFECTIVE": "effective federal funds rate, percent (the row dated day 01)",
+    "UNRATE": "unemployment rate, percent, seasonally adjusted",
+    "INFLATION": "inflation rate, percent, as published in the dataset",
+    "REAL_GDP_GROWTH": "quarterly real GDP growth, percent (SA rate of change); blank except in the first month of a quarter"
+  },
+  "period_matched": "each value describes its own row's month; NOT shifted for publication lag (the policy study applies a one-month delay)",
+  "real_ranges": {
+    "FFR_EFFECTIVE": {
+      "first_row": "1954-07-31",
+      "last_row": "2017-02-28"
+    },
+    "UNRATE": {
+      "first_row": "1954-07-31",
+      "last_row": "2017-02-28"
+    },
+    "INFLATION": {
+      "first_row": "1958-01-31",
+      "last_row": "2017-02-28"
+    },
+    "REAL_GDP_GROWTH": {
+      "first_row": "1954-07-31",
+      "last_row": "2016-10-31"
+    }
+  },
+  "sanity_checks": {
+    "peak effective federal funds rate": {
+      "row": "1981-06-30",
+      "value": 19.1
+    }
+  }
+}

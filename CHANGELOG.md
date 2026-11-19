@@ -14,6 +14,30 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
+## [Unreleased] -- 2026-11-19 -- more real data, and a look-ahead bug found in our own GDP column (PR-197)
+
+### Fixed
+- **A point-in-time look-ahead in `data_cache/kaggle_us_macro_monthly.csv`.** The `GDP_YOY` column
+  showed each quarter's growth one to two months before the quarter ended or was released (288 of 494
+  cells; Q2-2020's -7.69% appeared on the 2020-05 row, BEA's advance estimate came on 2020-07-30). The
+  other four columns were correct. Found by re-deriving the file from the raw Kaggle data with a
+  committed builder; corrected, guarded by a structural regression test, and every finding that
+  depended on the column was re-measured (neural SDE COVID degradation +5.58 vs. +29.97 became +6.99 vs.
+  +26.45; the hybrid-quantum 5-seed mean test ROC-AUC fell from 0.842 to 0.721; verdicts of H1 and H2
+  are unchanged). See `docs/RESULTS_AND_LIMITATIONS.md` Finding 13.
+
+### Added
+- `orchestration.recessionnet_extended_study` (PR-198): a standalone research CLI that separates
+  "more history" from "more features" on identical test months. Result (Finding 14): more recessions
+  to learn from lowered the logistic regression's test Brier 0.147 -> 0.095; six extra features
+  improved no learned model's Brier score.
+- `prometheus.data_ingestion.kaggle_build`: a committed, tested builder that re-derives the Kaggle
+  snapshots from the raw files, with `--verify-baseline` to audit a committed file.
+- Four real Kaggle-derived snapshots with provenance (`.meta.json`: source, licence, SHA-256 of every
+  raw file): extended US macro-financial features from 1960, the Treasury 10Y-3M term spread from
+  1981-09 (CC BY-NC, non-commercial), 23,323 daily S&P 500 closes (1927-2020) and the Federal
+  Reserve's policy variables (1954-2017).
+
 ## [0.3.0] -- 2026-11-18 -- a production-grade security and deployment pass (PR-191 through PR-196)
 
 This release hardens the DEPLOYABLE software and its pipeline: the web gateway,

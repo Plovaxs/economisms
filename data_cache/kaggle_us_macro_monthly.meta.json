@@ -10,7 +10,7 @@
     "M2_YOY": "FRED WM2NS (M2 money stock, weekly), year-over-year percent growth",
     "NASDAQ_YOY": "NASDAQ composite daily closing price (vendor: investing.com, bundled in the Kaggle dataset), year-over-year percent change"
   },
-  "resampling": "Each raw series resampled to monthly (last observed value at or before each month-end); GDP additionally forward-filled across its own quarter (documented, not an unexplained gap-fill: GDP is only released quarterly).",
+  "resampling": "Each raw series resampled to monthly (last observed value at or before each month-end). GDP is quarterly: its year-over-year growth is computed per quarter, first knowable 30 days after the QUARTER ends, and HELD until the next release (corrected in PR-197 -- see correction_pr197).",
   "publication_lag_assumption_days": {
     "GDP_YOY": 30,
     "CLAIMS_YOY": 7,
@@ -24,5 +24,6 @@
     "CLAIMS_YOY 2020-04": "+339.1% (real COVID unemployment-claims spike, confirmed against known pandemic history)"
   },
   "real_date_range": {"first_month": "198112", "last_month": "202301"},
-  "prep_script": "not committed -- a one-off script run once against the raw Kaggle CSVs; see docs/PR_LEDGER.md for the PR entry describing its logic"
+  "correction_pr197": "The GDP_YOY column committed in PR-145 contained a point-in-time LOOK-AHEAD: each quarter's value was forward-filled across the quarter's own months before the 30-day lag was applied, so it appeared 1-2 months before the quarter had ended or been released (e.g. Q2-2020's -7.69% showed on the 2020-05 row; BEA's advance estimate came on 2020-07-30). 288 of 494 GDP_YOY cells were wrong; the other four columns were correct. Re-derived by prometheus.data_ingestion.kaggle_build (quarterly release + hold) and committed in PR-197. Effect on the documented findings: docs/RESULTS_AND_LIMITATIONS.md Finding 13.",
+  "prep_script": "now committed: prometheus.data_ingestion.kaggle_build. Audit with: python -m prometheus.data_ingestion.kaggle_build --backbone-zip <the Kaggle zip> --verify-baseline data_cache/kaggle_us_macro_monthly.csv (all five columns reproduce exactly; the pre-PR-197 file differed in 288 GDP_YOY rows)."
 }

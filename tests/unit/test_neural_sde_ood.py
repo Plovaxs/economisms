@@ -1,4 +1,5 @@
 import copy
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -27,14 +28,23 @@ def _real_observations():
     return load_kaggle_us_macro_observations(_CSV_PATH)
 
 
-def test_real_gdp_yoy_hits_its_sample_wide_minimum_inside_the_covid_window() -> None:
-    """Verifies the claim this module's docstring makes directly against
-    the committed real CSV, rather than trusting the docstring's prose."""
+def test_real_gdp_yoy_hits_its_sample_wide_minimum_only_after_the_covid_window() -> None:
+    """PR-197 correction of a point-in-time look-ahead. GDP is released once per
+    quarter, so Q2-2020's collapse (-7.69%, the sample-wide minimum) only becomes
+    KNOWABLE on the 2020-07 row -- after the OOD window ends -- and inside the
+    window the knowable value is still Q1-2020's +2.5%. The PR-145 grid showed
+    -7.69% on the 2020-05 row, which made GDP look like a second in-window
+    extremum (this test used to assert exactly that); that was the look-ahead."""
     observations = _real_observations()
     gdp = [o for o in observations if o.series_id == "KAGGLE_GDP_YOY"]
     most_negative = min(gdp, key=lambda o: o.value)
-    assert COVID_OOD_WINDOW_START <= most_negative.observation_at <= COVID_OOD_WINDOW_END
+    assert most_negative.observation_at > COVID_OOD_WINDOW_END
+    assert most_negative.observation_at == date(2020, 7, 31)
     assert most_negative.value == pytest.approx(-7.689368896330128, abs=1e-6)
+    in_window = [
+        o.value for o in gdp if COVID_OOD_WINDOW_START <= o.observation_at <= COVID_OOD_WINDOW_END
+    ]
+    assert in_window and all(v > 2.0 for v in in_window), "only Q1's growth is knowable in-window"
 
 
 def test_real_claims_yoy_hits_its_sample_wide_maximum_inside_the_covid_window() -> None:

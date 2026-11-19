@@ -4,18 +4,25 @@ vs baseline reported without re-tuning test."
 Uses a REAL historical out-of-distribution event present in the
 already-ingested `data_cache/kaggle_us_macro_monthly.csv` data (PR-145):
 the 2020 COVID shock. Checked directly against the raw CSV (not
-assumed -- see `test_neural_sde_ood.py`): `KAGGLE_GDP_YOY` (a state
-variable) hits -7.69% in 2020-05, its single most negative value in the
-entire 1981-2023 sample, and `KAGGLE_CLAIMS_YOY` (a regime feature) hits
-+1146% in the same month, its single most positive value in the entire
-sample -- a genuine, verified double extremum, not an arbitrarily chosen
-date range. `KAGGLE_NASDAQ_YOY` (the other state variable) does NOT hit
-an extreme in this window -- its all-time low (-59.8%) and high (+105.3%
-YoY) in this sample both fall in the 2000-2001 dot-com cycle instead,
-and it is mildly POSITIVE throughout 2020-02..2020-06 in this derived
-monthly YoY series. This asymmetry is disclosed, not smoothed over: the
-2020 window tested here is a genuine GDP/labor-market shock in this
-dataset, not a NASDAQ-specific one.
+assumed -- see `test_neural_sde_ood.py`): `KAGGLE_CLAIMS_YOY` (a regime
+feature) hits +1146% in 2020-05, its single most positive value in the
+entire 1981-2023 sample -- a genuine, verified extremum, not an
+arbitrarily chosen date range. `KAGGLE_GDP_YOY` (a state variable) is
+deliberately NOT extreme inside this window: GDP is released once per
+quarter, so Q2-2020's collapse (-7.69%, its single most negative value in
+the sample) only becomes knowable on the 2020-07 row, AFTER the window
+ends, and what a forecaster could actually see inside it is still Q1's
++2.5%. (Before PR-197 the committed grid contained a look-ahead that
+showed -7.69% on the 2020-05 row, so this window used to look like a
+"double extremum" in claims AND GDP; that was partly an artifact -- see
+`docs/RESULTS_AND_LIMITATIONS.md` Finding 13.) `KAGGLE_NASDAQ_YOY` (the
+other state variable) does NOT hit an extreme in this window either --
+its all-time low (-59.8%) and high (+105.3% YoY) in this sample both fall
+in the 2000-2001 dot-com cycle instead, and it is mildly POSITIVE
+throughout 2020-02..2020-06 in this derived monthly YoY series. This
+asymmetry is disclosed, not smoothed over: the 2020 window tested here is
+a genuine labor-market/rates shock in this dataset, not a GDP- or
+NASDAQ-specific one.
 
 "Without re-tuning" is enforced structurally: `evaluate_ood_without_retuning`
 takes an ALREADY-TRAINED `TrainedNeuralSDE` (and an already-fit GBM

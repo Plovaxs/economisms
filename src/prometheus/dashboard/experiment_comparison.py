@@ -73,9 +73,12 @@ REAL_COMPARISON_LOG: tuple[ExperimentComparisonRow, ...] = (
     ExperimentComparisonRow(
         experiment="Neural SDE vs. GBM baseline, real 2020 COVID OOD window",
         metric_name="log-score degradation (lower is better)",
-        champion_value="+29.97 (GBM baseline)",
-        challenger_value="+5.58 (neural SDE)",
-        ci_or_spread="single real historical OOD window, not a multi-seed CI",
+        champion_value="+26.45 (GBM baseline)",
+        challenger_value="+6.99 (neural SDE)",
+        ci_or_spread=(
+            "single real historical OOD window, not a multi-seed CI; re-measured in PR-197 "
+            "after a GDP look-ahead in the input data was corrected (originally +29.97 vs. +5.58)"
+        ),
         verdict="GENUINE IMPROVEMENT -- regime-conditioning measurably helped under a real shock",
         source_pr="PR-150",
     ),

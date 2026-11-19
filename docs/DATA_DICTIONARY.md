@@ -10,7 +10,7 @@ the core cross-cutting schemas that most other modules build on.
 
 [`prometheus.econosim.pit.MacroObservation`](../src/prometheus/econosim/pit.py)
 is the schema every real data connector in `prometheus.data_ingestion`
-(`treasury_yield_curve`, `kaggle_macro`, `french_factors`, `worldbank`)
+(`treasury_yield_curve`, `kaggle_macro`, `kaggle_macro_extended`, `kaggle_term_spread`, `french_factors`, `worldbank`)
 produces, and the only way time-series data enters any point-in-time-safe
 pipeline in this repository.
 

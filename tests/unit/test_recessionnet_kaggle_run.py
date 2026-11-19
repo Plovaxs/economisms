@@ -64,55 +64,48 @@ def test_main_runs_fully_offline_against_the_real_committed_snapshot(tmp_path, c
     assert saved["verdict"] == "inconclusive"
 
 
-def test_patience_60_reveals_both_real_signal_and_a_brier_score_blind_spot() -> None:
-    """PR-176: at the production default `patience=20`, the finding
-    above ("inconclusive") is NOT the full story -- `hybrid_quantum`'s
-    `selected_epoch` at seed 0 is a mere 9-11, nowhere near converged.
-    A direct 5-seed sweep at `patience=60` found something more
-    interesting than a simple "patience was undertraining it, raise
-    the default": in 4 of 5 seeds (1-4), `hybrid_quantum` reaches
-    GENUINE, well-calibrated discrimination (ROC-AUC 0.86-0.92,
-    calibration slope 0.95-1.17 -- both real signal AND honest
-    uncertainty, not just a better Brier number) that beats every
-    classical candidate including `base_rate`. But seed 0 is a real,
-    important cautionary counter-example: its "quantum_better" verdict
-    (the bootstrap CI genuinely excludes zero) coincides with ROC-AUC
-    0.479 -- WORSE than random ranking -- and a calibration slope of
-    0.32, meaning the Brier "win" there is `hybrid_quantum` drifting,
-    after 344 epochs, toward a near-constant output that happens to
-    match the TEST set's own class balance (8.0%) better than the
-    TRAIN-derived `base_rate_probability` (5.4%, see
-    `recessionnet.evaluation.run_recessionnet_benchmark_with_early_
-    stopping`) -- not real per-example learning. A THIRD instance
-    (after RECESSIONNET's fixed-epoch overfitting and MARL's
-    degenerate reward) of this project's own recurring lesson: a
-    single scalar optimization/acceptance criterion can be gamed
-    without the underlying model doing anything real, and checking a
-    second, independent diagnostic (here, ROC-AUC) is what catches it.
-    **Not promoted to the production default**: raising `patience`
-    here would also raise this failure mode's frequency (1/5 seeds
-    checked), and this project's own standing discipline is to not
-    ship a result until it is robustly verified, not merely measured
-    once. Recorded as a disclosed, real, re-runnable finding and a
-    concrete direction for future work (an AUC-aware verdict), not as
-    a change to `RecessionNetKaggleRunConfig`'s own default."""
+def test_patience_60_shows_real_signal_in_every_seed_and_no_brier_only_win() -> None:
+    """PR-177, re-measured in PR-197 on the corrected grid.
+
+    Original PR-177 finding (on the PR-145 grid, whose GDP column contained a
+    point-in-time look-ahead): a 5-seed sweep at `patience=60` gave
+    `hybrid_quantum` real discrimination in 4 seeds (ROC-AUC 0.86-0.92) but
+    exposed a Brier-score blind spot in seed 0 -- a "quantum_better" verdict
+    (CI excludes zero) with ROC-AUC 0.479, worse than random. After the look-ahead
+    was removed that counter-example NO LONGER REPRODUCES: at `patience=60` every
+    seed ranks genuinely (ROC-AUC 0.76-0.88), 4 of 5 seeds are `quantum_better`,
+    and seed 0 is simply `inconclusive` (its Brier 0.0955 is worse than the
+    base rate's 0.0743). The seed-0 "blind spot" was partly produced by the
+    look-ahead, not a property of the method -- a finding that is itself recorded
+    (docs/RESULTS_AND_LIMITATIONS.md Finding 13) rather than quietly dropped.
+    What survives is the methodological rule: never certify a win on Brier alone
+    (`test_default_patience_seed_3_...` shows the diagnostic still matters)."""
     results = []
     for seed in range(5):
         config = RecessionNetKaggleRunConfig(seed=seed, patience=60)
         result = run_recessionnet_kaggle_job(config)
-        hq = result.evidence_bundle["recessionnet_kaggle"]["models"]["hybrid_quantum"]
-        results.append((seed, hq["roc_auc"], hq["calibration_slope"]))
+        payload = result.evidence_bundle["recessionnet_kaggle"]
+        hq = payload["models"]["hybrid_quantum"]
+        results.append((seed, hq["roc_auc"], payload["verdict"]))
 
-    genuinely_discriminating = [
-        seed for seed, auc, _ in results if auc > 0.7
-    ]
-    assert len(genuinely_discriminating) >= 4, (
-        "expected most seeds to show real discrimination at patience=60"
-    )
-    # Seed 0's known degenerate case: near-random ranking despite a
-    # Brier-based "win" -- the whole point of this test.
-    seed_zero_auc = next(auc for seed, auc, _ in results if seed == 0)
-    assert seed_zero_auc < 0.55
+    assert all(auc > 0.7 for _, auc, _ in results), "every seed should show real discrimination"
+    wins = [(seed, auc) for seed, auc, verdict in results if verdict == "quantum_better"]
+    assert len(wins) >= 4
+    assert all(auc > 0.55 for _, auc in wins), "no win should rest on a near-random ranking"
+
+
+def test_default_patience_seed_3_inverted_ranking_is_never_certified_as_a_win() -> None:
+    """On the corrected grid, the production default (`patience=20`) at seed 3
+    produces an INVERTED ranking (ROC-AUC 0.252, calibration slope -3.01) -- the
+    same kind of failure the second diagnostic exists to catch. Here the Brier
+    comparison does not turn it into a win (the verdict is `inconclusive`), which
+    is exactly why a verdict must never rest on the Brier score alone."""
+    result = run_recessionnet_kaggle_job(RecessionNetKaggleRunConfig(seed=3, patience=20))
+    payload = result.evidence_bundle["recessionnet_kaggle"]
+    hq = payload["models"]["hybrid_quantum"]
+    assert hq["roc_auc"] < 0.5
+    assert hq["calibration_slope"] < 0
+    assert payload["verdict"] != "quantum_better"
 
 
 def test_main_runs_against_a_small_synthetic_fixture(tmp_path, capsys) -> None:

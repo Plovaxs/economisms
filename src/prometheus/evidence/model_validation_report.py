@@ -88,9 +88,10 @@ DEFAULT_VALIDATION_REPORT: tuple[ModelValidationRecord, ...] = (
         model_id="neural-sde",
         backtest_against_baseline=(
             "PR-150: benchmarked against GBM/GARCH baselines in-distribution (does not "
-            "win, validation log-score 4.82 vs. baselines' ~4.0-4.1) and under the real "
-            "2020 COVID out-of-distribution shock (neural SDE degrades +5.58 vs. GBM's "
-            "+29.97) -- tests/unit/test_neural_sde_ood.py."
+            "win, validation log-score 4.83 vs. baselines' ~4.0-4.1) and under the real "
+            "2020 COVID out-of-distribution shock (neural SDE degrades +6.99 vs. GBM's "
+            "+26.45; re-measured in PR-197 after a GDP look-ahead in the input data was "
+            "corrected -- originally +5.58 vs. +29.97) -- tests/unit/test_neural_sde_ood.py."
         ),
         calibration_evidence=(
             "neural_sde.scoring.gaussian_log_score/marginal_crps_report, CRPS cross-"

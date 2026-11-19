@@ -278,10 +278,12 @@ under a genuine out-of-distribution shock.
 **Verdict: partially supported.** In-distribution, the neural SDE does
 *not* beat simple baselines (validation log-score 4.82 vs. baselines'
 ≈4.0–4.1). Under the real 2020 COVID shock — the genuine sample-wide
-extremum in both real GDP year-over-year growth and real unemployment-
-claims growth, independently verified against the raw source data, not
-assumed — the neural SDE's log-score degrades by **+5.58**, while a
-constant-parameter GBM baseline degrades by **+29.97**. The neural SDE
+extremum in real unemployment-claims growth, independently verified
+against the raw source data, not assumed — the neural SDE's log-score
+degrades by **+6.99**, while a constant-parameter GBM baseline degrades
+by **+26.45** (re-measured after the PR-197 correction of a GDP look-ahead
+in the input data; originally +5.58 vs. +29.97, see
+`docs/RESULTS_AND_LIMITATIONS.md` Finding 13). The neural SDE
 is not a better unconditional model, but its regime-conditioning
 provides real, measured robustness under a genuine distributional shift
 that a non-conditioned classical model lacks: a concrete, falsifiable
@@ -422,9 +424,10 @@ economics literature — was added to RECESSIONNET as a feature over the
 real 1990–2023 overlap between the two existing data sources, and
 directly ablated (same seeds, same train/validation/test split, with
 and without the feature). **It did not help, and mostly hurt**: ROC-AUC
-was consistently decent (0.68–0.86) without the feature, but erratic and
-usually worse (0.36–0.82) with it, across the same 5 seeds, with 4 of 5
-seeds degraded or unchanged. The plausible mechanism is disclosed rather
+was consistently decent (0.71–0.85) without the feature, but erratic and
+usually worse (0.35–0.83) with it, across the same 5 seeds, with 4 of 5
+seeds degraded or unchanged (re-measured in PR-197 after a data-timing
+correction; the original figures were 0.68–0.86 vs. 0.36–0.82). The plausible mechanism is disclosed rather
 than left unexplained: an already data-starved model (a few hundred
 monthly rows) gained one more input dimension to fit, which cost more
 than the feature's genuine theoretical relevance was worth at this
@@ -442,19 +445,22 @@ direction:
   robustness) **collapses under more training**: raising patience from
   20 to 60 improves the in-distribution score (the model's own selection
   metric) but makes COVID-window log-score degradation explode from
-  +5.58 to +48.75 — worse than the GBM baseline, destroying the exact
+  +6.99 to +47.41 — worse than the GBM baseline, destroying the exact
   robustness property §5.2 reports. `patience=20` is confirmed a
   deliberate, correct choice, not an oversight that more training would
   have fixed.
 - RECESSIONNET's Kaggle-dataset candidate, trained with `patience=60`
-  instead of 20, reached genuine, well-calibrated discrimination
-  (ROC-AUC 0.86–0.92) beating every classical candidate in 4 of 5
-  seeds — but the 5th seed revealed a real Brier-score-vs-ROC-AUC
-  divergence (ROC-AUC 0.479, worse than random, while still showing an
-  apparently-improved Brier score by bootstrap CI) that a second,
-  independent diagnostic caught before it could be mistaken for a clean
-  win. Neither result was promoted to this project's production default
-  on the strength of one favorable aggregate metric alone.
+  instead of 20, reached genuine discrimination (ROC-AUC 0.76–0.88 in
+  all 5 seeds) beating the classical candidates in 4 of 5 seeds. The
+  original PR-177 run also found a Brier-score-vs-ROC-AUC divergence in
+  seed 0 (ROC-AUC 0.479, worse than random, with an apparently-improved
+  Brier score by bootstrap CI); PR-197 showed that example was partly
+  produced by a GDP look-ahead in the input data and no longer
+  reproduces. The methodological point survives in a different place: at
+  the production default, seed 3 produces an inverted ranking (ROC-AUC
+  0.25) that only the second, independent diagnostic exposes. Neither
+  result was promoted to this project's production default on the
+  strength of one favorable aggregate metric alone.
 
 ### 6.4 Scope cuts in the original 374-item blueprint, disclosed and then closed
 

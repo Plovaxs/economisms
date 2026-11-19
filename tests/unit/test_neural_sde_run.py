@@ -74,9 +74,11 @@ def test_more_patience_improves_in_distribution_score_but_destroys_ood_robustnes
     selects on, so a better in-distribution log_score at higher
     patience is partly expected, not necessarily a better model -- and
     checking the genuinely untouched COVID OOD window settles it: at
-    `patience=60`, in-distribution log_score improves (~4.82 -> ~3.92)
-    but COVID-window degradation EXPLODES (~5.58 -> ~48.75, now WORSE
-    than the ~29.97 the classical GBM baseline degrades by) -- the
+    `patience=60`, in-distribution log_score improves (~4.83 -> ~3.91)
+    but COVID-window degradation EXPLODES (~6.99 -> ~47.41, now WORSE
+    than the ~26.45 the classical GBM baseline degrades by; PR-197
+    re-measured these after correcting a GDP look-ahead -- the original
+    PR-176 values were ~4.82 -> ~3.92 and ~5.58 -> ~48.75 vs ~29.97) -- the
     model has overfit the in-distribution set at the direct expense of
     the real, valuable property this subsystem actually has. This is
     positive evidence FOR keeping `patience=20`, not a reason to raise

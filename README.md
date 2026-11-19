@@ -89,7 +89,7 @@ re-running until a result looked good.
 | ID | Question | Verdict |
 |---|---|---|
 | **H1** | Does a hybrid quantum-classical model beat classical baselines on recession classification / factor regression? | **Rejected.** Tested 3 independent ways (2 real datasets, 2 task families); every bootstrap CI includes zero. |
-| **H2** | Does a neural SDE beat classical baselines in-distribution, and degrade less under a real shock? | **Partially supported.** Not better in-distribution — but genuinely more robust under the real 2020 COVID shock (+5.58 vs. a GBM baseline's +29.97 log-score degradation). |
+| **H2** | Does a neural SDE beat classical baselines in-distribution, and degrade less under a real shock? | **Partially supported.** Not better in-distribution — but genuinely more robust under the real 2020 COVID shock (+6.99 vs. a GBM baseline's +26.45 log-score degradation). |
 | **H3** | Does a neural PDE solver (PINN/deep-BSDE) earn its cost over a classical grid at high dimension? | **Supported**, crossover measured not assumed — revised 2026-11-13 once an undertrained baseline was caught and fixed (grid's accuracy edge over deep-BSDE: ~580x → ~2x; verdict unchanged). |
 | **H4** | Can naive fixed-epoch training or an unaudited reward silently produce a false conclusion? | **Supported, twice**, independently (RECESSIONNET's early-stopping fix; MARL's reward-design fix). |
 | **H5** | Does a REINFORCE hedging agent beat a well-specified static baseline? | **Rejected.** Still loses after fixing a real reward/metric mismatch and training 10–20x longer (gap narrowed ~2.5x → ~1.04–1.41x, still a loss). |
@@ -97,17 +97,18 @@ re-running until a result looked good.
 Two further checks, run after the freeze (disclosed as such, not
 folded into H1–H5): a textbook recession predictor (the US Treasury
 10Y-3M yield-curve spread) was added to RECESSIONNET as a real feature
-and made things **worse**, not better (ROC-AUC 0.68–0.86 without it vs.
-0.36–0.82 with it, across the same 5 seeds) — plausibly because an
+and made things **worse**, not better (ROC-AUC 0.71–0.85 without it vs.
+0.35–0.83 with it, across the same 5 seeds) — plausibly because an
 already data-starved model gained one more dimension to fit. And a
 "train harder" pass across all seven deep-learning subsystems found
 two defaults were already *correct*: the neural SDE's one clearly
 positive result (above) collapses under more training, and
-RECESSIONNET's Kaggle dataset revealed a real Brier-score-vs-ROC-AUC
-blind spot in 1 of 5 seeds that a second diagnostic caught before it
-could pass as a win. See
+the Brier-score-vs-ROC-AUC trap on RECESSIONNET's Kaggle data is real
+(an inverted ranking at one seed that only a second diagnostic exposes),
+but its first, 'seed 0' form turned out to be partly a data look-ahead we
+then found and fixed (Finding 13). See
 [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md)
-(12 numbered findings, each with its own re-runnable test) and
+(14 numbered findings, each with its own re-runnable test) and
 [docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md) for
 the full account behind every line above, or
 [docs/FINAL_PAPER.md](./docs/FINAL_PAPER.md) for all of it assembled
@@ -128,9 +129,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,710 / 3,710** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **3,755 / 3,755** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 196, each independently verified |
+| Pull requests | 198, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

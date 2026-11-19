@@ -49,13 +49,23 @@ def test_discovers_exactly_the_real_connectors_in_this_repository() -> None:
     directly, PR-178 -- a separate, narrower module, not a duplicate
     of `treasury_yield_curve`, see its own module docstring for why)
     are genuinely new real sources this scanner is correctly expected
-    to pick up; `monthly_matrix` has no `*_URL`/`*LICENSE` constants of
-    its own (it is a shared helper, not a source) and is correctly NOT
+    to pick up. PR-197 adds three more Kaggle datasets, each in its own
+    module so each keeps its OWN licence in the catalogue:
+    `kaggle_fed_policy` (federalreserve/interest-rates, CC0),
+    `kaggle_sp500` (henryhan117/sp-500-historical-data, ODbL) and
+    `kaggle_term_spread` (guillemservera/us-treasury-yields-daily,
+    CC BY-NC). `kaggle_macro_extended` reuses `kaggle_macro`'s constants
+    (same dataset) and `kaggle_build` only imports them, so neither
+    declares a source of its own; `monthly_matrix` has no `*_URL`/`*LICENSE`
+    constants either (a shared helper, not a source) -- none of these is
     picked up."""
     discovered = discover_data_sources(_repo_data_ingestion_root())
     assert discovered == (
         "french_factors",
+        "kaggle_fed_policy",
         "kaggle_macro",
+        "kaggle_sp500",
+        "kaggle_term_spread",
         "treasury_yield_curve",
         "treasury_yield_spread",
         "worldbank",

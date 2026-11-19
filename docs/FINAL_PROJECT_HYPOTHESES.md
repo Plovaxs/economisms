@@ -48,8 +48,10 @@ both match classical baselines (GBM, GARCH) in-distribution and degrade
 less under a genuine out-of-distribution shock. **Verdict: partially
 supported.** The in-distribution half is rejected (the neural SDE does
 not beat simple baselines there); the OOD-robustness half is supported
-(real 2020 COVID-shock degradation: +5.58 for the neural SDE vs. +29.97
-for a constant-volatility GBM baseline).
+(real 2020 COVID-shock degradation: +6.99 for the neural SDE vs. +26.45
+for a constant-volatility GBM baseline; revised 2026-11-19 in PR-197 after a
+GDP look-ahead in the input data was corrected -- the figures on the freeze
+day were +5.58 vs. +29.97, verdict unchanged).
 
 **H3 (PDE solvers).** A neural PDE solver (PINN / deep BSDE) earns its
 additional computational cost over a classical finite-difference grid

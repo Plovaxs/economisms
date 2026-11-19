@@ -144,10 +144,14 @@ def test_adding_the_yield_curve_spread_does_not_help_and_mostly_hurts() -> None:
     feature added vs. not, both on the same 1990-2023 overlap the
     Treasury data's own real start date forces) found adding it does
     NOT help `hybrid_quantum` overall, and mostly hurts: WITHOUT it,
-    ROC-AUC is consistently decent across all 5 seeds (0.68-0.86); WITH
-    it, ROC-AUC becomes erratic and usually worse (0.36-0.82, 4 of 5
-    seeds lower, 1 of 5 -- seed 2 -- very slightly higher), with 4/5
-    seeds now favoring classical where only 1/5 did before. A
+    ROC-AUC is consistently decent across all 5 seeds (0.71-0.85); WITH
+    it, ROC-AUC becomes erratic and usually worse (0.35-0.83, 4 of 5
+    seeds lower, 1 of 5 -- seed 2 -- higher). PR-197 re-measured this
+    after correcting a GDP look-ahead in the input data: the original
+    PR-177 figures were 0.68-0.86 vs 0.36-0.82 with 4/5 seeds favoring
+    classical WITH the spread and only 1/5 without; on the corrected data
+    3/5 seeds favor classical both with and without it, so the verdict
+    counts no longer differ -- the AUC degradation (4 of 5 seeds) remains. A
     textbook-motivated feature making things worse, not better, in an
     already data-starved model (689 parameters, 127 training examples)
     is itself an honest, informative result -- not a reason to drop

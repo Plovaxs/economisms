@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "4c1a481375b7ad437f9fee32a018ce05d6b534480e5dbf55ba4c70985d484f30",
+    "content_sha256": "ec56ff47245944d47b0afe79a63572cdcf08e3911aee9cb5b5e00880b073b28d",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "7e400c90595cb26a7ce0087e21a02b1ae694b863b4a231c98088d11d83f5baa4",
+  "checklist_notes_sha256": "77702e896925dc6087212b7b1a2f7e29227e2cfffc23371673e33dc8185adde8",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -2151,8 +2151,14 @@
       "repository_notes": [
         {
           "checklist_line": 5827,
-          "evidence_note": "`neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +5.58 vs. baseline +29.97 log-score degradation",
+          "evidence_note": "`neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +6.99 vs. baseline +26.45 log-score degradation (re-measured in PR-197 after a GDP look-ahead in the input data was corrected; originally +5.58 vs. +29.97)",
           "id_column": "NSD-11 (first evidence)",
+          "requirement_note": "unseen macroeconomic shock OOD evaluation"
+        },
+        {
+          "checklist_line": 8019,
+          "evidence_note": "the COVID window's \"double extremum\" (GDP and claims) was partly the look-ahead: GDP's extremum is now knowable only from the 2020-07 row, after the window (`test_neural_sde_ood.py::test_real_gdp_yoy_hits_its_sample_wide_minimum_only_after_the_covid_window`); re-measured neural +6.99 vs. GBM +26.45 log-score degradation",
+          "id_column": "NSD-11 (corrected)",
           "requirement_note": "unseen macroeconomic shock OOD evaluation"
         }
       ],
@@ -3996,6 +4002,12 @@
           "evidence_note": "`data_ingestion.source_inventory.build_source_catalog`; ast-derived against the real `data_ingestion` package, confirmed to find both real connectors with their actual URL/license strings, plus an incomplete-declaration rejection",
           "id_column": "DAT-01 (first evidence)",
           "requirement_note": "create inventory of each external data source and license; approved source catalog with allowed use and redistribution"
+        },
+        {
+          "checklist_line": 8018,
+          "evidence_note": "the AST-derived source catalogue now finds eight sources (three new Kaggle ones, each in its own module so each keeps its OWN licence: ODbL, CC0 and CC BY-NC): `test_source_inventory.py::test_discovers_exactly_the_real_connectors_in_this_repository`; the non-commercial restriction of the Kaggle Treasury-yield derivative is stated in `docs/LICENSE_INVENTORY.md` and in the module's own docstring",
+          "id_column": "DAT-01 (strengthened)",
+          "requirement_note": "inventory of each external data source and license"
         }
       ],
       "requirement": "Create inventory of each external data source and license",
@@ -4144,6 +4156,12 @@
           "evidence_note": "the SAME predicate now gates a real external HTTP-sourced observation, not just synthetic/econosim data -- `test_observations_feed_the_point_in_time_store_correctly` confirms a fetched observation is ineligible before the API's own `lastupdated` date and eligible on/after it",
           "id_column": "DAT-07 (strengthened)",
           "requirement_note": "observation/publication timestamp tracking, point-in-time inclusion predicate"
+        },
+        {
+          "checklist_line": 8015,
+          "evidence_note": "a real look-ahead that the predicate could NOT catch (every row had `published_at == observation_at` by construction) was found and fixed in the data itself: `test_kaggle_build.py::test_quarterly_gdp_is_released_after_the_quarter_ends_not_during_it` reproduces the exact PR-145 failure on synthetic quarters, and `::test_committed_gdp_column_only_changes_on_release_rows` (parametrized over both committed grids) pins the structural invariant that quarterly GDP may only change on the Jan/Apr/Jul/Oct rows; `::test_committed_baseline_shows_the_covid_gdp_collapse_only_when_it_was_released` checks the real Q2-2020 case (2.5% on the 2020-05 and 2020-06 rows, -7.69% from 2020-07)",
+          "id_column": "DAT-07 (strengthened)",
+          "requirement_note": "observation/publication timestamp tracking, point-in-time inclusion predicate"
         }
       ],
       "requirement": "Track observation, release, vintage and ingest timestamps",
@@ -4192,6 +4210,12 @@
           "evidence_note": "`econosim.leakage_linter.lint_future_timestamp_usage` (general) and `lint_pit_store_usage` (PointInTimeStore-integrated, via the store's own public `as_of`, not a privacy-violating direct read); tests cover a clean batch, a flagged leak, multiple simultaneous violations, a never-recorded series, and the asof_eligible_at ingestion-lag case",
           "id_column": "DAT-09 (first evidence)",
           "requirement_note": "enforce train/validation/test temporal partition on features; automated leakage linter catches future timestamps"
+        },
+        {
+          "checklist_line": 8016,
+          "evidence_note": "an independent re-derivation is now a permanent audit: `python -m prometheus.data_ingestion.kaggle_build --backbone-zip <zip> --verify-baseline data_cache/kaggle_us_macro_monthly.csv` exits non-zero on any mismatch (288 `GDP_YOY` rows before the fix, 0 after); the counting logic is covered by `test_kaggle_build.py::test_count_baseline_mismatches_flags_a_changed_value_and_a_missing_row`",
+          "id_column": "DAT-09 (strengthened)",
+          "requirement_note": "enforce temporal partition and leakage controls on features"
         }
       ],
       "requirement": "Enforce train/validation/test temporal partition on features",
@@ -4264,6 +4288,12 @@
           "evidence_note": "`experiments.dataset_fingerprint.DatasetFingerprint`/`compute_dataset_fingerprint`/`verify_dataset_fingerprint`; 9 tests (`tests/unit/test_dataset_fingerprint.py`) including a real GBM-price-to-log-return reproduction case and a 1e-9-perturbation detection case",
           "id_column": "DAT-12 (first evidence)",
           "requirement_note": "hash normalized data and feature transformations; every model reproduces dataset fingerprint exactly"
+        },
+        {
+          "checklist_line": 8017,
+          "evidence_note": "every new snapshot's `.meta.json` records the SHA-256 of each raw file it was derived from and the committed function that derived it: `test_kaggle_build.py::test_every_new_snapshot_has_a_meta_file_that_names_its_source_license_and_raw_hashes`; the builder reads archives through the existing SEC-08 sandbox (`test_read_zip_members_validates_the_archive_and_records_content_digests` includes a decompression-bomb rejection)",
+          "id_column": "DAT-12 (strengthened)",
+          "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
         }
       ],
       "requirement": "Hash normalized data and feature transformations",

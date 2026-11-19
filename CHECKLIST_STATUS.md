@@ -5824,7 +5824,7 @@ choice, strengthening rather than weakening the result above.
 | NSD-08 (first evidence) | proper scoring rules (CRPS/log score) | `neural_sde.scoring.gaussian_log_score`/`marginal_crps_report`; CRPS cross-checked against brute-force numerical integration |
 | NSD-09 (first evidence) | tail/skew/vol-persistence moment diagnostics | `neural_sde.scoring.moment_diagnostics` with bootstrap CIs, validated against a known-skew lognormal sample |
 | NSD-10 (first evidence) | multi-seed/multi-solver sensitivity | `neural_sde.benchmark.multi_seed_multi_solver_sensitivity`; real run: within-scheme seed std ~15.6-16.0 vs. cross-scheme std at matched seed ~1.37 |
-| NSD-11 (first evidence) | unseen macroeconomic shock OOD evaluation | `neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +5.58 vs. baseline +29.97 log-score degradation |
+| NSD-11 (first evidence) | unseen macroeconomic shock OOD evaluation | `neural_sde.ood`; real 2020 COVID window, no re-tuning (enforced structurally -- no training call in that module); real result: neural +6.99 vs. baseline +26.45 log-score degradation (re-measured in PR-197 after a GDP look-ahead in the input data was corrected; originally +5.58 vs. +29.97) |
 | NSD-12 (first evidence) | training fails on loss/gradient/NaN integrity violations | `neural_sde.training._check_integrity`/`TrainingIntegrityError`; both an injected-NaN case and an organically-exploding-learning-rate case |
 | NSD-13 (first evidence) | model version/training-range/limitations card | `neural_sde.registry.ModelCard`/`model_card_from_trained_model`, training range read from the real data actually used, not hand-typed |
 
@@ -7997,3 +7997,35 @@ cd frontend && npm ci && npm run lint && npm run typecheck && npm run test && np
 See `frontend/README.md` for the full four-process local run (job
 worker, job API, dashboard, Vite dev server) needed to click through
 it against real, live backends.
+
+
+## Evidenced today (PR-197: more real Kaggle datasets, a committed rebuildable data layer and a look-ahead bug found and fixed in the PR-145 GDP column -- strengthens DAT-07, DAT-09, DAT-12 and DAT-01; no new blueprint ID closed)
+
+PR-145's Kaggle snapshot was produced by a one-off script that was never
+committed. PR-197 replaces it with `data_ingestion.kaggle_build` and, in
+re-deriving the five committed columns from the raw files, found that one of
+them (`GDP_YOY`) had leaked each quarter's growth one to two months before it
+was knowable (288 of 494 cells; the other four columns reproduced exactly).
+The data is corrected, the documented findings that depended on it were
+re-measured (see `docs/RESULTS_AND_LIMITATIONS.md` Finding 13), and four new
+real Kaggle snapshots were added. Nothing here changes the NO-GO gate.
+
+| ID | Requirement (abridged) | Evidence |
+|---|---|---|
+| DAT-07 (strengthened) | observation/publication timestamp tracking, point-in-time inclusion predicate | a real look-ahead that the predicate could NOT catch (every row had `published_at == observation_at` by construction) was found and fixed in the data itself: `test_kaggle_build.py::test_quarterly_gdp_is_released_after_the_quarter_ends_not_during_it` reproduces the exact PR-145 failure on synthetic quarters, and `::test_committed_gdp_column_only_changes_on_release_rows` (parametrized over both committed grids) pins the structural invariant that quarterly GDP may only change on the Jan/Apr/Jul/Oct rows; `::test_committed_baseline_shows_the_covid_gdp_collapse_only_when_it_was_released` checks the real Q2-2020 case (2.5% on the 2020-05 and 2020-06 rows, -7.69% from 2020-07) |
+| DAT-09 (strengthened) | enforce temporal partition and leakage controls on features | an independent re-derivation is now a permanent audit: `python -m prometheus.data_ingestion.kaggle_build --backbone-zip <zip> --verify-baseline data_cache/kaggle_us_macro_monthly.csv` exits non-zero on any mismatch (288 `GDP_YOY` rows before the fix, 0 after); the counting logic is covered by `test_kaggle_build.py::test_count_baseline_mismatches_flags_a_changed_value_and_a_missing_row` |
+| DAT-12 (strengthened) | hash normalized data and transformations; reproduce the dataset fingerprint | every new snapshot's `.meta.json` records the SHA-256 of each raw file it was derived from and the committed function that derived it: `test_kaggle_build.py::test_every_new_snapshot_has_a_meta_file_that_names_its_source_license_and_raw_hashes`; the builder reads archives through the existing SEC-08 sandbox (`test_read_zip_members_validates_the_archive_and_records_content_digests` includes a decompression-bomb rejection) |
+| DAT-01 (strengthened) | inventory of each external data source and license | the AST-derived source catalogue now finds eight sources (three new Kaggle ones, each in its own module so each keeps its OWN licence: ODbL, CC0 and CC BY-NC): `test_source_inventory.py::test_discovers_exactly_the_real_connectors_in_this_repository`; the non-commercial restriction of the Kaggle Treasury-yield derivative is stated in `docs/LICENSE_INVENTORY.md` and in the module's own docstring |
+| NSD-11 (corrected) | unseen macroeconomic shock OOD evaluation | the COVID window's "double extremum" (GDP and claims) was partly the look-ahead: GDP's extremum is now knowable only from the 2020-07 row, after the window (`test_neural_sde_ood.py::test_real_gdp_yoy_hits_its_sample_wide_minimum_only_after_the_covid_window`); re-measured neural +6.99 vs. GBM +26.45 log-score degradation |
+
+
+## Evidenced today (PR-198: RECESSIONNET "more data" study -- strengthens FP-06 and FP-18; no new blueprint ID closed)
+
+PR-197 added more real datasets; PR-198 asks the honest question of what "more data"
+buys. The study separates more history from more features, scores four feature sets on
+identical test months, and reports the result either way (Finding 14).
+
+| ID | Requirement (abridged) | Evidence |
+|---|---|---|
+| FP-06 (strengthened) | RECESSIONNET produces calibrated probabilities | `orchestration.recessionnet_extended_study`: with the features held fixed, 6 instead of 3 training recession episodes lowers the logistic regression's test Brier 0.147 -> 0.095; six extra features improve no learned model's Brier score and significantly worsen the matched MLP; tests: `test_recessionnet_extended_study.py::test_more_history_helps_the_logistic_regression_on_the_same_test_months`, `::test_more_features_does_not_improve_brier_and_hurts_the_matched_mlp`, `::test_every_feature_set_is_scored_on_exactly_the_same_test_months` |
+| FP-18 (strengthened) | multiple seeds and confidence intervals are reported | the study reports 5 seeds per feature set and a moving-block bootstrap interval (block length = the forecast horizon, because overlapping monthly forecasts are serially dependent) for every paired Brier difference: `test_recessionnet_extended_study.py::test_the_report_is_json_serialisable_and_complete` |
