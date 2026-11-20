@@ -1,0 +1,22 @@
+{
+  "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (FRED CPIAUCSL, CPI-U all items, seasonally adjusted)",
+  "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+  "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "Consumer Price Index for All Urban Consumers All Items in U.S. City Average.csv": "822049d0eadb03a1e0a6d6c41a9b13b3a082b8401cc6b967e871adacd6038306"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.build_cpi_index_grid",
+  "columns": {
+    "CPI_INDEX_SA": "index level (1982-84 = 100) of the PREVIOUS month: row r holds the level of month r - 1, knowable 15 days after that month ends"
+  },
+  "point_in_time": "FIXED, documented assumptions (not fetched release vintages; ALFRED is unreachable here). A period's value is re-keyed to the first month-end at or after (period end + lag), so the value on row M is knowable by M's own end.",
+  "rows": 915,
+  "real_range": {
+    "first_row": "1947-02-28",
+    "last_row": "2023-04-30",
+    "first_measured_month": "1947-01-31",
+    "last_measured_month": "2023-03-31"
+  },
+  "caveat": "The seasonally adjusted series as it stands today: seasonal factors are re-estimated for years after publication, so a level here can differ slightly from the one first published (the real-time vintage is not reachable from this environment)."
+}

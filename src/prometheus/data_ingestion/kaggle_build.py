@@ -528,6 +528,18 @@ def build_spliced_sp500(yahoo: Series, continuation: Series) -> tuple[Series, di
     return [*yahoo, *extension], agreement
 
 
+def build_cpi_index_grid(members: Mapping[str, str]) -> Grid:
+    """CPI-U (seasonally adjusted) LEVELS, re-keyed to the month-end on which each becomes
+    knowable: row `r` holds the index of month `r - 1` (the repository's 15-day convention).
+    The year-over-year rate in the extended grid hides the base effect; the levels expose it."""
+    member = BACKBONE_MEMBERS["CPI_YOY_SA"]
+    levels = monthly_period_levels(parse_fred_csv(members[member], member))
+    knowable = apply_lag(levels, PUBLICATION_LAG_DAYS["CPI_YOY_SA"])
+    return Grid(
+        ("CPI_INDEX_SA",), {row: {"CPI_INDEX_SA": v} for row, v in sorted(knowable.items())}
+    )
+
+
 # --------------------------------------------------------------------------- writers
 
 
@@ -871,6 +883,48 @@ def _write_markets(out: Path, backbone_zip: Path, sp500_zip: Path, downloaded_at
     )
 
 
+def _write_cpi_index(out: Path, backbone_zip: Path, downloaded_at: str) -> None:
+    member = BACKBONE_MEMBERS["CPI_YOY_SA"]
+    texts, hashes = read_zip_members(backbone_zip, [member])
+    grid = build_cpi_index_grid({member: texts[member]})
+    write_grid_csv(out / "kaggle_cpi_index_monthly.csv", grid)
+    first, last = min(grid.rows), max(grid.rows)
+    _write_meta(
+        out / "kaggle_cpi_index_monthly.meta.json",
+        {
+            "source": (
+                "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators "
+                "(FRED CPIAUCSL, CPI-U all items, seasonally adjusted)"
+            ),
+            "source_url": KAGGLE_SOURCE_URL,
+            "license": KAGGLE_SOURCE_LICENSE,
+            "downloaded_at": downloaded_at,
+            "raw_files_sha256": hashes,
+            "derived_by": "prometheus.data_ingestion.kaggle_build.build_cpi_index_grid",
+            "columns": {
+                "CPI_INDEX_SA": (
+                    "index level (1982-84 = 100) of the PREVIOUS month: row r holds the "
+                    "level of month r - 1, knowable 15 days after that month ends"
+                )
+            },
+            "point_in_time": _LAG_NOTE,
+            "rows": len(grid.rows),
+            "real_range": {
+                "first_row": first.isoformat(),
+                "last_row": last.isoformat(),
+                "first_measured_month": add_months(first, -1).isoformat(),
+                "last_measured_month": add_months(last, -1).isoformat(),
+            },
+            "caveat": (
+                "The seasonally adjusted series as it stands today: seasonal factors are "
+                "re-estimated for years after publication, so a level here can differ slightly "
+                "from the one first published (the real-time vintage is not reachable from this "
+                "environment)."
+            ),
+        },
+    )
+
+
 def _write_fed(out: Path, zip_path: Path, downloaded_at: str) -> None:
     texts, hashes = read_zip_members(zip_path, ["index.csv"])
     grid = build_fed_policy_grid(texts["index.csv"])
@@ -950,7 +1004,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_sp500(out, args.sp500_zip, args.downloaded_at)
     _write_fed(out, args.fed_zip, args.downloaded_at)
     _write_markets(out, args.backbone_zip, args.sp500_zip, args.downloaded_at)
-    print(f"wrote 6 snapshots and 6 .meta.json files to {out}")
+    _write_cpi_index(out, args.backbone_zip, args.downloaded_at)
+    print(f"wrote 7 snapshots and 7 .meta.json files to {out}")
     return 0
 
 

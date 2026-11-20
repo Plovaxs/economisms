@@ -14,7 +14,7 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
-## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, data and secret integrity, and a second market (PR-197 through PR-202)
+## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, data and secret integrity, a second market, and a long-history inflation nowcast (PR-197 through PR-203)
 
 ### Security
 - **Verified data (PR-201).** `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every
@@ -43,6 +43,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   are unchanged). See `docs/RESULTS_AND_LIMITATIONS.md` Finding 13.
 
 ### Added
+- `orchestration.inflationcast_long_study` (PR-203): the inflation nowcast on 76 years of CPI index levels, with
+  five questions written down before any number was computed (Finding 18). A base-effect rule (forecast the
+  monthly growth, convert exactly to year-over-year) cut the error against persistence by about a third; a
+  ridge regression added about 6%; macro predictors and a longer training history did not help. One more
+  committed Kaggle-derived snapshot: the CPI-U index levels from 1947.
 - `orchestration.market_risk_extended_study` (PR-202): a second market (the NASDAQ composite), the S&P 500
   continued to 2023-05, an asymmetric-volatility model and a neural model trained on both markets, with
   five questions written down before any number was computed (Finding 17). Leverage asymmetry lowered the

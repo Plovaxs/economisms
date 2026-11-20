@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "ab647a05a5cbe02ce45a2972a750eb31bbb68c4c77242a67269a81e1a2bf7545",
+    "content_sha256": "85f4d7f9c52fb2b01fa0feab4443e4ed667c51968bed8af87b4089a089ac4bbf",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "f5b6498e1ff040c1ad7bfff604b50ffcb857a8c44f339ace91e0a76bf52fa616",
+  "checklist_notes_sha256": "d6291c0e394ff7bed067800aadcce421df76a70ed8059447926e8b5338fa1314",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -4329,6 +4329,12 @@
           "checklist_line": 8083,
           "evidence_note": "`data_cache/kaggle_sp500_spliced_daily_close.csv` and `kaggle_nasdaq_daily_close.csv` with `.meta.json` (raw SHA-256, licence, the splice's agreement statistics), in the manifest and read through the verified loader (`test_snapshot_integrity.py::test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one`, now ten loaders); the builder: `test_kaggle_build.py::test_the_spliced_series_joins_exactly_and_records_how_well_the_vendors_agree`, `::test_the_spliced_agreement_statistics_show_a_disagreement_when_there_is_one`, `::test_a_splice_without_a_shared_join_date_or_a_continuation_is_refused`, `::test_the_market_writers_produce_loadable_snapshots_with_provenance`; rebuilding all six snapshots from the raw Kaggle zips leaves the eight earlier files byte-identical",
           "id_column": "DAT-12 (strengthened, two more verified snapshots with provenance)",
+          "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
+        },
+        {
+          "checklist_line": 8095,
+          "evidence_note": "`data_cache/kaggle_cpi_index_monthly.csv` with `.meta.json` (raw SHA-256, licence, the point-in-time convention), in the manifest and read through the verified loader (`test_snapshot_integrity.py::test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one`, now eleven loaders); checked against three independent facts about US inflation (`test_kaggle_cpi_index.py::test_inflation_computed_from_the_levels_matches_three_known_episodes`), keyed to when each level became knowable (`::test_the_file_is_keyed_to_when_each_level_became_knowable`, `::test_the_builder_shifts_levels_to_the_month_they_become_knowable`, `::test_the_loader_returns_each_level_against_the_month_it_measures`); rebuilding all seven snapshots from the raw Kaggle zips leaves the other twelve files byte-identical",
+          "id_column": "DAT-12 (strengthened, one more verified snapshot with provenance)",
           "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
         }
       ],

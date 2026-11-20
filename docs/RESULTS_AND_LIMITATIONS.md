@@ -299,7 +299,8 @@ accuracy (MAE 0.31 vs. 1.88–3.58 for the learned models; 1.77–3.59 before
 the PR-197 GDP correction) — CPI
 year-over-year is a highly persistent series month to month, a
 well-documented real property, not an artifact of this pipeline or a
-sign anything is broken; and **`InflationGRU`'s calibration failed
+sign anything is broken (PR-203 later showed persistence of the YoY rate to be a
+weak baseline: a base-effect rule beats it by about a third, Finding 18); and **`InflationGRU`'s calibration failed
 badly**: its nominal 90% predictive interval covered only ~11% of real
 test-set outcomes (exact binomial test, p ≈ 1.7×10⁻⁴³).
 
@@ -668,6 +669,58 @@ excludes zero is weak evidence. The S&P 500 joins two data vendors. QLIKE uses t
 as its variance proxy. The persistence result depends on this fitter and these samples and was not
 explained, and the neural numbers vary with the training seed (five seeds, averaged in variance
 space). Nothing here says which model to deploy.
+
+## Finding 18 (PR-203): the inflation nowcast's own baseline was weak -- a base-effect rule cut the error by about a third, a learned model added little, and neither macro predictors nor more history helped
+
+Finding 11 reported that naive persistence beat every learned INFLATIONCAST candidate, on a test
+set of 13 months. This study (`orchestration.inflationcast_long_study`, no network call) gives the
+question 277 test months and asks what the year-over-year rate hides. Writing `I_t` for the index
+level, `YoY_t - YoY_{t-1}` is about `MoM_t - MoM_{t-12}`: because the month that drops out of the
+window is already known, a year-over-year nowcast is a forecast of ONE unknown number, this
+month's growth. Persistence of the YoY rate implicitly forecasts `MoM_t = MoM_{t-12}`. Every model
+below forecasts `MoM_t` and converts it with the exact identity `YoY_t = I_{t-1}(1 + MoM_t)/I_{t-12} - 1`.
+The nowcast is made at the end of month t, before month t's CPI is published, from index levels
+through month t-1 (CPI-U seasonally adjusted, 1947-2023, Kaggle backbone dataset) and the grid's
+macro-financial predictors on row t. Fit through 1989, validate 1990-1999 (it selects the ridge
+penalty and early-stops the neural model, nothing else), test 2000-01 to 2023-01. Five questions
+were **written down before any number was computed**, in the module's docstring.
+
+**The base-effect rule beats persistence by about a third (Q1: supported).** Forecasting monthly
+growth as its 12-month mean gives a mean absolute error of 0.226 percentage points against 0.326
+for persistence: a paired difference of -0.100 (95% moving-block-bootstrap interval [-0.136,
+-0.068]). Even the crudest rule, last month's growth, has 0.232 ([-0.140, -0.058] against
+persistence). The benefit is largest when inflation moves: from 2020 on (37 months, reported not
+tested) persistence has an error of 0.403 against 0.267 for last month's growth. This is not a
+learned model; it is arithmetic the YoY rate hides, and it says Finding 11's baseline was the weak
+one.
+
+**A learned model adds a little (Q2: supported, narrowly).** A ridge regression on the last twelve
+monthly growth rates (fit 1962-1989) scores 0.212 against 0.226 for the best rule: -0.0141
+([-0.0287, -0.0006]), about 6%.
+
+**Macro predictors did not help (Q3: inconclusive).** Adding unemployment and the policy rate
+(level and 3-month change) moved the ridge by +0.0210 ([-0.0011, +0.0531]) and the neural model by
++0.0031 ([-0.0045, +0.0105]), both the wrong way. During 2020-2023 the ridge with macro inputs was
+clearly worse (0.378 against 0.253 without them): a relationship fitted on 1960-1989 did not
+survive the surge.
+
+**More history did not help either (Q4: inconclusive, wrong direction).** The ridge fitted from
+1949 against from 1980: +0.0088 ([-0.0005, +0.0186]); the neural model from 1962 against from 1980:
++0.0091 ([-0.0005, +0.0171]). Descriptively, the ridge from 1962 was significantly worse than from
+1980 (+0.0125, [+0.0010, +0.0227]): the monthly inflation process before 1980 is a different regime
+and dilutes the fit, so on this series more history is not more information.
+
+**No variant is headlined.** The ten learned variants score between 0.199 and 0.233 on the test
+months, every one at least 29% below persistence, but they differ by about 0.01 among themselves
+and the validation decade cannot tell them apart (0.109 to 0.113): choosing the best on the test
+months would be selection, so only the pre-registered comparisons are claimed.
+
+**What this does not show.** One country and one price index, a test window that contains the 2008
+collapse and the 2021-2022 surge, and 277 serially dependent errors (12-month blocks). The index
+levels are the seasonally adjusted series as it stands today, not the real-time vintage (seasonal
+factors are re-estimated for years after publication). The macro predictors sit on the grid's
+fixed-lag point-in-time convention. The 2020-onward subperiod has 37 months. Nothing here is a forecast
+of future inflation, and `INFLATIONCAST` itself is unchanged: the finding is about its baseline.
 
 ## Known limitations that are not findings, just open scope
 

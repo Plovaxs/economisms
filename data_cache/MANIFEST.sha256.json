@@ -5,6 +5,14 @@
       "bytes": 34894,
       "sha256": "992452a26f777ddcedfbb59883d39741fdd68984e546c6b602cfada58d972641"
     },
+    "kaggle_cpi_index_monthly.csv": {
+      "bytes": 11945,
+      "sha256": "4a305d881163e6e476e531451fc28d614e5c185be0d9d3028180ddb8cd21b4ac"
+    },
+    "kaggle_cpi_index_monthly.meta.json": {
+      "bytes": 1476,
+      "sha256": "6be3a1e829a9670c889ed3fafdb77f7f49b7b42e5707a0081aacb104e79dcb67"
+    },
     "kaggle_fed_policy_monthly.csv": {
       "bytes": 16093,
       "sha256": "0c3eb1f3426b86c215f82c87268718a9187f316e5f212ad34187532aa7f415c2"

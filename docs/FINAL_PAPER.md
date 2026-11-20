@@ -618,7 +618,7 @@ suite can be large, green, and still share its production code's own
 unstated assumptions — the fix is periodic independent re-derivation,
 not more of the same kind of test.
 
-### 6.8 More real data, a data-timing bug, and what "more data" buys (PR-197 to PR-202)
+### 6.8 More real data, a data-timing bug, and what "more data" buys (PR-197 to PR-203)
 
 Asked to train the models on more datasets for better accuracy, the first
 step was to make the existing Kaggle snapshot re-derivable by committed code.
@@ -655,6 +655,17 @@ passed a conditional-coverage test through 2023; and one neural volatility model
 trained on both markets beat its single-market version on each, closing most of
 its gap to GARCH (Finding 17). Two of the five pre-registered predictions were
 contradicted or only partly confirmed, and are reported as such.
+
+A third round (PR-203) went back to the inflation nowcaster, whose baseline had
+been naive persistence of the year-over-year rate, on 76 years of index levels.
+Because the month dropping out of a year-over-year window is already known, the
+nowcast is a forecast of one number, this month's growth; a rule built on that
+cut the error by about a third (paired difference -0.100 percentage points,
+interval [-0.136, -0.068]), a ridge regression added about 6% on top, and
+neither macro-financial predictors nor a longer training history helped, the
+pre-1980 data being a different inflation regime (Finding 18). The finding is
+about the baseline: the benchmark the project's own nowcaster had failed to beat
+was weak.
 
 ## 7. Threats to validity
 

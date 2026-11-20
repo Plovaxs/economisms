@@ -111,7 +111,7 @@ the Brier-score-vs-ROC-AUC trap on RECESSIONNET's Kaggle data is real
 but its first, 'seed 0' form turned out to be partly a data look-ahead we
 then found and fixed (Finding 13). See
 [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md)
-(17 numbered findings, each with its own re-runnable test) and
+(18 numbered findings, each with its own re-runnable test) and
 [docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md) for
 the full account behind every line above, or
 [docs/FINAL_PAPER.md](./docs/FINAL_PAPER.md) for all of it assembled
@@ -132,9 +132,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,069 / 4,069** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,109 / 4,109** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 202, each independently verified |
+| Pull requests | 203, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
