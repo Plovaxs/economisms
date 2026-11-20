@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "1dff5cc4a71c11d76722764d7f5676442977f3b6fe59a2af04771dd191b49176",
+    "content_sha256": "ab647a05a5cbe02ce45a2972a750eb31bbb68c4c77242a67269a81e1a2bf7545",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "f2d1a4d309c0a2fddd728b8b1dd40829860d22445937d21f7888b20f07520742",
+  "checklist_notes_sha256": "f5b6498e1ff040c1ad7bfff604b50ffcb857a8c44f339ace91e0a76bf52fa616",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -3534,6 +3534,12 @@
           "evidence_note": "`orchestration.market_risk_study.kupiec_pof`/`christoffersen_independence`/`backtest_var`, cross-checked against `titan.risk_metrics.var_exception_coverage_test` (`test_market_risk_study.py::test_kupiec_agrees_with_the_repositorys_exact_binomial_coverage_test`) and against a known answer: the true conditional volatility of a simulated GARCH process is NOT rejected (`::test_a_correctly_specified_model_is_not_rejected_by_the_backtests`) while a constant-volatility model is (`::test_a_constant_volatility_model_is_rejected_on_volatility_clustered_data`); on the real 2008-2020 test period no model passes conditional coverage (`::test_no_var_model_passes_conditional_coverage_over_the_two_crises`)",
           "id_column": "RISK-08 (extended, conditional tests on real data)",
           "requirement_note": "VaR exception and coverage tests, expected frequency and CI"
+        },
+        {
+          "checklist_line": 8081,
+          "evidence_note": "`orchestration.market_risk_extended_study` runs the conditional-coverage tests on the S&P 500 to 2023-05 and on the NASDAQ composite: `test_market_risk_extended_study.py::test_q_c_no_var_model_passes_conditional_coverage_over_the_longer_window` (none passes at 99% or 97.5%; the closest family is filtered historical simulation), `::test_both_markets_are_scored_on_identical_test_days`, `::test_the_pre_registration_is_in_the_module_docstring`; the extension reproduces Finding 15 exactly where they overlap (`::test_the_spliced_series_reproduces_pr199_on_pr199s_own_days`)",
+          "id_column": "RISK-08 (extended, second market and a longer window)",
+          "requirement_note": "VaR exception and coverage tests, expected frequency and CI"
         }
       ],
       "requirement": "Implement VaR exception and coverage tests",
@@ -3563,6 +3569,12 @@
           "checklist_line": 8043,
           "evidence_note": "the study ranks every forecaster by `titan.risk_metrics.quantile_score`; `::test_the_pinball_loss_is_lowest_at_the_true_conditional_quantile` and `::test_the_consistent_quantile_loss_agrees_that_filtered_garch_is_among_the_best_var_models`",
           "id_column": "RISK-09 (extended, real data)",
+          "requirement_note": "quantile (pinball) score for per-observation VaR forecasts"
+        },
+        {
+          "checklist_line": 8082,
+          "evidence_note": "`titan.garch_family` (GARCH and GJR-GARCH by QMLE) recovers known parameters (`test_garch_family.py::test_a_gjr_fit_recovers_known_parameters`, `::test_a_symmetric_fit_recovers_garch_and_reports_exactly_zero_gamma`), agrees with the independent legacy fitter (`::test_the_symmetric_special_case_agrees_with_the_independent_legacy_fitter`), is causal (`::test_the_variance_for_day_t_never_depends_on_day_t_or_later`), matches a plain loop (`::test_the_vectorised_filter_matches_a_plain_loop`) and respects its persistence cap (`::test_the_persistence_cap_is_respected_and_binds_on_integrated_data`); the study's findings: `test_market_risk_extended_study.py::test_q_a_leverage_asymmetry_lowers_qlike_on_both_markets`, `::test_q_b_the_looser_persistence_cap_did_not_help_out_of_sample` (a CONTRADICTED prediction), `::test_q_d_the_neural_model_still_loses_to_garch_and_gains_more_from_history_on_the_sp500`, `::test_q_e_pooling_both_markets_lowers_the_neural_loss_on_each`, `::test_exploratory_comparisons_are_labelled_and_carry_no_verdict`; pooled training uses only pre-2000 rows (`::test_pooled_training_uses_every_market_and_only_pre_2000_rows`)",
+          "id_column": "RISK-09 (extended, volatility models compared by QLIKE and pinball loss)",
           "requirement_note": "quantile (pinball) score for per-observation VaR forecasts"
         }
       ],
@@ -4311,6 +4323,12 @@
           "checklist_line": 8067,
           "evidence_note": "`data_cache/MANIFEST.sha256.json` (SHA-256 and size of all 18 files) and `data_ingestion.snapshot_integrity`; all eight snapshot loaders read through `verified_dict_reader`: `test_snapshot_integrity.py::test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one` (each loader, on a private copy of the real directory), `::test_a_same_length_edit_is_still_caught`, `::test_the_committed_manifest_matches_every_committed_snapshot`, `::test_the_loaders_cover_every_csv_in_the_committed_directory`, `::test_the_dict_reader_verifies_at_the_call_not_at_the_first_row`; hostile manifests (`::test_manifest_keys_must_be_plain_relative_paths`, `::test_a_manifest_with_a_duplicate_key_is_refused`, `::test_a_missing_manifest_fails_closed`) and symlinks (`::test_a_symlink_that_escapes_the_directory_is_refused`) are refused; `::test_the_committed_directory_is_protected_from_line_ending_conversion`; `test_cli.py::test_data_check_runs_the_real_snapshot_integrity_check`",
           "id_column": "DAT-12 (strengthened, verified on every load)",
+          "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
+        },
+        {
+          "checklist_line": 8083,
+          "evidence_note": "`data_cache/kaggle_sp500_spliced_daily_close.csv` and `kaggle_nasdaq_daily_close.csv` with `.meta.json` (raw SHA-256, licence, the splice's agreement statistics), in the manifest and read through the verified loader (`test_snapshot_integrity.py::test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one`, now ten loaders); the builder: `test_kaggle_build.py::test_the_spliced_series_joins_exactly_and_records_how_well_the_vendors_agree`, `::test_the_spliced_agreement_statistics_show_a_disagreement_when_there_is_one`, `::test_a_splice_without_a_shared_join_date_or_a_continuation_is_refused`, `::test_the_market_writers_produce_loadable_snapshots_with_provenance`; rebuilding all six snapshots from the raw Kaggle zips leaves the eight earlier files byte-identical",
+          "id_column": "DAT-12 (strengthened, two more verified snapshots with provenance)",
           "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
         }
       ],

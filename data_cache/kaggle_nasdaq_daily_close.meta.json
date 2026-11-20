@@ -1,0 +1,25 @@
+{
+  "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (NASDAQ.csv, Investing.com NASDAQ composite)",
+  "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+  "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "NASDAQ.csv": "8a1188cf28a9107f44453e12ae0a880b4796ce48917225145689da8843756762"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.write_close_csv",
+  "columns": {
+    "close": "daily closing level of the NASDAQ composite, price index"
+  },
+  "rows": 10875,
+  "real_range": {
+    "first_date": "1980-03-18",
+    "last_date": "2023-05-03"
+  },
+  "caveat": "A single vendor series with no second source to cross-check against; only 20 years of it precede the year 2000.",
+  "sanity_checks": {
+    "worst daily log return": {
+      "date": "2020-03-16",
+      "value": -0.13149153866485477
+    }
+  }
+}

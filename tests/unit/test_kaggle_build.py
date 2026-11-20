@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import zipfile
 from datetime import date
 from pathlib import Path
@@ -26,6 +27,7 @@ from prometheus.data_ingestion.kaggle_build import (
     add_months,
     apply_lag,
     build_fed_policy_grid,
+    build_spliced_sp500,
     build_term_spread_grid,
     count_baseline_mismatches,
     effective_row,
@@ -69,6 +71,7 @@ from prometheus.data_ingestion.kaggle_term_spread import (
     KAGGLE_TERM_SPREAD_SOURCE_URL,
     load_term_spread_observations,
 )
+from prometheus.data_ingestion.snapshot_integrity import SnapshotParseError
 
 _DATA = Path(__file__).resolve().parents[2] / "data_cache"
 
@@ -433,3 +436,115 @@ def test_series_ids_are_namespaced_so_they_cannot_collide_with_the_pr145_ids() -
 def test_month_end_handles_leap_years() -> None:
     assert month_end(2020, 2) == date(2020, 2, 29)
     assert month_end(2021, 2) == date(2021, 2, 28)
+
+
+# ------------------------------------------------------- PR-202: spliced S&P 500 and NASDAQ
+
+
+def _yahoo_csv(rows: list[tuple[str, float]]) -> str:
+    return "Date,Open,High,Low,Close,Adj Close,Volume\n" + "".join(
+        f"{d},{p},{p},{p},{p},{p},0\n" for d, p in rows
+    )
+
+
+def _investing_csv(rows: list[tuple[str, float]]) -> str:
+    """Newest first, `MM/DD/YYYY`, thousands separators: the real file's shape."""
+    lines = ['"Date","Price","Open","High","Low","Vol.","Change %"']
+    for day, price in reversed(rows):
+        year, month, d = day.split("-")
+        lines.append(f'"{month}/{d}/{year}","{price:,.2f}","1","1","1","","0%"')
+    return "\n".join(lines) + "\n"
+
+
+def _zip_with(path: Path, members: dict[str, str]) -> Path:
+    import zipfile
+
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, text in members.items():
+            archive.writestr(name, text)
+    return path
+
+
+def test_the_spliced_series_joins_exactly_and_records_how_well_the_vendors_agree() -> None:
+    yahoo = [(date(2020, 1, 1), 100.0), (date(2020, 1, 2), 101.0), (date(2020, 1, 3), 102.0)]
+    other = [
+        (date(2020, 1, 1), 200.0),
+        (date(2020, 1, 2), 202.0),
+        (date(2020, 1, 3), 204.0),
+        (date(2020, 1, 6), 206.0),
+        (date(2020, 1, 7), 208.0),
+    ]
+    spliced, agreement = build_spliced_sp500(yahoo, other)
+    assert spliced[:3] == yahoo, "the original history is untouched"
+    assert agreement["scale_at_join"] == 0.5
+    assert spliced[3:] == [(date(2020, 1, 6), 103.0), (date(2020, 1, 7), 104.0)]
+    # a return is scale-free: the join-day return is the continuation's own
+    assert math.log(spliced[3][1] / spliced[2][1]) == pytest.approx(math.log(206.0 / 204.0))
+    assert agreement["overlap_days"] == 3 and agreement["continuation_days"] == 2
+    assert agreement["median_abs_level_gap"] == pytest.approx(0.0)
+    assert agreement["share_of_days_return_difference_below_10bp"] == 1.0
+    assert agreement["continuation_first_date"] == "2020-01-06"
+
+
+def test_the_spliced_agreement_statistics_show_a_disagreement_when_there_is_one() -> None:
+    yahoo = [(date(2020, 1, d), 100.0 + d) for d in range(1, 6)]
+    other = [(d, p * 2.0) for d, p in yahoo]
+    other[2] = (other[2][0], other[2][1] * 1.02)  # a 2% vendor discrepancy on one day
+    other.append((date(2020, 1, 8), 220.0))
+    _, agreement = build_spliced_sp500(yahoo, other)
+    assert agreement["max_abs_level_gap"] == pytest.approx(0.02)
+    assert agreement["max_abs_return_difference"] > 0.015
+    assert agreement["share_of_days_return_difference_below_10bp"] < 1.0
+
+
+def test_a_splice_without_a_shared_join_date_or_a_continuation_is_refused() -> None:
+    yahoo = [(date(2020, 1, 1), 100.0), (date(2020, 1, 2), 101.0)]
+    with pytest.raises(SnapshotParseError, match="join date 2020-01-02"):
+        build_spliced_sp500(yahoo, [(date(2020, 1, 1), 5.0), (date(2020, 1, 3), 6.0)])
+    with pytest.raises(SnapshotParseError, match="no day after the join"):
+        build_spliced_sp500(yahoo, [(date(2020, 1, 1), 5.0), (date(2020, 1, 2), 6.0)])
+
+
+def test_the_market_writers_produce_loadable_snapshots_with_provenance(tmp_path: Path) -> None:
+    from prometheus.data_ingestion.kaggle_build import _write_markets
+    from prometheus.data_ingestion.kaggle_sp500 import load_daily_closes
+
+    yahoo_rows = [("2020-01-02", 100.0), ("2020-01-03", 101.0), ("2020-01-06", 99.5)]
+    spx_rows = [(d, p * 1.5) for d, p in yahoo_rows] + [
+        ("2020-01-07", 151.0),
+        ("2020-01-08", 152.5),
+    ]
+    nasdaq_rows = [("2020-01-02", 9000.0), ("2020-01-03", 9100.5), ("2020-01-06", 9050.25)]
+    backbone = _zip_with(
+        tmp_path / "backbone.zip",
+        {"SPX500.csv": _investing_csv(spx_rows), "NASDAQ.csv": _investing_csv(nasdaq_rows)},
+    )
+    sp500 = _zip_with(tmp_path / "sp500.zip", {"SPX.csv": _yahoo_csv(yahoo_rows)})
+    out = tmp_path / "out"
+    out.mkdir()
+    _write_markets(out, backbone, sp500, "2026-11-20")
+
+    days, closes = load_daily_closes(out / "kaggle_sp500_spliced_daily_close.csv")
+    assert len(days) == 5 and days[-1] == date(2020, 1, 8)
+    assert closes[3] == pytest.approx(151.0 / 1.5, rel=1e-9)
+    nas_days, nas_closes = load_daily_closes(out / "kaggle_nasdaq_daily_close.csv", "NASDAQ")
+    assert len(nas_days) == 3 and nas_closes[1] == pytest.approx(9100.5)
+
+    meta = json.loads((out / "kaggle_sp500_spliced_daily_close.meta.json").read_text())
+    assert set(meta["raw_files_sha256"]) == {"SPX.csv", "SPX500.csv"}
+    assert meta["splice"]["overlap_days"] == 3 and meta["rows"] == 5
+    assert meta["license"].startswith("ODbL-1.0")
+    nas_meta = json.loads((out / "kaggle_nasdaq_daily_close.meta.json").read_text())
+    assert set(nas_meta["raw_files_sha256"]) == {"NASDAQ.csv"}
+    assert nas_meta["real_range"] == {"first_date": "2020-01-02", "last_date": "2020-01-06"}
+
+
+def test_the_generic_close_loader_labels_its_errors_with_the_market_it_was_given(
+    tmp_path: Path,
+) -> None:
+    from prometheus.data_ingestion.kaggle_sp500 import load_daily_closes
+
+    path = tmp_path / "x.csv"
+    path.write_text("date,close\n2020-01-02,10\n2020-01-02,11\n")
+    with pytest.raises(ValueError, match="NASDAQ dates must be strictly increasing"):
+        load_daily_closes(path, "NASDAQ")

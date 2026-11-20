@@ -618,7 +618,7 @@ suite can be large, green, and still share its production code's own
 unstated assumptions — the fix is periodic independent re-derivation,
 not more of the same kind of test.
 
-### 6.8 More real data, a data-timing bug, and what "more data" buys (PR-197 to PR-200)
+### 6.8 More real data, a data-timing bug, and what "more data" buys (PR-197 to PR-202)
 
 Asked to train the models on more datasets for better accuracy, the first
 step was to make the existing Kaggle snapshot re-derivable by committed code.
@@ -644,6 +644,17 @@ linear rule given the same inputs (Finding 16). The pattern of §6.1-§6.3 held:
 the lever that helped was data volume or the right inputs, not model
 complexity, and the largest change to this paper's numbers came from fixing the
 data, not from training anything.
+
+A second round (PR-202) took Finding 15's loose ends to a second market (the
+NASDAQ composite) and to a test window extended to 2023-05, with five questions
+written down before any number was computed. A GJR-GARCH, which lets bad news
+raise tomorrow's variance more than good news, lowered the QLIKE loss against
+the symmetric GARCH on both markets; loosening the persistence cap that
+Finding 15 had called a limitation raised it; still no value-at-risk model
+passed a conditional-coverage test through 2023; and one neural volatility model
+trained on both markets beat its single-market version on each, closing most of
+its gap to GARCH (Finding 17). Two of the five pre-registered predictions were
+contradicted or only partly confirmed, and are reported as such.
 
 ## 7. Threats to validity
 

@@ -545,7 +545,8 @@ data-hungry in a way a three-parameter model is not.
 exceedances move a rate by several tenths of a percent, and the coverage tests are
 asymptotic. QLIKE uses the squared return as its variance proxy, which is unbiased but
 noisy. The GARCH fit caps alpha + beta at 0.98 (a stationarity headroom in `fit_garch11`),
-understating the near-unit persistence of equity volatility, and the neural model was given
+which looked like it understated the near-unit persistence of equity volatility -- PR-202 then
+measured it, and loosening the cap made out-of-sample forecasts WORSE (Finding 17) -- and the neural model was given
 only a normal quantile, so it is not compared with GARCH-FHS on equal terms. These are index
 price returns (no dividends), close-to-close, and before 1983 the data are closes with no
 intraday range. Nothing here concerns expected shortfall or a portfolio of assets, and
@@ -596,6 +597,77 @@ bound) in the middle: every linear rule fails by construction after 2008-11, so 
 numbers are the pre-lower-bound ones. The output gap is proxied by an assumed Okun coefficient,
 inflation is the dataset's own measure, the dataset ends in 2017 and some columns are sparse,
 and nothing here evaluates the RL policy itself -- only the rule it is compared against.
+
+## Finding 17 (PR-202): leverage asymmetry improves volatility forecasts on two markets, a looser persistence cap does not, no VaR model passes conditional coverage through 2023, and pooling two markets' history closes most of the neural model's gap to GARCH
+
+Finding 15 left four loose ends: one market, a persistence cap it named but never measured,
+a neural model that gained most from more history, and a test window that ended in 2020. This
+study (`orchestration.market_risk_extended_study`, no network call, all data committed) asks
+five questions **written down before any number was computed** -- they are in the module's
+docstring with their decision rule (a paired QLIKE difference is SUPPORTED if its 95%
+moving-block-bootstrap interval lies on the predicted side of zero) -- and answers them on two
+markets and a longer test window.
+
+**Data.** The S&P 500 now runs to 2023-05-03: the PR-199 history (Yahoo ^GSPC, through
+2020-11-04) continued with the SPX500 series of the Kaggle backbone dataset, rescaled at the join.
+Splicing two vendors needs evidence that they agree, and they do on the 10,305 days both contain:
+the median level gap is 0.002%, 99.9% of daily returns differ by under 10 basis points, and the
+worst single-day disagreement is 1.0 percentage point (in 1981). The NASDAQ composite (1980-03-18
+to 2023-05-03) comes from the same dataset. Everything is fitted before 2000 (S&P 500: 18,077
+returns; NASDAQ: 5,003), validated on 2000-2007 and scored on the same 3,861 days from 2008-01-02
+to 2023-05-03 (Finding 15 had 3,235 days ending in 2020-11); the last 626 days did not exist when
+Finding 15 was written. Extending the series changed nothing before 2020-11: a test shows the same
+returns, the same fit and the identical forecast on every day Finding 15 scored.
+
+**Leverage asymmetry helps (Q-A: supported on both markets).** A GJR-GARCH(1,1) -- one extra
+parameter that lets a negative return raise tomorrow's variance by more than a positive one --
+has a lower mean QLIKE than the symmetric GARCH fitted by the *same* optimiser and persistence
+cap: -0.0227 (95% interval [-0.0307, -0.0149]) on the S&P 500 and -0.0171 ([-0.0261, -0.0066])
+on NASDAQ. The fitted leverage coefficients are 0.071 and 0.101. On the 626 unseen days alone the
+S&P 500 result holds (-0.0223, [-0.0323, -0.0102]) and NASDAQ has the same sign with an interval
+that includes zero (-0.0141, [-0.0286, +0.0059]). Exploratory, and labelled so in the report:
+GJR also beats the GARCH of Finding 15 itself (-0.0139, [-0.0233, -0.0028] and -0.0146,
+[-0.0239, -0.0036]).
+
+**The looser persistence cap did not help (Q-B: contradicted).** Finding 15 called the 0.98 cap on
+alpha + beta a limitation that "understates the near-unit persistence of equity volatility". The
+pre-registered prediction was that removing it would lower the loss. It raised it, on both markets:
++0.0089 ([+0.0010, +0.0178]) on the S&P 500 and +0.0024 ([+0.0009, +0.0038]) on NASDAQ. On 70 years
+of S&P 500 returns the free fit sits exactly on the new cap of 0.999 (alpha 0.091, beta 0.909): the
+likelihood prefers near-integrated volatility, the one-day-ahead forecast does not. Why was not
+investigated.
+
+**Coverage still fails (Q-C: contradicted).** No model passes a conditional-coverage test at 99% or
+at 97.5% on either market over the longer window. The closest at 99% is the S&P 500's
+free-persistence GARCH with filtered historical simulation (53 exceedances against 38.6 expected,
+conditional-coverage p = 0.011) and NASDAQ's GARCH-FHS on 30 years (59, p = 0.009); GJR-FHS has 57
+(p = 0.004) and 70 (p < 0.001). The asymmetric model improves the volatility forecast but not the
+calibration of the tail: the best quantile (pinball) loss at 99% is still GARCH-FHS (3.86 bp on
+the S&P 500).
+
+**Finding 15's pattern replicates in part (Q-D).** (i) The neural model has a higher QLIKE than
+GARCH on both markets (+0.0364, [+0.0076, +0.0734]; +0.0612, [+0.0144, +0.1273]); on the 626
+unseen days alone the sign is the same but the intervals include zero (+0.0083, [-0.0297, +0.0405];
++0.0118, [-0.0445, +0.0556]). (ii) More history helped the neural model far more than GARCH on the
+S&P 500 (QLIKE improves by 0.100 against 0.011 going from 10 years to everything before 2000), as
+in Finding 15. It does not replicate on NASDAQ, which has only 20 years before 2000: its 10-year
+window did better for both models (neural 0.018, GARCH 0.012).
+
+**Pooling helps the neural model (Q-E: supported on both markets).** One neural volatility model
+trained on both markets' pre-2000 rows beats the single-market model on each: -0.0280
+([-0.0560, -0.0086]) on the S&P 500 and -0.0586 ([-0.1139, -0.0221]) on NASDAQ. Against the GARCH of
+Finding 15 the pooled model is no longer distinguishable (exploratory: +0.0084, [-0.0082, +0.0255]
+and +0.0026, [-0.0166, +0.0240]), where the single-market model lost by +0.036 and +0.061. The model
+that gained most from more history also gains from more markets.
+
+**What this does not show.** Two equity indices, one fitting window and one test window dominated
+by two crises. The 626-day extension is too short to test coverage (about six exceedances are
+expected at 99%), so it is scored on QLIKE and counts only. There are seven paired intervals per
+market -- five pre-registered, two exploratory and marked as such -- so a lone interval that
+excludes zero is weak evidence. The S&P 500 joins two data vendors. QLIKE uses the squared return
+as its variance proxy. The persistence result depends on this fitter and these samples and was not
+explained, and the neural numbers vary with the training seed (five seeds, averaged in variance
+space). Nothing here says which model to deploy.
 
 ## Known limitations that are not findings, just open scope
 

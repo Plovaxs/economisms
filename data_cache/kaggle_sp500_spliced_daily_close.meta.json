@@ -1,0 +1,41 @@
+{
+  "source": "Kaggle dataset henryhan117/sp-500-historical-data (Yahoo Finance ^GSPC) through 2020-11-04, continued with the SPX500 series (Investing.com) of Kaggle dataset mikoajfish99/us-recession-and-financial-indicators",
+  "source_url": "https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data",
+  "continuation_source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+  "license": "ODbL-1.0 (both Kaggle datasets)",
+  "downloaded_at": "2026-11-19",
+  "raw_files_sha256": {
+    "SPX.csv": "54aa877d5d275b660bc8171642dc3a2eece16b9709e1d35f13a3b4e7972cc35c",
+    "SPX500.csv": "96fb963668e841e237671898f3a950331416857ee1580364e54bea88ab820c65"
+  },
+  "derived_by": "prometheus.data_ingestion.kaggle_build.build_spliced_sp500",
+  "columns": {
+    "close": "daily closing level, price index (no dividends)"
+  },
+  "rows": 23949,
+  "real_range": {
+    "first_date": "1927-12-30",
+    "last_date": "2023-05-03"
+  },
+  "splice": {
+    "join_date": "2020-11-04",
+    "scale_at_join": 0.9999999828659712,
+    "overlap_days": 10305,
+    "overlap_first_date": "1979-12-26",
+    "median_abs_level_gap": 1.8235192617455098e-05,
+    "max_abs_level_gap": 0.009817685980213486,
+    "median_abs_return_difference": 2.1401602214426215e-05,
+    "share_of_days_return_difference_below_10bp": 0.9989324534161491,
+    "max_abs_return_difference": 0.010005805931748065,
+    "continuation_days": 626,
+    "continuation_first_date": "2020-11-05",
+    "continuation_last_date": "2023-05-03"
+  },
+  "caveat": "Two vendors joined at one date: they agree on the days both contain (see `splice`), but the continuation is not the original source, and the early history is a close-only era (Open = High = Low = Close before 1983-07).",
+  "sanity_checks": {
+    "worst daily log return": {
+      "date": "1987-10-19",
+      "value": -0.22899728680392292
+    }
+  }
+}

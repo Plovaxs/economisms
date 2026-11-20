@@ -29,6 +29,8 @@ list that could drift.
 | Kaggle US Treasury 10Y-3M term spread (`KAGGLE_TERM_SPREAD_10Y3M`) | Kaggle mirror of Treasury yields (CC BY-NC 4.0) | Public aggregate | Yield-curve recession feature from 1981 |
 | Kaggle S&P 500 daily closes | Kaggle (Yahoo Finance ^GSPC; ODbL-1.0) | Public aggregate | Real-return evaluation of the financial-risk models (PR-199) |
 | Kaggle Federal Reserve policy variables | Kaggle (Federal Reserve; CC0-1.0) | Public aggregate | Real-data policy-rule study (PR-200) |
+| Kaggle S&P 500 daily closes continued to 2023-05 (Yahoo ^GSPC through 2020-11-04, then the Investing.com SPX500 series of the backbone dataset, rescaled at the join) | Kaggle (ODbL-1.0, both datasets) | Public aggregate | Longer out-of-time test of the market-risk models (PR-202) |
+| Kaggle NASDAQ composite daily closes, 1980-2023 | Kaggle backbone dataset (Investing.com; ODbL-1.0) | Public aggregate | Second-market replication and pooled volatility training (PR-202) |
 
 **No row above is Personal, Financial (individual), or Confidential.**
 Every ingested series is a published, aggregate, government- or

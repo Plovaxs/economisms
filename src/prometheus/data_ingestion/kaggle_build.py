@@ -484,6 +484,50 @@ def build_fed_policy_grid(index_text: str) -> Grid:
     return Grid(FED_COLUMNS, dict(sorted(rows.items())))
 
 
+def build_spliced_sp500(yahoo: Series, continuation: Series) -> tuple[Series, dict[str, object]]:
+    """The S&P 500 as the Yahoo ^GSPC history of the henryhan117 dataset, continued with the
+    Investing.com SPX500 series of the backbone dataset after the Yahoo series ends.
+
+    The continuation is rescaled by the ratio of the two vendors' closes on the last Yahoo
+    day, so levels join exactly (daily RETURNS, which are all a risk model uses, do not
+    depend on the scale). Splicing two vendors is only licensed by evidence that they agree,
+    so the agreement over the days both contain is returned and recorded in the snapshot's
+    `.meta.json`."""
+    join_day, join_close = yahoo[-1]
+    other = dict(continuation)
+    if join_day not in other:
+        raise SnapshotParseError(f"the join date {join_day.isoformat()} is not in the continuation")
+    scale = join_close / other[join_day]
+    extension = [(day, price * scale) for day, price in continuation if day > join_day]
+    if not extension:
+        raise SnapshotParseError("the continuation has no day after the join date")
+    first = dict(yahoo)
+    common = sorted(set(first) & set(other))
+    # compared AFTER the join rescaling, i.e. exactly the levels that end up side by side
+    level_gaps = sorted(abs(other[d] * scale / first[d] - 1.0) for d in common)
+    return_gaps = sorted(
+        abs(math.log(first[b] / first[a]) - math.log(other[b] / other[a]))
+        for a, b in zip(common, common[1:], strict=False)
+    )
+    agreement: dict[str, object] = {
+        "join_date": join_day.isoformat(),
+        "scale_at_join": scale,
+        "overlap_days": len(common),
+        "overlap_first_date": common[0].isoformat(),
+        "median_abs_level_gap": level_gaps[len(level_gaps) // 2],
+        "max_abs_level_gap": level_gaps[-1],
+        "median_abs_return_difference": return_gaps[len(return_gaps) // 2],
+        "share_of_days_return_difference_below_10bp": (
+            sum(gap < 1e-3 for gap in return_gaps) / len(return_gaps)
+        ),
+        "max_abs_return_difference": return_gaps[-1],
+        "continuation_days": len(extension),
+        "continuation_first_date": extension[0][0].isoformat(),
+        "continuation_last_date": extension[-1][0].isoformat(),
+    }
+    return [*yahoo, *extension], agreement
+
+
 # --------------------------------------------------------------------------- writers
 
 
@@ -751,6 +795,82 @@ def _write_sp500(out: Path, zip_path: Path, downloaded_at: str) -> None:
     )
 
 
+def _worst_day(closes: Series) -> dict[str, object]:
+    day, value = min(
+        ((d1, math.log(p1 / p0)) for (_, p0), (d1, p1) in zip(closes, closes[1:], strict=False)),
+        key=lambda item: item[1],
+    )
+    return {"date": day.isoformat(), "value": value}
+
+
+def _write_markets(out: Path, backbone_zip: Path, sp500_zip: Path, downloaded_at: str) -> None:
+    """The long S&P 500 continued to 2023-05, and the NASDAQ composite, both close-only."""
+    backbone, backbone_hashes = read_zip_members(backbone_zip, ["SPX500.csv", "NASDAQ.csv"])
+    yahoo_text, yahoo_hashes = read_zip_members(sp500_zip, ["SPX.csv"])
+    spliced, agreement = build_spliced_sp500(
+        parse_yahoo_close_csv(yahoo_text["SPX.csv"], "SPX.csv"),
+        parse_investing_csv(backbone["SPX500.csv"], "SPX500.csv"),
+    )
+    nasdaq = parse_investing_csv(backbone["NASDAQ.csv"], "NASDAQ.csv")
+    write_close_csv(out / "kaggle_sp500_spliced_daily_close.csv", spliced)
+    write_close_csv(out / "kaggle_nasdaq_daily_close.csv", nasdaq)
+    license_text = "ODbL-1.0 (both Kaggle datasets)"
+    _write_meta(
+        out / "kaggle_sp500_spliced_daily_close.meta.json",
+        {
+            "source": (
+                "Kaggle dataset henryhan117/sp-500-historical-data (Yahoo Finance ^GSPC) through "
+                f"{agreement['join_date']}, continued with the SPX500 series (Investing.com) of "
+                "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators"
+            ),
+            "source_url": KAGGLE_SP500_SOURCE_URL,
+            "continuation_source_url": KAGGLE_SOURCE_URL,
+            "license": license_text,
+            "downloaded_at": downloaded_at,
+            "raw_files_sha256": {**yahoo_hashes, "SPX500.csv": backbone_hashes["SPX500.csv"]},
+            "derived_by": "prometheus.data_ingestion.kaggle_build.build_spliced_sp500",
+            "columns": {"close": "daily closing level, price index (no dividends)"},
+            "rows": len(spliced),
+            "real_range": {
+                "first_date": spliced[0][0].isoformat(),
+                "last_date": spliced[-1][0].isoformat(),
+            },
+            "splice": agreement,
+            "caveat": (
+                "Two vendors joined at one date: they agree on the days both contain (see "
+                "`splice`), but the continuation is not the original source, and the early "
+                "history is a close-only era (Open = High = Low = Close before 1983-07)."
+            ),
+            "sanity_checks": {"worst daily log return": _worst_day(spliced)},
+        },
+    )
+    _write_meta(
+        out / "kaggle_nasdaq_daily_close.meta.json",
+        {
+            "source": (
+                "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators "
+                "(NASDAQ.csv, Investing.com NASDAQ composite)"
+            ),
+            "source_url": KAGGLE_SOURCE_URL,
+            "license": KAGGLE_SOURCE_LICENSE,
+            "downloaded_at": downloaded_at,
+            "raw_files_sha256": {"NASDAQ.csv": backbone_hashes["NASDAQ.csv"]},
+            "derived_by": "prometheus.data_ingestion.kaggle_build.write_close_csv",
+            "columns": {"close": "daily closing level of the NASDAQ composite, price index"},
+            "rows": len(nasdaq),
+            "real_range": {
+                "first_date": nasdaq[0][0].isoformat(),
+                "last_date": nasdaq[-1][0].isoformat(),
+            },
+            "caveat": (
+                "A single vendor series with no second source to cross-check against; only "
+                "20 years of it precede the year 2000."
+            ),
+            "sanity_checks": {"worst daily log return": _worst_day(nasdaq)},
+        },
+    )
+
+
 def _write_fed(out: Path, zip_path: Path, downloaded_at: str) -> None:
     texts, hashes = read_zip_members(zip_path, ["index.csv"])
     grid = build_fed_policy_grid(texts["index.csv"])
@@ -829,7 +949,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_term_spread(out, args.treasury_zip, args.downloaded_at)
     _write_sp500(out, args.sp500_zip, args.downloaded_at)
     _write_fed(out, args.fed_zip, args.downloaded_at)
-    print(f"wrote 4 snapshots and 4 .meta.json files to {out}")
+    _write_markets(out, args.backbone_zip, args.sp500_zip, args.downloaded_at)
+    print(f"wrote 6 snapshots and 6 .meta.json files to {out}")
     return 0
 
 

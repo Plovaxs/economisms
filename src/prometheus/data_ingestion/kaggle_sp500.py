@@ -30,10 +30,10 @@ KAGGLE_SP500_SOURCE_URL = "https://www.kaggle.com/datasets/henryhan117/sp-500-hi
 KAGGLE_SP500_SOURCE_LICENSE = "ODbL-1.0 (Kaggle: henryhan117/sp-500-historical-data)"
 
 
-def load_sp500_closes(path: Path) -> tuple[tuple[date, ...], np.ndarray]:
-    """Dates (ascending, unique) and closing levels. Every close must be a finite,
-    positive number: `nan` compares false against everything, so a plain `c <= 0`
-    test would have let it through."""
+def load_daily_closes(path: Path, label: str = "S&P 500") -> tuple[tuple[date, ...], np.ndarray]:
+    """Dates (ascending, unique) and closing levels of a `date,close` snapshot. Every close
+    must be a finite, positive number: `nan` compares false against everything, so a plain
+    `c <= 0` test would have let it through."""
     dates: list[date] = []
     closes: list[float] = []
     for row in verified_dict_reader(path, required=("date", "close")):
@@ -43,10 +43,15 @@ def load_sp500_closes(path: Path) -> tuple[tuple[date, ...], np.ndarray]:
         except ValueError as exc:
             raise SnapshotParseError(f"{path.name}: malformed row {row!r}") from exc
     if any(b <= a for a, b in zip(dates, dates[1:], strict=False)):
-        raise ValueError("S&P 500 dates must be strictly increasing")
+        raise ValueError(f"{label} dates must be strictly increasing")
     if not all(math.isfinite(c) and c > 0 for c in closes):
-        raise ValueError("S&P 500 closes must be finite and positive")
+        raise ValueError(f"{label} closes must be finite and positive")
     return tuple(dates), np.asarray(closes, dtype=np.float64)
+
+
+def load_sp500_closes(path: Path) -> tuple[tuple[date, ...], np.ndarray]:
+    """The S&P 500 snapshot (`load_daily_closes` with its own label)."""
+    return load_daily_closes(path, "S&P 500")
 
 
 def log_returns(closes: np.ndarray) -> np.ndarray:

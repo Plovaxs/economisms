@@ -14,7 +14,7 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
-## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, and data and secret integrity (PR-197 through PR-201)
+## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, data and secret integrity, and a second market (PR-197 through PR-202)
 
 ### Security
 - **Verified data (PR-201).** `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every
@@ -43,6 +43,16 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   are unchanged). See `docs/RESULTS_AND_LIMITATIONS.md` Finding 13.
 
 ### Added
+- `orchestration.market_risk_extended_study` (PR-202): a second market (the NASDAQ composite), the S&P 500
+  continued to 2023-05, an asymmetric-volatility model and a neural model trained on both markets, with
+  five questions written down before any number was computed (Finding 17). Leverage asymmetry lowered the
+  QLIKE loss on both markets; loosening the GARCH persistence cap raised it; no VaR model passes
+  conditional coverage through 2023; pooling both markets' history closed most of the neural model's gap
+  to GARCH.
+- `titan.garch_family` (PR-202): GARCH(1,1) and GJR-GARCH(1,1) by Gaussian quasi-maximum likelihood,
+  vectorised through a linear filter (about 100 times faster than `fit_garch11`), recovering known parameters.
+- Two more Kaggle-derived snapshots with provenance (PR-202): the S&P 500 continued to 2023-05-03 (the two
+  vendors agree on 10,305 shared days) and the NASDAQ composite from 1980.
 - `orchestration.policy_rate_study` (PR-200): the policy simulator's own Taylor baseline evaluated on
   the real Federal Reserve data (Finding 16). It is far from the real Fed (no interest-rate smoothing);
   a neural rule beats persistence but not a linear rule with the same inputs; more history helps.

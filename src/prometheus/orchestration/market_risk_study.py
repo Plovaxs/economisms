@@ -45,6 +45,7 @@ import copy
 import json
 import math
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -55,7 +56,7 @@ from scipy import stats
 from scipy.special import xlogy
 from torch import nn
 
-from prometheus.data_ingestion.kaggle_sp500 import load_sp500_closes, log_returns
+from prometheus.data_ingestion.kaggle_sp500 import load_daily_closes, log_returns
 from prometheus.experiments.block_bootstrap import moving_block_bootstrap
 from prometheus.neural_sde.benchmark import fit_garch11
 from prometheus.titan.risk_metrics import historical_var, quantile_score
@@ -248,53 +249,137 @@ def train_neural_volatility(
 # ------------------------------------------------------------------------------ the study
 
 
-def run_study(
-    path: Path = DATA_PATH,
-    *,
-    seeds: Sequence[int] = (0, 1, 2, 3, 4),
-    max_epochs: int = 400,
-    patience: int = 25,
-    block_resamples: int = 2000,
-) -> dict[str, Any]:
-    dates, closes = load_sp500_closes(path)
+@dataclass(frozen=True)
+class MarketData:
+    """One market's returns, trailing features and the three chronological masks."""
+
+    name: str
+    returns: np.ndarray
+    return_dates: tuple[date, ...]
+    train_mask: np.ndarray
+    validation_mask: np.ndarray
+    test_mask: np.ndarray
+    features: np.ndarray
+
+    @property
+    def test_returns(self) -> np.ndarray:
+        return np.asarray(self.returns[self.test_mask], dtype=np.float64)
+
+
+def prepare_market(path: Path, name: str = "sp500") -> MarketData:
+    """Load a daily-close snapshot and cut it chronologically: fit before `TRAIN_END`,
+    validate before `VALIDATION_END`, test from there on."""
+    dates, closes = load_daily_closes(path, name)
     returns = log_returns(closes)
     return_dates = dates[1:]
-    train_mask = np.array([d < TRAIN_END for d in return_dates])
-    validation_mask = np.array([TRAIN_END <= d < VALIDATION_END for d in return_dates])
-    test_mask = np.array([d >= VALIDATION_END for d in return_dates])
-    test_returns = returns[test_mask]
-    features = trailing_features(returns)
-    z = {a: float(stats.norm.ppf(1.0 - a)) for a in ALPHAS}
+    return MarketData(
+        name=name,
+        returns=returns,
+        return_dates=return_dates,
+        train_mask=np.array([d < TRAIN_END for d in return_dates]),
+        validation_mask=np.array([TRAIN_END <= d < VALIDATION_END for d in return_dates]),
+        test_mask=np.array([d >= VALIDATION_END for d in return_dates]),
+        features=trailing_features(returns),
+    )
 
-    backtests: dict[str, Any] = {}
-    volatility: dict[str, Any] = {}
-    sigma_by_model: dict[str, np.ndarray] = {}
 
-    def record(name: str, sigma: np.ndarray | None, thresholds: dict[float, np.ndarray]) -> None:
-        backtests[name] = {
+class Scoreboard:
+    """Every model's backtests and volatility score on one market's test window."""
+
+    def __init__(self, data: MarketData) -> None:
+        self.data = data
+        self.z = {a: float(stats.norm.ppf(1.0 - a)) for a in ALPHAS}
+        self.backtests: dict[str, Any] = {}
+        self.volatility: dict[str, Any] = {}
+        self.sigma_by_model: dict[str, np.ndarray] = {}
+        self.thresholds_by_model: dict[str, dict[float, np.ndarray]] = {}
+        self.parameters: dict[str, Any] = {}
+
+    def record(
+        self, name: str, sigma: np.ndarray | None, thresholds: dict[float, np.ndarray]
+    ) -> None:
+        test_returns = self.data.test_returns
+        self.backtests[name] = {
             f"alpha_{a}": backtest_var(test_returns, thresholds[a], a) for a in ALPHAS
         }
+        self.thresholds_by_model[name] = thresholds
         if sigma is not None:
-            sigma_by_model[name] = sigma
-            volatility[name] = {"qlike_mean": float(np.mean(qlike(test_returns, sigma)))}
+            self.sigma_by_model[name] = sigma
+            self.volatility[name] = {"qlike_mean": float(np.mean(qlike(test_returns, sigma)))}
 
+    def record_per_seed(self, name: str, per_seed_sigma: Sequence[np.ndarray]) -> None:
+        """A neural model trained once per seed: each seed's backtests, and their mean."""
+        test_returns = self.data.test_returns
+        rows: list[dict[str, Any]] = [
+            {f"alpha_{a}": backtest_var(test_returns, self.z[a] * sigma, a) for a in ALPHAS}
+            | {"qlike_mean": float(np.mean(qlike(test_returns, sigma)))}
+            for sigma in per_seed_sigma
+        ]
+        self.backtests[name] = {
+            "per_seed": rows,
+            **{
+                f"alpha_{a}": {
+                    key: float(np.mean([row[f"alpha_{a}"][key] for row in rows]))
+                    for key in rows[0][f"alpha_{a}"]
+                }
+                for a in ALPHAS
+            },
+        }
+        self.volatility[name] = {
+            "qlike_mean": float(np.mean([row["qlike_mean"] for row in rows])),
+            "qlike_std_over_seeds": float(np.std([row["qlike_mean"] for row in rows])),
+        }
+
+    def data_summary(self) -> dict[str, Any]:
+        data = self.data
+        test_returns = data.test_returns
+        test_dates = [d for d, m in zip(data.return_dates, data.test_mask, strict=True) if m]
+        return {
+            "n_returns": len(data.returns),
+            "n_train": int(data.train_mask.sum()),
+            "n_validation": int(data.validation_mask.sum()),
+            "n_test": int(data.test_mask.sum()),
+            "test_first_date": test_dates[0].isoformat(),
+            "test_last_date": data.return_dates[-1].isoformat(),
+            "test_daily_std_pct": float(test_returns.std() * 100),
+            "test_worst_day_pct": float(-(-test_returns).max() * 100),
+            "train_excess_kurtosis": float(stats.kurtosis(data.returns[data.train_mask])),
+        }
+
+
+def evaluate_baseline_models(
+    data: MarketData,
+    board: Scoreboard,
+    *,
+    seeds: Sequence[int],
+    max_epochs: int,
+    patience: int,
+    history_starts: dict[str, date | None],
+) -> dict[str, list[np.ndarray]]:
+    """PR-199's models on one market. Returns the per-seed neural volatility forecasts of
+    each history window (test axis) so a caller can reuse them."""
+    returns, test_mask, features = data.returns, data.test_mask, data.features
+    z = board.z
     hs = {a: rolling_historical_thresholds(returns, HS_WINDOW, a)[test_mask] for a in ALPHAS}
-    record("historical_250", None, hs)
-    ewma = ewma_sigma(returns, EWMA_LAMBDA, float(returns[train_mask].var()))[test_mask]
-    record("ewma_094", ewma, {a: z[a] * ewma for a in ALPHAS})
+    board.record("historical_250", None, hs)
+    ewma = ewma_sigma(returns, EWMA_LAMBDA, float(returns[data.train_mask].var()))[test_mask]
+    board.record("ewma_094", ewma, {a: z[a] * ewma for a in ALPHAS})
 
-    for label, start in HISTORY_STARTS.items():
-        window = train_mask & np.array([start is None or d >= start for d in return_dates])
+    neural_forecasts: dict[str, list[np.ndarray]] = {}
+    for label, start in history_starts.items():
+        window = data.train_mask & np.array(
+            [start is None or d >= start for d in data.return_dates]
+        )
         train_r = returns[window]
         constant = np.full(int(test_mask.sum()), float(train_r.std()))
-        record(f"constant_normal@{label}", constant, {a: z[a] * constant for a in ALPHAS})
+        board.record(f"constant_normal@{label}", constant, {a: z[a] * constant for a in ALPHAS})
 
         garch = fit_garch11(train_r)
         sigma_all = np.sqrt(garch.conditional_variances(returns))
         garch_sigma = sigma_all[test_mask]
-        record(f"garch_normal@{label}", garch_sigma, {a: z[a] * garch_sigma for a in ALPHAS})
+        board.record(f"garch_normal@{label}", garch_sigma, {a: z[a] * garch_sigma for a in ALPHAS})
         standardised = (train_r - garch.mu) / sigma_all[window]
-        record(
+        board.record(
             f"garch_fhs@{label}",
             garch_sigma,
             {a: garch.mu + garch_sigma * float(np.quantile(standardised, 1.0 - a)) for a in ALPHAS},
@@ -302,9 +387,8 @@ def run_study(
 
         usable = ~np.isnan(features[:, 0])
         train_idx = window & usable
-        validation_idx = validation_mask & usable
+        validation_idx = data.validation_mask & usable
         per_seed: list[np.ndarray] = []
-        seed_rows: list[dict[str, Any]] = []
         for seed in seeds:
             model = train_neural_volatility(
                 features[train_idx],
@@ -315,60 +399,77 @@ def run_study(
                 max_epochs=max_epochs,
                 patience=patience,
             )
-            sigma = model.sigma(features[test_mask])
-            per_seed.append(sigma)
-            seed_rows.append(
-                {f"alpha_{a}": backtest_var(test_returns, z[a] * sigma, a) for a in ALPHAS}
-                | {"qlike_mean": float(np.mean(qlike(test_returns, sigma)))}
-            )
-        backtests[f"neural_normal@{label}"] = {
-            "per_seed": seed_rows,
-            **{
-                f"alpha_{a}": {
-                    key: float(np.mean([row[f"alpha_{a}"][key] for row in seed_rows]))
-                    for key in seed_rows[0][f"alpha_{a}"]
-                }
-                for a in ALPHAS
-            },
-        }
-        volatility[f"neural_normal@{label}"] = {
-            "qlike_mean": float(np.mean([row["qlike_mean"] for row in seed_rows])),
-            "qlike_std_over_seeds": float(np.std([row["qlike_mean"] for row in seed_rows])),
-        }
+            per_seed.append(model.sigma(features[test_mask]))
+        board.record_per_seed(f"neural_normal@{label}", per_seed)
         ensemble = np.sqrt(np.mean(np.square(per_seed), axis=0))
-        record(f"neural_ensemble@{label}", ensemble, {a: z[a] * ensemble for a in ALPHAS})
+        board.record(f"neural_ensemble@{label}", ensemble, {a: z[a] * ensemble for a in ALPHAS})
+        neural_forecasts[label] = per_seed
+    return neural_forecasts
 
+
+def paired_qlike(
+    test_returns: np.ndarray,
+    first_sigma: np.ndarray,
+    second_sigma: np.ndarray,
+    rng: np.random.Generator,
+    resamples: int,
+) -> dict[str, Any]:
+    """Mean QLIKE of `first` minus `second` with a moving-block-bootstrap interval."""
+    difference = qlike(test_returns, first_sigma) - qlike(test_returns, second_sigma)
+    boot = moving_block_bootstrap(np.mean, difference, BLOCK_LENGTH, rng, n_resamples=resamples)
+    verdict = (
+        "first_has_lower_qlike"
+        if boot.ci_high < 0
+        else "first_has_higher_qlike"
+        if boot.ci_low > 0
+        else "inconclusive"
+    )
+    return {
+        "qlike_difference_first_minus_second": boot.point_estimate,
+        "ci_low": boot.ci_low,
+        "ci_high": boot.ci_high,
+        "verdict": verdict,
+    }
+
+
+def run_study(
+    path: Path = DATA_PATH,
+    *,
+    seeds: Sequence[int] = (0, 1, 2, 3, 4),
+    max_epochs: int = 400,
+    patience: int = 25,
+    block_resamples: int = 2000,
+) -> dict[str, Any]:
+    data = prepare_market(path)
+    board = Scoreboard(data)
+    evaluate_baseline_models(
+        data,
+        board,
+        seeds=seeds,
+        max_epochs=max_epochs,
+        patience=patience,
+        history_starts=HISTORY_STARTS,
+    )
     rng = np.random.default_rng(0)
     pairs = {
         "neural_ensemble_vs_garch_all": ("neural_ensemble@all", "garch_normal@all"),
         "garch_all_vs_10y": ("garch_normal@all", "garch_normal@10y"),
         "neural_ensemble_all_vs_10y": ("neural_ensemble@all", "neural_ensemble@10y"),
     }
-    comparisons: dict[str, Any] = {}
-    for label, (first, second) in pairs.items():
-        difference = qlike(test_returns, sigma_by_model[first]) - qlike(
-            test_returns, sigma_by_model[second]
-        )
-        boot = moving_block_bootstrap(
-            np.mean, difference, BLOCK_LENGTH, rng, n_resamples=block_resamples
-        )
-        verdict = (
-            "first_has_lower_qlike"
-            if boot.ci_high < 0
-            else "first_has_higher_qlike"
-            if boot.ci_low > 0
-            else "inconclusive"
-        )
-        comparisons[label] = {
+    comparisons: dict[str, Any] = {
+        label: {
             "first": first,
             "second": second,
-            "qlike_difference_first_minus_second": boot.point_estimate,
-            "ci_low": boot.ci_low,
-            "ci_high": boot.ci_high,
-            "verdict": verdict,
+            **paired_qlike(
+                data.test_returns,
+                board.sigma_by_model[first],
+                board.sigma_by_model[second],
+                rng,
+                block_resamples,
+            ),
         }
-
-    losses = -test_returns
+        for label, (first, second) in pairs.items()
+    }
     return {
         "config": {
             "train_end_exclusive": TRAIN_END.isoformat(),
@@ -380,21 +481,9 @@ def run_study(
             "alphas": list(ALPHAS),
             "block_length_days": BLOCK_LENGTH,
         },
-        "data": {
-            "n_returns": len(returns),
-            "n_train": int(train_mask.sum()),
-            "n_validation": int(validation_mask.sum()),
-            "n_test": int(test_mask.sum()),
-            "test_first_date": next(
-                d for d, m in zip(return_dates, test_mask, strict=True) if m
-            ).isoformat(),
-            "test_last_date": return_dates[-1].isoformat(),
-            "test_daily_std_pct": float(test_returns.std() * 100),
-            "test_worst_day_pct": float(-losses.max() * 100),
-            "train_excess_kurtosis": float(stats.kurtosis(returns[train_mask])),
-        },
-        "backtests": backtests,
-        "volatility": volatility,
+        "data": board.data_summary(),
+        "backtests": board.backtests,
+        "volatility": board.volatility,
         "comparisons": comparisons,
         "caveats": [
             "One market, one 3,2xx-day test period dominated by two crises; a few exceedances "

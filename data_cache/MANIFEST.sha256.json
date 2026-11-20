@@ -13,6 +13,14 @@
       "bytes": 1504,
       "sha256": "1c75a06a1867e4383a0ba4e32dd00bdb181c3c447cea00b0e318444fbfc1cb53"
     },
+    "kaggle_nasdaq_daily_close.csv": {
+      "bytes": 202212,
+      "sha256": "0bd11411c358bc1b3640cc8b34bfbb2a40b41074acf1cee68866b2d493b45a63"
+    },
+    "kaggle_nasdaq_daily_close.meta.json": {
+      "bytes": 987,
+      "sha256": "626dc54093a3b22dd4dce6936d5a9d4bac819558499aaafd1ddf54605f27c7e7"
+    },
     "kaggle_sp500_daily_close.csv": {
       "bytes": 475125,
       "sha256": "b144c66e1b56a402f60b6b770fddce229efb4bb578186af596a8dbfa7aff36da"
@@ -20,6 +28,14 @@
     "kaggle_sp500_daily_close.meta.json": {
       "bytes": 987,
       "sha256": "0fa956d16c4e7dd9165b38a47a220eaf7c0bf9d02506647cf253cbf535f3ff35"
+    },
+    "kaggle_sp500_spliced_daily_close.csv": {
+      "bytes": 489462,
+      "sha256": "878d4aba526c447f4ea7920d7928b96d63158a3fb13659071f622aafaa23d98a"
+    },
+    "kaggle_sp500_spliced_daily_close.meta.json": {
+      "bytes": 1892,
+      "sha256": "e980b56e6d706665529b7adfda3b83a1a508a01a35dd98383741ba200223eef5"
     },
     "kaggle_term_spread_monthly.csv": {
       "bytes": 10679,

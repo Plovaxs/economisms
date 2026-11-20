@@ -22,7 +22,7 @@ from prometheus.data_ingestion.french_factors import load_cached_ff3_snapshot
 from prometheus.data_ingestion.kaggle_fed_policy import load_fed_policy_months
 from prometheus.data_ingestion.kaggle_macro import load_kaggle_us_macro_observations
 from prometheus.data_ingestion.kaggle_macro_extended import load_extended_macro_observations
-from prometheus.data_ingestion.kaggle_sp500 import load_sp500_closes
+from prometheus.data_ingestion.kaggle_sp500 import load_daily_closes, load_sp500_closes
 from prometheus.data_ingestion.kaggle_term_spread import load_term_spread_observations
 from prometheus.data_ingestion.snapshot_integrity import (
     COMMITTED_DATA_DIR,
@@ -351,6 +351,8 @@ _LOADERS: list[tuple[str, Callable[[Path], Any]]] = [
     ("kaggle_us_macro_extended_monthly.csv", load_extended_macro_observations),
     ("kaggle_term_spread_monthly.csv", load_term_spread_observations),
     ("kaggle_sp500_daily_close.csv", load_sp500_closes),
+    ("kaggle_sp500_spliced_daily_close.csv", load_daily_closes),
+    ("kaggle_nasdaq_daily_close.csv", load_daily_closes),
     ("kaggle_fed_policy_monthly.csv", load_fed_policy_months),
     ("treasury_yield_spread_monthly.csv", load_treasury_yield_spread_observations),
     ("us_cpi_monthly.csv", load_cpi_observations),
