@@ -169,6 +169,29 @@ client, so an attacker's request rate cannot become the log volume.
   stops working immediately. See the credential-compromise runbook in
   [OPERATIONS_RUNBOOK.md](./OPERATIONS_RUNBOOK.md).
 
+## The desktop application (no service at all)
+
+`econosim desktop` is not a deployment of the stack above: it starts no server, takes no token and
+opens no port. It is one process, run by one user, that calls the job queue, the isolated worker and
+the artifact store directly. Install the extra (`uv sync --locked --extra desktop`; on X11 also your
+distribution's `libxcb-cursor` package), run `econosim desktop`, and your work is kept in
+`$ECONOSIM_HOME`, else `$XDG_DATA_HOME/econosim`, else `~/.local/share/econosim` -- created `0700`, and
+refused if it is a symlink, someone else's, or readable by others. One window per directory.
+
+- **Menu entry:** `econosim desktop --install-launcher` writes a freedesktop entry and an icon under
+  `~/.local/share` (nothing elsewhere, nothing with elevated rights) pointing at *this environment's*
+  interpreter by absolute path, so moving or deleting the environment breaks it; run the command
+  again to repair it. `--uninstall-launcher` removes only the files it wrote.
+- **Self-test:** `econosim desktop --check` runs everything but the window -- every runner's form, the
+  seven explorers in child processes, one real job through the isolated worker, the findings, the
+  health report, Qt and the display -- in a throwaway directory, in about ten seconds.
+- **Limits:** one job at a time, up to 30 minutes of wall clock each (a constant, because the queue
+  stores the policy it was created with and refuses to open under another). The thread pools are
+  pinned to one thread unless you export a number, so CPU time is wall time and results match the
+  reference environment.
+- **Not provided:** an installer or a bundled binary, signed releases, Windows or macOS support for
+  running jobs, and auto-update. See [THREAT_MODEL.md](./THREAT_MODEL.md) for the boundary.
+
 ## What is enforced where
 
 | Control | Where | Checked by |
@@ -186,6 +209,10 @@ client, so an attacker's request rate cannot become the log volume.
 | No secret and no sensitive file name in any tracked file; staged content scanned before a commit | CI test, opt-in hook | `test_security_scan.py`, `test_secret_scan_cli.py`, `.githooks/pre-commit` |
 | Test coverage of the package stays at or above 94% (96% measured) | CI | `pyproject.toml` `fail_under`, `test_coverage_floor.py` |
 | Environment matches `uv.lock`, the data manifest and the credentials file's mode | the operator, before starting | `econosim doctor`, `test_doctor.py` |
+| The desktop state directory is private, one window per directory, results verified on every read | the desktop application | `test_desktop_paths.py`, `test_desktop_session.py` |
+| The window never computes: jobs and explorers run in limited child processes that die with it | the desktop application | `test_desktop_session.py`, `test_desktop_explorers.py`, `test_desktop_ui_window.py` |
+| Data shown in the window is text, never markup | the desktop application | `test_desktop_ui_widgets.py`, `test_desktop_ui_window.py` |
+| The window refuses to start, and says why, where Qt could not | the desktop application | `test_desktop_display.py` |
 
 ## What you do not get
 

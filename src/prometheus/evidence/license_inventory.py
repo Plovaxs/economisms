@@ -60,12 +60,114 @@ def direct_dependency_names(pyproject_path: Path) -> tuple[str, ...]:
     return tuple(seen)
 
 
+class LicenseExpressionError(ValueError):
+    """An SPDX license expression that cannot be parsed."""
+
+
+_SPDX_TOKEN = re.compile(r"\s*(\(|\)|[A-Za-z0-9][A-Za-z0-9.+-]*)")
+_STRONG_COPYLEFT = ("GPL", "AGPL")
+
+
+def _tokens(expression: str) -> list[str]:
+    tokens, position = [], 0
+    while position < len(expression.rstrip()):
+        match = _SPDX_TOKEN.match(expression, position)
+        if match is None:
+            raise LicenseExpressionError(f"cannot read {expression[position:]!r}")
+        tokens.append(match.group(1))
+        position = match.end()
+    if not tokens:
+        raise LicenseExpressionError("empty license expression")
+    return tokens
+
+
+def allows_mit_project(expression: str) -> bool:
+    """Whether an SPDX `License-Expression` can be satisfied without strong copyleft.
+
+    `A OR B` is satisfiable if either side is (the licensee chooses), `A AND B` only if both are,
+    and an identifier is acceptable unless it is GPL or AGPL (any version, with or without an
+    exception: a linking exception does not make a program GPL-free). **LGPL is acceptable** --
+    that is the file-level, dynamic-linking weak copyleft this project has always said it
+    permits -- and the reason a substring test for "GPL" cannot be used: "LGPL-3.0-only" contains
+    it. The grammar is SPDX's: `AND` binds tighter than `OR`, `WITH` attaches an exception, and
+    parentheses group. As SPDX 2.3 requires, the operators are matched in upper case only
+    (identifiers are case-insensitive): that is what stops an informal "GPLv2 or later" being read
+    as the expression "GPLv2 OR later" -- an alternative called `later` -- and waved through.
+    Raises `LicenseExpressionError` rather than guessing at a malformed expression.
+    """
+    tokens = _tokens(expression)
+    position = 0
+
+    def peek() -> str | None:
+        return tokens[position] if position < len(tokens) else None
+
+    def take() -> str:
+        nonlocal position
+        lexeme = tokens[position]
+        position += 1
+        return lexeme
+
+    def disjunction() -> bool:
+        result = conjunction()
+        while peek() == "OR":
+            take()
+            result = conjunction() or result  # evaluate both sides: a malformed tail must raise
+        return result
+
+    def conjunction() -> bool:
+        result = atom()
+        while peek() == "AND":
+            take()
+            result = atom() and result
+        return result
+
+    def atom() -> bool:
+        if position >= len(tokens):
+            raise LicenseExpressionError("the expression ends where a license was expected")
+        lexeme = take()
+        if lexeme == "(":
+            inner = disjunction()
+            if peek() != ")":
+                raise LicenseExpressionError("missing closing parenthesis")
+            take()
+            return inner
+        if lexeme == ")" or lexeme in ("AND", "OR", "WITH"):
+            raise LicenseExpressionError(f"unexpected {lexeme!r}")
+        if peek() == "WITH":
+            take()
+            if position >= len(tokens) or tokens[position] in ("(", ")"):
+                raise LicenseExpressionError("WITH needs an exception identifier")
+            take()
+        return not lexeme.upper().startswith(_STRONG_COPYLEFT)
+
+    verdict = disjunction()
+    if position != len(tokens):
+        raise LicenseExpressionError(f"unexpected {tokens[position]!r}")
+    return verdict
+
+
 @dataclass(frozen=True, slots=True)
 class DependencyLicense:
     name: str
     installed_version: str | None
     license_expression: str | None
     license_classifiers: tuple[str, ...]
+    license_field: str | None = None
+    """The legacy `License:` header, when it is a short single line (a few packages, PySide6
+    among them, publish their SPDX expression only there). A multi-line license *text*, an empty
+    value or `UNKNOWN` is not reported, so nothing here is a truncated paragraph of legal prose."""
+
+
+MAX_LEGACY_LICENSE_CHARS = 200
+
+
+def _legacy_license_field(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text or "\n" in text or len(text) > MAX_LEGACY_LICENSE_CHARS:
+        return None
+    return None if text.upper() in ("UNKNOWN", "NONE") else text
 
 
 def collect_license_inventory(names: tuple[str, ...]) -> tuple[DependencyLicense, ...]:
@@ -95,6 +197,7 @@ def collect_license_inventory(names: tuple[str, ...]) -> tuple[DependencyLicense
                 installed_version=meta["Version"],
                 license_expression=license_expressions[0] if license_expressions else None,
                 license_classifiers=classifiers,
+                license_field=_legacy_license_field((meta.get_all("License") or [None])[0]),
             )
         )
     return tuple(results)

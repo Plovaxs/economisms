@@ -51,6 +51,20 @@ CI enforces a coverage floor (`fail_under` in `pyproject.toml`: 94, against 96 m
 when coverage rises, never lower it to make a build pass. `econosim doctor` checks that your
 environment matches `uv.lock` and the data manifest before you trust a run.
 
+## The desktop window
+
+`uv sync --locked --all-extras` includes the `desktop` extra, so the window's tests run in the same
+environment as everything else, **headlessly**: they set `QT_QPA_PLATFORM=offscreen`, drive the real
+window over a real session and a real isolated worker, and need no display. CI sets
+`ECONOSIM_REQUIRE_DESKTOP_TESTS=1`, under which a Qt that cannot be imported *fails* them rather than
+skipping them. To look at what you changed, `econosim desktop --screenshots out/` renders every page to
+PNG with no display; the three images in `docs/images/` are from that command and should be regenerated
+when the look changes. Charts are drawn by `desktop/ui/charts.py` against a validated palette
+(`desktop/ui/theme.py`): do not add a colour by eye -- run the palette validator in both modes, and keep
+the rules the module's docstring lists (thin marks, a legend for two or more series, a table view behind
+every chart, text that never wears a series colour). Anything that shows text from a result must show it
+as text: use `make_label`, `plain_tooltip` and `SafeBrowser`, not a bare `QLabel` or `setToolTip`.
+
 ## Code style
 
 Not a separate style guide — read any existing module and match it. The

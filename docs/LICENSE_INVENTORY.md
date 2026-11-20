@@ -31,6 +31,7 @@ this project's own MIT license.
 | uvicorn (service extra) | 0.54.0 | `BSD-3-Clause` |
 | jsonschema (service extra) | 4.26.0 | `MIT` |
 | cryptography (recovery extra) | 50.0.2 | `Apache-2.0 OR BSD-3-Clause` |
+| PySide6-Essentials (desktop extra) | 6.12.0 | `LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only` (read from the legacy `License:` header; this project relies on the LGPL alternative) |
 | pennylane (quantum extra) | 0.45.1 | `Apache-2.0` |
 | pennylane-lightning (quantum extra) | 0.45.0 | `Apache-2.0` |
 | pytest (dev) | 9.2.0 | `MIT` |
@@ -48,6 +49,22 @@ Zlib/0BSD/CC0) or weak-copyleft at the file level only (MPL-2.0, which
 this project's own package — carries). None requires this project's own
 MIT-licensed code to be relicensed, confirmed by the real test named
 above, not asserted from memory.
+
+**The one exception to "permissive" is Qt.** `PySide6-Essentials` (the Qt for Python bindings, with
+its transitive `shiboken6`) is offered under `LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only`, and this
+project relies on the LGPL alternative. That is judged by a real SPDX evaluator
+(`evidence.license_inventory.allows_mit_project`: `OR` is the licensee's choice, `AND` needs every part),
+not by a substring match -- `LGPL` contains `GPL`, which is why the previous check could not have
+told them apart. What it means in practice: the Qt wheels are an *optional* extra that this repository
+neither vendors nor redistributes, imported only inside `prometheus.desktop.ui`, so the MIT-licensed
+code here is not relicensed by it. If you ever redistribute a **bundle that contains Qt** (an AppImage,
+a PyInstaller folder, a `.deb`), the LGPL's obligations for Qt attach to that bundle -- notices, the
+text of the license, and the ability for a user to replace the Qt libraries -- and nothing in this
+repository does or claims any of that: no bundle is built. Dynamic linking against a separately
+installed Qt, as `uv sync --extra desktop` does, is the case the LGPL is designed for. The software
+bill of materials (`docs/release/dependency-sbom.cdx.json`) covers the service and recovery runtime;
+the `desktop` extra is optional and separate, and appears in `uv.lock` and in the weekly
+`pip-audit`, which exports every locked requirement.
 
 ## External data source / vendor-entitlement register (PRV-01)
 

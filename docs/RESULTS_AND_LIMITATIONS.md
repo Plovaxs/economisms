@@ -738,3 +738,12 @@ of future inflation, and `INFLATIONCAST` itself is unchanged: the finding is abo
   this sandboxed environment, confirmed by direct repeated retry
   (general internet access is otherwise fine — e.g. Treasury's own data
   API is reachable) — an infrastructure gap, not an unwritten feature.
+- **The desktop application has only been driven headlessly.** Its window was rendered and exercised
+  on Qt's `offscreen` platform (every page's screenshot reviewed, in both themes, and a real job run
+  through it end to end), which is also all this project's CI can do: there is no display there. On
+  the author's own X11 desktop it could not open at all until the system library `libxcb-cursor` was
+  installed, which is exactly the kind of thing an offscreen test cannot reveal -- `econosim desktop`
+  now says so instead of aborting. Windows and macOS are untested, and running jobs needs Linux (the
+  isolated worker uses parent-death signalling and resource limits). Responsive layout below about
+  1200 px is not tested. No packaged binary exists, and building one would take on the LGPL's
+  obligations for Qt (see `docs/LICENSE_INVENTORY.md`).

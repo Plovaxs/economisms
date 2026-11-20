@@ -1,6 +1,6 @@
 [project]
 name = "prometheus-econ"
-version = "0.4.0"
+version = "0.5.0"
 description = "PROMETHEUS: research platform for computational economics, stochastic finance, and neural risk control. Research/simulation only -- not financial advice, not a live-trading system."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,6 +22,12 @@ service = [
     "jsonschema>=4.23",
 ]
 recovery = ["cryptography>=46.0"]
+# The native desktop application (`econosim desktop`, PR-205/206). Only the Qt "Essentials"
+# wheel: the charts are drawn by this project's own QPainter code, so the 170 MB "Addons" wheel
+# (QtCharts, WebEngine, ...) is neither needed nor installed. abi3 wheels, so one lock entry
+# serves every supported Python. LGPL-3.0-only is the alternative this project relies on; see
+# docs/LICENSE_INVENTORY.md for what that does and does not oblige you to do.
+desktop = ["PySide6-Essentials>=6.9,<7"]
 quantum = [
     "pennylane==0.45.1",
     "pennylane-lightning==0.45.0",

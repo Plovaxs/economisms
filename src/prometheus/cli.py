@@ -24,6 +24,12 @@ from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError, version
 
 
+def _desktop_main(argv: list[str] | None) -> int:
+    from prometheus.desktop.__main__ import main
+
+    return main(argv)
+
+
 def _dashboard_main(argv: list[str] | None) -> int:
     from prometheus.dashboard.__main__ import main
 
@@ -72,6 +78,10 @@ _SUBCOMMANDS: dict[str, tuple[str, _Main]] = {
     "data": (
         "Verify (check) or regenerate (write) the committed data snapshot manifest.",
         _data_main,
+    ),
+    "desktop": (
+        "The native desktop application (labs, explorers, findings). Needs the 'desktop' extra.",
+        _desktop_main,
     ),
     "doctor": (
         "Preflight check: Python, locked dependencies, data integrity, credentials, state dir.",

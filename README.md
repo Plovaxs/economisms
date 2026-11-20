@@ -2,8 +2,8 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-3%2C710%20passing-brightgreen)](./docs/PR_LEDGER.md)
-[![Version](https://img.shields.io/badge/version-0.4.0-informational)](./CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/tests-4%2C792%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -132,9 +132,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,134 / 4,134** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,792 / 4,792** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 204, each independently verified |
+| Pull requests | 205, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim
@@ -156,6 +156,7 @@ of all seven deep-learning subsystems and renders the real result.
 
 ## New here?
 
+The quickest way to see all of it is the [desktop application](#desktop-application).
 [docs/PORTFOLIO_DEMO.md](./docs/PORTFOLIO_DEMO.md) is a
 10-minute guide to running the real test suite, starting the real
 research dashboard, and spot-checking a real finding yourself.
@@ -204,11 +205,72 @@ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 
 Requires Python 3.11+. Core dependencies are `numpy`, `scipy` and `torch`;
 optional extras add a local service layer (`uvicorn`, `jsonschema`),
-encrypted local recovery (`cryptography`), and hybrid quantum-classical
+encrypted local recovery (`cryptography`), the native desktop application
+(`PySide6-Essentials`), and hybrid quantum-classical
 ML (`pennylane`, `pennylane-lightning` — see
 [`src/prometheus/quantum/`](./src/prometheus/quantum/)). See
 [`pyproject.toml`](./pyproject.toml) for the full dependency and extras
 list.
+
+## Desktop application
+
+The same research engine as software you open, instead of a service you browse to. A native window
+(Qt, through `PySide6-Essentials`) over the very machinery the web stack uses -- the allow-listed
+runners, the transactional job queue, the isolated worker process and the hash-verified result
+store -- called directly by one local user. There is no HTTP listener, no token, no port and no
+browser. The web app and its gateway still exist and are still tested; this is an additional front
+door, not a replacement.
+
+```bash
+uv sync --locked --extra desktop             # adds PySide6-Essentials, hash-locked like every other dependency
+sudo apt install libxcb-cursor0              # Debian/Ubuntu: the one system library Qt 6.5+ needs on X11
+econosim desktop                             # open the window
+econosim desktop --install-launcher          # add ECONOSIM to your application menu (--uninstall-launcher removes it)
+econosim desktop --check                     # self-test everything but the window, headlessly (~10 s)
+econosim desktop --screenshots docs/shots    # render every page to PNG with no display at all
+```
+
+![The overview page](./docs/images/desktop-overview.png)
+
+- **Labs** run any of the 16 runners (INFLATIONCAST, RECESSIONNET, Q-MACRO, the neural SDE, the PDE
+  solvers, multi-agent RL, the RL hedging agent, the economy and monetary simulations and the hedging
+  studies) as an isolated job. The parameter form is *generated from each runner's own config type*,
+  so it cannot drift from what the runner accepts; what you enter is judged by the same typed
+  decoding and resource limits a queued job faces, the result is re-verified against its hash every
+  time it is opened, and a running job can be cancelled.
+- **Explorers** are the dashboard's views -- economy, market paths with the 5th/50th/95th percentile
+  fan, option pricing and Greeks, hedge ratios, portfolio VaR/ES, experiment comparison, validation
+  issues -- each computed in a child process, with the same parameter bounds as the web views.
+- **Findings** shows `docs/RESULTS_AND_LIMITATIONS.md` as it is written (parsed, not copied): all 18
+  findings, the negative ones exactly as prominent as the positive ones.
+- **History** lists every job, reopens a result, loads its settings back into the lab, exports it and
+  recomputes the queue's hash-chained audit log. **System** states the NO-GO gate decision, the
+  preflight checks, the 24 verified data files and where your work is kept (`$ECONOSIM_HOME`, else
+  `~/.local/share/econosim`, created `0700`).
+
+![A lab result](./docs/images/desktop-lab-result.png)
+
+Every chart is drawn by this project's own QPainter code (no charting dependency) with a categorical
+palette that was run through a colour-vision-deficiency separation check in both themes, a legend for
+two or more series, tooltips that also appear from the keyboard, and a table view behind it. Text
+that comes from a result is always shown as text, never interpreted as markup.
+
+![The market-paths explorer](./docs/images/desktop-explorer-fan.png)
+
+**What it is not.** It is not a production system or an advice tool: the window says *research only*
+and shows the NO-GO gate on every page. It is not a security boundary against whoever already runs as
+you. It is not a packaged binary: you install it from this repository. Running a job needs Linux (the
+isolated worker uses parent-death signalling and resource limits); on another platform the explorers
+and the findings work and the lab says why it cannot run. Q-MACRO fetches its factor file from an
+allow-listed host (and says so on its page); everything else runs offline. The Qt wheel is
+LGPL-3.0-licensed -- see [docs/LICENSE_INVENTORY.md](./docs/LICENSE_INVENTORY.md) for what that does
+and does not oblige you to do if you ever redistribute a bundle.
+
+**If the window does not open.** `econosim desktop` checks first and says so instead of aborting: on
+X11 Qt needs `libxcb-cursor` (found missing on the author's own desktop; the command printed the
+package to install, sent a desktop notification and wrote `startup-error.txt` into the state
+directory, because a menu entry has no terminal). `econosim desktop --check` reports the same in its
+`display` step.
 
 ## CLI
 
@@ -220,6 +282,8 @@ prometheus.<name>` invocation:
 econosim --help                     # list subsystems
 econosim dashboard serve --demo     # same as: python -m prometheus.dashboard serve --demo
 econosim webgateway serve --dist frontend/dist
+econosim desktop                    # the native desktop application (needs the `desktop` extra)
+econosim desktop --check            # headless self-test of the desktop application's engine
 econosim doctor                     # preflight: deps match uv.lock, data manifest, credentials mode
 econosim data check                 # verify data_cache/ against its manifest
 econosim recovery keygen --output recovery.key

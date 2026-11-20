@@ -16,6 +16,65 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+## [0.5.0] -- 2026-11-20 -- the desktop application (PR-205)
+
+This release makes the project software you open. A native Qt window runs the same engine the web
+stack runs -- the allow-listed runners, the queue, the isolated worker, the verified result store --
+called directly, with no listener, token or port. The web app and gateway are unchanged and still
+tested. It does not change this project's NO-GO gate for live trading or real capital.
+
+### Added
+- **`econosim desktop`** (PR-205): the desktop application, behind a new `desktop` extra
+  (`PySide6-Essentials`, hash-locked in `uv.lock`; the Docker image does not include it). Pages:
+  *Overview*, *Labs* (all 16 runners; the parameter form is generated from each runner's config type
+  and read back through the real typed decoding and resource limits), *Explorers* (the dashboard's
+  views, computed in child processes, with the web views' own parameter bounds), *Findings*
+  (`docs/RESULTS_AND_LIMITATIONS.md` parsed, not copied), *History* (reopen, re-run, export, audit
+  chain) and *System* (gate decision, preflight, verified data files, where work is kept).
+- **`econosim desktop --check`**: a headless self-test of everything but the window (forms, the seven
+  explorers in child processes, one real job through the isolated worker with its result verified on
+  read, findings, health, Qt, display, launcher). **`--screenshots DIR`** renders every page to PNG
+  with no display. **`--install-launcher` / `--uninstall-launcher`** add or remove an application-menu
+  entry (marker line, symlink refusal, atomic write; validated with `desktop-file-validate`).
+- **`prometheus.desktop`**: a framework-free core (state directory rules, form derivation, a generic
+  result reader, a local session over `JobStore`/`Worker`/`ArtifactStore`, the explorer registry and
+  its child process, health, findings, launcher, display check) and a `ui/` package that is the only
+  part needing Qt. Charts are drawn with QPainter (no charting dependency): a validated palette in a
+  fixed order, thin marks, a legend for two or more series, tooltips that also appear from the
+  keyboard, and a table view behind every chart.
+- `evidence.license_inventory.allows_mit_project`: an SPDX license-expression evaluator.
+
+### Security
+- **No network listener at all** for this front end; the window's state lives in a `0700` directory
+  that is refused if it is a symlink, someone else's, or open to group/others, one window per
+  directory, results re-verified on every read and refused if edited or attached to another job.
+- **Data is shown as data.** Labels are forced to plain text (Qt's default renders HTML-looking text
+  as HTML), tooltips carrying data are escaped, and the Markdown view disables raw HTML and loads no
+  resource. Each is mutation-tested.
+- **Display failure is caught before Qt aborts.** On X11 Qt 6.5+ aborts the whole process (a core
+  dump) when `libxcb-cursor` is missing; from a menu entry that is a program that silently does
+  nothing. Found on a real desktop; `econosim desktop` now names the package, notifies and leaves
+  `startup-error.txt`.
+- Explorer calculations run in a child process with a wall-clock limit enforced by the caller, a
+  generous CPU backstop, no core dumps and a parent-death signal; the child re-validates every
+  parameter itself.
+
+### Fixed
+- `tests/unit/test_license_inventory.py` said LGPL was excluded from its copyleft check but matched
+  the substring `GPL`, which `LGPL` contains; and the module's docstring promised a fallback to the
+  legacy `License:` metadata header that was never implemented (PySide6 publishes its SPDX
+  expression only there). Both now do what they said, with an evaluator that treats `A OR B` as the
+  licensee's choice and requires upper-case operators as SPDX does.
+- An explorer child given a 0.2 s time limit received a 1 s CPU limit and was killed by `SIGXCPU`
+  within 50 ms on a many-core machine (CPU time is summed over threads), before the caller's own
+  wall-clock limit could act; the CPU limit is now a backstop.
+
+### Changed
+- `pyproject.toml` 0.5.0, `frontend` 0.5.0, SBOM regenerated (its scope is unchanged: the service and
+  recovery runtime; `desktop` is a separate, optional extra).
+- CI sets `ECONOSIM_REQUIRE_DESKTOP_TESTS=1` so that a Qt that cannot be imported *fails* the window
+  tests instead of skipping them, and installs Qt's runtime libraries in its existing apt step.
+
 ## [0.4.0] -- 2026-11-20 -- real-data studies, a data-timing bug found and fixed, verified data and a preflight check (PR-197 through PR-204)
 
 This release asked the models to learn from more real data and recorded, case by case, what that did and did not buy: four Kaggle datasets behind 24 verified data files, one look-ahead bug found in our own GDP column, and five studies, recorded as Findings 13-18, two of them with their questions written down before any number was computed. It also closes the data and secret supply chain around those snapshots. It does not change this project's NO-GO gate for live trading or real capital.

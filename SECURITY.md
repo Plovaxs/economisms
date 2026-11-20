@@ -18,6 +18,8 @@ This policy covers vulnerabilities in:
 - the optional local service and client (`prometheus.service`), the
   research dashboard (`prometheus.dashboard`) and the web gateway that
   fronts them (`prometheus.webgateway`);
+- the native desktop application (`prometheus.desktop`), which has no network listener: its one
+  trust boundary is the local user;
 - the build/CI tooling under [`tools/`](./tools) and
   [`.github/workflows/`](./.github/workflows).
 
@@ -87,6 +89,14 @@ advisories that have been PUBLISHED.
   has no reliable way to query one from CI): a secret in a format no pattern knows is not found,
   the hook is opt-in and `git commit --no-verify` bypasses it, and CI can only report after a
   push.
+- **Desktop application** (`prometheus.desktop`, PR-205): no listener, token or port. The state
+  directory is created `0700` and refused if it is a symlink, someone else's or open to group or
+  others; results are re-verified against their SHA-256 on every read; model code runs only in
+  resource-limited child processes that die with the window; text from a result is shown as text
+  (plain-text labels, escaped tooltips, Markdown with raw HTML off and no resource loading); the
+  menu entry replaces and removes only files carrying its own marker and never follows a symlink.
+  It is **not** a boundary against whoever already runs as you, and Q-MACRO's one outbound fetch
+  (to an allow-listed host) is disclosed on its page. See [docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md).
 - **Data integrity** (`prometheus.data_ingestion.snapshot_integrity`, PR-201):
   `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every committed snapshot and
   provenance file, and every loader reads its bytes through a verifier that refuses a file that
