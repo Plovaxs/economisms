@@ -30,6 +30,12 @@ def _dashboard_main(argv: list[str] | None) -> int:
     return main(argv)
 
 
+def _doctor_main(argv: list[str] | None) -> int:
+    from prometheus.doctor import main
+
+    return main(argv)
+
+
 def _data_main(argv: list[str] | None) -> int:
     from prometheus.data_ingestion.snapshot_integrity import main
 
@@ -66,6 +72,10 @@ _SUBCOMMANDS: dict[str, tuple[str, _Main]] = {
     "data": (
         "Verify (check) or regenerate (write) the committed data snapshot manifest.",
         _data_main,
+    ),
+    "doctor": (
+        "Preflight check: Python, locked dependencies, data integrity, credentials, state dir.",
+        _doctor_main,
     ),
     "dashboard": (
         "Run the research dashboard as a real, standalone ASGI process.",

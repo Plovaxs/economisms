@@ -47,6 +47,10 @@ for the exact sequence CI runs on every push/PR (reproducible-build rebuild,
 lint, format check on platform modules, `mypy --strict`, full test suite with
 coverage, then the reference replay on the pinned reference Python profile).
 
+CI enforces a coverage floor (`fail_under` in `pyproject.toml`: 94, against 96 measured): raise it
+when coverage rises, never lower it to make a build pass. `econosim doctor` checks that your
+environment matches `uv.lock` and the data manifest before you trust a run.
+
 ## Code style
 
 Not a separate style guide — read any existing module and match it. The

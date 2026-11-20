@@ -146,6 +146,12 @@ client, so an attacker's request rate cannot become the log volume.
 
 ## Operations
 
+- **Preflight** with `econosim doctor [--credentials FILE] [--state-dir DIR]` (PR-204): it checks the
+  Python version, that every installed dependency matches `uv.lock` (a drift in the numerical stack is
+  a failure -- CI found more than once that a different numpy changes a result), that every data
+  snapshot still matches its manifest, that the credentials file is a regular file only its owner can
+  read, and that the state directory is writable. It exits non-zero on any failure, makes no network
+  call and is a diagnostic, not a control: it tells you what is wrong, it does not stop anything.
 - **Stop** with `docker compose stop` (SIGTERM). The gateway stops accepting
   connections, lets in-flight requests finish (up to 20 s) and then exits
   with the conventional SIGTERM status (uvicorn re-raises the signal once the
@@ -175,9 +181,11 @@ client, so an attacker's request rate cannot become the log volume.
 | Unprivileged user, read-only root, no capabilities, health, limits | containers | `test_container_posture.py` and `docker-build.yml` (real containers) |
 | Dependency, image and static-analysis scanning, weekly | CI | `.github/workflows/security.yml`, `codeql.yml` |
 | Actions pinned by SHA, least-privilege tokens, job timeouts | CI | `test_supply_chain_posture.py` |
-| Every committed data snapshot matches `data_cache/MANIFEST.sha256.json` on load | the eight snapshot loaders | `test_snapshot_integrity.py` (each loader refuses an altered file) |
+| Every committed data snapshot matches `data_cache/MANIFEST.sha256.json` on load | every snapshot loader | `test_snapshot_integrity.py` (each loader refuses an altered file) |
 | Third-party data files parse to finite, unique, sorted series or fail with one contained error | the data builder | `test_data_parser_fuzz.py` |
 | No secret and no sensitive file name in any tracked file; staged content scanned before a commit | CI test, opt-in hook | `test_security_scan.py`, `test_secret_scan_cli.py`, `.githooks/pre-commit` |
+| Test coverage of the package stays at or above 94% (96% measured) | CI | `pyproject.toml` `fail_under`, `test_coverage_floor.py` |
+| Environment matches `uv.lock`, the data manifest and the credentials file's mode | the operator, before starting | `econosim doctor`, `test_doctor.py` |
 
 ## What you do not get
 

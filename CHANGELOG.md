@@ -14,11 +14,15 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
-## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, data and secret integrity, a second market, and a long-history inflation nowcast (PR-197 through PR-203)
+## [Unreleased]
+
+## [0.4.0] -- 2026-11-20 -- real-data studies, a data-timing bug found and fixed, verified data and a preflight check (PR-197 through PR-204)
+
+This release asked the models to learn from more real data and recorded, case by case, what that did and did not buy: four Kaggle datasets behind 24 verified data files, one look-ahead bug found in our own GDP column, and five studies, recorded as Findings 13-18, two of them with their questions written down before any number was computed. It also closes the data and secret supply chain around those snapshots. It does not change this project's NO-GO gate for live trading or real capital.
 
 ### Security
 - **Verified data (PR-201).** `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every
-  committed snapshot and provenance file; all eight snapshot loaders refuse a file that does not match
+  committed snapshot and provenance file; every snapshot loader refuses a file that does not match
   (the bytes parsed are the bytes verified). `econosim data check` verifies and `econosim data write`
   regenerates it after a deliberate refresh. The manifest is not signed: it catches drift and forces a
   visible step, not a malicious committer.
@@ -43,6 +47,7 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   are unchanged). See `docs/RESULTS_AND_LIMITATIONS.md` Finding 13.
 
 ### Added
+- `econosim doctor` (PR-204): a preflight check that the Python version, the installed dependency versions (against `uv.lock`), the data manifest, a credentials file's mode and a state directory are as they should be; and a coverage floor of 94% (96% measured) that CI enforces.
 - `orchestration.inflationcast_long_study` (PR-203): the inflation nowcast on 76 years of CPI index levels, with
   five questions written down before any number was computed (Finding 18). A base-effect rule (forecast the
   monthly growth, convert exactly to year-over-year) cut the error against persistence by about a third; a

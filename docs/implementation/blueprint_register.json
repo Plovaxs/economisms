@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "85f4d7f9c52fb2b01fa0feab4443e4ed667c51968bed8af87b4089a089ac4bbf",
+    "content_sha256": "06d96d8edc7378c05227147b6a6444525588cc11274fe66160eef4ad57504724",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "d6291c0e394ff7bed067800aadcce421df76a70ed8059447926e8b5338fa1314",
+  "checklist_notes_sha256": "ea49b6730f897280cdd10c23584bc69c3ba5209722b95faf9401fd0c9cdad934",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -7559,6 +7559,12 @@
           "evidence_note": "GitHub branch protection API, confirmed both before (unprotected) and after (protected, required status checks) via direct `gh api` calls",
           "id_column": "CIQ-02 (first evidence)",
           "requirement_note": "fast unit/property/numerical tests; main branch protected on successful suite"
+        },
+        {
+          "checklist_line": 8102,
+          "evidence_note": "`pyproject.toml` sets `[tool.coverage.report] fail_under = 94` against 96% measured on all four Python versions; `test_coverage_floor.py::test_a_coverage_floor_is_configured_below_the_measured_total` and `::test_ci_runs_the_suite_with_coverage_of_the_package_so_the_floor_applies`; the mechanism was exercised on a deliberately thin run (11 tests, 9.42% covered, exit status 1)",
+          "id_column": "CIQ-02 (strengthened, a coverage floor that CI enforces)",
+          "requirement_note": "Run fast unit/property/numerical regression tests"
         }
       ],
       "requirement": "Run fast unit/property/numerical regression tests",
@@ -7583,6 +7589,12 @@
           "evidence_note": "strict reference hash/replay and recovery drill; prepared reference-profile CI step; broader endpoint/workload acceptance remains open",
           "id_column": "CIQ-03 (partial)",
           "requirement_note": "reference replay under installed wheel and locked numerical dependencies"
+        },
+        {
+          "checklist_line": 8103,
+          "evidence_note": "`prometheus.doctor.check_locked_dependencies` compares every installed package with `uv.lock` and treats a drift in numpy, scipy, torch or pennylane as a failure: `test_doctor.py::test_a_numerical_stack_mismatch_is_a_failure_that_names_the_package`, `::test_matching_versions_pass_and_uninstalled_locked_packages_are_skipped`, `::test_a_lock_holding_several_versions_per_name_accepts_any_of_them`, `::test_a_local_version_tag_is_a_build_detail_not_a_different_release`, `::test_any_other_mismatch_is_only_a_warning`, `::test_a_missing_or_corrupt_lock_is_reported_not_guessed_at`; the rest of the preflight: `::test_data_integrity_follows_the_manifest`, `::test_a_credentials_file_must_be_private`, `::test_a_credentials_symlink_directory_or_missing_file_fails`, `::test_the_state_directory_must_exist_and_be_writable`, `::test_the_exit_code_follows_the_failures`, `::test_json_output_is_machine_readable`, `::test_the_command_is_reachable_from_the_econosim_cli`; and the real environment: `::test_this_checkout_passes_every_check_that_can_be_decided_here`. A diagnostic, not a control: it does not stop anything from starting",
+          "id_column": "CIQ-03 (strengthened, the locked numerical dependencies are checked at run time)",
+          "requirement_note": "Run deterministic reference experiment smoke test"
         }
       ],
       "requirement": "Run deterministic reference experiment smoke test",
