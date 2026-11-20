@@ -1,0 +1,78 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "ff3_monthly_snapshot.csv": {
+      "bytes": 34894,
+      "sha256": "992452a26f777ddcedfbb59883d39741fdd68984e546c6b602cfada58d972641"
+    },
+    "kaggle_fed_policy_monthly.csv": {
+      "bytes": 16093,
+      "sha256": "0c3eb1f3426b86c215f82c87268718a9187f316e5f212ad34187532aa7f415c2"
+    },
+    "kaggle_fed_policy_monthly.meta.json": {
+      "bytes": 1504,
+      "sha256": "1c75a06a1867e4383a0ba4e32dd00bdb181c3c447cea00b0e318444fbfc1cb53"
+    },
+    "kaggle_sp500_daily_close.csv": {
+      "bytes": 475125,
+      "sha256": "b144c66e1b56a402f60b6b770fddce229efb4bb578186af596a8dbfa7aff36da"
+    },
+    "kaggle_sp500_daily_close.meta.json": {
+      "bytes": 987,
+      "sha256": "0fa956d16c4e7dd9165b38a47a220eaf7c0bf9d02506647cf253cbf535f3ff35"
+    },
+    "kaggle_term_spread_monthly.csv": {
+      "bytes": 10679,
+      "sha256": "e84175ddbc9b070125b94d12da7a4ab85dbaddd173945558cf8557e5ec94d422"
+    },
+    "kaggle_term_spread_monthly.meta.json": {
+      "bytes": 1475,
+      "sha256": "990ea65e40e072e0dac694b449f692d6d863d4ded5e8369ba9104e97568b8606"
+    },
+    "kaggle_us_macro_extended_monthly.csv": {
+      "bytes": 58192,
+      "sha256": "32498a553800b58c11cd8c666a3bc3bcfc96888918d4bf2a1670546c769b2615"
+    },
+    "kaggle_us_macro_extended_monthly.meta.json": {
+      "bytes": 3960,
+      "sha256": "cf23f62e14ab372b965224de31d242daf8d92af5e2225e629baff420a7593160"
+    },
+    "kaggle_us_macro_monthly.csv": {
+      "bytes": 43054,
+      "sha256": "55788b6791417246962bcc243aab17f19c5faddeab5385754622159c738b642f"
+    },
+    "kaggle_us_macro_monthly.meta.json": {
+      "bytes": 2886,
+      "sha256": "66e970b9a2807a614a2f2c3a4cd57da1edec7e2dc33c64f29dcee5234538cca1"
+    },
+    "raw_provenance/bls_cpi_2006_2015.json": {
+      "bytes": 10679,
+      "sha256": "cef3b5639d8888559fef5630faed8e514b1847b0c1ad482a28e00ac5864e4ab2"
+    },
+    "raw_provenance/bls_cpi_2016_2025.json": {
+      "bytes": 10773,
+      "sha256": "4119b08e2947814923a27967faf0ff0c8bf04164f4def5b04293ba9ea8e27b46"
+    },
+    "raw_provenance/bls_cpi_2026_2026.json": {
+      "bytes": 1017,
+      "sha256": "0a7acd7a8ab979511515614c344088d89fa36f1bbbc8ef12bccb96ef6275e2e8"
+    },
+    "treasury_yield_spread_monthly.csv": {
+      "bytes": 12852,
+      "sha256": "c7f90c7498e273ba1f724ece21f39015f5c65db813bc01041d52393b9f82d488"
+    },
+    "treasury_yield_spread_monthly.meta.json": {
+      "bytes": 3036,
+      "sha256": "7d6711817009ac3bfa7c5f9c14755a1947971a9b5915cc11c686f02fe2f94ea4"
+    },
+    "us_cpi_monthly.csv": {
+      "bytes": 8649,
+      "sha256": "8b5f003501b279e474ce3b5d1c054acf8d45ed66f3e42410de16157541bd20e6"
+    },
+    "us_cpi_monthly.meta.json": {
+      "bytes": 2747,
+      "sha256": "b4a73427b944fcfcf704712104cbf029834e630bdd98d124a2891a153b3710da"
+    }
+  },
+  "format": "econosim-data-manifest/1"
+}

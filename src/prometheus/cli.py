@@ -30,6 +30,12 @@ def _dashboard_main(argv: list[str] | None) -> int:
     return main(argv)
 
 
+def _data_main(argv: list[str] | None) -> int:
+    from prometheus.data_ingestion.snapshot_integrity import main
+
+    return main(argv)
+
+
 def _jobs_main(argv: list[str] | None) -> int:
     from prometheus.jobs.__main__ import main
 
@@ -57,6 +63,10 @@ def _webgateway_main(argv: list[str] | None) -> int:
 _Main = Callable[[list[str] | None], int]
 
 _SUBCOMMANDS: dict[str, tuple[str, _Main]] = {
+    "data": (
+        "Verify (check) or regenerate (write) the committed data snapshot manifest.",
+        _data_main,
+    ),
     "dashboard": (
         "Run the research dashboard as a real, standalone ASGI process.",
         _dashboard_main,

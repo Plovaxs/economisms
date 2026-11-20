@@ -1,4 +1,7 @@
 import pathlib
+import subprocess
+
+import pytest
 
 from prometheus.evidence.security_scan import (
     ReleaseGateDecision,
@@ -6,9 +9,17 @@ from prometheus.evidence.security_scan import (
     claims_scan,
     evaluate_release_gate,
     license_scan,
+    path_scan,
     pii_scan,
     secret_scan,
 )
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+# Secret-shaped fixtures are assembled at run time. The whole-repository sweep below scans
+# THIS file with no allowlist, so it must not contain a literal the scanner would flag.
+FAKE_AWS_KEY = "AKIA" + "FAKEFAKEFAKE0000"
+FAKE_PEM_HEADER = "-----BEGIN RSA " + "PRIVATE KEY-----"
 
 
 def test_secret_scan_finds_nothing_in_clean_files() -> None:
@@ -16,7 +27,7 @@ def test_secret_scan_finds_nothing_in_clean_files() -> None:
 
 
 def test_secret_scan_detects_an_aws_access_key() -> None:
-    findings = secret_scan({"config.py": 'AWS_KEY = "AKIAFAKEFAKEFAKE0000"\n'})
+    findings = secret_scan({"config.py": f'AWS_KEY = "{FAKE_AWS_KEY}"\n'})
     assert len(findings) == 1
     assert findings[0].description == "AWS access key ID"
     assert findings[0].severity == "critical"
@@ -24,20 +35,21 @@ def test_secret_scan_detects_an_aws_access_key() -> None:
 
 
 def test_secret_scan_detects_a_private_key_header() -> None:
-    content = "-----BEGIN RSA PRIVATE KEY-----\nMIIB...\n-----END RSA PRIVATE KEY-----\n"
+    content = FAKE_PEM_HEADER + "\nMIIB...\n-----END RSA PRIVATE KEY-----\n"
     findings = secret_scan({"key.pem": content})
     assert len(findings) == 1
     assert findings[0].description == "private key material"
 
 
 def test_secret_scan_detects_a_generic_credential_assignment() -> None:
-    findings = secret_scan({"settings.py": 'api_key = "FAKE-CREDENTIAL-NOT-A-REAL-SECRET-0000"\n'})
+    credential = "FAKE-CREDENTIAL-NOT-A-REAL-SECRET-0000"
+    findings = secret_scan({"settings.py": f'api_key = "{credential}"\n'})
     assert len(findings) == 1
     assert findings[0].description == "hardcoded credential-like assignment"
 
 
 def test_secret_scan_reports_the_correct_line_number_past_the_first_line() -> None:
-    content = "line one\nline two\nAWS_KEY = \"AKIAFAKEFAKEFAKE0000\"\n"
+    content = f'line one\nline two\nAWS_KEY = "{FAKE_AWS_KEY}"\n'
     findings = secret_scan({"f.py": content})
     assert findings[0].location == "f.py:3"
 
@@ -52,7 +64,7 @@ def test_secret_scan_does_not_false_positive_on_mentioning_a_key_by_name() -> No
 def test_secret_scan_checks_every_file_in_the_mapping_independently() -> None:
     files = {
         "clean.py": "print(1)\n",
-        "dirty.py": 'AWS_KEY = "AKIAFAKEFAKEFAKE0000"\n',
+        "dirty.py": f'AWS_KEY = "{FAKE_AWS_KEY}"\n',
     }
     findings = secret_scan(files)
     assert len(findings) == 1
@@ -227,6 +239,14 @@ def test_pii_scan_does_not_false_positive_on_a_long_real_decimal_value() -> None
     assert pii_scan({"data.csv": "KAGGLE_CLAIMS_YOY,1146.4183381088824\n"}) == []
 
 
+def test_pii_scan_does_not_mistake_a_run_of_digits_inside_a_hash_for_a_card_number() -> None:
+    """PR-201's manifest holds SHA-256 digests; a digest can contain 13+ consecutive decimal
+    digits (here `6791417246962`), flanked by hex letters. That is part of a hash."""
+    digest = "55788b6791417246962bcc243aab17f19c5faddeab5385754622159c738b642f"
+    assert pii_scan({"MANIFEST.json": f'"sha256": "{digest}"\n'}) == []
+    assert len(pii_scan({"leak.txt": "card number 4111111111111111 on file\n"})) == 1
+
+
 def test_pii_scan_reports_the_correct_line_number_past_the_first_line() -> None:
     findings = pii_scan({"a.txt": "line one\nline two\nssn: 123-45-6789\n"})
     assert findings[0].location == "a.txt:3"
@@ -312,3 +332,153 @@ def test_this_repositorys_own_real_public_facing_docs_have_no_claims_findings() 
     files = {str(p): p.read_text() for p in paths if p.is_file()}
     assert len(files) >= 10  # sanity: the real docs tree was actually read
     assert claims_scan(files) == []
+
+
+# --------------------------------------------------------------- PR-201: provider token formats
+
+FAKE_TOKENS = {
+    "Kaggle API token": "KGAT_" + "0123456789abcdef0123456789abcdef",
+    "Kaggle legacy credentials (kaggle.json)": '{"username": "someone", "key": "' + "0" * 32 + '"}',
+    "GitHub token": "ghp_" + "A" * 36,
+    "GitHub fine-grained token": "github_pat_" + "B" * 30,
+    "Slack token": "xoxb-" + "1234567890-" + "abcdefghij",
+    "Google API key": "AIza" + "C" * 35,
+    "Anthropic API key": "sk-ant-" + "D" * 30,
+    "OpenAI-style secret key": "sk-" + "E" * 40,
+    "Hugging Face token": "hf_" + "F" * 36,
+    "npm access token": "npm_" + "G" * 36,
+    "PyPI upload token": "pypi-AgEIcHlwaS5vcmc" + "H" * 60,
+    "Stripe live key": "sk_live_" + "I" * 28,
+    "JSON Web Token": "eyJ" + "a" * 12 + ".eyJ" + "b" * 12 + "." + "c" * 12,
+}
+
+
+@pytest.mark.parametrize(("description", "token"), list(FAKE_TOKENS.items()))
+def test_secret_scan_detects_each_provider_token_format_exactly_once(
+    description: str, token: str
+) -> None:
+    findings = secret_scan({"notes.md": f"first line\nvalue {token} end\n"})
+    assert [(f.description, f.location, f.severity) for f in findings] == [
+        (description, "notes.md:2", "critical")
+    ]
+
+
+@pytest.mark.parametrize(
+    "benign",
+    [
+        "the Kaggle token starts with KGAT_ and is 40 characters",
+        "KGAT_short",
+        "export KAGGLE_API_TOKEN=$TOKEN",
+        "ghp_short and gho_short",
+        "pip install scikit-learn  # not an sk- key",
+        "disk-usage-and-risk-free-looking-words-are-not-keys-at-all-here",
+        "sk-",
+        "xoxb-",
+        "AIza",
+        "Bearer <token>",
+        "eyJ is the base64 of an opening brace",
+        "hf_ prefix",
+        "a git sha 0123456789abcdef0123456789abcdef01234567 and a sha256 " + "0123456789abcdef" * 4,
+    ],
+)
+def test_secret_scan_ignores_prose_that_only_names_a_provider_or_a_hash(benign: str) -> None:
+    assert secret_scan({"notes.md": benign + "\n"}) == []
+
+
+def test_an_anthropic_key_is_not_also_reported_as_an_openai_style_key() -> None:
+    findings = secret_scan({"f.txt": FAKE_TOKENS["Anthropic API key"]})
+    assert [f.description for f in findings] == ["Anthropic API key"]
+
+
+# --------------------------------------------------------------- PR-201: sensitive file names
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".env",
+        "deploy/.env.production",
+        "certs/server.pem",
+        "keys/signing.key",
+        "id_rsa",
+        "home/.ssh/id_ed25519",
+        "kaggle.json",
+        ".kaggle/access_token",
+        ".netrc",
+        ".pypirc",
+        "config/credentials.json",
+        "config/secrets.yaml",
+        "store/identity.p12",
+    ],
+)
+def test_path_scan_flags_files_that_should_never_be_committed(path: str) -> None:
+    findings = path_scan([path])
+    assert len(findings) == 1
+    assert findings[0].severity == "critical" and findings[0].location == path
+    assert findings[0].description.startswith("sensitive file name")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".env.example",
+        "deploy/.env.sample",
+        "src/prometheus/service/credentials.py",
+        "docs/credentials.md",
+        "tests/fixtures/keyword.csv",
+        "src/prometheus/environment.py",
+        "README.md",
+        "frontend/package-lock.json",
+        "docs/SECURITY_AND_DATA_HANDLING.md",
+    ],
+)
+def test_path_scan_leaves_ordinary_files_alone(path: str) -> None:
+    assert path_scan([path]) == []
+
+
+def test_a_sensitive_file_name_blocks_the_release_gate_like_a_secret_does() -> None:
+    decision = evaluate_release_gate(path_scan([".env"]))
+    assert decision.blocked is True and len(decision.unapproved_findings) == 1
+
+
+# --------------------------------------------------------------- PR-201: the whole repository
+
+_SWEEP_CEILING_BYTES = 2 * 1024 * 1024
+"""Machine-generated numeric replay files above this size (the `evidence/*.json` reference
+and replay dumps, 7-16 MB each) are not content-scanned; every other tracked file is."""
+
+
+def _tracked_paths() -> list[str]:
+    if not (REPO_ROOT / ".git").exists():
+        pytest.skip("not a git checkout")
+    try:
+        out = subprocess.run(
+            ["git", "ls-files", "-z"], cwd=REPO_ROOT, capture_output=True, check=True, timeout=60
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        pytest.skip("git is unavailable")
+    return [name for name in out.decode("utf-8").split("\0") if name]
+
+
+def test_no_tracked_file_contains_a_secret_or_has_a_sensitive_name() -> None:
+    """The whole-repository version of the check (the existing one covers `src/` only):
+    every tracked text file and every tracked file NAME, with no allowlist. It is what
+    stands between a pasted token and a pushed commit once someone forgets to look."""
+    names = _tracked_paths()
+    assert len(names) > 500
+    texts: dict[str, str] = {}
+    skipped: list[str] = []
+    for name in names:
+        path = REPO_ROOT / name
+        if not path.is_file():
+            continue
+        if path.stat().st_size > _SWEEP_CEILING_BYTES:
+            skipped.append(name)
+            continue
+        try:
+            texts[name] = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            skipped.append(name)
+    assert len(texts) > 0.9 * len(names), f"too little was scanned; skipped: {skipped}"
+    assert path_scan(names) == []
+    assert secret_scan(texts) == []

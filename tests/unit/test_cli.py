@@ -114,3 +114,11 @@ def test_recovery_and_service_are_never_imported_at_module_level() -> None:
     forbidden = {"prometheus.recovery", "prometheus.recovery.__main__"}
     forbidden |= {"prometheus.service", "prometheus.service.__main__"}
     assert not (forbidden & top_level_imports)
+
+
+def test_data_check_runs_the_real_snapshot_integrity_check(capsys) -> None:
+    """`econosim data check` is the committed manifest's own verifier, not a copy of it."""
+    from prometheus.cli import main
+
+    assert main(["data", "check"]) == 0
+    assert "files match MANIFEST.sha256.json" in capsys.readouterr().out

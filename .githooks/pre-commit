@@ -1,0 +1,18 @@
+#!/bin/sh
+# Refuse a commit that stages a secret or a file that should never be committed.
+#
+# One-time setup, per clone:   git config core.hooksPath .githooks
+# Bypass (an accident-catcher, not a control against intent):   git commit --no-verify
+#
+# Runs prometheus.evidence.secret_scan_cli over the INDEX, i.e. exactly what the commit
+# would contain. It prints "path:line: description" and never the matched text.
+set -eu
+root="$(git rev-parse --show-toplevel)"
+if [ -n "${PYTHON:-}" ]; then
+    py="$PYTHON"
+elif [ -x "$root/.venv/bin/python" ]; then
+    py="$root/.venv/bin/python"
+else
+    py="python3"
+fi
+PYTHONPATH="$root/src${PYTHONPATH:+:$PYTHONPATH}" exec "$py" -m prometheus.evidence.secret_scan_cli --staged --repo "$root"

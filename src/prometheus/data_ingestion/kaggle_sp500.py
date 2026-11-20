@@ -18,28 +18,34 @@ The committed `data_cache/kaggle_sp500_daily_close.csv` is derived by
 
 from __future__ import annotations
 
-import csv
+import math
 from datetime import date
 from pathlib import Path
 
 import numpy as np
+
+from prometheus.data_ingestion.snapshot_integrity import SnapshotParseError, verified_dict_reader
 
 KAGGLE_SP500_SOURCE_URL = "https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data"
 KAGGLE_SP500_SOURCE_LICENSE = "ODbL-1.0 (Kaggle: henryhan117/sp-500-historical-data)"
 
 
 def load_sp500_closes(path: Path) -> tuple[tuple[date, ...], np.ndarray]:
-    """Dates (ascending, unique) and closing levels."""
+    """Dates (ascending, unique) and closing levels. Every close must be a finite,
+    positive number: `nan` compares false against everything, so a plain `c <= 0`
+    test would have let it through."""
     dates: list[date] = []
     closes: list[float] = []
-    with path.open() as handle:
-        for row in csv.DictReader(handle):
+    for row in verified_dict_reader(path, required=("date", "close")):
+        try:
             dates.append(date.fromisoformat(row["date"]))
             closes.append(float(row["close"]))
+        except ValueError as exc:
+            raise SnapshotParseError(f"{path.name}: malformed row {row!r}") from exc
     if any(b <= a for a, b in zip(dates, dates[1:], strict=False)):
         raise ValueError("S&P 500 dates must be strictly increasing")
-    if any(c <= 0 for c in closes):
-        raise ValueError("S&P 500 closes must be positive")
+    if not all(math.isfinite(c) and c > 0 for c in closes):
+        raise ValueError("S&P 500 closes must be finite and positive")
     return tuple(dates), np.asarray(closes, dtype=np.float64)
 
 

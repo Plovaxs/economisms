@@ -72,13 +72,33 @@ advisories that have been PUBLISHED.
 
 ## Existing controls (what's already in place, and what isn't)
 
-- **Secret scanning**: [`prometheus.evidence.security_scan.secret_scan`](./src/prometheus/evidence/security_scan.py)
-  runs over changed files before every commit in this project's own
-  workflow, matching hardcoded-secret shapes (AWS keys, PEM headers,
-  generic `api_key="..."` assignments). It is a fixed local pattern scan,
-  **not** a live CVE/advisory database query — see that module's own
-  docstring for why (this repository's hermetic, network-independent test
-  discipline has no reliable way to query a live database from CI).
+- **Secret scanning** ([`prometheus.evidence.security_scan`](./src/prometheus/evidence/security_scan.py)):
+  `secret_scan` matches hardcoded-secret shapes in file CONTENTS -- AWS keys, PEM headers,
+  generic `api_key="..."` assignments and, since PR-201, the token formats of Kaggle, GitHub,
+  Slack, Google, Anthropic, OpenAI-style keys, Hugging Face, npm, PyPI and Stripe plus JSON Web
+  Tokens -- and `path_scan` flags file NAMES that should never be committed (`.env`,
+  private-key containers, `kaggle.json`, `access_token`, SSH keys). The test suite runs both
+  over EVERY tracked file with no allowlist (only the eight 7-16 MB numeric replay dumps in
+  `evidence/` are too large to read), and `secret_scan_cli --staged` /
+  [`.githooks/pre-commit`](./.githooks/pre-commit) run them over the INDEX before a commit
+  exists (enable once per clone with `git config core.hooksPath .githooks`). A finding prints
+  its location and kind, never the matched text. These are fixed local patterns, **not** a live
+  CVE/advisory database query (this repository's hermetic, network-independent test discipline
+  has no reliable way to query one from CI): a secret in a format no pattern knows is not found,
+  the hook is opt-in and `git commit --no-verify` bypasses it, and CI can only report after a
+  push.
+- **Data integrity** (`prometheus.data_ingestion.snapshot_integrity`, PR-201):
+  `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every committed snapshot and
+  provenance file, and every loader reads its bytes through a verifier that refuses a file that
+  does not match (the bytes parsed are exactly the bytes verified; a symlink, an unlisted file and
+  a poisoned manifest are refused). A snapshot can therefore change only together with a visible
+  manifest change: `econosim data write` after a deliberate refresh, `econosim data check` to
+  verify. **The manifest is not signed.** It catches drift and partial edits and forces a
+  deliberate step, but whoever can rewrite a CSV can rewrite the manifest too, so authenticity
+  against a malicious committer remains the job of required reviews and signed commits. The
+  builder's parsers for third-party files (Kaggle CSVs and archives) reject `nan`/`inf`,
+  non-positive prices, repeated dates, short rows and corrupted archives with one contained error
+  type, and are fuzzed (`tests/unit/test_data_parser_fuzz.py`).
 - **No credential redirects**: `prometheus.service.client` explicitly
   disables automatic redirect-following for authenticated requests and
   never logs or echoes the bearer token.

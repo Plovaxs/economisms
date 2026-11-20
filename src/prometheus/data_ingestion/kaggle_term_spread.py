@@ -21,10 +21,10 @@ day's par yields the same day, so the month's mean is knowable at month-end.
 from __future__ import annotations
 
 import calendar
-import csv
 from datetime import date
 from pathlib import Path
 
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.econosim.pit import MacroObservation
 
 KAGGLE_TERM_SPREAD_SOURCE_URL = (
@@ -39,19 +39,18 @@ TERM_SPREAD_COLUMN = "TERM_SPREAD_10Y3M"
 
 def load_term_spread_observations(path: Path) -> list[MacroObservation]:
     observations: list[MacroObservation] = []
-    with path.open() as handle:
-        for row in csv.DictReader(handle):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            observation_at = date(year, month, calendar.monthrange(year, month)[1])
-            observations.append(
-                MacroObservation(
-                    series_id=TERM_SPREAD_SERIES_ID,
-                    observation_at=observation_at,
-                    published_at=observation_at,
-                    value=float(row[TERM_SPREAD_COLUMN]),
-                    source_url=KAGGLE_TERM_SPREAD_SOURCE_URL,
-                    source_license=KAGGLE_TERM_SPREAD_SOURCE_LICENSE,
-                    frequency="M",
-                )
+    for row in verified_dict_reader(path, required=("date", TERM_SPREAD_COLUMN)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        observation_at = date(year, month, calendar.monthrange(year, month)[1])
+        observations.append(
+            MacroObservation(
+                series_id=TERM_SPREAD_SERIES_ID,
+                observation_at=observation_at,
+                published_at=observation_at,
+                value=float(row[TERM_SPREAD_COLUMN]),
+                source_url=KAGGLE_TERM_SPREAD_SOURCE_URL,
+                source_license=KAGGLE_TERM_SPREAD_SOURCE_LICENSE,
+                frequency="M",
             )
+        )
     return observations

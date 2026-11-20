@@ -65,7 +65,10 @@ subsystems behind that one evidence discipline:
   gate for live trading is unchanged by any of it. The container runs as an
   unprivileged user with a read-only root, no capabilities and health checks, bound to
   loopback by default, with a real TLS overlay; [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
-  is the operator's guide, including what the deployment does NOT give you.
+  is the operator's guide, including what the deployment does NOT give you. Every committed data
+  snapshot is verified against `data_cache/MANIFEST.sha256.json` whenever a loader reads it, the parsers for
+  third-party data are fuzzed, and a pre-commit hook plus a whole-repository test refuse secrets
+  (see [SECURITY.md](./SECURITY.md)).
 
 The project is built against two governing specifications — the original
 [374-item master blueprint](./docs/PROMETHEUS_Quantitative_Economics_Full_Master_Blueprint.pdf)
@@ -129,9 +132,9 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **3,797 / 3,797** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,016 / 4,016** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
-| Pull requests | 200, each independently verified |
+| Pull requests | 201, each independently verified |
 
 For the full per-category breakdown, see [CHECKLIST_STATUS.md](./CHECKLIST_STATUS.md).
 For the detailed, PR-by-PR account of what was built and how each claim

@@ -31,8 +31,10 @@ import csv
 import hashlib
 import io
 import json
+import lzma
 import math
 import zipfile
+import zlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -54,6 +56,11 @@ from prometheus.data_ingestion.kaggle_term_spread import (
     KAGGLE_TERM_SPREAD_SOURCE_LICENSE,
     KAGGLE_TERM_SPREAD_SOURCE_URL,
     TERM_SPREAD_COLUMN,
+)
+from prometheus.data_ingestion.snapshot_integrity import (
+    MAX_CSV_ROWS,
+    SnapshotParseError,
+    iter_csv_rows,
 )
 
 Series = list[tuple[date, float]]
@@ -117,64 +124,130 @@ def effective_row(period_end: date, lag_days: int) -> date:
 
 
 # --------------------------------------------------------------------------- parsers
+#
+# Everything below reads files that a THIRD PARTY published. The contract, which
+# `tests/unit/test_data_parser_fuzz.py` checks with arbitrary input: a parser either
+# returns a series that is sorted, has no duplicate date and contains only finite
+# numbers (prices also strictly positive), or raises `SnapshotParseError` naming the
+# line. It never leaks a bare `KeyError`/`IndexError`/`ZeroDivisionError`/`csv.Error`,
+# and it never lets `nan`/`inf` through -- `float("nan")` parses happily and then
+# compares false against every threshold, which is how it would otherwise slip past
+# a `price <= 0` check and poison a return series silently.
 
 
-def parse_fred_csv(text: str) -> Series:
+def _number(text: str, source: str, line: int, *, positive: bool = False) -> float:
+    try:
+        value = float(text)
+    except ValueError:
+        raise SnapshotParseError(f"{source}: line {line}: {text[:40]!r} is not a number") from None
+    if not math.isfinite(value) or (positive and value <= 0.0):
+        raise SnapshotParseError(f"{source}: line {line}: {text[:40]!r} is not an acceptable value")
+    return value
+
+
+def _iso_day(text: str, source: str, line: int) -> date:
+    try:
+        return date.fromisoformat(text.strip())
+    except ValueError:
+        raise SnapshotParseError(f"{source}: line {line}: {text[:40]!r} is not a date") from None
+
+
+def _integer(text: str, source: str, line: int) -> int:
+    try:
+        return int(text)
+    except ValueError:
+        raise SnapshotParseError(
+            f"{source}: line {line}: {text[:40]!r} is not an integer"
+        ) from None
+
+
+def _sorted_unique(out: Series, source: str) -> Series:
+    out.sort(key=lambda item: item[0])
+    for (earlier, _), (later, _) in zip(out, out[1:], strict=False):
+        if earlier == later:
+            raise SnapshotParseError(f"{source}: duplicate date {earlier.isoformat()}")
+    return out
+
+
+def parse_fred_csv(text: str, source: str = "FRED csv") -> Series:
     """`DATE,<series>` rows. Tolerates FRED's "." / empty missing markers and the
     decimal-comma values (`5,08`) the csv module splits into three fields."""
     reader = csv.reader(io.StringIO(text))
-    next(reader, None)
     out: Series = []
-    for row in reader:
-        if not row:
-            continue
-        if len(row) == 3:
-            value_text = f"{row[1]}.{row[2]}"
-        elif len(row) == 2:
-            value_text = row[1]
-        else:
-            raise ValueError(f"unexpected FRED row shape: {row!r}")
-        value_text = value_text.strip()
-        if value_text in ("", "."):
-            continue
-        out.append((date.fromisoformat(row[0].strip()), float(value_text)))
-    out.sort(key=lambda item: item[0])
-    return out
+    try:
+        next(reader, None)
+        for count, row in enumerate(reader, start=1):
+            if count > MAX_CSV_ROWS:
+                raise SnapshotParseError(f"{source}: more than {MAX_CSV_ROWS} rows")
+            if not row:
+                continue
+            if len(row) == 3:
+                value_text = f"{row[1]}.{row[2]}"
+            elif len(row) == 2:
+                value_text = row[1]
+            else:
+                raise SnapshotParseError(
+                    f"{source}: line {reader.line_num}: unexpected FRED row shape: {str(row)[:80]}"
+                )
+            value_text = value_text.strip()
+            if value_text in ("", "."):
+                continue
+            out.append(
+                (
+                    _iso_day(row[0], source, reader.line_num),
+                    _number(value_text, source, reader.line_num),
+                )
+            )
+    except csv.Error as exc:
+        raise SnapshotParseError(f"{source}: {exc}") from exc
+    return _sorted_unique(out, source)
 
 
-def parse_investing_csv(text: str) -> Series:
+def parse_investing_csv(text: str, source: str = "Investing.com csv") -> Series:
     """Investing.com export: `Date` is MM/DD/YYYY, `Price` has thousands commas,
-    rows are newest-first."""
+    rows are newest-first. Prices must be finite and positive."""
     out: Series = []
-    for row in csv.DictReader(io.StringIO(text)):
-        month, day, year = row["Date"].split("/")
+    for line, row in iter_csv_rows(text, source, ("Date", "Price")):
+        pieces = row["Date"].split("/")
+        if len(pieces) != 3:
+            raise SnapshotParseError(f"{source}: line {line}: {row['Date'][:20]!r} is not M/D/Y")
         price = row["Price"].replace(",", "").strip()
-        if price:
-            out.append((date(int(year), int(month), int(day)), float(price)))
-    out.sort(key=lambda item: item[0])
-    return out
+        if not price:
+            continue
+        month, day, year = (_integer(piece, source, line) for piece in pieces)
+        try:
+            when = date(year, month, day)
+        except ValueError:
+            raise SnapshotParseError(
+                f"{source}: line {line}: {row['Date'][:20]!r} is not a date"
+            ) from None
+        out.append((when, _number(price, source, line, positive=True)))
+    return _sorted_unique(out, source)
 
 
-def parse_yahoo_close_csv(text: str) -> Series:
+def parse_yahoo_close_csv(text: str, source: str = "Yahoo csv") -> Series:
+    """Yahoo Finance export (`Date`, `Close`); closes must be finite and positive."""
     out: Series = []
-    for row in csv.DictReader(io.StringIO(text)):
-        out.append((date.fromisoformat(row["Date"]), float(row["Close"])))
-    out.sort(key=lambda item: item[0])
-    return out
+    for line, row in iter_csv_rows(text, source, ("Date", "Close")):
+        out.append(
+            (
+                _iso_day(row["Date"], source, line),
+                _number(row["Close"], source, line, positive=True),
+            )
+        )
+    return _sorted_unique(out, source)
 
 
-def parse_treasury_daily(text: str) -> tuple[Series, Series]:
+def parse_treasury_daily(text: str, source: str = "Treasury csv") -> tuple[Series, Series]:
     """(US3M, US10Y) daily par yields, only on days where BOTH are published."""
     three_month: Series = []
     ten_year: Series = []
-    for row in csv.DictReader(io.StringIO(text)):
-        if row["US3M"] and row["US10Y"]:
-            day = date.fromisoformat(row["date"])
-            three_month.append((day, float(row["US3M"])))
-            ten_year.append((day, float(row["US10Y"])))
-    three_month.sort(key=lambda item: item[0])
-    ten_year.sort(key=lambda item: item[0])
-    return three_month, ten_year
+    for line, row in iter_csv_rows(text, source, ("date", "US3M", "US10Y")):
+        if row["US3M"].strip() and row["US10Y"].strip():
+            day = _iso_day(row["date"], source, line)
+            three_month.append((day, _number(row["US3M"], source, line)))
+            ten_year.append((day, _number(row["US10Y"], source, line)))
+    return _sorted_unique(three_month, source), _sorted_unique(ten_year, source)
 
 
 # --------------------------------------------------------------------------- derivations
@@ -387,19 +460,25 @@ def build_fed_policy_grid(index_text: str) -> Grid:
     describes the month on its row) and NOT lag-shifted: the policy study applies
     its own one-month publication delay."""
     rows: dict[date, dict[str, float]] = {}
-    for record in csv.DictReader(io.StringIO(index_text)):
+    sources = (
+        ("FFR_EFFECTIVE", "Effective Federal Funds Rate"),
+        ("UNRATE", "Unemployment Rate"),
+        ("INFLATION", "Inflation Rate"),
+        ("REAL_GDP_GROWTH", "Real GDP (Percent Change)"),
+    )
+    required = ("Year", "Month", "Day", *(source for _, source in sources))
+    for line, record in iter_csv_rows(index_text, "Fed index csv", required):
         if record["Day"] != "01":
             continue
-        row = month_end(int(record["Year"]), int(record["Month"]))
+        year = _integer(record["Year"], "Fed index csv", line)
+        month = _integer(record["Month"], "Fed index csv", line)
+        if not (1 <= month <= 12 and 1 <= year <= 9999):
+            raise SnapshotParseError(f"Fed index csv: line {line}: {year}-{month} is not a month")
+        row = month_end(year, month)
         values: dict[str, float] = {}
-        for column, source in (
-            ("FFR_EFFECTIVE", "Effective Federal Funds Rate"),
-            ("UNRATE", "Unemployment Rate"),
-            ("INFLATION", "Inflation Rate"),
-            ("REAL_GDP_GROWTH", "Real GDP (Percent Change)"),
-        ):
+        for column, source in sources:
             if record[source].strip():
-                values[column] = float(record[source])
+                values[column] = _number(record[source], "Fed index csv", line)
         if values:
             rows[row] = values
     return Grid(FED_COLUMNS, dict(sorted(rows.items())))
@@ -439,6 +518,19 @@ def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+_ARCHIVE_ERRORS = (
+    zipfile.BadZipFile,  # bad CRC, bad local header
+    zlib.error,  # corrupted deflate stream
+    lzma.LZMAError,
+    EOFError,  # truncated bz2 / lzma stream
+    NotImplementedError,  # unsupported compression method
+    RuntimeError,  # an encrypted member
+    OSError,  # bz2 "invalid data stream"
+    ValueError,  # a shifted directory offset: "negative seek value -1"
+)
+"""What the zip library raises when the archive's data, not its directory, is damaged."""
+
+
 def read_zip_members(
     zip_path: Path, wanted: Sequence[str]
 ) -> tuple[dict[str, str], dict[str, str]]:
@@ -449,11 +541,25 @@ def read_zip_members(
     validate_zip_archive(data)
     texts: dict[str, str] = {}
     digests: dict[str, str] = {}
-    with zipfile.ZipFile(io.BytesIO(data)) as archive:
-        for name in wanted:
-            raw = archive.read(name)
-            texts[name] = raw.decode("utf-8-sig")
-            digests[name] = sha256_hex(raw)
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            for name in wanted:
+                try:
+                    raw = archive.read(name)
+                except KeyError:
+                    raise SnapshotParseError(f"{zip_path.name}: no member named {name!r}") from None
+                try:
+                    texts[name] = raw.decode("utf-8-sig")
+                except UnicodeDecodeError as exc:
+                    raise SnapshotParseError(f"{name}: not valid UTF-8: {exc}") from exc
+                digests[name] = sha256_hex(raw)
+    except SnapshotParseError:
+        raise
+    except _ARCHIVE_ERRORS as exc:
+        # A corrupted or truncated download: the central directory parsed, the data did not.
+        raise SnapshotParseError(
+            f"{zip_path.name}: corrupted archive ({type(exc).__name__}: {exc})"
+        ) from exc
     return texts, digests
 
 

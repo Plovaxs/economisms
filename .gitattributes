@@ -1,0 +1,4 @@
+# Committed data snapshots are verified byte-for-byte against data_cache/MANIFEST.sha256.json
+# (prometheus.data_ingestion.snapshot_integrity). A checkout must never rewrite their line
+# endings: `-text` switches off every end-of-line and text conversion for these paths.
+data_cache/** -text

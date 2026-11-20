@@ -62,8 +62,10 @@ _BLOCKING_SEVERITIES: frozenset[str] = frozenset({"high", "critical"})
 
 _RESTRICTED_LICENSE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (
-        re.compile(r"(?i)\b(?:Bloomberg\s+Terminal|Refinitiv|Thomson\s+Reuters|FactSet|"
-                   r"S&P\s+Capital\s+IQ|LSEG|Morningstar\s+Direct)\b"),
+        re.compile(
+            r"(?i)\b(?:Bloomberg\s+Terminal|Refinitiv|Thomson\s+Reuters|FactSet|"
+            r"S&P\s+Capital\s+IQ|LSEG|Morningstar\s+Direct)\b"
+        ),
         "restricted-redistribution data vendor name",
     ),
     (
@@ -86,16 +88,16 @@ _PII_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
         "US phone number-shaped value",
     ),
     (
-        re.compile(r"(?<![\d.])\d{13,19}(?![\d.])"),
+        # Not adjacent to a digit, a decimal point or a LETTER: a run of digits inside a
+        # hexadecimal digest (`...b6791417246962bcc...`) is part of a hash, not a card number.
+        re.compile(r"(?<![\w.])\d{13,19}(?![\w.])"),
         "credit-card-number-shaped digit sequence",
     ),
 )
 
 _PROHIBITED_CLAIM_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (
-        re.compile(
-            r"(?i)\b(?:guaranteed|risk[- ]free)\s+(?:return|profit|income|gain)s?\b"
-        ),
+        re.compile(r"(?i)\b(?:guaranteed|risk[- ]free)\s+(?:return|profit|income|gain)s?\b"),
         "guaranteed-return / risk-free-profit claim",
     ),
     (
@@ -118,7 +120,9 @@ _PROHIBITED_CLAIM_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS access key ID"),
     (
-        re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+        re.compile(
+            r"-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED |PGP )?PRIVATE KEY(?: BLOCK)?-----"
+        ),
         "private key material",
     ),
     (
@@ -126,6 +130,42 @@ _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
             r"""(?i)(?:api[_-]?key|secret|token|password)\s*[=:]\s*["']([A-Za-z0-9/_\-]{16,})["']"""
         ),
         "hardcoded credential-like assignment",
+    ),
+    # Provider token FORMATS (PR-201). Each is anchored on the issuer's own prefix, so
+    # prose that merely names a provider ("the Kaggle token", "KGAT_ tokens") never
+    # matches -- only a prefix followed by a credential-length run of token characters.
+    (re.compile(r"\bKGAT_[0-9A-Za-z]{20,}"), "Kaggle API token"),
+    (
+        re.compile(r'"username"\s*:\s*"[^"\n]{1,64}"\s*,\s*"key"\s*:\s*"[0-9a-f]{32}"'),
+        "Kaggle legacy credentials (kaggle.json)",
+    ),
+    (re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,255}\b"), "GitHub token"),
+    (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{22,255}\b"), "GitHub fine-grained token"),
+    (re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}"), "Slack token"),
+    (re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"), "Google API key"),
+    (re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}"), "Anthropic API key"),
+    (re.compile(r"\bsk-(?!ant-)(?:proj-)?[A-Za-z0-9_-]{32,}"), "OpenAI-style secret key"),
+    (re.compile(r"\bhf_[A-Za-z0-9]{34,}\b"), "Hugging Face token"),
+    (re.compile(r"\bnpm_[A-Za-z0-9]{36}\b"), "npm access token"),
+    (re.compile(r"\bpypi-AgEIcHlwaS5vcmc[A-Za-z0-9_-]{50,}"), "PyPI upload token"),
+    (re.compile(r"\b[rs]k_live_[0-9A-Za-z]{24,}\b"), "Stripe live key"),
+    (
+        re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),
+        "JSON Web Token",
+    ),
+)
+
+_SENSITIVE_PATH_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"(?:^|/)\.env(?:\.(?!example$|sample$|template$)[^/]+)?$"), "environment file"),
+    (re.compile(r"(?i)\.(?:pem|key|p12|pfx|jks|keystore|ppk)$"), "key or certificate store"),
+    (re.compile(r"(?:^|/)id_(?:rsa|dsa|ecdsa|ed25519)(?:\.pub)?$"), "SSH key"),
+    (
+        re.compile(r"(?:^|/)(?:kaggle\.json|access_token|\.netrc|\.pypirc|\.npmrc)$"),
+        "credential file",
+    ),
+    (
+        re.compile(r"(?i)(?:^|/)(?:credentials|secrets?)\.(?:json|ya?ml|toml|ini)$"),
+        "credential file",
     ),
 )
 
@@ -162,6 +202,29 @@ def secret_scan(files: Mapping[str, str]) -> list[ScanFinding]:
                         description=description,
                     )
                 )
+    return findings
+
+
+def path_scan(paths: Sequence[str]) -> list[ScanFinding]:
+    """File NAMES that should never be committed (an environment file, a private-key
+    container, `kaggle.json`, `~/.kaggle/access_token`, an SSH key). The content scan
+    cannot see a credential stored in a format it has no pattern for; the file name
+    still gives it away. `paths` are repository-relative POSIX paths; every match is a
+    `critical` finding located by path. Lock files, fixtures and docs that merely
+    mention such a name are not paths of this shape and are not flagged."""
+    findings = []
+    for path in paths:
+        for pattern, description in _SENSITIVE_PATH_PATTERNS:
+            if pattern.search(path):
+                findings.append(
+                    ScanFinding(
+                        scanner="path_scan",
+                        severity="critical",
+                        location=path,
+                        description=f"sensitive file name ({description})",
+                    )
+                )
+                break
     return findings
 
 
@@ -269,8 +332,6 @@ def evaluate_release_gate(
     category."""
     approved = set(approved_finding_ids)
     blocking = tuple(
-        f
-        for f in findings
-        if f.severity in _BLOCKING_SEVERITIES and f.finding_id not in approved
+        f for f in findings if f.severity in _BLOCKING_SEVERITIES and f.finding_id not in approved
     )
     return ReleaseGateDecision(blocked=bool(blocking), unapproved_findings=blocking)

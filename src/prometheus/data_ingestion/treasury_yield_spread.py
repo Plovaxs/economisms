@@ -40,10 +40,10 @@ later than the Kaggle macro snapshot's own 1981-12 start. See its own
 from __future__ import annotations
 
 import calendar
-import csv
 from datetime import date
 from pathlib import Path
 
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.econosim.pit import MacroObservation
 
 TREASURY_YIELD_SPREAD_SOURCE_URL = (
@@ -66,20 +66,19 @@ def load_treasury_yield_spread_observations(path: Path) -> list[MacroObservation
     knowable by that month's own end -- no lag re-keying needed, unlike
     `kaggle_macro.py`'s GDP/claims series."""
     observations: list[MacroObservation] = []
-    with path.open() as f:
-        for row in csv.DictReader(f):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            observation_at = date(year, month, calendar.monthrange(year, month)[1])
-            for series_id in YIELD_SPREAD_SERIES_IDS:
-                observations.append(
-                    MacroObservation(
-                        series_id=series_id,
-                        observation_at=observation_at,
-                        published_at=observation_at,
-                        value=float(row[series_id]),
-                        source_url=TREASURY_YIELD_SPREAD_SOURCE_URL,
-                        source_license=TREASURY_YIELD_SPREAD_SOURCE_LICENSE,
-                        frequency="M",
-                    )
+    for row in verified_dict_reader(path, required=("date", *YIELD_SPREAD_SERIES_IDS)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        observation_at = date(year, month, calendar.monthrange(year, month)[1])
+        for series_id in YIELD_SPREAD_SERIES_IDS:
+            observations.append(
+                MacroObservation(
+                    series_id=series_id,
+                    observation_at=observation_at,
+                    published_at=observation_at,
+                    value=float(row[series_id]),
+                    source_url=TREASURY_YIELD_SPREAD_SOURCE_URL,
+                    source_license=TREASURY_YIELD_SPREAD_SOURCE_LICENSE,
+                    frequency="M",
                 )
+            )
     return observations

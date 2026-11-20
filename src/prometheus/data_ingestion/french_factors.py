@@ -39,6 +39,7 @@ from datetime import date
 from pathlib import Path
 from typing import Literal
 
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.data_ingestion.transport import HttpTransport
 from prometheus.econosim.pit import MacroObservation
 
@@ -202,20 +203,19 @@ def load_cached_ff3_snapshot(path: Path) -> list[MacroObservation]:
     raw bytes) -- an honest provenance gap versus a genuine live fetch,
     disclosed via the dataclass default rather than fabricated."""
     observations: list[MacroObservation] = []
-    with path.open() as f:
-        for row in csv.DictReader(f):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            observation_at = date(year, month, calendar.monthrange(year, month)[1])
-            for factor_name in _FACTOR_NAMES:
-                observations.append(
-                    MacroObservation(
-                        series_id=f"FF3_{factor_name}",
-                        observation_at=observation_at,
-                        published_at=observation_at,
-                        value=float(row[factor_name]),
-                        source_url=FRENCH_FACTORS_URL,
-                        source_license=FRENCH_SOURCE_LICENSE,
-                        frequency="M",
-                    )
+    for row in verified_dict_reader(path, required=("date", *_FACTOR_NAMES)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        observation_at = date(year, month, calendar.monthrange(year, month)[1])
+        for factor_name in _FACTOR_NAMES:
+            observations.append(
+                MacroObservation(
+                    series_id=f"FF3_{factor_name}",
+                    observation_at=observation_at,
+                    published_at=observation_at,
+                    value=float(row[factor_name]),
+                    source_url=FRENCH_FACTORS_URL,
+                    source_license=FRENCH_SOURCE_LICENSE,
+                    frequency="M",
                 )
+            )
     return observations

@@ -2,7 +2,7 @@
   "artifact_integrity": {
     "algorithm": "sha256",
     "canonicalization": "python-json-sorted-keys-default-separators-v1",
-    "content_sha256": "643b0979e2c2c63396d86e600228859915b93e14322df1dcfb032283d661a299",
+    "content_sha256": "1dff5cc4a71c11d76722764d7f5676442977f3b6fe59a2af04771dd191b49176",
     "schema_version": 1
   },
   "blueprint_sha256": "6745f7dd2b027378fbafbd9a870b84d86489932d2068fa10abf0d604ef3bac75",
@@ -37,7 +37,7 @@
     "UIX": 12,
     "VAL": 14
   },
-  "checklist_notes_sha256": "2cac99438ad455f15f2c5363a87f7acb2b26b581046bb3f28ebc1d20aa909ef6",
+  "checklist_notes_sha256": "f2d1a4d309c0a2fddd728b8b1dd40829860d22445937d21f7888b20f07520742",
   "extracted_text_sha256": "8d6312cb174dc993c782facce8e5b7eb61f46518d06dce9ee4a1ceadf4045a6e",
   "items": [
     {
@@ -4306,6 +4306,12 @@
           "evidence_note": "every new snapshot's `.meta.json` records the SHA-256 of each raw file it was derived from and the committed function that derived it: `test_kaggle_build.py::test_every_new_snapshot_has_a_meta_file_that_names_its_source_license_and_raw_hashes`; the builder reads archives through the existing SEC-08 sandbox (`test_read_zip_members_validates_the_archive_and_records_content_digests` includes a decompression-bomb rejection)",
           "id_column": "DAT-12 (strengthened)",
           "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
+        },
+        {
+          "checklist_line": 8067,
+          "evidence_note": "`data_cache/MANIFEST.sha256.json` (SHA-256 and size of all 18 files) and `data_ingestion.snapshot_integrity`; all eight snapshot loaders read through `verified_dict_reader`: `test_snapshot_integrity.py::test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one` (each loader, on a private copy of the real directory), `::test_a_same_length_edit_is_still_caught`, `::test_the_committed_manifest_matches_every_committed_snapshot`, `::test_the_loaders_cover_every_csv_in_the_committed_directory`, `::test_the_dict_reader_verifies_at_the_call_not_at_the_first_row`; hostile manifests (`::test_manifest_keys_must_be_plain_relative_paths`, `::test_a_manifest_with_a_duplicate_key_is_refused`, `::test_a_missing_manifest_fails_closed`) and symlinks (`::test_a_symlink_that_escapes_the_directory_is_refused`) are refused; `::test_the_committed_directory_is_protected_from_line_ending_conversion`; `test_cli.py::test_data_check_runs_the_real_snapshot_integrity_check`",
+          "id_column": "DAT-12 (strengthened, verified on every load)",
+          "requirement_note": "hash normalized data and transformations; reproduce the dataset fingerprint"
         }
       ],
       "requirement": "Hash normalized data and feature transformations",
@@ -6634,6 +6640,12 @@
           "evidence_note": "pre-existing `security_scan.secret_scan` + real credential-rotation drill test",
           "id_column": "SEC-06 (first credited)",
           "requirement_note": "secrets management, secret scan, rotation drill"
+        },
+        {
+          "checklist_line": 8069,
+          "evidence_note": "`security_scan.secret_scan` gained 13 provider token formats (Kaggle, GitHub, Slack, Google, Anthropic, OpenAI-style, Hugging Face, npm, PyPI, Stripe, JWT) and `path_scan` flags sensitive file names: `test_security_scan.py::test_secret_scan_detects_each_provider_token_format_exactly_once`, `::test_secret_scan_ignores_prose_that_only_names_a_provider_or_a_hash`, `::test_path_scan_flags_files_that_should_never_be_committed`, `::test_path_scan_leaves_ordinary_files_alone`; `secret_scan_cli --staged` and `.githooks/pre-commit` scan the INDEX and refuse the commit: `test_secret_scan_cli.py::test_a_staged_secret_is_refused_and_the_secret_is_never_printed`, `::test_the_index_is_scanned_not_the_working_tree`, `::test_a_scan_that_cannot_run_fails_closed`, `::test_the_hook_blocks_a_real_commit_with_a_secret_and_allows_a_clean_one` (a real `git commit` in a temporary repository); the hook is opt-in per clone and `--no-verify` bypasses it (`::test_the_hook_can_be_bypassed_deliberately_and_says_so`)",
+          "id_column": "SEC-06 (strengthened, whole-repository scan and pre-commit)",
+          "requirement_note": "secrets management, secret scan, rotation drill"
         }
       ],
       "requirement": "Manage secrets in vault, not code or CI logs",
@@ -6687,6 +6699,12 @@
           "checklist_line": 4907,
           "evidence_note": "`data_ingestion.dataset_sandbox.validate_zip_archive`/`SandboxLimits`; zip-slip and decompression-bomb rejection grounded in real archives on both sides of the threshold, plus a 600-case Hypothesis fuzz test confirming no uncaught exception type",
           "id_column": "SEC-08 (first evidence)",
+          "requirement_note": "validate and sandbox untrusted uploaded dataset formats; fuzz/test suite blocks unsafe deserialization paths"
+        },
+        {
+          "checklist_line": 8068,
+          "evidence_note": "`data_ingestion.kaggle_build`'s parsers for third-party files share one contract, property-tested with Hypothesis (300 examples each): `test_data_parser_fuzz.py::test_arbitrary_text_is_parsed_or_rejected_by_every_series_parser`, `::test_well_formed_csv_with_hostile_cells_is_parsed_or_rejected`, `::test_a_non_finite_value_is_always_rejected` (`nan` previously parsed), `::test_a_non_positive_price_is_always_rejected`, `::test_a_repeated_date_is_rejected`, `::test_well_formed_series_round_trip_exactly`, `::test_the_fed_index_builder_is_contained_and_never_emits_a_non_finite_value`, `::test_the_sp500_loader_rejects_nan_inf_and_non_positive_closes`; a corrupted archive no longer leaks `zlib.error`/`BadZipFile` (`::test_bit_flips_in_an_archive_are_refused_with_a_value_error_never_a_library_error`, `::test_a_flipped_byte_inside_the_compressed_stream_is_always_contained`: 31 failures against the previous code), and `dataset_sandbox.validate_zip_archive` itself no longer lets `NotImplementedError` or a bare `ValueError` escape (`::test_the_sandbox_itself_answers_with_its_own_error_for_any_damaged_archive`, `::test_an_unsupported_zip_version_is_refused_by_the_sandbox`, `::test_a_shifted_central_directory_offset_is_a_parse_error_not_a_bare_value_error`; both found by Hypothesis during the full-suite run). Rebuilding all four Kaggle snapshots from the raw zips is byte-identical to the committed files",
+          "id_column": "SEC-08 (strengthened, parsers and archives fuzzed)",
           "requirement_note": "validate and sandbox untrusted uploaded dataset formats; fuzz/test suite blocks unsafe deserialization paths"
         }
       ],
@@ -7588,6 +7606,12 @@
           "checklist_line": 4012,
           "evidence_note": "`evidence.security_scan.ScanFinding`/`secret_scan`/`evaluate_release_gate`/`ReleaseGateDecision`; 15 tests (`tests/unit/test_security_scan.py`) including a real zero-findings self-scan of this repository's own `src/` tree and a discriminating per-finding approval-scoping test",
           "id_column": "CIQ-05 (first evidence, secret scanning only)",
+          "requirement_note": "run vulnerability, dependency and secret scans; high/critical findings block release unless approved"
+        },
+        {
+          "checklist_line": 8070,
+          "evidence_note": "`test_security_scan.py::test_no_tracked_file_contains_a_secret_or_has_a_sensitive_name` scans every tracked text file and every tracked file name with no allowlist (the previous test covered `src/` only); `::test_a_sensitive_file_name_blocks_the_release_gate_like_a_secret_does`; `::test_pii_scan_does_not_mistake_a_run_of_digits_inside_a_hash_for_a_card_number` (a false positive the new manifest exposed, fixed in the pattern); `test_secret_scan_cli.py::test_this_repositorys_own_tracked_files_pass_the_scan`",
+          "id_column": "CIQ-05 (strengthened, whole-repository secret scan)",
           "requirement_note": "run vulnerability, dependency and secret scans; high/critical findings block release unless approved"
         }
       ],

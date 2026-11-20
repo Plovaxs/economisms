@@ -19,10 +19,11 @@ The committed `data_cache/kaggle_fed_policy_monthly.csv` is derived by
 from __future__ import annotations
 
 import calendar
-import csv
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 
 KAGGLE_FED_POLICY_SOURCE_URL = "https://www.kaggle.com/datasets/federalreserve/interest-rates"
 KAGGLE_FED_POLICY_SOURCE_LICENSE = "CC0-1.0 (Kaggle: federalreserve/interest-rates)"
@@ -44,16 +45,15 @@ def _cell(row: dict[str, str], column: str) -> float | None:
 
 def load_fed_policy_months(path: Path) -> list[FedPolicyMonth]:
     months: list[FedPolicyMonth] = []
-    with path.open() as handle:
-        for row in csv.DictReader(handle):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            months.append(
-                FedPolicyMonth(
-                    month_end=date(year, month, calendar.monthrange(year, month)[1]),
-                    ffr_effective=_cell(row, "FFR_EFFECTIVE"),
-                    unemployment=_cell(row, "UNRATE"),
-                    inflation=_cell(row, "INFLATION"),
-                    real_gdp_growth=_cell(row, "REAL_GDP_GROWTH"),
-                )
+    for row in verified_dict_reader(path, required=("date", *FED_COLUMNS)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        months.append(
+            FedPolicyMonth(
+                month_end=date(year, month, calendar.monthrange(year, month)[1]),
+                ffr_effective=_cell(row, "FFR_EFFECTIVE"),
+                unemployment=_cell(row, "UNRATE"),
+                inflation=_cell(row, "INFLATION"),
+                real_gdp_growth=_cell(row, "REAL_GDP_GROWTH"),
             )
+        )
     return months

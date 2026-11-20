@@ -87,13 +87,29 @@ named without saying so.
 
 ## Secrets
 
-Never commit a credential, token, or API key — real or placeholder-shaped.
-Before any commit, this repository's own
-[`prometheus.evidence.security_scan.secret_scan`](./src/prometheus/evidence/security_scan.py)
-function (regex patterns for AWS keys, PEM headers, generic
-`api_key="..."`-style assignments) is run over changed files, plus a plain
-grep for anything that looks like a secret. See
-[SECURITY.md](./SECURITY.md) for how to report a credential that did leak.
+Never commit a credential, token, or API key -- real or placeholder-shaped. Turn on the
+pre-commit scan once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+It runs [`prometheus.evidence.secret_scan_cli`](./src/prometheus/evidence/secret_scan_cli.py)
+over what is staged (provider token formats, PEM headers, generic assignments, and file names such
+as `.env`, `kaggle.json`, `access_token`) and refuses the commit; it prints where, never what.
+`git commit --no-verify` bypasses it, so it is an accident-catcher. The test suite runs the same
+scan over every tracked file, so a leak that skips the hook still fails the build. Test fixtures
+that need a secret-shaped string must assemble it at run time (`"KGAT_" + "0" * 32`) rather than
+write it as a literal -- the sweep has no allowlist. See [SECURITY.md](./SECURITY.md) for how to
+report a credential that did leak.
+
+## Data snapshots
+
+Everything in `data_cache/` is verified against `data_cache/MANIFEST.sha256.json` every time a
+loader reads it. After a deliberate refresh of a snapshot, review the diff, then run
+`econosim data write` (or `python -m prometheus.data_ingestion.snapshot_integrity write`) and
+commit the snapshot and the manifest together; `econosim data check` verifies. A new snapshot
+needs a loader that reads through `verified_dict_reader` (a test fails otherwise).
 
 ## Bookkeeping after a change that closes or advances a checklist item
 

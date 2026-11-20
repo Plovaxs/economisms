@@ -31,14 +31,16 @@ needed to reuse every existing RECESSIONNET/Q-MACRO primitive as-is.
 from __future__ import annotations
 
 import calendar
-import csv
 from datetime import date
 from pathlib import Path
 
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.econosim.pit import MacroObservation
 
 KAGGLE_SOURCE_LICENSE = "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)"
-KAGGLE_SOURCE_URL = "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators"
+KAGGLE_SOURCE_URL = (
+    "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators"
+)
 KAGGLE_SERIES_IDS: tuple[str, ...] = (
     "KAGGLE_GDP_YOY",
     "KAGGLE_CLAIMS_YOY",
@@ -57,20 +59,19 @@ def load_kaggle_us_macro_observations(path: Path) -> list[MacroObservation]:
     sidecar), so by construction every value in this file is honestly
     knowable as of its own recorded month."""
     observations: list[MacroObservation] = []
-    with path.open() as f:
-        for row in csv.DictReader(f):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            observation_at = date(year, month, calendar.monthrange(year, month)[1])
-            for column, series_id in zip(_COLUMN_NAMES, KAGGLE_SERIES_IDS, strict=True):
-                observations.append(
-                    MacroObservation(
-                        series_id=series_id,
-                        observation_at=observation_at,
-                        published_at=observation_at,
-                        value=float(row[column]),
-                        source_url=KAGGLE_SOURCE_URL,
-                        source_license=KAGGLE_SOURCE_LICENSE,
-                        frequency="M",
-                    )
+    for row in verified_dict_reader(path, required=("date", *_COLUMN_NAMES)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        observation_at = date(year, month, calendar.monthrange(year, month)[1])
+        for column, series_id in zip(_COLUMN_NAMES, KAGGLE_SERIES_IDS, strict=True):
+            observations.append(
+                MacroObservation(
+                    series_id=series_id,
+                    observation_at=observation_at,
+                    published_at=observation_at,
+                    value=float(row[column]),
+                    source_url=KAGGLE_SOURCE_URL,
+                    source_license=KAGGLE_SOURCE_LICENSE,
+                    frequency="M",
                 )
+            )
     return observations

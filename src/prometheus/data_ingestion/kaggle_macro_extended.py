@@ -22,11 +22,11 @@ reused rather than redeclared, so the source catalogue lists the dataset once.
 from __future__ import annotations
 
 import calendar
-import csv
 from datetime import date
 from pathlib import Path
 
 from prometheus.data_ingestion.kaggle_macro import KAGGLE_SOURCE_LICENSE, KAGGLE_SOURCE_URL
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.econosim.pit import MacroObservation
 
 EXTENDED_MACRO_COLUMNS: tuple[str, ...] = (
@@ -57,22 +57,21 @@ def load_extended_macro_observations(
     if unknown:
         raise ValueError(f"unknown extended macro columns: {unknown}")
     observations: list[MacroObservation] = []
-    with path.open() as handle:
-        for row in csv.DictReader(handle):
-            year, month = int(row["date"][:4]), int(row["date"][4:6])
-            observation_at = date(year, month, calendar.monthrange(year, month)[1])
-            for column in columns:
-                if row[column] == "":
-                    continue
-                observations.append(
-                    MacroObservation(
-                        series_id=SERIES_PREFIX + column,
-                        observation_at=observation_at,
-                        published_at=observation_at,
-                        value=float(row[column]),
-                        source_url=KAGGLE_SOURCE_URL,
-                        source_license=KAGGLE_SOURCE_LICENSE,
-                        frequency="M",
-                    )
+    for row in verified_dict_reader(path, required=("date", *columns)):
+        year, month = int(row["date"][:4]), int(row["date"][4:6])
+        observation_at = date(year, month, calendar.monthrange(year, month)[1])
+        for column in columns:
+            if row[column] == "":
+                continue
+            observations.append(
+                MacroObservation(
+                    series_id=SERIES_PREFIX + column,
+                    observation_at=observation_at,
+                    published_at=observation_at,
+                    value=float(row[column]),
+                    source_url=KAGGLE_SOURCE_URL,
+                    source_license=KAGGLE_SOURCE_LICENSE,
+                    frequency="M",
                 )
+            )
     return observations

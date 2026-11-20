@@ -14,7 +14,23 @@ had carried `0.1.0`, unbumped, since the first commit. Entries are grouped
 by real commit date (read from `git log`, UTC), not retrofitted to a
 semantic-version history that never happened before `0.2.0`. Newest first.
 
-## [Unreleased] -- 2026-11-19 -- more real data, and a look-ahead bug found in our own GDP column (PR-197)
+## [Unreleased] -- 2026-11-19/20 -- more real data, a look-ahead bug found in our own GDP column, and data and secret integrity (PR-197 through PR-201)
+
+### Security
+- **Verified data (PR-201).** `data_cache/MANIFEST.sha256.json` records the SHA-256 and size of every
+  committed snapshot and provenance file; all eight snapshot loaders refuse a file that does not match
+  (the bytes parsed are the bytes verified). `econosim data check` verifies and `econosim data write`
+  regenerates it after a deliberate refresh. The manifest is not signed: it catches drift and forces a
+  visible step, not a malicious committer.
+- **Hardened parsers for third-party files (PR-201).** The Kaggle builder's parsers reject `nan`/`inf`
+  (which previously parsed), non-positive prices, repeated dates, short rows and oversized fields, and a
+  corrupted archive no longer leaks raw `zlib.error`/`BadZipFile` (nor, from the SEC-08 sandbox, `NotImplementedError`);
+  all property-tested with Hypothesis.
+  Rebuilding the four snapshots from the raw zips is byte-identical to the committed files.
+- **Secrets (PR-201).** The secret scan knows 13 provider token formats (Kaggle, GitHub, Slack, Google,
+  Anthropic, OpenAI-style, Hugging Face, npm, PyPI, Stripe, JWT) plus sensitive file names, runs over
+  every tracked file in the test suite, and `.githooks/pre-commit` (opt-in: `git config core.hooksPath
+  .githooks`) refuses a commit that stages one without ever printing the matched text.
 
 ### Fixed
 - **A point-in-time look-ahead in `data_cache/kaggle_us_macro_monthly.csv`.** The `GDP_YOY` column

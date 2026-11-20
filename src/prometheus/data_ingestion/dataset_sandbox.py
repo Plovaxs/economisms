@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+import struct
 import zipfile
 from dataclasses import dataclass
 from io import BytesIO
@@ -77,6 +78,20 @@ def _reject_unsafe_entry_name(name: str) -> None:
         raise UnsafeDatasetError(f"entry {name!r} attempts to escape the archive root")
 
 
+_MALFORMED_ARCHIVE_ERRORS = (
+    zipfile.BadZipFile,  # the documented one
+    NotImplementedError,  # an unsupported zip version ("zip file version 6.4")
+    ValueError,  # an impossible offset ("negative seek value -1")
+    OverflowError,
+    EOFError,
+    OSError,
+    struct.error,
+)
+"""Everything `zipfile.ZipFile(...)` raises on damaged input. A fuzz test found that only
+`BadZipFile` was caught, so an archive with a bumped version field escaped as a raw
+`NotImplementedError`; the sandbox must answer with its own error for ALL of them."""
+
+
 def validate_zip_archive(data: bytes, *, limits: SandboxLimits = _DEFAULT_LIMITS) -> None:
     """Raises `UnsafeDatasetError` if `data` is not a well-formed zip, or
     is a well-formed zip that violates one of `limits`. Returns `None`
@@ -84,7 +99,7 @@ def validate_zip_archive(data: bytes, *, limits: SandboxLimits = _DEFAULT_LIMITS
     try:
         archive = zipfile.ZipFile(BytesIO(data))
         infos = archive.infolist()
-    except zipfile.BadZipFile as exc:
+    except _MALFORMED_ARCHIVE_ERRORS as exc:
         raise UnsafeDatasetError(f"not a valid zip archive: {exc}") from exc
 
     if len(infos) > limits.max_entries:

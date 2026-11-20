@@ -27,13 +27,13 @@ never as a model input.
 from __future__ import annotations
 
 import calendar
-import csv
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
 
 import numpy as np
 
+from prometheus.data_ingestion.snapshot_integrity import verified_dict_reader
 from prometheus.econosim.pit import MacroObservation, PointInTimeStore
 
 CPI_SOURCE_LICENSE = "U.S. government work -- public domain"
@@ -67,23 +67,22 @@ def load_cpi_observations(path: Path) -> list[MacroObservation]:
     interpolated); this loader records exactly those months, each
     with a real, undisguised 15-day publication lag."""
     observations: list[MacroObservation] = []
-    with path.open() as f:
-        for row in csv.DictReader(f):
-            if not row["CPI_YOY"]:
-                continue
-            year, month = int(row["date"][:4]), int(row["date"][5:7])
-            observation_at = _month_end(year, month)
-            observations.append(
-                MacroObservation(
-                    series_id=CPI_SERIES_ID,
-                    observation_at=observation_at,
-                    published_at=observation_at + timedelta(days=CPI_PUBLICATION_LAG_DAYS),
-                    value=float(row["CPI_YOY"]),
-                    source_url=CPI_SOURCE_URL,
-                    source_license=CPI_SOURCE_LICENSE,
-                    frequency="M",
-                )
+    for row in verified_dict_reader(path, required=("date", "CPI_YOY")):
+        if not row["CPI_YOY"]:
+            continue
+        year, month = int(row["date"][:4]), int(row["date"][5:7])
+        observation_at = _month_end(year, month)
+        observations.append(
+            MacroObservation(
+                series_id=CPI_SERIES_ID,
+                observation_at=observation_at,
+                published_at=observation_at + timedelta(days=CPI_PUBLICATION_LAG_DAYS),
+                value=float(row["CPI_YOY"]),
+                source_url=CPI_SOURCE_URL,
+                source_license=CPI_SOURCE_LICENSE,
+                frequency="M",
             )
+        )
     return observations
 
 
