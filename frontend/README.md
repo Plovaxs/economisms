@@ -119,3 +119,19 @@ still runs on it, but do not rely on that for anything you deploy.
 - `npm run lint` -- ESLint.
 - `npm run typecheck` -- `tsc --noEmit`.
 - `npm run test` -- Vitest + React Testing Library.
+
+
+## Hosting the static build on Vercel (a demo of the interface only)
+
+`vercel.json` makes Vercel build and serve `frontend/` as a single-page app. **What this gives you is the
+interface, not the product:** the app calls `/api/jobs/*` and `/api/dashboard/*`, and those are served by the
+Python gateway (`prometheus.webgateway`), which does not run on Vercel. Without a backend the pages load and
+every data request fails. To make it work, run the gateway somewhere you control and add a rewrite from
+`/api/:path*` to it in `vercel.json`. Nothing about the research API's authentication changes.
+
+```bash
+cd frontend && npx vercel login && npx vercel          # preview deployment
+```
+
+Vercel's AI Gateway keys (`vck_...`) are for model calls and are not a deployment credential; this project makes
+no model calls. Never commit a key; give Vercel secrets through its dashboard or `vercel env`.
