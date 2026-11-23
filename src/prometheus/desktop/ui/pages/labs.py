@@ -38,7 +38,14 @@ from prometheus.desktop.session import (
 from prometheus.desktop.ui.formview import FormView
 from prometheus.desktop.ui.pages.base import PageBase
 from prometheus.desktop.ui.resultview import ResultWidget
-from prometheus.desktop.ui.widgets import Badge, Card, make_label, scrollable
+from prometheus.desktop.ui.widgets import (
+    Badge,
+    Card,
+    ElidedLabel,
+    make_label,
+    plain_tooltip,
+    scrollable,
+)
 
 VALIDATE_DELAY_MS = 350
 NO_WORKER = "Running jobs needs Linux process controls; this platform cannot run them."
@@ -104,7 +111,7 @@ class LabsPage(PageBase):
         self.cancel_button.setVisible(False)
         self.status_badge = Badge("", "neutral")
         self.status_badge.setVisible(False)
-        self.status_text = make_label("", "secondary", wrap=False)
+        self.status_text = ElidedLabel("", "secondary")
         run_row.addWidget(self.run_button)
         run_row.addWidget(self.reset_button)
         run_row.addWidget(self.cancel_button)
@@ -160,6 +167,11 @@ class LabsPage(PageBase):
         if not session.can_run_jobs:
             self.run_button.setEnabled(False)
         self._started = False  # the first lab is chosen when the page is first shown, not before
+
+    def set_compact(self, compact: bool) -> None:
+        super().set_compact(compact)
+        self.kind_summary.setVisible(not compact)
+        self.result.set_compact(compact)
 
     # ------------------------------------------------------------------ the list
 
@@ -223,6 +235,7 @@ class LabsPage(PageBase):
         self.group_badge.set_status("neutral", info.group)
         self.network_badge.setVisible(info.network)
         self.kind_summary.setText(info.summary)
+        self.kind_title.setToolTip(plain_tooltip(info.summary))
         self.form_stack.setCurrentWidget(self.form(kind))
         self.validate_now()
         known = self._latest.get(self._job_for_kind.get(kind, ""))

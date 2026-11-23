@@ -65,6 +65,8 @@ tested. It does not change this project's NO-GO gate for live trading or real ca
 
 ### Fixed
 
+- Desktop: small windows. A minimum size (960x600); below 800 px of height pages hide their explanatory paragraphs and the disclaimer shrinks to one line (full text in the tooltip); in a narrow result pane the verdict and actions get their own row; the lab status text elides instead of squeezing the Reset button. README screenshots regenerated (they predated the menu bar).
+
 - Desktop: the test run no longer aborts at exit (heap corruption from signal connections to closures capturing `self`); the menu bar and menus take the theme's colours whatever the desktop palette is; the overview no longer warns about a missing web-frontend build.
 - `tests/unit/test_license_inventory.py` said LGPL was excluded from its copyleft check but matched
   the substring `GPL`, which `LGPL` contains; and the module's docstring promised a fallback to the

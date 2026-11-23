@@ -27,6 +27,10 @@ class PageBase(QWidget):
         self.content.setSpacing(14)
         outer.addLayout(self.content, 1)
 
+    def set_compact(self, compact: bool) -> None:
+        """A short window: drop the explanatory paragraphs so the working area keeps its room."""
+        self.subheading.setVisible(not compact)
+
     def activated(self) -> None:
         """The window just showed this page: refresh anything that may have gone stale."""
 

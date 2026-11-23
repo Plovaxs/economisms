@@ -254,7 +254,10 @@ def test_cancelling_a_running_job_stops_it_and_leaves_no_process(window: MainWin
     job_id = window.labs.run()
     assert job_id is not None
     assert wait(window, lambda: window.session.get(job_id).status == "running")
-    assert "running" in window.job_label.text() and not window.job_cancel.isHidden()
+    assert wait(window, lambda: "running" in window.job_label.text()), (
+        "the label follows the status"
+    )
+    assert not window.job_cancel.isHidden()
     assert not window.labs.cancel_button.isHidden()
     window.labs.cancel_button.click()
     assert wait(window, lambda: window.session.get(job_id).status == "cancelled", timeout=30)
@@ -948,3 +951,45 @@ def test_the_window_shows_a_logged_error_and_keeps_showing_it(window: MainWindow
     window.tick()
     window.tick()
     assert "ValueError: x" in window.worker_error.text(), "the next poll must not erase it"
+
+
+def test_the_window_refuses_to_shrink_below_the_size_it_was_designed_for(
+    window: MainWindow,
+) -> None:
+    from prometheus.desktop.ui.main_window import MINIMUM_SIZE
+
+    assert (window.minimumWidth(), window.minimumHeight()) == MINIMUM_SIZE
+    window.resize(300, 200)
+    support.settle()
+    assert window.width() >= MINIMUM_SIZE[0] and window.height() >= MINIMUM_SIZE[1]
+
+
+def test_a_short_window_drops_the_explanatory_text_and_a_tall_one_brings_it_back(
+    window: MainWindow,
+) -> None:
+    from prometheus.desktop.ui.main_window import COMPACT_HEIGHT
+
+    window.show_page("labs")
+    window.explorers.activated()
+    window.resize(1320, COMPACT_HEIGHT + 60)
+    support.settle()
+    assert not window.labs.subheading.isHidden()
+    window.resize(1320, COMPACT_HEIGHT - 60)
+    support.settle()
+    for page in window.pages.values():
+        assert page.subheading.isHidden(), page.page_title
+    assert window.labs.kind_summary.isHidden() and window.explorers.summary.isHidden()
+    assert window.labs.kind_title.toolTip(), "what was hidden is still one hover away"
+    window.resize(1320, COMPACT_HEIGHT + 60)
+    support.settle()
+    assert not window.labs.subheading.isHidden() and not window.labs.kind_summary.isHidden()
+
+
+def test_at_the_smallest_size_no_button_of_the_lab_page_is_clipped(window: MainWindow) -> None:
+    from prometheus.desktop.ui.main_window import MINIMUM_SIZE
+
+    run_small_inflationcast(window)
+    window.resize(*MINIMUM_SIZE)
+    support.settle(0.4)
+    for button in (window.labs.run_button, window.labs.reset_button):
+        assert button.width() >= button.sizeHint().width(), button.text()

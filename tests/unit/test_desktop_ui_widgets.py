@@ -739,3 +739,91 @@ def test_a_cell_of_a_result_table_is_text_and_so_is_a_tree_node(qapp: Any) -> No
     tree.set_payload({HOSTILE: HOSTILE})
     node = tree.invisibleRootItem().child(0)
     assert node.text(0) == HOSTILE and node.text(1) == HOSTILE
+
+
+# ------------------------------------------------------------------ small windows
+
+
+def test_an_elided_label_gives_way_and_keeps_the_whole_text_to_hand(qapp: Any) -> None:
+    from prometheus.desktop.ui.widgets import ElidedLabel
+
+    text = "INFLATIONCAST took 00:12 · a long explanation " * 4
+    label = ElidedLabel(text, "secondary")
+    label.resize(120, 24)
+    label.show()
+    support.settle()
+    try:
+        assert label.text() != text and label.text().endswith("…")
+        assert label.full_text() == text and label.accessibleName() == text
+        assert text in label.toolTip()
+        assert label.minimumSizeHint().width() <= 24, "never forces its neighbours smaller"
+        label.resize(4000, 24)
+        support.settle()
+        assert label.text() == text and label.toolTip() == ""
+        label.setText("<b>x</b>")
+        assert label.text() == "<b>x</b>", "plain text, never markup"
+    finally:
+        label.close()
+        label.deleteLater()
+
+
+def test_narrow_result_puts_its_actions_on_their_own_row_and_wide_puts_them_back(
+    qapp: Any,
+) -> None:
+    widget = ResultWidget()
+    widget.set_view(result_view())
+    widget.set_actions(rerun=True, export=True)
+    widget.resize(1000, 600)
+    widget.show()
+    support.settle()
+    try:
+        assert widget._actions_row.isHidden() and widget.tabs.cornerWidget() is widget._actions
+        widget.resize(500, 600)
+        support.settle()
+        assert not widget._actions_row.isHidden()
+        assert widget._actions.parent() is not widget.tabs
+        for button in (widget.rerun_button, widget.export_button, widget.copy_button):
+            assert button.width() >= button.sizeHint().width(), "not clipped"
+        widget.resize(1000, 600)
+        support.settle()
+        assert widget._actions_row.isHidden() and widget.tabs.cornerWidget() is widget._actions
+    finally:
+        widget.close()
+        widget.deleteLater()
+
+
+def test_a_result_with_no_actions_leaves_no_empty_row_when_narrow(qapp: Any) -> None:
+    widget = ResultWidget()
+    widget.set_view(analyze_payload({"curve": [1.0, 2.0, 3.0]}, kind="x", title="Bare"))
+    widget.set_actions(rerun=False, export=False)
+    widget.resize(500, 500)
+    widget.show()
+    support.settle()
+    try:
+        widget.copy_button.setVisible(False)
+        widget._sync_actions_row()
+        assert widget._actions_row.isHidden()
+    finally:
+        widget.close()
+        widget.deleteLater()
+
+
+def test_a_compact_result_shows_its_disclaimer_on_one_line_with_the_rest_in_the_tooltip(
+    qapp: Any,
+) -> None:
+    widget = ResultWidget()
+    widget.set_view(result_view())
+    widget.resize(700, 500)
+    widget.show()
+    support.settle()
+    try:
+        assert not widget._disclaimer.isHidden() and widget._disclaimer_short.isHidden()
+        widget.set_compact(True)
+        support.settle()
+        assert widget._disclaimer.isHidden() and not widget._disclaimer_short.isHidden()
+        assert widget._disclaimer_short.full_text().startswith("SIMULATED DATA")
+        widget.set_compact(False)
+        assert not widget._disclaimer.isHidden() and widget._disclaimer_short.isHidden()
+    finally:
+        widget.close()
+        widget.deleteLater()

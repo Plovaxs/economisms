@@ -744,6 +744,7 @@ of future inflation, and `INFLATIONCAST` itself is unchanged: the finding is abo
   the author's own X11 desktop it could not open at all until the system library `libxcb-cursor` was
   installed, which is exactly the kind of thing an offscreen test cannot reveal -- `econosim desktop`
   now says so instead of aborting. Windows and macOS are untested, and running jobs needs Linux (the
-  isolated worker uses parent-death signalling and resource limits). Responsive layout below about
-  1200 px is not tested. No packaged binary exists, and building one would take on the LGPL's
+  isolated worker uses parent-death signalling and resource limits). The layout was reviewed only at
+  960x600 (the enforced minimum), 1256x706 and 1500x993; below 800 px of height pages hide their
+  explanatory text. No packaged binary exists, and building one would take on the LGPL's
   obligations for Qt (see `docs/LICENSE_INVENTORY.md`).

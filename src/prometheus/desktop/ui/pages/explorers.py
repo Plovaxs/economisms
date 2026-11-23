@@ -25,7 +25,7 @@ from prometheus.desktop.results import analyze_payload
 from prometheus.desktop.ui.formview import FormView
 from prometheus.desktop.ui.pages.base import PageBase
 from prometheus.desktop.ui.resultview import ResultWidget
-from prometheus.desktop.ui.widgets import Badge, Card, make_label, scrollable
+from prometheus.desktop.ui.widgets import Badge, Card, make_label, plain_tooltip, scrollable
 from prometheus.evidence.constants import SIMULATION_DISCLAIMER
 
 POLL_MS = 80
@@ -123,6 +123,11 @@ class ExplorersPage(PageBase):
         self.reset_button.clicked.connect(self._reset)
         self._started = False  # the first explorer is computed when the page is first shown
 
+    def set_compact(self, compact: bool) -> None:
+        super().set_compact(compact)
+        self.summary.setVisible(not compact)
+        self.result.set_compact(compact)
+
     # ------------------------------------------------------------------ choosing
 
     def _on_item(self, current: QListWidgetItem | None, _: QListWidgetItem | None) -> None:
@@ -166,6 +171,7 @@ class ExplorersPage(PageBase):
         view.setVisible(bool(chosen.fields))
         self.title.setText(chosen.title)
         self.summary.setText(chosen.summary)
+        self.title.setToolTip(plain_tooltip(chosen.summary))
         self.synthetic.setVisible(name not in ("experiments", "validation_issues"))
         self.reset_button.setVisible(bool(chosen.fields))
         self.result.clear()

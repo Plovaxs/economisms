@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from PySide6.QtCore import Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import (
@@ -63,6 +64,8 @@ PAGES = (
     ("system", "System"),
 )
 BUSY_MS = 300
+MINIMUM_SIZE = (960, 600)
+COMPACT_HEIGHT = 800  # shorter than this, pages drop their explanatory paragraphs
 IDLE_MS = 1000
 
 
@@ -90,6 +93,8 @@ class MainWindow(QMainWindow):
         self._internal_error = ""
         self.setWindowTitle("ECONOSIM")
         self.setAccessibleName("ECONOSIM")
+        self.setMinimumSize(*MINIMUM_SIZE)
+        self._compact: bool | None = None
         root = QWidget()
         root.setObjectName("root")
         self.setCentralWidget(root)
@@ -307,6 +312,18 @@ class MainWindow(QMainWindow):
 
     def _show_system(self) -> None:
         self.show_page("system")
+
+    def resizeEvent(self, event: Any) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._apply_density()
+
+    def _apply_density(self) -> None:
+        compact = self.height() < COMPACT_HEIGHT
+        if compact == self._compact:
+            return
+        self._compact = compact
+        for page in self.pages.values():
+            page.set_compact(compact)
 
     def show_page(self, key: str) -> None:
         index = [k for k, _ in PAGES].index(key)

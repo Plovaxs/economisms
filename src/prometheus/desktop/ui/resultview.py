@@ -13,6 +13,8 @@ under the tabs, verbatim.
 
 from __future__ import annotations
 
+from typing import Any
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
@@ -30,6 +32,7 @@ from prometheus.desktop.ui.widgets import (
     Card,
     ChartCard,
     DataTable,
+    ElidedLabel,
     JsonTree,
     MetricTile,
     key_value_table,
@@ -39,6 +42,7 @@ from prometheus.desktop.ui.widgets import (
 )
 
 TILE_COLUMNS = 3
+NARROW_PX = 760  # below this the verdict and actions leave the tab bar's row
 OVERVIEW_CHARTS = 2
 
 
@@ -83,6 +87,9 @@ class ResultWidget(QWidget):
         self.copy_button.setProperty("ghost", True)
         self.copy_button.clicked.connect(self._copy_hash)
         corner = QWidget()
+        self._actions = corner
+        self._narrow = False
+        self._compact = False
         corner_row = QHBoxLayout(corner)
         corner_row.setContentsMargins(0, 0, 0, 0)
         corner_row.setSpacing(6)
@@ -98,6 +105,11 @@ class ResultWidget(QWidget):
         self.invalid_card.body.addWidget(self._invalid_text)
         self.invalid_card.setVisible(False)
         outer.addWidget(self.invalid_card)
+        self._actions_row = QWidget()  # where the actions go when the corner is too narrow
+        self._actions_layout = QHBoxLayout(self._actions_row)
+        self._actions_layout.setContentsMargins(0, 0, 0, 0)
+        self._actions_row.setVisible(False)
+        outer.addWidget(self._actions_row)
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
         self.tabs.setAccessibleName("Result sections")
@@ -106,6 +118,9 @@ class ResultWidget(QWidget):
         self._disclaimer = make_label("", "caption")
         self._disclaimer.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         outer.addWidget(self._disclaimer)
+        self._disclaimer_short = ElidedLabel("", "caption")
+        self._disclaimer_short.setVisible(False)
+        outer.addWidget(self._disclaimer_short)
         self.raw = JsonTree()
         self.chart_cards: list[ChartCard] = []
         self.tables: list[DataTable] = []
@@ -118,9 +133,50 @@ class ResultWidget(QWidget):
     def view(self) -> ResultView | None:
         return self._view
 
+    def resizeEvent(self, event: Any) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._place_actions(self.width() < NARROW_PX)
+
+    def _place_actions(self, narrow: bool) -> None:
+        """Verdict and buttons share the tab bar's row when there is room; below NARROW_PX they
+        take a row of their own, so neither the tabs nor the buttons get clipped."""
+        if narrow == self._narrow:
+            return
+        self._narrow = narrow
+        if narrow:
+            self.tabs.setCornerWidget(None, Qt.Corner.TopRightCorner)  # type: ignore[arg-type]
+            self._actions_layout.addStretch(1)
+            self._actions_layout.addWidget(self._actions)
+            self._actions.setVisible(True)
+        else:
+            while self._actions_layout.count():
+                self._actions_layout.takeAt(0)
+            self.tabs.setCornerWidget(self._actions, Qt.Corner.TopRightCorner)
+            self._actions.setVisible(True)
+        self._sync_actions_row()
+
+    def _sync_actions_row(self) -> None:
+        anything = any(
+            not w.isHidden()
+            for w in (self.verdict, self.rerun_button, self.export_button, self.copy_button)
+        )
+        self._actions_row.setVisible(self._narrow and anything)
+
+    def set_compact(self, compact: bool) -> None:
+        """A short window: the disclaimer shrinks to its first line (all of it in the tooltip)."""
+        self._compact = compact
+        self._show_disclaimer()
+
+    def _show_disclaimer(self) -> None:
+        text = self._disclaimer.text()
+        self._disclaimer.setVisible(bool(text) and not self._compact)
+        self._disclaimer_short.setText(text)
+        self._disclaimer_short.setVisible(bool(text) and self._compact)
+
     def set_actions(self, *, rerun: bool, export: bool) -> None:
         self.rerun_button.setVisible(rerun)
         self.export_button.setVisible(export)
+        self._sync_actions_row()
 
     def clear(self) -> None:
         self._view = None
@@ -130,6 +186,8 @@ class ResultWidget(QWidget):
         self.verdict.setVisible(False)
         self.invalid_card.setVisible(False)
         self._disclaimer.setText("")
+        self._show_disclaimer()
+        self._sync_actions_row()
 
     def tab_titles(self) -> list[str]:
         return [self.tabs.tabText(i) for i in range(self.tabs.count()) if self.tabs.isTabVisible(i)]
@@ -180,7 +238,8 @@ class ResultWidget(QWidget):
         self.tabs.setCurrentIndex(1 if chart_first else 0)
         self.copy_button.setVisible(bool(view.provenance))
         self._disclaimer.setText(view.disclaimer)
-        self._disclaimer.setVisible(bool(view.disclaimer))
+        self._show_disclaimer()
+        self._sync_actions_row()
 
     def _overview(self, view: ResultView) -> QWidget:
         page, layout = _page()

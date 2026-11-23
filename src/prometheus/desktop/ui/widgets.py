@@ -101,6 +101,43 @@ def make_label(
     return label
 
 
+class ElidedLabel(QLabel):
+    """One line of plain text that gives way when there is no room, instead of forcing its
+    neighbours smaller (a button squeezed to "eset to defaul"). The whole text stays in the
+    tooltip and the accessible name."""
+
+    def __init__(self, text: str = "", role: str | None = None, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.setTextFormat(Qt.TextFormat.PlainText)
+        if role:
+            self.setProperty("role", role)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        self._full = ""
+        self.setText(text)
+
+    def full_text(self) -> str:
+        return self._full
+
+    def setText(self, text: str) -> None:  # noqa: N802 -- Qt's name
+        self._full = text
+        self.setAccessibleName(text)
+        self._refresh()
+
+    def minimumSizeHint(self) -> QSize:  # noqa: N802
+        return QSize(24, super().minimumSizeHint().height())
+
+    def resizeEvent(self, event: Any) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._refresh()
+
+    def _refresh(self) -> None:
+        shown = self.fontMetrics().elidedText(
+            self._full, Qt.TextElideMode.ElideRight, max(self.width(), 0)
+        )
+        super().setText(shown if self.width() > 0 else self._full)
+        self.setToolTip(plain_tooltip(self._full) if shown != self._full else "")
+
+
 def scrollable(widget: QWidget) -> QScrollArea:
     area = QScrollArea()
     area.setWidgetResizable(True)
