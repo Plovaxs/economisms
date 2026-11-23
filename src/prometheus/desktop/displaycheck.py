@@ -23,6 +23,7 @@ import subprocess
 import sys
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from pathlib import Path
 
 XCB_REMEDY = (
     "Debian/Ubuntu: sudo apt install libxcb-cursor0   |   "
@@ -58,6 +59,18 @@ def effective_platform(environ: Mapping[str, str] | None = None) -> str:
     return "none"
 
 
+def _on_library_path(environ: Mapping[str, str] | None) -> bool:
+    """Is libxcb-cursor in a directory named by LD_LIBRARY_PATH? That is how it can be supplied
+    without administrator rights (unpack the package into a folder of your own), and the system
+    lookup does not see it although the loader will."""
+    source = environ if environ is not None else os.environ
+    return any(
+        (Path(directory) / "libxcb-cursor.so.0").exists()
+        for directory in source.get("LD_LIBRARY_PATH", "").split(":")
+        if directory
+    )
+
+
 def check_display(
     environ: Mapping[str, str] | None = None,
     *,
@@ -80,7 +93,7 @@ def check_display(
                 NO_SESSION_REMEDY,
             )
         ]
-    if kind == "xcb" and lookup("xcb-cursor") is None:
+    if kind == "xcb" and lookup("xcb-cursor") is None and not _on_library_path(environ):
         return [
             DisplayProblem(
                 "Qt's X11 plugin needs the system library libxcb-cursor, which is not installed; "

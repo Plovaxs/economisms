@@ -70,6 +70,17 @@ def test_a_missing_xcb_cursor_library_is_named_with_the_package_to_install() -> 
     assert "sudo apt install libxcb-cursor0" in report(problems)
 
 
+def test_a_library_supplied_through_ld_library_path_counts(tmp_path: Path) -> None:
+    """The no-administrator way to supply it: unpack the package into a folder and point the
+    loader there. The system lookup cannot see that, the loader (and so Qt) can."""
+    (tmp_path / "libxcb-cursor.so.0").write_bytes(b"")
+    with_path = {**X11, "LD_LIBRARY_PATH": f"/nonexistent:{tmp_path}"}
+    assert check_display(with_path, platform="linux", find_library=have("xcb")) == []
+    elsewhere = {**X11, "LD_LIBRARY_PATH": "/nonexistent"}
+    assert len(check_display(elsewhere, platform="linux", find_library=have("xcb"))) == 1
+    assert len(check_display(X11, platform="linux", find_library=have("xcb"))) == 1
+
+
 def test_nothing_is_reported_when_the_library_is_there() -> None:
     assert check_display(X11, platform="linux", find_library=have("xcb-cursor")) == []
 
