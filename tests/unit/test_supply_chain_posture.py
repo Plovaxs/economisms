@@ -19,7 +19,14 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW_DIR = ROOT / ".github" / "workflows"
 WORKFLOWS = sorted(WORKFLOW_DIR.glob("*.yml"))
-EXPECTED = {"ci.yml", "docker-build.yml", "frontend-ci.yml", "security.yml", "codeql.yml"}
+EXPECTED = {
+    "ci.yml",
+    "docker-build.yml",
+    "frontend-ci.yml",
+    "security.yml",
+    "codeql.yml",
+    "release.yml",
+}
 
 
 def _jobs(text: str) -> dict[str, list[str]]:
@@ -76,11 +83,20 @@ def test_every_workflow_declares_read_only_permissions_at_the_top(path) -> None:
     assert "write-all" not in text
 
 
-def test_only_codeql_may_write_anything_and_only_security_events() -> None:
+def test_only_codeql_and_the_release_publish_job_may_write_anything() -> None:
     for path in WORKFLOWS:
         writes = re.findall(r"^\s+([\w-]+):\s*write\s*$", path.read_text(), re.M)
         if path.name == "codeql.yml":
             assert writes == ["security-events"], writes
+        elif path.name == "release.yml":
+            # one write, `contents`, in the one job that publishes, which runs for a tag only
+            assert writes == ["contents"], writes
+            jobs = _jobs(path.read_text())
+            owners = [
+                n for n, b in jobs.items() if any(re.search(r"contents:\s*write", x) for x in b)
+            ]
+            assert owners == ["publish"], owners
+            assert any("github.ref_type == 'tag'" in x for x in jobs["publish"]), "only for a tag"
         else:
             assert writes == [], (path.name, writes)
 
