@@ -20,7 +20,7 @@ import string
 from dataclasses import dataclass
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
 MODES = ("system", "dark", "light")
@@ -271,6 +271,16 @@ QGroupBox { border: 1px solid $border; border-radius: 8px; margin-top: 10px; pad
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: $ink2;
   font-weight: 600; }
 QMessageBox { background: $surface; }
+
+QMenuBar { background: $sidebar; border-bottom: 1px solid $border; }
+QMenuBar::item { background: transparent; padding: 4px 10px; }
+QMenuBar::item:selected, QMenuBar::item:pressed { background: $hover; }
+QMenu { background: $surface; border: 1px solid $border_strong; padding: 4px 0; }
+QMenu::item { padding: 6px 24px 6px 28px; }
+QMenu::item:selected { background: $accent_fill; color: $on_accent; }
+QMenu::item:disabled { color: $muted; }
+QMenu::separator { height: 1px; background: $border; margin: 4px 8px; }
+QMenu::indicator { left: 8px; width: 14px; height: 14px; }
 """
 )
 
@@ -317,14 +327,55 @@ def stylesheet(palette: Palette) -> str:
     )
 
 
+def qt_palette(palette: Palette) -> QPalette:
+    """The theme's colours as a Qt palette.
+
+    The style sheet sets every widget's text colour, but only some widgets' backgrounds; the rest
+    (a menu bar, a file dialog, a calendar pop-up, a combo box's list) are painted from the Qt
+    palette, which by default is the desktop's. Dark ink on a dark desktop's menu bar is what that
+    looked like when this was missing. Giving the application the theme's palette makes the two
+    agree whatever the desktop is set to.
+    """
+    result = QPalette()
+    roles = {
+        QPalette.ColorRole.Window: palette.page,
+        QPalette.ColorRole.WindowText: palette.ink,
+        QPalette.ColorRole.Base: palette.input_background,
+        QPalette.ColorRole.AlternateBase: palette.raised,
+        QPalette.ColorRole.Text: palette.ink,
+        QPalette.ColorRole.Button: palette.raised,
+        QPalette.ColorRole.ButtonText: palette.ink,
+        QPalette.ColorRole.BrightText: palette.on_accent,
+        QPalette.ColorRole.Highlight: palette.accent_fill,
+        QPalette.ColorRole.HighlightedText: palette.on_accent,
+        QPalette.ColorRole.ToolTipBase: palette.surface,
+        QPalette.ColorRole.ToolTipText: palette.ink,
+        QPalette.ColorRole.PlaceholderText: palette.ink2,
+        QPalette.ColorRole.Link: palette.accent,
+        QPalette.ColorRole.LinkVisited: palette.accent,
+    }
+    for role, value in roles.items():
+        result.setColor(role, QColor(value))
+    for role in (
+        QPalette.ColorRole.WindowText,
+        QPalette.ColorRole.Text,
+        QPalette.ColorRole.ButtonText,
+    ):
+        result.setColor(QPalette.ColorGroup.Disabled, role, QColor(palette.muted))
+    return result
+
+
 def apply_theme(app: QApplication, mode: str = "system") -> Palette:
     """Style the whole application; returns the palette now in force."""
     global _current
     _current = palette_for(mode, app)
-    # Both calls re-polish every widget that exists, which is slow once there are many; and they
-    # change nothing if the style and the sheet are already the ones asked for.
+    # Each call re-polishes every widget that exists, which is slow once there are many; and they
+    # change nothing if the style, the palette and the sheet are already the ones asked for.
     if app.style().objectName().lower() != "fusion":
         app.setStyle("Fusion")  # honours the style sheet the same way on every platform
+    colors = qt_palette(_current)
+    if app.palette() != colors:
+        app.setPalette(colors)
     sheet = stylesheet(_current)
     if app.styleSheet() != sheet:
         app.setStyleSheet(sheet)

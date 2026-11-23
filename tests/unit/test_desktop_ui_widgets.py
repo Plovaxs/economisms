@@ -113,6 +113,156 @@ def test_applying_a_theme_sets_the_palette_in_force(qapp: Any) -> None:
         theme.apply_theme(qapp, before.name)
 
 
+def _hostile_palette(theme_mode: str) -> Any:
+    """What a desktop set to the OPPOSITE scheme hands Qt: dark where the theme is light, and the
+    other way round. The first menu bar this app had was dark ink on exactly that."""
+    from PySide6.QtGui import QColor, QPalette
+
+    deep = theme_mode == "light"
+    hostile = QPalette()
+    for role, light_value, dark_value in (
+        (QPalette.ColorRole.Window, "#f0f0f0", "#202020"),
+        (QPalette.ColorRole.Button, "#e0e0e0", "#323232"),
+        (QPalette.ColorRole.Base, "#ffffff", "#141414"),
+        (QPalette.ColorRole.Text, "#101010", "#f0f0f0"),
+        (QPalette.ColorRole.WindowText, "#101010", "#f0f0f0"),
+        (QPalette.ColorRole.Highlight, "#ff00ff", "#ff00ff"),
+    ):
+        hostile.setColor(role, QColor(dark_value if deep else light_value))
+    return hostile
+
+
+@pytest.fixture
+def hostile_desktop(qapp: Any, request: pytest.FixtureRequest) -> Any:
+    """Apply `request.param` ("light"/"dark") over a desktop palette of the other scheme."""
+    mode = request.param
+    before = theme.current()
+    qapp.setPalette(_hostile_palette(mode))
+    palette = theme.apply_theme(qapp, mode)
+    yield palette
+    theme.apply_theme(qapp, before.name)
+
+
+@pytest.mark.parametrize("hostile_desktop", ["light", "dark"], indirect=True)
+def test_widgets_the_style_sheet_does_not_paint_take_the_themes_colours(
+    hostile_desktop: theme.Palette,
+) -> None:
+    """A plain list view and a dialog (what a file dialog or a pop-up calendar is made of) have no
+    rule in the style sheet, so their colours come from the Qt palette: the theme's, or else the
+    desktop's."""
+    from PySide6.QtGui import QColor
+    from PySide6.QtWidgets import QDialog, QListView
+
+    palette = hostile_desktop
+    unstyled = [
+        (QListView(), palette.input_background),
+        (QDialog(), palette.page),
+    ]
+    try:
+        for widget, _ in unstyled:
+            widget.resize(200, 80)
+            widget.show()
+        support.settle()
+        for widget, expected in unstyled:
+            pixel = widget.grab().toImage().pixelColor(100, 40)
+            assert pixel.name() == QColor(expected).name(), type(widget).__name__
+    finally:
+        for widget, _ in unstyled:
+            widget.close()
+            widget.deleteLater()
+
+
+@pytest.mark.parametrize("hostile_desktop", ["light", "dark"], indirect=True)
+def test_the_menu_bar_and_its_menus_are_painted_in_the_theme_not_the_desktop(
+    hostile_desktop: theme.Palette,
+) -> None:
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QAction, QColor
+    from PySide6.QtWidgets import QMainWindow
+
+    palette = hostile_desktop
+    window = QMainWindow()
+    menu = window.menuBar().addMenu("&View")
+    first = menu.addAction("System")
+    chosen = menu.addAction("Dark")
+    assert isinstance(first, QAction) and isinstance(chosen, QAction)
+    window.resize(300, 80)
+    window.show()
+    support.settle()
+    try:
+        bar = window.grab().toImage()
+        assert bar.pixelColor(250, 5).name() == QColor(palette.sidebar).name()
+        menu.popup(window.mapToGlobal(QPoint(20, 40)))
+        menu.setActiveAction(chosen)
+        support.settle()
+        popup = menu.grab().toImage()
+        row = menu.actionGeometry(chosen).center().y()
+        edge = menu.width() - 8
+        assert (
+            popup.pixelColor(edge, menu.actionGeometry(first).center().y()).name()
+            == QColor(palette.surface).name()
+        )
+        assert popup.pixelColor(edge, row).name() == QColor(palette.accent_fill).name()
+    finally:
+        menu.hide()
+        window.close()
+        window.deleteLater()
+
+
+@pytest.mark.parametrize("palette", [theme.LIGHT, theme.DARK], ids=["light", "dark"])
+def test_menu_text_is_readable_in_every_state(palette: theme.Palette) -> None:
+    assert theme.contrast_ratio(palette.ink, palette.sidebar) >= 7.0  # the bar
+    assert theme.contrast_ratio(palette.ink, palette.surface) >= 7.0  # an item
+    assert theme.contrast_ratio(palette.ink, palette.hover) >= 7.0  # the bar's open title
+    assert theme.contrast_ratio(palette.on_accent, palette.accent_fill) >= 4.5  # the chosen item
+    sheet = theme.stylesheet(palette)
+    assert "QMenu::item:selected { background: " + palette.accent_fill in sheet
+
+
+def test_the_qt_palette_carries_the_theme_for_every_role_the_sheet_leaves_to_it() -> None:
+    from PySide6.QtGui import QColor, QPalette
+
+    for palette in (theme.LIGHT, theme.DARK):
+        colors = theme.qt_palette(palette)
+        role = QPalette.ColorRole
+        assert colors.color(role.Window).name() == palette.page
+        assert colors.color(role.Base).name() == QColor(palette.input_background).name()
+        assert colors.color(role.Text).name() == palette.ink
+        assert colors.color(role.Highlight).name() == palette.accent_fill
+        assert colors.color(role.HighlightedText).name() == palette.on_accent
+        assert colors.color(role.PlaceholderText).name() == palette.ink2
+        disabled = colors.color(QPalette.ColorGroup.Disabled, role.Text)
+        assert disabled.name() == palette.muted
+
+
+def test_applying_the_same_theme_again_changes_nothing_so_it_stays_cheap(
+    qapp: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Each of these calls re-polishes every live widget: a window's worth is the difference
+    between 0.2 s and 2.7 s (see `desktop_ui_support.settle`)."""
+    before = theme.current()
+    try:
+        theme.apply_theme(qapp, "dark")
+        sheet, colors = qapp.styleSheet(), qapp.palette()
+        changes: list[str] = []
+
+        def refuse(what: str) -> Any:
+            def record(*_: Any) -> None:
+                changes.append(what)
+
+            return record
+
+        monkeypatch.setattr(qapp, "setStyleSheet", refuse("sheet"))
+        monkeypatch.setattr(qapp, "setPalette", refuse("palette"))
+        theme.apply_theme(qapp, "dark")
+        assert changes == [] and qapp.styleSheet() == sheet and qapp.palette() == colors
+        theme.apply_theme(qapp, "light")  # a real change does reach both
+        assert sorted(changes) == ["palette", "sheet"]
+    finally:
+        monkeypatch.undo()
+        theme.apply_theme(qapp, before.name)
+
+
 def test_series_colours_are_taken_in_order_and_wrap_only_by_the_callers_choice() -> None:
     assert [theme.DARK.series_color(i).name() for i in range(3)] == list(theme.DARK.series[:3])
     assert theme.DARK.series_color(8).name() == theme.DARK.series[0]
@@ -506,15 +656,46 @@ def test_clearing_a_result_empties_it(qapp: Any) -> None:
     assert widget.view is None and widget.tabs.count() == 0 and widget.chart_cards == []
 
 
-def test_a_table_can_be_exported_from_the_tables_tab(
+def test_each_table_has_its_own_export_button_that_saves_that_table(
     qapp: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from PySide6.QtWidgets import QPushButton
+
+    widget = ResultWidget()
+    widget.set_view(result_view(trades=[{"asset": "A", "qty": 2.0}, {"asset": "B", "qty": 3.0}]))
+    buttons = [
+        b for b in widget.tabs.widget(2).findChildren(QPushButton) if b.text() == "Export CSV…"
+    ]
+    assert len(buttons) == 2 == len(widget.tables)
+    saved: list[str] = []
+
+    def choose(*args: Any, **kwargs: Any) -> tuple[str, str]:
+        target = tmp_path / f"table-{len(saved)}.csv"
+        saved.append(str(target))
+        return str(target), ""
+
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", choose)
+    for button in buttons:
+        button.click()
+    first, second = (Path(path).read_text().splitlines() for path in saved)
+    assert first[0] == "Step,V" and second[0] == "Asset,Qty", "each button saves its own table"
+    assert second[1:] == ["A,2", "B,3"]
+
+
+def test_a_stale_export_request_saves_nothing(
+    qapp: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Called with no sender, or after the result was cleared, there is nothing to save."""
     widget = ResultWidget()
     widget.set_view(result_view())
-    target = tmp_path / "steps.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *a, **k: (str(target), ""))
-    widget._export_csv(widget.tables[0], widget.view.tables[0])  # type: ignore[union-attr]
-    assert target.read_text().splitlines()[0] == "Step,V"
+    asked: list[str] = []
+    monkeypatch.setattr(
+        QFileDialog, "getSaveFileName", lambda *a, **k: asked.append("x") or ("", "")
+    )
+    widget._export_table()  # no sender
+    widget.clear()
+    widget._export_table()
+    assert asked == []
 
 
 # ------------------------------------------------------------------ data is shown as data

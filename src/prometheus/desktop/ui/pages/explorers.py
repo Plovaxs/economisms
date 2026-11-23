@@ -121,7 +121,7 @@ class ExplorersPage(PageBase):
         self.compute_button.clicked.connect(self.compute)
         self.cancel_button.clicked.connect(self.cancel)
         self.reset_button.clicked.connect(self._reset)
-        self.select(explorers.EXPLORERS[0].name)
+        self._started = False  # the first explorer is computed when the page is first shown
 
     # ------------------------------------------------------------------ choosing
 
@@ -144,7 +144,15 @@ class ExplorersPage(PageBase):
             view.setVisible(False)
         return self._forms[chosen]
 
+    def activated(self) -> None:
+        """Open the first explorer (and compute it, with its defaults) the first time the page is
+        shown, not when the window is built: a calculation nobody asked for is a process
+        started for nothing."""
+        if not self._started:
+            self.select(explorers.EXPLORERS[0].name)
+
     def select(self, name: str) -> None:
+        self._started = True
         chosen = explorers.explorer(name)
         self.current = name
         for row in range(self.list.count()):

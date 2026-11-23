@@ -60,7 +60,7 @@ class OverviewPage(PageBase):
         self.gate_card.body.addWidget(self.gate_text)
         read = QPushButton("Read the full statement")
         read.setProperty("ghost", True)
-        read.clicked.connect(lambda: self.navigate.emit("system"))
+        read.clicked.connect(self._open_system)
         self.gate_card.body.addWidget(read, 0, Qt.AlignmentFlag.AlignLeft)
         column.addWidget(self.gate_card)
 
@@ -89,7 +89,8 @@ class OverviewPage(PageBase):
             box = QVBoxLayout()
             button = QPushButton(text)
             button.setProperty("primary", key == "labs")
-            button.clicked.connect(lambda _=False, k=key: self.navigate.emit(k))
+            button.setProperty("target", key)
+            button.clicked.connect(self._go)
             self.action_buttons[key] = button
             box.addWidget(button)
             box.addWidget(make_label(hint, "caption"))
@@ -111,6 +112,21 @@ class OverviewPage(PageBase):
 
     def activated(self) -> None:
         self.refresh()
+
+    # Signals go to bound methods and say who they came from with a property, never to a lambda
+    # that captures `self`: see the note in `prometheus.desktop.ui`.
+    def _open_system(self) -> None:
+        self.navigate.emit("system")
+
+    def _go(self) -> None:
+        sender = self.sender()
+        if sender is not None:
+            self.navigate.emit(str(sender.property("target")))
+
+    def _open_recent(self) -> None:
+        sender = self.sender()
+        if sender is not None:
+            self.openResult.emit(str(sender.property("job")))
 
     def refresh(self) -> None:
         report = health.collect_health(state_dir=self.session.root)
@@ -160,8 +176,7 @@ class OverviewPage(PageBase):
             if summary.has_result:
                 open_button = QPushButton("Open result")
                 open_button.setProperty("ghost", True)
-                open_button.clicked.connect(
-                    lambda _=False, job=summary.job_id: self.openResult.emit(job)
-                )
+                open_button.setProperty("job", summary.job_id)
+                open_button.clicked.connect(self._open_recent)
                 row.addWidget(open_button)
             self.recent_box.addLayout(row)

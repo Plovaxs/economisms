@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-4%2C792%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-4%2C805%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.5.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
@@ -132,7 +132,7 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,792 / 4,792** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,825 / 4,825** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | 205, each independently verified |
 
@@ -247,6 +247,11 @@ econosim desktop --screenshots docs/shots    # render every page to PNG with no 
   recomputes the queue's hash-chained audit log. **System** states the NO-GO gate decision, the
   preflight checks, the 24 verified data files and where your work is kept (`$ECONOSIM_HOME`, else
   `~/.local/share/econosim`, created `0700`).
+- **Menu bar and settings.** *File*: open the folder where your work is kept, Quit (Ctrl+Q). *View*: the
+  pages (Ctrl+1 to Ctrl+6) and the colour theme -- `system` follows your desktop's light/dark setting
+  live, or choose dark or light. *Help*: About, which states the version, the gate decision and the
+  disclaimer. Anything uncaught is written to `errors.log` in the state directory (a program started
+  from a menu has no terminal), and the status bar says so.
 
 ![A lab result](./docs/images/desktop-lab-result.png)
 

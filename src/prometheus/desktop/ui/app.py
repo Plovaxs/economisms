@@ -4,14 +4,20 @@ window -- and, headlessly, render every page to a PNG (`econosim desktop --scree
 
 from __future__ import annotations
 
+import contextlib
+import os
 import sys
 import tempfile
 import threading
 import time
+import traceback
 from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
-from PySide6.QtCore import QByteArray, Qt
+import shiboken6
+from PySide6.QtCore import QByteArray, QCoreApplication, QEvent, Qt
 from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
@@ -51,6 +57,71 @@ def create_application() -> QApplication:
     return app
 
 
+ERROR_LOG = "errors.log"
+
+
+def install_error_log(
+    state: Path, on_error: Callable[[str], None] | None = None
+) -> Callable[[], None]:
+    """Write every uncaught exception (in the window's thread or any other) to
+    `<state>/errors.log` and tell `on_error` in one line.
+
+    A program started from an application menu has no terminal, so an exception that nobody
+    catches would otherwise vanish without a trace. The usual hooks still run afterwards, so a
+    terminal still shows it. Returns the function that takes the hooks off again, so that a caller
+    that is finished with the window leaves the interpreter's hooks as it found them.
+    """
+    log = state / ERROR_LOG
+
+    def record(kind: type[BaseException], value: BaseException | None, trace: Any) -> None:
+        shown = value if value is not None else kind()
+        text = "".join(traceback.format_exception(kind, shown, trace))
+        stamp = datetime.now(UTC).isoformat(timespec="seconds")
+        with contextlib.suppress(OSError):  # a full disk must not turn one error into two
+            with open(log, "a", encoding="utf-8") as stream:
+                stream.write(f"--- {stamp}\n{text}\n")
+            os.chmod(log, 0o600)
+        if on_error is not None:
+            on_error(f"An internal error was logged to {log.name}: {kind.__name__}: {shown}")
+
+    def main_hook(kind: type[BaseException], value: BaseException, trace: Any) -> None:
+        record(kind, value, trace)
+        sys.__excepthook__(kind, value, trace)
+
+    def thread_hook(args: threading.ExceptHookArgs) -> None:
+        record(args.exc_type, args.exc_value, args.exc_traceback)
+        threading.__excepthook__(args)
+
+    previous_main, previous_thread = sys.excepthook, threading.excepthook
+    sys.excepthook = main_hook
+    threading.excepthook = thread_hook
+
+    def uninstall() -> None:
+        # only our own hooks: if something else was put on top since, it is not ours to remove
+        if sys.excepthook is main_hook:
+            sys.excepthook = previous_main
+        if threading.excepthook is thread_hook:
+            threading.excepthook = previous_thread
+
+    return uninstall
+
+
+def dispose(window: MainWindow) -> None:
+    """Take the window down on purpose, while Qt is still running.
+
+    A window that nobody deletes is deleted when the interpreter exits, in an arbitrary order
+    alongside Qt's own objects; this program once ended that way with a heap corruption instead of
+    an exit status. Stopping what runs behind the window and deleting it now, with the event
+    loop's deferred deletions delivered, keeps the end of the program as ordinary as the rest of
+    it, whatever might still refer to the window.
+    """
+    if not shiboken6.isValid(window):  # already taken down: nothing left to do
+        return
+    window.shutdown()
+    window.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
 def preferred_size(app: QApplication) -> tuple[int, int]:
     """Most of the screen, but never more than the layouts are designed for."""
     screen = app.primaryScreen()
@@ -72,12 +143,14 @@ def run(state: Path, *, theme: str = "system") -> int:
     # doing that now, behind the window, makes the first click instant
     threading.Thread(target=forms.warm_up, name="econosim-warm-up", daemon=True).start()
     window = MainWindow(session, state_dir=state, runner=runner, theme_mode=theme)
+    uninstall = install_error_log(state, window.errorLogged.emit)
     window.resize(*preferred_size(app))
     window.show()
     try:
         return app.exec()
     finally:
-        window.shutdown()
+        uninstall()
+        dispose(window)
 
 
 def pump(app: QApplication, until: Callable[[], bool], *, timeout: float = 120.0) -> bool:
@@ -150,7 +223,7 @@ def screenshots(out_dir: Path, *, theme: str = "system") -> int:
             window.show_page("system")
             shot("system")
         finally:
-            window.shutdown()
+            dispose(window)
     for path in written:
         print(path)
     return 0

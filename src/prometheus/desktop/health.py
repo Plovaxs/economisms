@@ -28,6 +28,12 @@ from prometheus.evidence.repository_status import current_repository_gate_report
 
 SHOWN_DISTRIBUTIONS = ("numpy", "scipy", "torch", "PySide6-Essentials", "pennylane", "cryptography")
 
+# `doctor` checks for the web stack too. The window does not serve the web frontend, so whether
+# `frontend/dist` was built is not its business -- and left in, it was a permanent warning on every
+# machine that never ran `npm run build` (the first CI run of this window found that: the overview
+# said "1 warning" where the developer's machine, which had built it, said "All clear").
+NOT_FOR_THE_WINDOW = frozenset({"frontend_build"})
+
 
 @dataclass(frozen=True, slots=True)
 class GateSummary:
@@ -132,7 +138,11 @@ def collect_health(
         app_version=app_version(),
         disclaimer=SIMULATION_DISCLAIMER,
         gate=gate_summary(),
-        checks=tuple(run_checks(state_dir=state_dir, lock_path=lock_path)),
+        checks=tuple(
+            check
+            for check in run_checks(state_dir=state_dir, lock_path=lock_path)
+            if check.name not in NOT_FOR_THE_WINDOW
+        ),
         data_files=data_files(data_dir),
         environment=environment(),
     )

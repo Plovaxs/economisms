@@ -43,6 +43,10 @@ tested. It does not change this project's NO-GO gate for live trading or real ca
   fixed order, thin marks, a legend for two or more series, tooltips that also appear from the
   keyboard, and a table view behind every chart.
 - `evidence.license_inventory.allows_mit_project`: an SPDX license-expression evaluator.
+- A menu bar (File: open the work folder, Quit with Ctrl+Q; View: pages with Ctrl+1..6 and the colour
+  theme; Help: About), a `system` theme mode that follows the desktop's light/dark setting live, and
+  `errors.log` in the state directory for anything uncaught -- in any thread -- with a one-line notice
+  in the status bar, because a program started from an application menu has no terminal.
 
 ### Security
 - **No network listener at all** for this front end; the window's state lives in a `0700` directory
@@ -60,6 +64,8 @@ tested. It does not change this project's NO-GO gate for live trading or real ca
   parameter itself.
 
 ### Fixed
+
+- Desktop: the test run no longer aborts at exit (heap corruption from signal connections to closures capturing `self`); the menu bar and menus take the theme's colours whatever the desktop palette is; the overview no longer warns about a missing web-frontend build.
 - `tests/unit/test_license_inventory.py` said LGPL was excluded from its copyleft check but matched
   the substring `GPL`, which `LGPL` contains; and the module's docstring promised a fallback to the
   legacy `License:` metadata header that was never implemented (PySide6 publishes its SPDX
@@ -68,6 +74,10 @@ tested. It does not change this project's NO-GO gate for live trading or real ca
 - An explorer child given a 0.2 s time limit received a 1 s CPU limit and was killed by `SIGXCPU`
   within 50 ms on a many-core machine (CPU time is summed over threads), before the caller's own
   wall-clock limit could act; the CPU limit is now a backstop.
+
+- Building the window imported a runner (and so torch, about a second and a half) for the first lab and
+  started an explorer's child process, for pages nobody had opened. Both now wait for the page's first
+  showing; opening the window no longer pays for either.
 
 ### Changed
 - `pyproject.toml` 0.5.0, `frontend` 0.5.0, SBOM regenerated (its scope is unchanged: the service and

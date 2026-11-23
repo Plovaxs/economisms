@@ -114,6 +114,21 @@ def test_a_failed_check_makes_the_report_not_ok() -> None:
     assert not broken.ok and broken.failures == 1 and broken.warnings == report.warnings + 1
 
 
+def test_a_missing_frontend_build_is_not_a_warning_of_the_window(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Found by the first CI run: a machine that never ran `npm run build` showed "1 warning" on
+    the overview of a program that does not use the web frontend at all."""
+    from prometheus import doctor
+
+    missing = Check("frontend_build", "warn", "frontend/dist is missing")
+    monkeypatch.setattr(doctor, "check_frontend_build", lambda *args, **kwargs: missing)
+    assert missing in doctor.run_checks(), "doctor itself still reports it, for the web stack"
+    report = health.collect_health()
+    assert "frontend_build" not in {c.name for c in report.checks}
+    assert report.warnings == 0 and report.ok
+
+
 def test_the_state_directory_is_checked_when_one_is_given(tmp_path: Path) -> None:
     ok = health.collect_health(state_dir=tmp_path)
     assert next(c for c in ok.checks if c.name == "state_directory").status == "ok"

@@ -15,8 +15,15 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QCloseEvent, QKeySequence, QShortcut
+from PySide6.QtCore import Qt, QTimer, QUrl, Signal
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
+    QCloseEvent,
+    QDesktopServices,
+    QGuiApplication,
+    QKeySequence,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -45,6 +52,7 @@ from prometheus.desktop.ui.pages.labs import LabsPage, format_elapsed
 from prometheus.desktop.ui.pages.overview import OverviewPage
 from prometheus.desktop.ui.pages.system import SystemPage
 from prometheus.desktop.ui.widgets import Badge, ChartCard, make_label
+from prometheus.evidence.constants import SIMULATION_DISCLAIMER
 
 PAGES = (
     ("overview", "Overview"),
@@ -59,6 +67,10 @@ IDLE_MS = 1000
 
 
 class MainWindow(QMainWindow):
+    errorLogged = Signal(str)
+    """Emitted (from any thread) when an uncaught error was written to the error log; the window
+    shows a one-line notice in its status bar. See `app.install_error_log`."""
+
     def __init__(
         self,
         session: LocalSession,
@@ -75,6 +87,7 @@ class MainWindow(QMainWindow):
         self._confirm_close = confirm_close
         self._summaries: tuple[JobSummary, ...] = ()
         self._closed = False
+        self._internal_error = ""
         self.setWindowTitle("ECONOSIM")
         self.setAccessibleName("ECONOSIM")
         root = QWidget()
@@ -118,15 +131,88 @@ class MainWindow(QMainWindow):
         self.system.themeRequested.connect(self.set_theme)
         self.system.set_theme_selection(theme_mode)
         self.nav.currentRowChanged.connect(self._nav_changed)
-        for number, (key, _) in enumerate(PAGES, start=1):
-            shortcut = QShortcut(QKeySequence(f"Ctrl+{number}"), self)
-            shortcut.activated.connect(lambda k=key: self.show_page(k))
+        self.state_dir = state_dir
+        self._build_menus()
+        self.errorLogged.connect(self._show_internal_error)
+        QGuiApplication.styleHints().colorSchemeChanged.connect(self._system_scheme_changed)
 
         self.timer = QTimer(self)
         self.timer.setInterval(IDLE_MS)
         self.timer.timeout.connect(self.tick)
         self.timer.start()
         self.show_page("overview")
+
+    # ------------------------------------------------------------------ the menus
+
+    def _build_menus(self) -> None:
+        bar = self.menuBar()
+        file_menu = bar.addMenu("&File")
+        self.action_open_state = QAction("Open the &folder where my work is kept", self)
+        self.action_open_state.setShortcut(QKeySequence("Ctrl+Shift+O"))
+        self.action_open_state.triggered.connect(self.open_state_folder)
+        file_menu.addAction(self.action_open_state)
+        file_menu.addSeparator()
+        self.action_quit = QAction("&Quit", self)
+        self.action_quit.setShortcut(QKeySequence("Ctrl+Q"))
+        self.action_quit.triggered.connect(self.close)
+        file_menu.addAction(self.action_quit)
+
+        view_menu = bar.addMenu("&View")
+        self.page_actions: dict[str, QAction] = {}
+        for number, (key, title) in enumerate(PAGES, start=1):
+            action = QAction(title, self)
+            action.setShortcut(QKeySequence(f"Ctrl+{number}"))
+            action.setData(key)
+            action.triggered.connect(self._show_page_of_action)
+            view_menu.addAction(action)
+            self.page_actions[key] = action
+        view_menu.addSeparator()
+        theme_menu = view_menu.addMenu("&Colour theme")
+        group = QActionGroup(self)
+        group.setExclusive(True)
+        self.theme_actions: dict[str, QAction] = {}
+        for mode in theme.MODES:
+            action = QAction(mode.capitalize(), self)
+            action.setCheckable(True)
+            action.setChecked(mode == self.theme_mode)
+            action.setData(mode)
+            action.triggered.connect(self._set_theme_of_action)
+            group.addAction(action)
+            theme_menu.addAction(action)
+            self.theme_actions[mode] = action
+
+        help_menu = bar.addMenu("&Help")
+        self.action_about = QAction("&About ECONOSIM", self)
+        self.action_about.triggered.connect(self.show_about)
+        help_menu.addAction(self.action_about)
+
+    def about_text(self) -> str:
+        gate = health.gate_summary()
+        return (
+            f"ECONOSIM / PROMETHEUS-X {health.app_version()}\n\n"
+            f"{SIMULATION_DISCLAIMER}\n\n"
+            f"Gate decision: {gate.decision} (gate {gate.gate}, decided {gate.decided_at}).\n\n"
+            "Released under the MIT license. This window is built with Qt for Python "
+            "(PySide6, LGPL-3.0), installed separately from this project.\n\n"
+            f"Your work is kept in {self.session.root}."
+        )
+
+    def show_about(self) -> None:
+        box = QMessageBox(
+            QMessageBox.Icon.Information,
+            "About ECONOSIM",
+            self.about_text(),
+            QMessageBox.StandardButton.Ok,
+            self,
+        )
+        box.setTextFormat(Qt.TextFormat.PlainText)  # the text is shown as typed, never as markup
+        box.exec()
+
+    def open_state_folder(self) -> bool:
+        opened = QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.session.root)))
+        if not opened:
+            self._show_internal_error(f"Could not open {self.session.root} in a file manager")
+        return bool(opened)
 
     # ------------------------------------------------------------------ the chrome
 
@@ -149,7 +235,7 @@ class MainWindow(QMainWindow):
         details = QPushButton("Details")
         details.setProperty("ghost", True)
         details.setAccessibleName("Read the full statement of what this may be used for")
-        details.clicked.connect(lambda: self.show_page("system"))
+        details.clicked.connect(self._show_system)
         row.addWidget(details)
         return frame
 
@@ -207,6 +293,21 @@ class MainWindow(QMainWindow):
         if 0 <= row < len(PAGES):
             self.show_page(PAGES[row][0])
 
+    # Signals go to bound methods and say who they came from with the action's data, never to a
+    # lambda that captures `self`: see the note in `prometheus.desktop.ui`.
+    def _show_page_of_action(self) -> None:
+        sender = self.sender()
+        if isinstance(sender, QAction):
+            self.show_page(str(sender.data()))
+
+    def _set_theme_of_action(self) -> None:
+        sender = self.sender()
+        if isinstance(sender, QAction):
+            self.set_theme(str(sender.data()))
+
+    def _show_system(self) -> None:
+        self.show_page("system")
+
     def show_page(self, key: str) -> None:
         index = [k for k, _ in PAGES].index(key)
         self.nav.blockSignals(True)
@@ -256,7 +357,10 @@ class MainWindow(QMainWindow):
         self.job_cancel.setVisible(shown is not None)
         self.job_cancel.setEnabled(shown is not None and not shown.cancel_requested)
         error = self.runner.last_error if self.runner is not None else None
-        self.worker_error.setText(f"✕  Worker: {error}" if error else "")
+        if error:
+            self.worker_error.setText(f"✕  Worker: {error}")
+        else:
+            self.worker_error.setText(f"✕  {self._internal_error}" if self._internal_error else "")
         self.labs.update_jobs(summaries)
         self.history.update_jobs(summaries)
         self.overview.update_jobs(summaries)
@@ -275,10 +379,21 @@ class MainWindow(QMainWindow):
             return
         self.theme_mode = mode
         theme.apply_theme(app, mode)
+        if mode in self.theme_actions:
+            self.theme_actions[mode].setChecked(True)
         for card in self.findChildren(ChartCard):
             card.retheme()
         self.system.set_theme_selection(mode)
         self.update()
+
+    def _system_scheme_changed(self, *_: object) -> None:
+        """The operating system switched between light and dark: follow it, if that is the mode."""
+        if self.theme_mode == "system":
+            self.set_theme("system")
+
+    def _show_internal_error(self, summary: str) -> None:
+        self._internal_error = summary
+        self.worker_error.setText(f"✕  {summary}")
 
     # ------------------------------------------------------------------ closing
 

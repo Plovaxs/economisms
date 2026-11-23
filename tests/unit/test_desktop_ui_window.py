@@ -21,7 +21,7 @@ from tests.unit import desktop_ui_support as support
 support.require_qt()
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QShortcut
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QAbstractButton,
     QComboBox,
@@ -110,11 +110,12 @@ def test_every_page_can_be_reached_from_the_sidebar_and_the_keyboard(window: Mai
     for row, (key, title) in enumerate(PAGES):
         window.nav.setCurrentRow(row)
         assert window.current_page == key and title in window.windowTitle()
-    shortcuts = {s.key().toString(): s for s in window.findChildren(QShortcut)}
-    assert sorted(shortcuts) == [f"Ctrl+{n}" for n in range(1, len(PAGES) + 1)]
-    shortcuts["Ctrl+3"].activated.emit()
+    assert [a.shortcut().toString() for a in window.page_actions.values()] == [
+        f"Ctrl+{n}" for n in range(1, len(PAGES) + 1)
+    ]
+    window.page_actions["explorers"].trigger()
     assert window.current_page == "explorers"
-    shortcuts["Ctrl+1"].activated.emit()
+    window.page_actions["overview"].trigger()
     assert window.current_page == "overview"
 
 
@@ -636,6 +637,7 @@ def test_a_platform_that_cannot_run_jobs_says_so_on_the_lab(
         elsewhere, state_dir=tmp_path / "elsewhere", theme_mode="dark", confirm_close=False
     )
     shown.show()
+    shown.show_page("labs")
     assert shown.labs.run_button.isEnabled() is False
     assert "needs Linux" in shown.labs.admission.text()
     shown.shutdown()
@@ -696,3 +698,253 @@ def test_the_app_icon_is_a_real_icon_at_several_sizes(qapp: Any) -> None:
 
 def test_a_second_application_object_is_not_created(qapp: Any) -> None:
     assert app_module.create_application() is qapp
+
+
+# ------------------------------------------------------------------ starting quickly, and the menus
+
+
+def test_nothing_heavy_happens_until_a_page_is_shown(
+    qapp: Any, ui_session: Any, theme_dark: Any, tmp_path: Path
+) -> None:
+    """Building the window must not import a runner (torch) for a lab nobody opened, nor start a
+    calculation nobody asked for."""
+    shown = MainWindow(
+        ui_session, state_dir=tmp_path / "state", theme_mode="dark", confirm_close=False
+    )
+    shown.show()
+    assert shown.labs.current_kind == "" and shown.explorers.current == ""
+    assert shown.explorers.busy() is False and child_pids() == []
+    shown.show_page("labs")
+    assert shown.labs.current_kind == "inflationcast"
+    shown.show_page("explorers")
+    assert shown.explorers.current == "economy"
+    assert wait(
+        shown, lambda: shown.explorers.result.view is not None and not shown.explorers.busy()
+    )
+    shown.shutdown()
+    shown.close()
+    shown.deleteLater()
+
+
+def test_choosing_a_lab_before_the_page_is_shown_is_not_overridden_later(
+    qapp: Any, ui_session: Any, theme_dark: Any, tmp_path: Path
+) -> None:
+    shown = MainWindow(
+        ui_session, state_dir=tmp_path / "state", theme_mode="dark", confirm_close=False
+    )
+    shown.labs.select_kind("pde_solver")
+    shown.show_page("labs")
+    assert shown.labs.current_kind == "pde_solver", (
+        "the first-time default must not replace a choice"
+    )
+    shown.shutdown()
+    shown.close()
+    shown.deleteLater()
+
+
+def test_the_menu_bar_has_the_usual_menus_and_shortcuts(window: MainWindow) -> None:
+    titles = [action.text() for action in window.menuBar().actions()]
+    assert titles == ["&File", "&View", "&Help"]
+    assert window.action_quit.shortcut().toString() == "Ctrl+Q"
+    assert window.action_open_state.shortcut().toString() == "Ctrl+Shift+O"
+    assert set(window.page_actions) == {key for key, _ in PAGES}
+
+
+def test_quit_closes_the_window_and_stops_the_worker(
+    qapp: Any, ui_session: Any, theme_dark: Any, tmp_path: Path
+) -> None:
+    runner = WorkerLoop(ui_session, idle_seconds=0.05)
+    runner.start()
+    shown = MainWindow(
+        ui_session,
+        state_dir=tmp_path / "state",
+        runner=runner,
+        theme_mode="dark",
+        confirm_close=False,
+    )
+    shown.show()
+    shown.action_quit.trigger()
+    assert not shown.isVisible() and not runner.alive
+    shown.deleteLater()
+
+
+def test_the_theme_menu_follows_and_drives_the_theme(window: MainWindow) -> None:
+    assert [m for m, a in window.theme_actions.items() if a.isChecked()] == ["dark"]
+    window.theme_actions["light"].trigger()
+    assert theme.current() is theme.LIGHT and window.theme_mode == "light"
+    assert [m for m, a in window.theme_actions.items() if a.isChecked()] == ["light"]
+    window.system.theme_box.setCurrentText("Dark")  # the other control changes it too
+    assert [m for m, a in window.theme_actions.items() if a.isChecked()] == ["dark"]
+
+
+def test_about_states_the_version_the_gate_and_the_disclaimer_as_plain_text(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from prometheus.desktop import health
+
+    shown: dict[str, Any] = {}
+
+    def capture(box: QMessageBox) -> int:
+        shown.update(text=box.text(), title=box.windowTitle(), format=box.textFormat())
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", capture)
+    window.action_about.trigger()
+    assert shown["title"] == "About ECONOSIM" and shown["format"] == Qt.TextFormat.PlainText
+    for expected in (
+        health.app_version(),
+        "NO-GO",
+        "SIMULATED DATA -- RESEARCH ONLY",
+        "MIT",
+        "LGPL",
+        str(window.session.root),
+    ):
+        assert expected in shown["text"], expected
+
+
+def test_the_work_folder_can_be_opened_and_a_failure_is_shown(
+    window: MainWindow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from PySide6.QtCore import QUrl
+
+    opened: list[QUrl] = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened.append(url) or True)
+    assert window.open_state_folder() is True
+    assert opened[0].toLocalFile() == str(window.session.root)
+    monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: False)
+    assert window.open_state_folder() is False
+    assert "Could not open" in window.worker_error.text()
+
+
+class _Scheme:
+    """Stands in for what the operating system reports. The headless platform ignores
+    `QStyleHints.setColorScheme`, so the reported value is replaced where it is read."""
+
+    def __init__(self, monkeypatch: pytest.MonkeyPatch, start: Any) -> None:
+        from PySide6.QtGui import QStyleHints
+
+        self.value = start
+        monkeypatch.setattr(QStyleHints, "colorScheme", lambda hints: self.value)
+
+    def change(self, scheme: Any) -> None:
+        from PySide6.QtGui import QGuiApplication
+
+        self.value = scheme
+        QGuiApplication.styleHints().colorSchemeChanged.emit(scheme)
+        support.settle()
+
+
+def test_the_system_palette_is_chosen_from_what_the_operating_system_reports(
+    qapp: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scheme = _Scheme(monkeypatch, Qt.ColorScheme.Light)
+    assert theme.palette_for("system", qapp) is theme.LIGHT
+    scheme.value = Qt.ColorScheme.Dark
+    assert theme.palette_for("system", qapp) is theme.DARK
+    scheme.value = Qt.ColorScheme.Unknown
+    assert theme.palette_for("system", qapp) is theme.DARK, "no answer: the dark default"
+    assert (
+        theme.palette_for("light", qapp) is theme.LIGHT
+        and theme.palette_for("dark", qapp) is theme.DARK
+    )
+
+
+def test_a_window_in_system_mode_follows_the_system_and_an_explicit_choice_does_not(
+    qapp: Any, ui_session: Any, theme_dark: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scheme = _Scheme(monkeypatch, Qt.ColorScheme.Dark)
+    following = MainWindow(
+        ui_session, state_dir=tmp_path / "a", theme_mode="system", confirm_close=False
+    )
+    try:
+        scheme.change(Qt.ColorScheme.Light)
+        assert theme.current() is theme.LIGHT, "it follows the system"
+        scheme.change(Qt.ColorScheme.Dark)
+        assert theme.current() is theme.DARK
+        assert following.theme_mode == "system"
+        following.set_theme("light")  # choosing a theme stops it following
+        scheme.change(Qt.ColorScheme.Dark)
+        assert following.theme_mode == "light" and theme.current() is theme.LIGHT
+    finally:
+        following.shutdown()
+        following.close()
+        following.deleteLater()
+
+
+# ------------------------------------------------------------------ an error nobody caught
+
+
+@pytest.fixture
+def restore_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
+    import sys
+    import threading
+
+    monkeypatch.setattr(sys, "excepthook", sys.excepthook)
+    monkeypatch.setattr(threading, "excepthook", threading.excepthook)
+
+
+def test_an_uncaught_error_is_written_to_the_log_and_announced(
+    tmp_path: Path, restore_hooks: None, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import sys
+
+    told: list[str] = []
+    app_module.install_error_log(tmp_path, told.append)
+    try:
+        raise ValueError("boom")
+    except ValueError:
+        sys.excepthook(*sys.exc_info())  # type: ignore[arg-type]
+    log = tmp_path / app_module.ERROR_LOG
+    text = log.read_text()
+    assert "ValueError: boom" in text and "Traceback" in text and text.startswith("--- 20")
+    assert oct(log.stat().st_mode)[-3:] == "600"
+    assert told == ["An internal error was logged to errors.log: ValueError: boom"]
+    assert "ValueError: boom" in capsys.readouterr().err, "a terminal still sees it"
+    try:
+        raise KeyError("second")
+    except KeyError:
+        sys.excepthook(*sys.exc_info())  # type: ignore[arg-type]
+    assert log.read_text().count("---") == 2, "errors accumulate, they do not overwrite"
+
+
+def test_an_error_in_another_thread_is_logged_too(
+    tmp_path: Path, restore_hooks: None, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import threading
+
+    told: list[str] = []
+    app_module.install_error_log(tmp_path, told.append)
+
+    def fail() -> None:
+        raise RuntimeError("from a worker thread")
+
+    thread = threading.Thread(target=fail)
+    thread.start()
+    thread.join()
+    assert "RuntimeError: from a worker thread" in (tmp_path / app_module.ERROR_LOG).read_text()
+    assert len(told) == 1
+
+
+def test_a_log_that_cannot_be_written_does_not_make_things_worse(
+    tmp_path: Path, restore_hooks: None, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import sys
+
+    told: list[str] = []
+    app_module.install_error_log(tmp_path / "no" / "such" / "directory", told.append)
+    try:
+        raise ValueError("still reported")
+    except ValueError:
+        sys.excepthook(*sys.exc_info())  # type: ignore[arg-type]
+    assert told and "still reported" in told[0] and "still reported" in capsys.readouterr().err
+
+
+def test_the_window_shows_a_logged_error_and_keeps_showing_it(window: MainWindow) -> None:
+    window.errorLogged.emit("An internal error was logged to errors.log: ValueError: x")
+    support.settle()
+    assert "ValueError: x" in window.worker_error.text() and window.worker_error.text().startswith(
+        "✕"
+    )
+    window.tick()
+    window.tick()
+    assert "ValueError: x" in window.worker_error.text(), "the next poll must not erase it"

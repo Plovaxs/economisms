@@ -159,7 +159,7 @@ class LabsPage(PageBase):
         self.result.rerunRequested.connect(self._rerun_shown)
         if not session.can_run_jobs:
             self.run_button.setEnabled(False)
-        self.select_kind(catalog.KIND_CATALOG[0].kind)
+        self._started = False  # the first lab is chosen when the page is first shown, not before
 
     # ------------------------------------------------------------------ the list
 
@@ -203,7 +203,15 @@ class LabsPage(PageBase):
             self.form_stack.addWidget(view)
         return self._forms[chosen]
 
+    def activated(self) -> None:
+        """Choose the first lab the first time the page is shown. Reading a runner's config type
+        imports the runner (and torch, about a second): doing it while the window is being built
+        would delay the window for a page the person may never open."""
+        if not self._started:
+            self.select_kind(catalog.KIND_CATALOG[0].kind)
+
     def select_kind(self, kind: str) -> None:
+        self._started = True
         info = catalog.info(kind)
         self.current_kind = kind
         for row in range(self.list.count()):

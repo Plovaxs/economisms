@@ -160,7 +160,7 @@ class SystemPage(PageBase):
         self.theme_box = QComboBox()
         self.theme_box.addItems([mode.capitalize() for mode in MODES])
         self.theme_box.setAccessibleName("Colour theme")
-        self.theme_box.currentTextChanged.connect(lambda t: self.themeRequested.emit(t.lower()))
+        self.theme_box.currentTextChanged.connect(self._theme_chosen)
         row.addWidget(self.theme_box)
         row.addSpacing(24)
         self.install_button = QPushButton("Add to the application menu")
@@ -181,6 +181,9 @@ class SystemPage(PageBase):
         self.theme_box.blockSignals(False)
 
     # ------------------------------------------------------------------ the menu entry
+
+    def _theme_chosen(self, text: str) -> None:
+        self.themeRequested.emit(text.lower())
 
     def _install(self) -> None:
         try:

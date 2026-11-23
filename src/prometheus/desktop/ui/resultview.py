@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from prometheus.desktop.results import ResultView, Table
+from prometheus.desktop.results import ResultView
 from prometheus.desktop.ui.widgets import (
     Badge,
     Card,
@@ -248,8 +248,9 @@ class ResultWidget(QWidget):
             card.body.addLayout(head)
             widget = DataTable(table.title)
             widget.set_table(table)
+            export.setProperty("table", len(self.tables))
+            export.clicked.connect(self._export_table)
             self.tables.append(widget)
-            export.clicked.connect(lambda _=False, w=widget, t=table: self._export_csv(w, t))
             card.body.addWidget(widget)
             if table.truncated:
                 card.body.addWidget(
@@ -263,9 +264,15 @@ class ResultWidget(QWidget):
         layout.addStretch(1)
         return scrollable(page)
 
-    def _export_csv(self, widget: DataTable, table: Table) -> None:
-        name = "".join(c if c.isalnum() else "_" for c in table.title.lower()) + ".csv"
-        save_text(self, name, widget.to_csv(), "CSV files (*.csv)")
+    def _export_table(self) -> None:
+        """Save the table whose button was pressed (it carries its index) as CSV."""
+        sender = self.sender()
+        index = sender.property("table") if sender is not None else None
+        if self._view is None or not isinstance(index, int) or not 0 <= index < len(self.tables):
+            return
+        title = self._view.tables[index].title
+        name = "".join(c if c.isalnum() else "_" for c in title.lower()) + ".csv"
+        save_text(self, name, self.tables[index].to_csv(), "CSV files (*.csv)")
 
     def _details(self, view: ResultView) -> QWidget:
         page, layout = _page()

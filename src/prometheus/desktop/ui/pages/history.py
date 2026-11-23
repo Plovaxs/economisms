@@ -90,7 +90,7 @@ class HistoryPage(PageBase):
         self.content.addWidget(self.detail)
 
         self.table.itemSelectionChanged.connect(self._selection_changed)
-        self.table.itemDoubleClicked.connect(lambda _: self._open())
+        self.table.itemDoubleClicked.connect(self._open)
         self.audit_button.clicked.connect(self.verify_audit)
         self.open_button.clicked.connect(self._open)
         self.rerun_button.clicked.connect(self._rerun)
