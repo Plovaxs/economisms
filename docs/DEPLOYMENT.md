@@ -224,3 +224,14 @@ has no header-read timeout, so a TLS-terminating reverse proxy with header
 timeouts is the right answer for anything beyond one host); or an independent
 penetration test. See [SECURITY.md](../SECURITY.md) and
 [THREAT_MODEL.md](./THREAT_MODEL.md) for the full account.
+
+
+## Releases (continuous delivery)
+
+`.github/workflows/release.yml` runs when a tag `v<version>` is pushed, and on demand ("Run workflow") as a
+dry run. It checks that the tag equals `pyproject.toml`'s version and that `CHANGELOG.md` has a section for it;
+builds the wheel twice from independent snapshots and compares them (`tools/reproducible_build.py`); tests and
+builds the frontend; builds the container image (not pushed); and only for a tag creates the GitHub Release with
+the wheel, the web tarball, the SBOM and `SHA256SUMS`. Only the final job has write permission. Not done, on
+purpose: registry pushes, signatures or provenance attestations, and a bundled desktop binary (Qt's LGPL
+obligations, see `docs/LICENSE_INVENTORY.md`). Checksums let a download be checked; they do not prove who made it.

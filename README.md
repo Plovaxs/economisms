@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-4%2C805%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-4%2C832%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.5.0-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
@@ -170,6 +170,21 @@ findings, honestly disclosed as a retrospective freeze.
 itself — the same material assembled into one abstract-to-conclusion
 document, with limitations and null/negative experiments included by
 name, not left implicit.
+
+## Two editions
+
+The same engine, two front doors. Pick one; neither removes the other.
+
+| | **Desktop software** | **Web app** |
+|---|---|---|
+| Start it | `pip install '.[desktop]'` then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
+| What it is | a native Qt window; no server, port or token | React frontend + API gateway in the browser |
+| Needs | Linux for running jobs; `libxcb-cursor0` on X11 | Docker, or Python + a built `frontend/dist` |
+| Details | [Desktop application](#desktop-application) | [Quickstart](#quickstart), [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
+
+Every tagged release (`v*`) is built by [`release.yml`](./.github/workflows/release.yml) and published as
+GitHub Release files: the reproducibly built wheel (desktop and API), the web build as a tarball, the SBOM and
+`SHA256SUMS`. The workflow can also be run by hand without publishing anything.
 
 ## Quickstart
 
