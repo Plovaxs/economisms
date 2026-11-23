@@ -16,6 +16,21 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+## [0.5.1] -- 2026-11-23 -- the first release published by CI
+
+The first release made by `.github/workflows/release.yml` (wheel, web build, SBOM, checksums), and the
+fixes the first CI run of 0.5.0 forced.
+
+### Added
+
+- `release.yml`: continuous delivery for both editions; a manual run is a dry run that publishes nothing.
+- README "Two editions": the desktop software and the web app side by side.
+
+### Fixed
+
+- Desktop: small windows. A minimum size (960x600); below 800 px of height pages hide their explanatory paragraphs and the disclaimer shrinks to one line (full text in the tooltip); in a narrow result pane the verdict and actions get their own row; the lab status text elides instead of squeezing the Reset button. README screenshots regenerated (they predated the menu bar).
+- Desktop: the test run no longer aborts at exit (heap corruption from signal connections to closures capturing `self`); the menu bar and menus take the theme's colours whatever the desktop palette is; the overview no longer warns about a missing web-frontend build.
+
 ## [0.5.0] -- 2026-11-20 -- the desktop application (PR-205)
 
 This release makes the project software you open. A native Qt window runs the same engine the web
@@ -65,9 +80,6 @@ tested. It does not change this project's NO-GO gate for live trading or real ca
 
 ### Fixed
 
-- Desktop: small windows. A minimum size (960x600); below 800 px of height pages hide their explanatory paragraphs and the disclaimer shrinks to one line (full text in the tooltip); in a narrow result pane the verdict and actions get their own row; the lab status text elides instead of squeezing the Reset button. README screenshots regenerated (they predated the menu bar).
-
-- Desktop: the test run no longer aborts at exit (heap corruption from signal connections to closures capturing `self`); the menu bar and menus take the theme's colours whatever the desktop palette is; the overview no longer warns about a missing web-frontend build.
 - `tests/unit/test_license_inventory.py` said LGPL was excluded from its copyleft check but matched
   the substring `GPL`, which `LGPL` contains; and the module's docstring promised a fallback to the
   legacy `License:` metadata header that was never implemented (PySide6 publishes its SPDX
