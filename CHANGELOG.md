@@ -16,6 +16,8 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+## [0.5.2] -- 2026-11-24 -- a demo edition for the web, and a Linux installer
+
 - **Linux installer** (`scripts/install-linux.sh`, published with each release): no root; verifies the release's source
   archive against `SHA256SUMS`, installs into a private virtualenv pinned to `uv.lock` (CPU PyTorch), adds ECONOSIM
   and its icon to the application menu; `--uninstall` removes it. The release now also publishes

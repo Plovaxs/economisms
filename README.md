@@ -3,7 +3,7 @@
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
 [![Tests](https://img.shields.io/badge/tests-4%2C832%20passing-brightgreen)](./docs/PR_LEDGER.md)
-[![Version](https://img.shields.io/badge/version-0.5.1-informational)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.2-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
