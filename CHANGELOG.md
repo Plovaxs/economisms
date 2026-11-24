@@ -16,6 +16,14 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **A draft confirmatory protocol** ([docs/CONFIRMATORY_PROTOCOL.md](./docs/CONFIRMATORY_PROTOCOL.md)). The five
+  hypotheses were frozen after most of the experiments ran, so every verdict is exploratory. The draft names three
+  primary endpoints (deep hedging on fresh seeds; the inflation base-effect rule and the GARCH-FHS value-at-risk
+  model on data that postdate the committed snapshots), their statistics, equivalence margins and outcome rules,
+  and separates *untouched* from *prospective* from *re-used* data. It is a draft: the analysis code, power notes,
+  data-use audit and data sources do not exist yet, and it binds nothing until the maintainer freezes and
+  externally anchors it.
+
 ## [0.5.3] -- 2026-11-24 -- a desktop icon on Linux, and citation metadata
 
 - **`CITATION.cff`.** Citation metadata (CFF 1.2.0) for the repository's "Cite this repository" button. It carries

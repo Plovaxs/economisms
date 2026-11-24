@@ -16,6 +16,10 @@ prevents further drift as the final paper is written, but it does not
 carry the same evidentiary weight as hypotheses registered before any
 data was seen. This gap is named here rather than left implicit.
 
+**Update, 2026-11-24 (a pointer only; nothing above changed):** a *draft* protocol for confirmatory tests on
+data and seeds this project has never used is in [CONFIRMATORY_PROTOCOL.md](./CONFIRMATORY_PROTOCOL.md). It is a
+plan, not a registration, until its freeze checklist is complete; until then every verdict here stays exploratory.
+
 ## Title
 
 **Beyond Model Complexity: An Empirical Evaluation of Classical, Deep
