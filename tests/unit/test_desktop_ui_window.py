@@ -52,6 +52,19 @@ from prometheus.desktop.ui.pages.findings import FindingsPage
 # ------------------------------------------------------------------ helpers
 
 
+def _count_committed_data_files() -> int:
+    import json
+    from pathlib import Path as _Path
+
+    manifest = _Path(__file__).resolve().parents[2] / "data_cache" / "MANIFEST.sha256.json"
+    return len(json.loads(manifest.read_text())["files"])
+
+
+_COMMITTED_DATA_FILES = (
+    _count_committed_data_files()
+)  # derived, so adding a snapshot cannot break this
+
+
 def child_pids() -> list[int]:
     found = []
     for entry in Path("/proc").iterdir():
@@ -498,7 +511,7 @@ def test_the_system_page_states_the_gate_the_checks_and_the_data(window: MainWin
     assert "NO-GO" in page.gate_badge.text()
     assert set(page.cards) == {"gate", "checks", "data", "storage", "settings"}
     assert page.report is not None and page.report.ok
-    assert page.data_table.rowCount() == len(page.report.data_files) == 24
+    assert page.data_table.rowCount() == len(page.report.data_files) == _COMMITTED_DATA_FILES
     assert {page.data_table.cell(r, 2) for r in range(24)} == {"ok"}
     labels = " ".join(label.text() for label in page.cards["checks"].findChildren(QLabel))
     assert "python" in labels and "data integrity" in labels and "locked dependencies" in labels
@@ -564,7 +577,8 @@ def test_the_overview_leads_with_the_standing_and_offers_the_next_steps(window: 
     assert "NO-GO" in page.gate_badge.text()
     assert page.health_tile.value_text == "All clear"
     assert (
-        page.data_tile.value_text == "24 of 24 verified" and page.findings_tile.value_text == "18"
+        page.data_tile.value_text == f"{_COMMITTED_DATA_FILES} of {_COMMITTED_DATA_FILES} verified"
+        and page.findings_tile.value_text == "18"
     )
     assert page.jobs_tile.value_text == "0"
     for key in ("labs", "explorers", "findings"):

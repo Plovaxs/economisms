@@ -193,7 +193,7 @@ The same engine, two front doors. Pick one; neither removes the other.
 next to the source tree and a wheel does not carry it, so a wheel install opens but its data-driven labs cannot
 run (found by testing a clean install; the wheel is still published for the API). The installer pins every
 dependency to `uv.lock`, so `econosim doctor` agrees with the install, and was tested here from nothing to
-"desktop check: all clear" (real job run, 24 data files verified). **Not tested:** Windows and macOS (no
+"desktop check: all clear" (real job run, 25 data files verified). **Not tested:** Windows and macOS (no
 installer, jobs need Linux there), and a graphical launch from the menu entry on a machine other than this one.
 
 A third, lighter way to look: the **demo edition** of the web app needs no install, no token and no backend. It
