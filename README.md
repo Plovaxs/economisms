@@ -182,6 +182,10 @@ The same engine, two front doors. Pick one; neither removes the other.
 | Needs | Linux for running jobs; `libxcb-cursor0` on X11 | Docker, or Python + a built `frontend/dist` |
 | Details | [Desktop application](#desktop-application) | [Quickstart](#quickstart), [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
 
+A third, lighter way to look: the **demo edition** of the web app needs no install, no token and no backend. It
+shows real responses recorded from the real backend (default settings only, clearly labelled), see
+[frontend/README.md](./frontend/README.md#the-demo-edition-what-vercel-hosts-no-backend-no-token).
+
 Every tagged release (`v*`) is built by [`release.yml`](./.github/workflows/release.yml) and published as
 GitHub Release files: the reproducibly built wheel (desktop and API), the web build as a tarball, the SBOM and
 `SHA256SUMS`. The workflow can also be run by hand without publishing anything.

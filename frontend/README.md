@@ -121,17 +121,27 @@ still runs on it, but do not rely on that for anything you deploy.
 - `npm run test` -- Vitest + React Testing Library.
 
 
-## Hosting the static build on Vercel (a demo of the interface only)
+## The demo edition (what Vercel hosts: no backend, no token)
 
-`vercel.json` makes Vercel build and serve `frontend/` as a single-page app. **What this gives you is the
-interface, not the product:** the app calls `/api/jobs/*` and `/api/dashboard/*`, and those are served by the
-Python gateway (`prometheus.webgateway`), which does not run on Vercel. Without a backend the pages load and
-every data request fails. To make it work, run the gateway somewhere you control and add a rewrite from
-`/api/:path*` to it in `vercel.json`. Nothing about the research API's authentication changes.
+`npm run build:demo` builds the same app in Vite's `demo` mode (`vite build --mode demo`). In that build:
 
-```bash
-cd frontend && npx vercel login && npx vercel          # preview deployment
-```
+- there is **no token screen**, and **no request leaves the page**: the API layer (`src/demo/demo.ts`) answers
+  from `demo-data/recording.json`;
+- that file is **real**: `python tools/record_demo.py` starts the real worker, job API and dashboard on
+  throwaway ports, calls every page with its default settings, runs each of the seven labs once with its default
+  configuration, and records the responses. Nothing is typed in by hand, and a failed call is left out, not
+  invented;
+- a banner on every page says so, with the date and commit of the recording;
+- anything that was **not** recorded (another strike, another seed, another owner) is refused with a plain
+  message instead of showing numbers that no run produced;
+- an ordinary `npm run build` contains neither the recording nor a way to reach it (checked in `frontend-ci`).
+
+To refresh the recording, run `python tools/record_demo.py` from the repository root (about a minute), read the
+diff, and commit it.
+
+`vercel.json` builds the demo edition. Deploy with `cd frontend && npx vercel --prod`, or connect the GitHub
+repository to the Vercel project so every push to `main` redeploys. For real jobs use the desktop app or the full
+web stack (`docker compose up`).
 
 Vercel's AI Gateway keys (`vck_...`) are for model calls and are not a deployment credential; this project makes
 no model calls. Never commit a key; give Vercel secrets through its dashboard or `vercel env`.

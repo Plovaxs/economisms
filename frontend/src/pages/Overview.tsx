@@ -1,3 +1,4 @@
+import { DEMO } from "../demo/demo";
 import { GlassCard } from "../components/GlassCard";
 
 const DASHBOARD_COUNT = 11;
@@ -14,9 +15,9 @@ export function Overview() {
           Deep Learning for Quantitative Economics and Neural Finance:
           classical econometrics, deep learning, and hybrid quantum
           models benchmarked side by side on real computed output. Every
-          number on every page below comes from a live run of the actual
-          Python backend -- nothing here is a placeholder or a canned
-          screenshot.
+          number on every page comes from a real run of the actual
+          Python backend{DEMO ? " (recorded, see the note above)" : ""} --
+          nothing here is a placeholder or a canned screenshot.
         </p>
       </GlassCard>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

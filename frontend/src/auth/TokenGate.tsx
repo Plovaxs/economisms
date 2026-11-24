@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 
 import { getToken, setToken, UNAUTHORIZED_EVENT } from "../api/client";
+import { DEMO } from "../demo/demo";
 import { GlassCard } from "../components/GlassCard";
 
 interface TokenGateProps {
@@ -39,7 +40,7 @@ export function TokenGate({ children }: TokenGateProps) {
     setHasToken(true);
   }
 
-  if (hasToken) {
+  if (DEMO || hasToken) {
     return <>{children}</>;
   }
 

@@ -1,3 +1,8 @@
+import { DEMO, demoDashboard, demoJobs } from "../demo/demo";
+import { ApiError } from "./errors";
+
+export { ApiError };
+
 const TOKEN_KEY = "econosim.bearer_token";
 
 // Dispatched whenever any API call comes back 401 -- a token that was
@@ -21,16 +26,6 @@ export function setToken(token: string): void {
 
 export function clearToken(): void {
   sessionStorage.removeItem(TOKEN_KEY);
-}
-
-export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = "ApiError";
-  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -77,10 +72,13 @@ function extractErrorMessage(raw: string): string | null {
 }
 
 export function getJobsApi<T>(path: string, init?: RequestInit): Promise<T> {
+  if (DEMO) return demoJobs<T>(path, init);
   return request<T>(`/api/jobs${path}`, init);
 }
 
 export function getDashboardApi<T>(path: string, init?: RequestInit): Promise<T> {
   const separator = path.includes("?") ? "&" : "?";
-  return request<T>(`/api/dashboard${path}${separator}format=json`, init);
+  const full = `${path}${separator}format=json`;
+  if (DEMO) return demoDashboard<T>(full);
+  return request<T>(`/api/dashboard${full}`, init);
 }

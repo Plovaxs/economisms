@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
+import { DemoBanner } from "../demo/DemoBanner";
+
 interface AppShellProps {
   children: ReactNode;
 }
@@ -81,7 +83,10 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto px-8 py-8">
-        <div className="mx-auto max-w-5xl">{children}</div>
+        <div className="mx-auto max-w-5xl">
+          <DemoBanner />
+          {children}
+        </div>
       </main>
     </div>
   );

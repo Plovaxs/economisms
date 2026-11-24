@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Demo edition of the web app** (`npm run build:demo`): no token screen and no backend. It answers from
+  `frontend/demo-data/recording.json`, real responses recorded by `tools/record_demo.py` from the real backend
+  (ten dashboard pages, seven labs, default settings). A banner says so on every page; settings that were not
+  recorded are refused instead of invented. The ordinary build contains none of it. `vercel.json` now builds it.
+
 ## [0.5.1] -- 2026-11-23 -- the first release published by CI
 
 The first release made by `.github/workflows/release.yml` (wheel, web build, SBOM, checksums), and the
