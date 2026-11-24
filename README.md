@@ -2,8 +2,8 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-4%2C832%20passing-brightgreen)](./docs/PR_LEDGER.md)
-[![Version](https://img.shields.io/badge/version-0.5.2-informational)](./CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/tests-4%2C849%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Version](https://img.shields.io/badge/version-0.5.3-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
@@ -132,7 +132,7 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,832 / 4,832** passing, 12 skipped by design (Python, `uv run pytest -q`); **21 / 21** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,849 / 4,849** passing, 12 skipped by design (Python, `uv run pytest -q`); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | 205, each independently verified |
 
@@ -399,6 +399,13 @@ clean, and an honest, specific statement of what the change does and
 does not cover. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full
 workflow, [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), and
 [SECURITY.md](./SECURITY.md) for how to report a vulnerability.
+
+## Citing
+
+[`CITATION.cff`](./CITATION.cff) holds the citation metadata (GitHub's "Cite this repository" button reads it).
+Cite the version you ran. There is no DOI and no peer-reviewed paper yet, so the citation is to the software
+and its repository, and the findings in [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md)
+are the author's own, not independently replicated.
 
 ## License
 

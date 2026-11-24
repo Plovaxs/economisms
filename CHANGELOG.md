@@ -16,6 +16,13 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+## [0.5.3] -- 2026-11-24 -- a desktop icon on Linux, and citation metadata
+
+- **`CITATION.cff`.** Citation metadata (CFF 1.2.0) for the repository's "Cite this repository" button. It carries
+  no DOI: none exists, and minting one needs the owner to connect the repository to an archive such as Zenodo. A
+  test ties its version and release date to `pyproject.toml` and this changelog, and the release workflow refuses
+  to publish if the file names another version.
+
 - **Desktop icon on Linux.** `econosim desktop --install-launcher --desktop-icon` also places an executable launcher on
   the desktop (found through `XDG_DESKTOP_DIR`, `user-dirs.dirs` or `~/Desktop`; never created), marked trusted for
   GNOME; the installer script does this by default and the System page's button does both. Only files that carry

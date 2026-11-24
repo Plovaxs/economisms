@@ -57,6 +57,7 @@ jobs:
             exit 1
           fi
           grep -q "^## \[${version}\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no section for ${version}"; exit 1; }
+          grep -q "^version: ${version}$" CITATION.cff || { echo "::error::CITATION.cff does not name version ${version}"; exit 1; }
 
   wheel:
     needs: version
@@ -164,7 +165,7 @@ jobs:
           {
             echo
             echo "### Two editions"
-            echo "- **Desktop (Linux):** \`bash install-linux.sh\` (read it first; no root; adds ECONOSIM to the application menu). Qt needs \`libxcb-cursor0\` on X11."
+            echo "- **Desktop (Linux):** \`bash install-linux.sh\` (read it first; no root; adds ECONOSIM to the application menu and, with its icon, to the desktop). Qt needs \`libxcb-cursor0\` on X11."
             echo "- **Desktop (other systems):** from a source checkout, \`pip install -e '.[desktop,quantum]'\` then \`econosim desktop\`; jobs need Linux."
             echo "- **Web:** unpack \`econosim-web-${VERSION}.tar.gz\` and serve it with \`python -m prometheus.webgateway serve --dist dist\`, or use \`docker compose up\`."
             echo
