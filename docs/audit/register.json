@@ -285,12 +285,13 @@
       "group": "math",
       "title": "SDE strong/weak convergence",
       "gate": "Known solutions; step-size sweeps with expected rates and uncertainty.",
-      "status": "partial",
+      "status": "done",
       "evidence": [
+        "tests/unit/test_sde_integrators_known_solution.py",
         "tests/unit/test_stochastica_convergence.py"
       ],
       "evidence_level": "E2",
-      "remaining": "Weak order is measured for the one scheme with discretisation error (Heston) against its closed form. GBM and jump-diffusion are exact, so there is nothing to sweep. Strong convergence is not measured.",
+      "remaining": "The repository's two integrators (Euler-Maruyama and the drift-corrected stochastic Heun scheme) were run unchanged on geometric Brownian motion against its exact solution on the same Brownian path: strong order 0.486 and 0.489 (expected 1/2 for Euler-type noise), seed-to-seed spread 0.001, and the mean of each scheme equals the closed form of what it computes within Monte Carlo error, the corrected scheme about 15-25 times closer to the exact mean. Heston's weak order is measured separately. No Milstein scheme exists to test, and Heston's strong convergence is not measured.",
       "who": "assistant"
     },
     {
@@ -630,10 +631,11 @@
       "evidence": [
         "tools/mutation_check.py",
         "tests/unit/test_mutation_catalogue.py",
-        "tests/property/test_ledger_invariants.py"
+        "tests/property/test_ledger_invariants.py",
+        ".github/workflows/mutation-check.yml"
       ],
       "evidence_level": "E2",
-      "remaining": "24 mutations across five critical modules, all caught on the CI reference profile (three real test gaps found and closed); property tests exist. Branch coverage is not measured.",
+      "remaining": "For five critical modules (ledger, Black-Scholes, risk metrics, hedging accounting, block bootstrap): 100% statement and branch coverage by their own guarding tests, enforced weekly; 24 mutations, all caught on the CI reference profile; property tests for ledger invariants and put-call parity. The mutations found three real test gaps and the branch report found untested validation and funding-schedule code, all now covered. The five modules were chosen by the assistant; the Heston and Merton pricers, the PDE solvers, calibration and the neural models are not in the catalogue.",
       "who": "assistant"
     },
     {

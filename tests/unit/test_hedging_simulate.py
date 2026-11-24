@@ -140,3 +140,60 @@ def test_a_put_pays_the_put_payoff_and_a_call_the_call_payoff() -> None:
     call = simulate_self_financing_hedge(paths, dt, strike, "call", r, 0.0, premium, ratios)
     np.testing.assert_allclose(-put.terminal_loss, carried - np.array([0.0, 0.0, 30.0]))
     np.testing.assert_allclose(-call.terminal_loss, carried - np.array([30.0, 0.0, 0.0]))
+
+
+def _no_trade(n_paths: int = 3, n_steps: int = 2):
+    paths = np.stack([np.full(n_paths, 100.0)] * (n_steps + 1), axis=1)
+    return paths, np.zeros((n_paths, n_steps))
+
+
+def test_a_funding_schedule_accrues_the_premium_interval_by_interval() -> None:
+    """With no trading the premium grows at each interval's own rate: premium * e^{sum r_t dt}."""
+    paths, ratios = _no_trade()
+    dt, premium = 0.5, 10.0
+    result = simulate_self_financing_hedge(
+        paths, dt, 100.0, "call", 0.0, 0.0, premium, ratios, funding_rates=np.array([0.02, 0.10])
+    )
+    np.testing.assert_allclose(-result.terminal_loss, premium * np.exp((0.02 + 0.10) * dt))
+    constant = simulate_self_financing_hedge(paths, dt, 100.0, "call", 0.06, 0.0, premium, ratios)
+    flat = simulate_self_financing_hedge(
+        paths, dt, 100.0, "call", 0.0, 0.0, premium, ratios, funding_rates=np.array([0.06, 0.06])
+    )
+    np.testing.assert_allclose(flat.terminal_loss, constant.terminal_loss)
+
+
+def test_a_path_by_interval_funding_schedule_gives_each_path_its_own_rates() -> None:
+    paths, ratios = _no_trade()
+    rates = np.array([[0.0, 0.0], [0.04, 0.04], [0.08, 0.08]])
+    result = simulate_self_financing_hedge(
+        paths, 1.0, 100.0, "call", 0.0, 0.0, 10.0, ratios, funding_rates=rates
+    )
+    np.testing.assert_allclose(-result.terminal_loss, 10.0 * np.exp(rates.sum(axis=1)))
+
+
+@pytest.mark.parametrize(
+    "funding",
+    [np.zeros(3), np.zeros((2, 2)), np.array([0.01, np.nan]), np.array([0.01, np.inf])],
+    ids=["wrong-length", "wrong-paths", "nan", "inf"],
+)
+def test_a_malformed_funding_schedule_is_refused(funding) -> None:
+    paths, ratios = _no_trade()
+    with pytest.raises(ValueError, match="funding_rates"):
+        simulate_self_financing_hedge(
+            paths, 0.5, 100.0, "call", 0.0, 0.0, 10.0, ratios, funding_rates=funding
+        )
+
+
+def test_a_funding_rate_that_overflows_the_accrual_is_refused_not_propagated() -> None:
+    paths, ratios = _no_trade()
+    with np.errstate(over="ignore"), pytest.raises(ValueError, match="non-finite accrual"):
+        simulate_self_financing_hedge(
+            paths, 1.0, 100.0, "call", 0.0, 0.0, 10.0, ratios, funding_rates=np.array([1e6, 1e6])
+        )
+
+
+@pytest.mark.parametrize("dt", [0.0, -0.1])
+def test_a_non_positive_time_step_is_refused(dt: float) -> None:
+    paths, ratios = _no_trade()
+    with pytest.raises(ValueError, match="dt must be positive"):
+        simulate_self_financing_hedge(paths, dt, 100.0, "call", 0.0, 0.0, 10.0, ratios)

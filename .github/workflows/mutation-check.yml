@@ -49,6 +49,16 @@ jobs:
         run: python -m pip install --require-hashes --only-binary=':all:' -r requirements/bootstrap.txt
       - name: Install the locked dependencies
         run: uv sync --locked --all-extras --group build --python 3.14.7
+      - name: Branch coverage of the five critical modules by their own tests must be 100%
+        # The tests meant to guard each module, measured on that module only, statements and branches. A
+        # new branch that nothing exercises fails here before a mutation could hide in it.
+        run: >-
+          .venv/bin/python -m pytest -q -p no:cacheprovider
+          tests/unit/test_ledger.py tests/property/test_ledger_invariants.py tests/unit/test_black_scholes.py
+          tests/unit/test_risk_metrics.py tests/unit/test_hedging_simulate.py tests/unit/test_block_bootstrap.py
+          --cov=prometheus.core.ledger --cov=prometheus.volterra.black_scholes
+          --cov=prometheus.titan.risk_metrics --cov=prometheus.hedging.simulate
+          --cov=prometheus.experiments.block_bootstrap --cov-branch --cov-fail-under=100
       - name: Inject each fault and require a test to fail
         shell: bash   # -o pipefail: `| tee` must not hide a failure
         run: .venv/bin/python tools/mutation_check.py --json "$RUNNER_TEMP/mutation.json" | tee "$RUNNER_TEMP/mutation.log"

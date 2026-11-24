@@ -287,3 +287,55 @@ def test_state_balances_are_immutable_and_detached_from_input_mapping() -> None:
     assert state.state_hash() == original
     with pytest.raises(TypeError):
         state.balances["a"] = Money(3)
+
+
+def test_postings_reject_malformed_fields() -> None:
+    one = Money(1, "USD")
+    for kwargs in (
+        {"account_id": "", "side": Side.DEBIT, "amount": one},
+        {"account_id": 7, "side": Side.DEBIT, "amount": one},
+        {"account_id": "a", "side": "debit", "amount": one},
+        {"account_id": "a", "side": Side.DEBIT, "amount": 1},
+    ):
+        with pytest.raises(ValueError):
+            Posting(**kwargs)  # type: ignore[arg-type]
+
+
+def test_accounts_reject_malformed_arguments_and_transactions_a_blank_id() -> None:
+    ledger = Ledger()
+    for args in (
+        ("", Sector.FIRM, AccountType.ASSET),
+        ("x", "firm", AccountType.ASSET),
+        ("x", Sector.FIRM, "asset"),
+    ):
+        with pytest.raises(ValueError):
+            ledger.open_account(*args)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="currency"):
+        ledger.open_account("x", Sector.FIRM, AccountType.ASSET, currency="")
+    ledger, a, b = _simple_ledger()
+    with pytest.raises(ValueError, match="transaction_id"):
+        ledger.post(
+            [Posting(a, Side.DEBIT, Money(1, "USD")), Posting(b, Side.CREDIT, Money(1, "USD"))],
+            transaction_id="",
+        )
+    assert ledger.journal == () or len(ledger.journal) == 0  # nothing was posted
+
+
+def test_a_transaction_reports_whether_each_currency_balances() -> None:
+    from prometheus.core.ledger import Transaction
+
+    def txn(debit: int, credit: int) -> Transaction:
+        postings = (
+            Posting("a", Side.DEBIT, Money(debit, "USD")),
+            Posting("b", Side.CREDIT, Money(credit, "USD")),
+        )
+        return Transaction("t", 0, "", postings)
+
+    assert txn(5, 5).is_balanced() and not txn(5, 4).is_balanced()
+
+
+def test_an_account_refuses_a_posting_in_another_currency_even_when_called_directly() -> None:
+    ledger, a, _ = _simple_ledger()
+    with pytest.raises(CurrencyMismatchError):
+        ledger.account(a)._apply(Side.DEBIT, Money(1, "EUR"))
+    assert ledger.account(a).balance == Money(0, "USD")

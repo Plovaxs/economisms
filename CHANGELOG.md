@@ -48,7 +48,7 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   (`python -m prometheus.evidence.audit_register`), with the audit's weighted score recomputed (8.118) and the
   reviewer's scores pinned: **no score is changed**, because the audit's rule is that a score moves only with
   independent evidence and nothing here is independent. Also a source manifest of the commit the audit reviewed.
-  Of the 58: 5 done, 43 partial, 1 needs the maintainer's decision (AppImage/DEB), 5 need someone outside the
+  Of the 58: 6 done, 42 partial, 1 needs the maintainer's decision (AppImage/DEB), 5 need someone outside the
   project, 4 not started.
 
 - **Documents the audit asked for:** a literature map with a scoped novelty statement (20 works, abstract-level,
@@ -80,10 +80,17 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   accounting, the number of bootstrap blocks, or the interval's percentile pair) and now have tests. A catalogue
   check runs with the ordinary tests so it cannot go stale.
 
+- **Branch coverage of the critical modules.** The five modules the mutation check targets are now covered 100% by
+  statements and branches by their own guarding tests (it was 95% for the ledger and 84% for the hedging
+  accounting: untested validation and an untested funding-schedule feature, now tested), and the weekly mutation
+  workflow fails if that drops.
+
 - **More verification.** Disk-full and I/O-error injection into the artifact store (nothing half-written is ever
   visible, no staging debris, the store is not wedged); the direct runner, the job engine and the desktop session
   give the same sealed result for the same recipe; Monte Carlo standard errors are calibrated and shrink like
-  N^(-1/2); the grid solver is second order in space, and its observed order in time is first-to-1.5 for a payoff
+  N^(-1/2); the repository's two SDE integrators, run on geometric Brownian motion against its exact solution on the
+  same Brownian path, have strong order 0.486 and 0.489 and means equal to the closed form of each scheme; the grid
+  solver is second order in space, and its observed order in time is first-to-1.5 for a payoff
   with a kink (measured and pinned, not assumed to be 2).
 
 - **Confirmatory protocol, ready to freeze (all but the maintainer's part).** A data-use audit

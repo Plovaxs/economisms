@@ -21,7 +21,7 @@ Statuses:
 - **needs_maintainer**: only the maintainer can decide or do it
 - **needs_external**: needs a person or party outside the project
 
-**58 items: 5 done, 43 partial, 1 needs maintainer, 5 needs external, 4 not started.** No item is above evidence level E2.
+**58 items: 6 done, 42 partial, 1 needs maintainer, 5 needs external, 4 not started.** No item is above evidence level E2.
 
 ## Scientific redesign (SCI)
 
@@ -40,7 +40,7 @@ Statuses:
 
 | ID | Item | Status | Level | Evidence | What is missing | Who |
 | --- | --- | --- | --- | --- | --- | --- |
-| M-01 | SDE strong/weak convergence | partial | E2 | `tests/unit/test_stochastica_convergence.py` | Weak order is measured for the one scheme with discretisation error (Heston) against its closed form. GBM and jump-diffusion are exact, so there is nothing to sweep. Strong convergence is not measured. | assistant |
+| M-01 | SDE strong/weak convergence | done | E2 | `tests/unit/test_sde_integrators_known_solution.py`<br>`tests/unit/test_stochastica_convergence.py` | The repository's two integrators (Euler-Maruyama and the drift-corrected stochastic Heun scheme) were run unchanged on geometric Brownian motion against its exact solution on the same Brownian path: strong order 0.486 and 0.489 (expected 1/2 for Euler-type noise), seed-to-seed spread 0.001, and the mean of each scheme equals the closed form of what it computes within Monte Carlo error, the corrected scheme about 15-25 times closer to the exact mean. Heston's weak order is measured separately. No Milstein scheme exists to test, and Heston's strong convergence is not measured. | assistant |
 | M-02 | Monte Carlo diagnostics | done | E2 | `tests/unit/test_numerical_verification.py` | Standard errors are calibrated (z spread 0.98-1.02, 94.5-95.3% coverage over 4,000 replications), error slope -0.505, control variate about 2.6x. Antithetic variates are not implemented. | assistant |
 | M-03 | PDE residuals | partial | E2 | `tests/unit/test_numerical_verification.py`<br>`tests/unit/test_pde_grid.py` | Closed-form comparison and observed orders (space 2.00; time 1.08-1.53 for a kinked payoff). Interior residuals and boundary/terminal errors are not measured directly. | assistant |
 | M-04 | Dimension scaling | partial | E1 | `docs/RESULTS_AND_LIMITATIONS.md` | Finding 6 measures 1D and the grid's M^d mechanism; matched-error runtime and memory at d = 2, 3 and above are not measured. | assistant |
@@ -80,7 +80,7 @@ Statuses:
 
 | ID | Item | Status | Level | Evidence | What is missing | Who |
 | --- | --- | --- | --- | --- | --- | --- |
-| Q-1 | Testing | partial | E2 | `tools/mutation_check.py`<br>`tests/unit/test_mutation_catalogue.py`<br>`tests/property/test_ledger_invariants.py` | 24 mutations across five critical modules, all caught on the CI reference profile (three real test gaps found and closed); property tests exist. Branch coverage is not measured. | assistant |
+| Q-1 | Testing | partial | E2 | `tools/mutation_check.py`<br>`tests/unit/test_mutation_catalogue.py`<br>`tests/property/test_ledger_invariants.py`<br>`.github/workflows/mutation-check.yml` | For five critical modules (ledger, Black-Scholes, risk metrics, hedging accounting, block bootstrap): 100% statement and branch coverage by their own guarding tests, enforced weekly; 24 mutations, all caught on the CI reference profile; property tests for ledger invariants and put-call parity. The mutations found three real test gaps and the branch report found untested validation and funding-schedule code, all now covered. The five modules were chosen by the assistant; the Heston and Merton pricers, the PDE solvers, calibration and the neural models are not in the catalogue. | assistant |
 | Q-2 | Cross-machine replay | partial | E1 | `docs/REPLICATION_GUIDE.md`<br>`data_cache/MANIFEST.sha256.json` | Input hashes are enforced; output replay is exact on one machine only and the guide states the tolerance policy in words. No tolerance-based replay checker, and no second machine. | external |
 | Q-3 | Security | partial | E2 | `docs/THREAT_MODEL.md`<br>`SECURITY.md`<br>`.github/workflows/security.yml`<br>`.github/workflows/release.yml` | Scanning, SBOM, a threat model, size and resource limits and an attestation step exist. No independent review; malformed-input fuzzing is limited to the existing sandbox tests. | external |
 | Q-4 | Job resilience | partial | E2 | `tests/unit/test_job_artifacts.py`<br>`tests/unit/test_job_worker.py` | Disk-full and I/O-error injection into the artifact store (nothing half-written, no debris), plus existing cancel, timeout and parent-death tests. A worker crash mid-write of the job store is not injected. | assistant |

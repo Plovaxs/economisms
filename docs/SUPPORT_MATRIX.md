@@ -7,7 +7,7 @@ keeps your results, a window on a virtual X11 display, an uninstall) on a fresh 
 | System | Architecture | Python | Display | Result | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | Ubuntu 24.04 | x86-64 | 3.12 | X11 on Xvfb | **supported, tested** (GitHub-hosted fresh VM) | `installer-smoke` workflow |
-| Debian 12 | x86-64 | 3.11 | X11 on Xvfb | **tested, one step pending**: install, checks, upgrade and uninstall ran in a fresh container; the Xvfb window step failed once because the container lacked `xauth` (a test-environment gap, since added) and has not yet re-run | `installer-smoke` workflow |
+| Debian 12 | x86-64 | 3.11 | X11 on Xvfb | **supported, tested** (fresh container; the first run found that `desktop-file-utils` 0.26 rejects `Version=1.5`, now `1.0`) | `installer-smoke` workflow |
 | Ubuntu 22.04 | x86-64 | 3.10 | n/a | **not supported**: the installer refuses cleanly, because the project needs Python 3.11 or newer | `installer-smoke` workflow |
 | Other Debian/Ubuntu releases | x86-64 | 3.11+ | | expected to work, **not tested** | none |
 | Other distributions | | | | not tested | none |
