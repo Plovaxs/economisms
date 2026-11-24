@@ -171,6 +171,13 @@ itself — the same material assembled into one abstract-to-conclusion
 document, with limitations and null/negative experiments included by
 name, not left implicit.
 
+**Checking the project rather than reading it:**
+[docs/REPLICATION_GUIDE.md](./docs/REPLICATION_GUIDE.md) says how to re-run the findings on your own machine and
+report what you got; [docs/CONFIRMATORY_PROTOCOL.md](./docs/CONFIRMATORY_PROTOCOL.md) is a draft plan for testing
+them on data this project has never used;
+[docs/audit/REGISTER.md](./docs/audit/REGISTER.md) answers a technical audit item by item, with what exists and
+what is still missing; [docs/ROADMAP.md](./docs/ROADMAP.md) says what comes next and what it will not do.
+
 ## Two editions
 
 The same engine, two front doors. Pick one; neither removes the other.

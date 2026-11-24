@@ -12,7 +12,9 @@ name: release
 #
 # What this does not do, on purpose: push a container image to a registry, sign anything, or build
 # a bundled desktop binary (that would carry Qt's LGPL obligations; see docs/LICENSE_INVENTORY.md).
-# Checksums are published so a download can be checked; they are not a signature.
+# Checksums are published so a download can be checked; they are not a signature. Each release file also
+# gets a signed build-provenance attestation (docs/release/VERIFYING.md), which is the signature-like part:
+# it ties the bytes to this workflow and commit, and says nothing about whether the code is safe.
 on:
   push:
     tags: ["v*"]
@@ -142,7 +144,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
+      # contents: create the release. id-token: mint the OIDC token for a short-lived Sigstore signing
+      # certificate. attestations: store the signed build-provenance attestation.
       contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -169,9 +175,17 @@ jobs:
             echo "- **Desktop (other systems):** from a source checkout, \`pip install -e '.[desktop,quantum]'\` then \`econosim desktop\`; jobs need Linux."
             echo "- **Web:** unpack \`econosim-web-${VERSION}.tar.gz\` and serve it with \`python -m prometheus.webgateway serve --dist dist\`, or use \`docker compose up\`."
             echo
-            echo "Verify downloads with \`sha256sum -c SHA256SUMS\`. Research software: NO-GO for trading or advice."
+            echo "Verify downloads with \`sha256sum -c SHA256SUMS\`, and where a file came from with \`gh attestation verify <file> --repo Plovaxs/economisms\` (docs/release/VERIFYING.md). Research software: NO-GO for trading or advice."
           } >> notes.md
           test -s notes.md
+      - name: Attest the build provenance of every release file
+        # A signed statement, stored by GitHub, that these exact bytes were produced by this workflow at
+        # this commit (SLSA build provenance, verifiable with `gh attestation verify`; see
+        # docs/release/VERIFYING.md). It runs BEFORE the release is created, so a failure here publishes
+        # nothing. It proves where a file came from, not that the code in it is safe.
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: assets/*
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}

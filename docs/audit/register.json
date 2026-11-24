@@ -1,0 +1,971 @@
+{
+  "format": "econosim-audit-register/1",
+  "audit": {
+    "title": "ECONOSIM Full Technical Research Audit",
+    "date": "2026-11-24",
+    "reviewed_version": "0.5.2",
+    "reviewed_commit": "05905835",
+    "nature": "documentation-based review: repository documentation and recent commit metadata, not an executed audit, source-code inspection, security test or peer review; the scores are the reviewer's judgments"
+  },
+  "evidence_levels": {
+    "E0": "proposed, no evidence",
+    "E1": "documented claim",
+    "E2": "inspectable test and artifact",
+    "E3": "independently executed on a clean environment",
+    "E4": "replicated by an external reviewer with a published protocol"
+  },
+  "statuses": {
+    "done": "the audit's gate is met, with inspectable evidence in this repository",
+    "partial": "some of the gate is met; `remaining` says what is not",
+    "not_started": "nothing yet",
+    "needs_maintainer": "only the maintainer can decide or do it",
+    "needs_external": "needs a person or party outside the project"
+  },
+  "scorecard": {
+    "formula": "sum(weight * score) / sum(weight)",
+    "rescore_rule": "The scores are the reviewer's baseline and are NOT changed here. Per the audit, re-score the 20 criteria from actual evidence after each milestone; no criterion moves toward 10 without E3 or E4 evidence for it, and nothing in this repository is E3 or E4 yet.",
+    "criteria": [
+      {
+        "id": "math_foundations",
+        "criterion": "Mathematical foundations",
+        "weight": 7,
+        "score": 9.3,
+        "what_prevents_10": "SDE, PDE, BSDE, pricing and risk models are documented; require explicit assumptions, derivations, convergence and validity domains."
+      },
+      {
+        "id": "numerical_correctness",
+        "criterion": "Numerical correctness",
+        "weight": 6,
+        "score": 8.8,
+        "what_prevents_10": "Analytic and numerical cross-checks are reported; independently rederive edge cases and test error bounds."
+      },
+      {
+        "id": "novelty",
+        "criterion": "Scientific novelty",
+        "weight": 7,
+        "score": 7.0,
+        "what_prevents_10": "Negative results and evidence discipline are valuable; novelty against prior literature is not established."
+      },
+      {
+        "id": "methodology",
+        "criterion": "Research methodology",
+        "weight": 7,
+        "score": 8.0,
+        "what_prevents_10": "Multi-seed and ablation practices; retrospective hypothesis freeze limits confirmatory claims."
+      },
+      {
+        "id": "statistics",
+        "criterion": "Statistical rigor",
+        "weight": 6,
+        "score": 7.5,
+        "what_prevents_10": "Bootstrap and proper scoring reported; dependence-aware inference, power, multiplicity and equivalence need explicit audits."
+      },
+      {
+        "id": "economic_validity",
+        "criterion": "Economic validity",
+        "weight": 5,
+        "score": 7.5,
+        "what_prevents_10": "Real indicators and accounting framework; synthetic economy and calibration assumptions limit external validity."
+      },
+      {
+        "id": "dataset_quality",
+        "criterion": "Dataset quality",
+        "weight": 5,
+        "score": 7.5,
+        "what_prevents_10": "Verified snapshots; historical vintages, licensing and international harmonization need broader coverage."
+      },
+      {
+        "id": "leakage",
+        "criterion": "Leakage prevention",
+        "weight": 5,
+        "score": 8.5,
+        "what_prevents_10": "GDP look-ahead corrected; independently audit every feature release timestamp and preprocessing step."
+      },
+      {
+        "id": "benchmarks",
+        "criterion": "Benchmark quality",
+        "weight": 5,
+        "score": 8.0,
+        "what_prevents_10": "Strong negative-result culture; budget-match and use independent baselines per task."
+      },
+      {
+        "id": "generalizability",
+        "criterion": "Generalizability",
+        "weight": 5,
+        "score": 6.8,
+        "what_prevents_10": "Multiple datasets in some tasks, but shock-specific and small-sample findings require new holdouts."
+      },
+      {
+        "id": "architecture",
+        "criterion": "Software architecture",
+        "weight": 5,
+        "score": 9.0,
+        "what_prevents_10": "Separated engine, job queue, web gateway and Qt UI; validate boundaries, migrations and extension contracts."
+      },
+      {
+        "id": "code_quality",
+        "criterion": "Code quality",
+        "weight": 4,
+        "score": 9.2,
+        "what_prevents_10": "Strict typing and lint reported; full code audit and complexity hotspot review not performed."
+      },
+      {
+        "id": "testing",
+        "criterion": "Automated testing",
+        "weight": 5,
+        "score": 9.3,
+        "what_prevents_10": "Large suite and mutation checks reported; test count is not coverage of independent failure modes."
+      },
+      {
+        "id": "reproducibility",
+        "criterion": "Reproducibility",
+        "weight": 5,
+        "score": 9.0,
+        "what_prevents_10": "Pinned dependencies, hashes and replay; cross-machine floating-point variation requires tolerance policy."
+      },
+      {
+        "id": "security",
+        "criterion": "Security architecture",
+        "weight": 4,
+        "score": 8.5,
+        "what_prevents_10": "Threat model, scanning, TLS and least privilege documented; external assessment and signing remain gates."
+      },
+      {
+        "id": "documentation",
+        "criterion": "Documentation",
+        "weight": 4,
+        "score": 9.4,
+        "what_prevents_10": "Research limitations, PR ledger and guides; sync version-sensitive claims and verify onboarding."
+      },
+      {
+        "id": "linux_distribution",
+        "criterion": "Linux distribution",
+        "weight": 4,
+        "score": 8.0,
+        "what_prevents_10": "Source installer headless check reported; AppImage/DEB assets and independent graphical install not verified."
+      },
+      {
+        "id": "ux",
+        "criterion": "User experience",
+        "weight": 3,
+        "score": 8.0,
+        "what_prevents_10": "Labs, explorers, findings and history documented; evaluate task completion with new users."
+      },
+      {
+        "id": "performance",
+        "criterion": "Computational performance",
+        "weight": 3,
+        "score": 8.0,
+        "what_prevents_10": "Scaling comparisons reported; profile CPU/GPU, RAM, cancellation and regression budgets."
+      },
+      {
+        "id": "independent_validation",
+        "criterion": "Independent validation",
+        "weight": 5,
+        "score": 5.5,
+        "what_prevents_10": "Single maintainer; external reproduction, review and usability evidence are the largest gap."
+      }
+    ]
+  },
+  "items": [
+    {
+      "id": "SCI-01",
+      "group": "science",
+      "title": "Literature map and research gap",
+      "gate": "Search protocol, inclusion criteria, comparator matrix and scoped novelty statement.",
+      "status": "partial",
+      "evidence": [
+        "docs/LITERATURE_MAP.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "A draft protocol, a 20-work comparator matrix and a scoped novelty statement exist (abstract-level, web lookups). The protocol has not been run: no database search, screening or full-text reading.",
+      "who": "external"
+    },
+    {
+      "id": "SCI-02",
+      "group": "science",
+      "title": "Prospective protocol",
+      "gate": "Timestamped hypotheses, endpoints, data splits, budgets and stopping rules before fresh outcomes.",
+      "status": "partial",
+      "evidence": [
+        "docs/CONFIRMATORY_PROTOCOL.md",
+        "docs/confirmatory/DATA_USE_AUDIT.md",
+        "docs/confirmatory/power_note.json",
+        "src/prometheus/confirmatory/freeze.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Draft is complete except the maintainer's part: confirm every margin, choose the S&P source, decide the multiplicity family, design E4, freeze and anchor externally (OSF or a DOI). Binds nothing until then.",
+      "who": "maintainer"
+    },
+    {
+      "id": "SCI-03",
+      "group": "science",
+      "title": "Temporal holdout",
+      "gate": "No test-period fitting, tuning, feature selection or calibration; audit split manifests.",
+      "status": "partial",
+      "evidence": [
+        "docs/confirmatory/DATA_USE_AUDIT.md",
+        "tests/unit/test_confirmatory_e3.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "E1-E3 are covered: frozen pipelines, a data-use audit, a guard on untouched data, and a differential test that E3's forecaster equals the study's. Split manifests of the older studies have not been audited.",
+      "who": "maintainer"
+    },
+    {
+      "id": "SCI-04",
+      "group": "science",
+      "title": "Statistical analysis",
+      "gate": "Paired effect sizes, dependence-aware CIs, justified multiplicity control; report nulls.",
+      "status": "partial",
+      "evidence": [
+        "src/prometheus/confirmatory/intervals.py",
+        "docs/confirmatory/power_note.json",
+        "tests/unit/test_confirmatory_intervals.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Paired block-bootstrap intervals, Bonferroni, equivalence margins, exact binomial intervals and power notes exist for the confirmatory endpoints. No Diebold-Mariano test; the earlier findings use no multiplicity control.",
+      "who": "assistant"
+    },
+    {
+      "id": "SCI-05",
+      "group": "science",
+      "title": "Robustness",
+      "gate": "Preselect multiple crises and independent countries/markets where suitable; report per-event results.",
+      "status": "not_started",
+      "evidence": [
+        "docs/CONFIRMATORY_PROTOCOL.md"
+      ],
+      "evidence_level": "E0",
+      "remaining": "E4 (neural SDE under several shocks) is left open on purpose pending a data-use audit; one country and one market throughout.",
+      "who": "maintainer"
+    },
+    {
+      "id": "SCI-06",
+      "group": "science",
+      "title": "External replication",
+      "gate": "At least two external reviewers execute selected frozen findings and publish discrepancies.",
+      "status": "needs_external",
+      "evidence": [
+        "docs/REPLICATION_GUIDE.md",
+        ".github/ISSUE_TEMPLATE/replication-report.yml"
+      ],
+      "evidence_level": "E1",
+      "remaining": "The guide and the report form exist. No one else has run anything.",
+      "who": "external"
+    },
+    {
+      "id": "SCI-07",
+      "group": "science",
+      "title": "Economic validity",
+      "gate": "Domain reviewer assesses assumptions, mechanisms, units and limitations.",
+      "status": "needs_external",
+      "evidence": [],
+      "evidence_level": "E0",
+      "remaining": "Needs a domain economist; nothing here can stand in for one.",
+      "who": "external"
+    },
+    {
+      "id": "SCI-08",
+      "group": "science",
+      "title": "Publication package",
+      "gate": "Paper, immutable release, datasets or acquisition recipes, scripts, results and limitations.",
+      "status": "partial",
+      "evidence": [
+        "CITATION.cff",
+        "docs/FINAL_PAPER.md",
+        "docs/release/VERIFYING.md",
+        "confirmatory_data/README.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "CITATION.cff, tagged releases with checksums, an SBOM, locked confirmatory data and a draft paper exist. No DOI (the maintainer must connect an archive) and no submitted paper.",
+      "who": "maintainer"
+    },
+    {
+      "id": "M-01",
+      "group": "math",
+      "title": "SDE strong/weak convergence",
+      "gate": "Known solutions; step-size sweeps with expected rates and uncertainty.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_stochastica_convergence.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Weak order is measured for the one scheme with discretisation error (Heston) against its closed form. GBM and jump-diffusion are exact, so there is nothing to sweep. Strong convergence is not measured.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-02",
+      "group": "math",
+      "title": "Monte Carlo diagnostics",
+      "gate": "Independent seeds; error scaling and variance-reduction comparison.",
+      "status": "done",
+      "evidence": [
+        "tests/unit/test_numerical_verification.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Standard errors are calibrated (z spread 0.98-1.02, 94.5-95.3% coverage over 4,000 replications), error slope -0.505, control variate about 2.6x. Antithetic variates are not implemented.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-03",
+      "group": "math",
+      "title": "PDE residuals",
+      "gate": "Boundary/terminal errors, interior residuals and analytic references.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_numerical_verification.py",
+        "tests/unit/test_pde_grid.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Closed-form comparison and observed orders (space 2.00; time 1.08-1.53 for a kinked payoff). Interior residuals and boundary/terminal errors are not measured directly.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-04",
+      "group": "math",
+      "title": "Dimension scaling",
+      "gate": "Compare runtime, memory and error at d=1,2,3 and higher where feasible.",
+      "status": "partial",
+      "evidence": [
+        "docs/RESULTS_AND_LIMITATIONS.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Finding 6 measures 1D and the grid's M^d mechanism; matched-error runtime and memory at d = 2, 3 and above are not measured.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-05",
+      "group": "math",
+      "title": "Option constraints",
+      "gate": "Bounds, parity, monotonicity where applicable; Greeks via independent differentiation.",
+      "status": "done",
+      "evidence": [
+        "tests/unit/test_black_scholes.py",
+        "tests/unit/test_greeks_fd.py",
+        "tests/property/test_metamorphic_suite.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Bounds, put-call parity (Black-Scholes, Heston, Merton), monotonicity, and Greeks against finite differences are tested; mutation check covers the closed forms.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-06",
+      "group": "math",
+      "title": "Economy invariants",
+      "gate": "Double-entry balances, conservation and explicit handling of external flows.",
+      "status": "done",
+      "evidence": [
+        "tests/property/test_ledger_invariants.py",
+        "tests/unit/test_ledger.py",
+        "tools/mutation_check.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Property tests plus six ledger mutations, each caught.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-07",
+      "group": "math",
+      "title": "Risk validation",
+      "gate": "VaR/ES exceedances, conditional coverage, dependence and tail diagnostics.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_risk_metrics.py",
+        "tests/unit/test_confirmatory_e3.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Kupiec, Christoffersen and conditional coverage, pinball and QLIKE losses exist and are tested; six risk-metric mutations are caught. Tail dependence and stress regimes are not diagnosed beyond Finding 15.",
+      "who": "assistant"
+    },
+    {
+      "id": "M-08",
+      "group": "math",
+      "title": "Sensitivity",
+      "gate": "Parameter identifiability, solver tolerance and stress regimes; publish failure domains.",
+      "status": "partial",
+      "evidence": [
+        "src/prometheus/volterra/identifiability.py"
+      ],
+      "evidence_level": "E1",
+      "remaining": "An identifiability module and a multi-solver study exist; failure domains are not published.",
+      "who": "assistant"
+    },
+    {
+      "id": "D-01",
+      "group": "data",
+      "title": "Dataset registry",
+      "gate": "Source, license, units, frequency, vintage, checksum and transformation lineage.",
+      "status": "partial",
+      "evidence": [
+        "docs/data/dataset_registry.json",
+        "src/prometheus/data_ingestion/dataset_registry.py",
+        "tests/unit/test_dataset_registry.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Generated from the files, drift-tested. One snapshot (ff3_monthly_snapshot.csv) has no metadata file; units are only as declared in the metadata.",
+      "who": "maintainer"
+    },
+    {
+      "id": "D-02",
+      "group": "data",
+      "title": "Release-aware alignment",
+      "gate": "Availability timestamp <= prediction timestamp for every feature.",
+      "status": "partial",
+      "evidence": [
+        "src/prometheus/econosim/pit.py",
+        "docs/DATA_DICTIONARY.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "A fixed-lag point-in-time convention with leak tests exists; a per-feature audit is not automated. The GDP look-ahead is the proof that one was needed.",
+      "who": "external"
+    },
+    {
+      "id": "D-03",
+      "group": "data",
+      "title": "Historical vintages",
+      "gate": "Use ALFRED or original release archives where available; label revised-only series.",
+      "status": "partial",
+      "evidence": [
+        "docs/data/dataset_registry.json"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Every snapshot is labelled revised-only in the registry. ALFRED is not reachable from the development environment, so no real-time vintage was used.",
+      "who": "maintainer"
+    },
+    {
+      "id": "D-04",
+      "group": "data",
+      "title": "Pipeline isolation",
+      "gate": "Fit scalers/imputers only on training windows; audit joins and target shifts.",
+      "status": "partial",
+      "evidence": [
+        "src/prometheus/orchestration/market_risk_study.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Chronological splits and a per-forecaster leak test exist in the studies that have them; no repository-wide audit.",
+      "who": "external"
+    },
+    {
+      "id": "D-05",
+      "group": "data",
+      "title": "Cross-market validation",
+      "gate": "US plus justified external markets; consistent definitions and currency handling.",
+      "status": "not_started",
+      "evidence": [],
+      "evidence_level": "E0",
+      "remaining": "US data only.",
+      "who": "maintainer"
+    },
+    {
+      "id": "D-06",
+      "group": "data",
+      "title": "Data QA",
+      "gate": "Missingness, outliers, revisions, duplicate timestamps and schema drift reports.",
+      "status": "partial",
+      "evidence": [
+        "docs/data/data_qa_report.json",
+        "tests/unit/test_dataset_registry.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Missingness, outliers, duplicate and out-of-order dates, gaps and header drift are reported and pinned; revisions are quantified only for CPI (the vintage overlap).",
+      "who": "assistant"
+    },
+    {
+      "id": "D-07",
+      "group": "data",
+      "title": "Independent leakage review",
+      "gate": "Rebuild selected snapshots from raw source and compare values and dates.",
+      "status": "needs_external",
+      "evidence": [
+        "docs/confirmatory/DATA_USE_AUDIT.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "The assistant audited the confirmatory windows; an independent rebuild from raw data is not done.",
+      "who": "external"
+    },
+    {
+      "id": "D-08",
+      "group": "data",
+      "title": "Immutable artifacts",
+      "gate": "Versioned manifests; reproducible acquisition recipes for nonredistributable data.",
+      "status": "partial",
+      "evidence": [
+        "data_cache/MANIFEST.sha256.json",
+        "confirmatory_data/README.md",
+        "src/prometheus/confirmatory/bls_fetch.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "A digest manifest with an integrity check, locked confirmatory data and a write-once fetch tool exist; Kaggle acquisition needs the maintainer's token.",
+      "who": "maintainer"
+    },
+    {
+      "id": "L-01",
+      "group": "linux",
+      "title": "AppImage + DEB",
+      "gate": "CI produces actual versioned assets; verify checksums and installation from published files.",
+      "status": "needs_maintainer",
+      "evidence": [
+        "scripts/install-linux.sh"
+      ],
+      "evidence_level": "E0",
+      "remaining": "Not built, and not built on purpose: the application bundles PyTorch and Qt (a bundle runs to gigabytes), Qt's LGPL would then bind the project to shipping its source and license terms, glibc compatibility cannot be tested here, and the audit itself says to avoid extra formats until needed. The maintainer decides.",
+      "who": "maintainer"
+    },
+    {
+      "id": "L-02",
+      "group": "linux",
+      "title": "Support matrix",
+      "gate": "Test selected Ubuntu/Debian versions, x86-64, X11 and Wayland; publish exact environments.",
+      "status": "partial",
+      "evidence": [
+        "docs/SUPPORT_MATRIX.md",
+        ".github/workflows/installer-smoke.yml"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Ubuntu 22.04 (clean refusal: Python 3.10), Ubuntu 24.04 and Debian 12 on x86-64, X11 via Xvfb. No Wayland, no Arm.",
+      "who": "assistant"
+    },
+    {
+      "id": "L-03",
+      "group": "linux",
+      "title": "Clean install",
+      "gate": "Fresh VM and independent physical machine; no developer environment assumptions.",
+      "status": "partial",
+      "evidence": [
+        ".github/workflows/installer-smoke.yml",
+        "scripts/installer-smoke.sh"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Fresh GitHub-hosted VMs and a container, every run. No independent physical machine.",
+      "who": "external"
+    },
+    {
+      "id": "L-04",
+      "group": "linux",
+      "title": "CPU / optional CUDA",
+      "gate": "CPU runs all supported labs; GPU compatibility and fallback documented.",
+      "status": "partial",
+      "evidence": [
+        "scripts/install-linux.sh"
+      ],
+      "evidence_level": "E1",
+      "remaining": "The installer uses the CPU build of PyTorch and every lab runs on it. CUDA is not validated and not documented as supported.",
+      "who": "maintainer"
+    },
+    {
+      "id": "L-05",
+      "group": "linux",
+      "title": "Offline workflow",
+      "gate": "Bundled datasets/dependencies or documented offline installer; clearly flag network-only tasks.",
+      "status": "not_started",
+      "evidence": [],
+      "evidence_level": "E0",
+      "remaining": "The installer needs the network (PyTorch and others). The datasets are committed, so the labs themselves run offline once installed; this is not documented as a workflow.",
+      "who": "assistant"
+    },
+    {
+      "id": "L-06",
+      "group": "linux",
+      "title": "Upgrade and uninstall",
+      "gate": "Preserve user experiments; safe rollback; no unrelated file removal.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_install_script.py",
+        "scripts/installer-smoke.sh"
+      ],
+      "evidence_level": "E2",
+      "remaining": "A data-loss hazard (the installer used the application's results directory as its own) was found and fixed; upgrade keeping results and a clean uninstall are tested on fresh VMs. No rollback to the previous version.",
+      "who": "assistant"
+    },
+    {
+      "id": "L-07",
+      "group": "linux",
+      "title": "Desktop reliability",
+      "gate": "Launch from menu, run lab, cancel, export, reopen; recover after crash.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_desktop_session.py",
+        "tests/unit/test_job_worker.py",
+        "scripts/installer-smoke.sh"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Offscreen tests cover run, cancel, export, reopen and crash recovery; the window runs 20 s on Xvfb. Launch from a real menu and desktop icon has not been observed on a real desktop.",
+      "who": "external"
+    },
+    {
+      "id": "L-08",
+      "group": "linux",
+      "title": "Release integrity",
+      "gate": "SBOM, SHA-256, signed artifacts or provenance attestations; verification guide.",
+      "status": "partial",
+      "evidence": [
+        "docs/release/VERIFYING.md",
+        ".github/workflows/release.yml",
+        "docs/release/dependency-sbom.cdx.json"
+      ],
+      "evidence_level": "E1",
+      "remaining": "SBOM and SHA-256 are published; a signed build-provenance attestation step and a verification guide are in place and have not yet run on a real release.",
+      "who": "maintainer"
+    },
+    {
+      "id": "L-09",
+      "group": "linux",
+      "title": "Accessibility",
+      "gate": "Keyboard navigation, contrast, screen-size checks and useful error reporting.",
+      "status": "partial",
+      "evidence": [
+        "docs/UIX_ACCESSIBILITY_TEST_PLAN.md",
+        "tests/unit/test_desktop_ui_window.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Accessible names, focus and computed contrast are tested; no assistive-technology or user testing.",
+      "who": "external"
+    },
+    {
+      "id": "Q-1",
+      "group": "quality",
+      "title": "Testing",
+      "gate": "Branch coverage for critical modules; targeted mutation tests; property tests for numerical and ledger invariants; tests catch intentionally introduced faults.",
+      "status": "partial",
+      "evidence": [
+        "tools/mutation_check.py",
+        "tests/unit/test_mutation_catalogue.py",
+        "tests/property/test_ledger_invariants.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "24 mutations across five critical modules, all caught on the CI reference profile (three real test gaps found and closed); property tests exist. Branch coverage is not measured.",
+      "who": "assistant"
+    },
+    {
+      "id": "Q-2",
+      "group": "quality",
+      "title": "Cross-machine replay",
+      "gate": "Exact hashes for immutable inputs and tolerance-based numerical outputs; replay on distinct machines.",
+      "status": "partial",
+      "evidence": [
+        "docs/REPLICATION_GUIDE.md",
+        "data_cache/MANIFEST.sha256.json"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Input hashes are enforced; output replay is exact on one machine only and the guide states the tolerance policy in words. No tolerance-based replay checker, and no second machine.",
+      "who": "external"
+    },
+    {
+      "id": "Q-3",
+      "group": "quality",
+      "title": "Security",
+      "gate": "Dependency scanning and SBOM; signed or attested releases; malformed inputs and resource limits; independent threat-model review.",
+      "status": "partial",
+      "evidence": [
+        "docs/THREAT_MODEL.md",
+        "SECURITY.md",
+        ".github/workflows/security.yml",
+        ".github/workflows/release.yml"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Scanning, SBOM, a threat model, size and resource limits and an attestation step exist. No independent review; malformed-input fuzzing is limited to the existing sandbox tests.",
+      "who": "external"
+    },
+    {
+      "id": "Q-4",
+      "group": "quality",
+      "title": "Job resilience",
+      "gate": "Inject worker failure and disk-full conditions; cancel jobs; atomic artifacts; recoverable histories.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_job_artifacts.py",
+        "tests/unit/test_job_worker.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Disk-full and I/O-error injection into the artifact store (nothing half-written, no debris), plus existing cancel, timeout and parent-death tests. A worker crash mid-write of the job store is not injected.",
+      "who": "assistant"
+    },
+    {
+      "id": "Q-5",
+      "group": "quality",
+      "title": "API / desktop parity",
+      "gate": "Identical configs on CLI, desktop and web backend; compare normalized scientific outputs.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_surface_parity.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "The direct runner, the job engine behind the web API and the desktop session give the same sealed result on two recipes. The HTTP layer itself and the CLI wrapper are not in the comparison.",
+      "who": "assistant"
+    },
+    {
+      "id": "Q-6",
+      "group": "quality",
+      "title": "Usability",
+      "gate": "Five new users complete install, experiment, comparison and export without maintainer intervention.",
+      "status": "needs_external",
+      "evidence": [
+        "docs/REPLICATION_GUIDE.md"
+      ],
+      "evidence_level": "E0",
+      "remaining": "Needs five people. The replication form asks for friction notes.",
+      "who": "external"
+    },
+    {
+      "id": "Q-7",
+      "group": "quality",
+      "title": "Research export",
+      "gate": "Machine-readable config, provenance, metrics and plots; publication-ready formats; round-trip import.",
+      "status": "partial",
+      "evidence": [
+        "docs/EXPERIMENT_GUIDE.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Results export with sealed manifests; round-trip import and publication-ready plot formats are not verified here.",
+      "who": "maintainer"
+    },
+    {
+      "id": "Q-8",
+      "group": "quality",
+      "title": "Maintainability",
+      "gate": "Extension points, schema migrations and release compatibility; complexity hotspots and stale documentation.",
+      "status": "partial",
+      "evidence": [
+        "docs/EXTENSION_POINTS.md",
+        "docs/release/RELEASE_RUNBOOK.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Extension points, compatibility and the release runbook are written down. The job store has no migrations (it refuses any other schema version); no complexity review.",
+      "who": "maintainer"
+    },
+    {
+      "id": "RM-0",
+      "group": "roadmap",
+      "title": "M0 / freeze",
+      "gate": "Pin release and record audit baseline: commit SHA, source manifest, issue register and score rubric.",
+      "status": "done",
+      "evidence": [
+        "docs/audit/BASELINE.md",
+        "docs/audit/register.json",
+        "docs/audit/REGISTER.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "The audited commit, a source manifest, this register and the score rubric (with a recomputation test) are committed.",
+      "who": "assistant"
+    },
+    {
+      "id": "RM-1",
+      "group": "roadmap",
+      "title": "M1 / reliability",
+      "gate": "Independent leakage checks, replay tolerance, critical path tests.",
+      "status": "partial",
+      "evidence": [
+        "docs/data/data_qa_report.json",
+        "tests/unit/test_surface_parity.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Data QA, the data-use audit, resilience and parity tests exist; independent checks and cross-machine replay do not.",
+      "who": "external"
+    },
+    {
+      "id": "RM-2",
+      "group": "roadmap",
+      "title": "M2 / science",
+      "gate": "Preregister and run confirmatory experiments.",
+      "status": "partial",
+      "evidence": [
+        "docs/CONFIRMATORY_PROTOCOL.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Everything up to the freeze is built; nothing has been preregistered or run on untouched data.",
+      "who": "maintainer"
+    },
+    {
+      "id": "RM-3",
+      "group": "roadmap",
+      "title": "M3 / math",
+      "gate": "Convergence, error and compute benchmarks.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_numerical_verification.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Monte Carlo and grid-solver rates measured; strong convergence and dimension scaling are not.",
+      "who": "assistant"
+    },
+    {
+      "id": "RM-4",
+      "group": "roadmap",
+      "title": "M4 / desktop",
+      "gate": "AppImage/DEB, Linux matrix, recovery and UX.",
+      "status": "partial",
+      "evidence": [
+        ".github/workflows/installer-smoke.yml",
+        "docs/SUPPORT_MATRIX.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Linux matrix and clean-install evidence exist; AppImage/DEB not built (maintainer's decision); no user task results.",
+      "who": "maintainer"
+    },
+    {
+      "id": "RM-5",
+      "group": "roadmap",
+      "title": "M5 / release",
+      "gate": "Security review, provenance, documentation.",
+      "status": "partial",
+      "evidence": [
+        "docs/release/VERIFYING.md",
+        ".github/workflows/release.yml",
+        "docs/release/RELEASE_RUNBOOK.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Attestation step, verification guide and runbook written; no independent security review; the attestation has not yet run on a release.",
+      "who": "maintainer"
+    },
+    {
+      "id": "RM-6",
+      "group": "roadmap",
+      "title": "M6 / dissemination",
+      "gate": "External replication, citation and archival release.",
+      "status": "partial",
+      "evidence": [
+        "CITATION.cff",
+        "docs/REPLICATION_GUIDE.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Citation metadata and the replication package exist; no archival DOI, no external reports, no paper submission.",
+      "who": "maintainer"
+    },
+    {
+      "id": "R-1",
+      "group": "risk",
+      "title": "Undetected temporal leakage (Critical)",
+      "gate": "Independent raw-data rebuild; data reviewer.",
+      "status": "needs_external",
+      "evidence": [
+        "docs/confirmatory/DATA_USE_AUDIT.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "Open. The audit found one real exposure (INFLATIONCAST already scored the 2023-2026 CPI) but is the assistant's, not independent.",
+      "who": "external"
+    },
+    {
+      "id": "R-2",
+      "group": "risk",
+      "title": "Post-hoc model selection (High)",
+      "gate": "Prospective freeze and untouched holdout; research lead.",
+      "status": "partial",
+      "evidence": [
+        "docs/CONFIRMATORY_PROTOCOL.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Mitigation built (frozen pipelines, guard, locked data); active only after the freeze.",
+      "who": "maintainer"
+    },
+    {
+      "id": "R-3",
+      "group": "risk",
+      "title": "False equivalence claim (High)",
+      "gate": "Predeclared margin and power analysis; statistics reviewer.",
+      "status": "partial",
+      "evidence": [
+        "src/prometheus/confirmatory/intervals.py",
+        "docs/confirmatory/power_note.json"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Margins and power notes exist; a statistics reviewer has not seen them.",
+      "who": "external"
+    },
+    {
+      "id": "R-4",
+      "group": "risk",
+      "title": "Weak generalization (High)",
+      "gate": "Multiple events and independent markets; research lead.",
+      "status": "not_started",
+      "evidence": [],
+      "evidence_level": "E0",
+      "remaining": "One market, one country; E4 open.",
+      "who": "maintainer"
+    },
+    {
+      "id": "R-5",
+      "group": "risk",
+      "title": "Shared test/code blind spot (High)",
+      "gate": "Independent derivation and differential testing; external reviewer.",
+      "status": "partial",
+      "evidence": [
+        "tests/unit/test_confirmatory_e3.py",
+        "tests/unit/test_confirmatory_e2.py",
+        "tools/mutation_check.py"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Differential tests against the studies' own code and mutation checks (which found real gaps) exist; no external derivation.",
+      "who": "external"
+    },
+    {
+      "id": "R-6",
+      "group": "risk",
+      "title": "Linux installation failure (High)",
+      "gate": "Fresh machine matrix and artifact tests; release maintainer.",
+      "status": "partial",
+      "evidence": [
+        ".github/workflows/installer-smoke.yml"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Fresh-VM matrix runs on every installer change and weekly; it already found a Debian-12 validator error and a data-loss hazard.",
+      "who": "maintainer"
+    },
+    {
+      "id": "R-7",
+      "group": "risk",
+      "title": "Misinterpreted demo outputs (Medium)",
+      "gate": "Persistent recorded-data label; reject unsupported inputs; UI maintainer.",
+      "status": "done",
+      "evidence": [
+        "frontend/src/demo/demo.ts",
+        "frontend/src/demo/demo.test.ts"
+      ],
+      "evidence_level": "E2",
+      "remaining": "A banner on every page and refusal of settings that were not recorded, tested against the real recording.",
+      "who": "assistant"
+    },
+    {
+      "id": "R-8",
+      "group": "risk",
+      "title": "Supply-chain compromise (High)",
+      "gate": "Attestation, dependency review and secret scanning; release maintainer.",
+      "status": "partial",
+      "evidence": [
+        ".github/workflows/security.yml",
+        ".github/workflows/release.yml",
+        "docs/release/VERIFYING.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "Hash-locked dependencies, pinned actions, scanning and a secret scan exist; attestation is in place but unproven until a release.",
+      "who": "maintainer"
+    },
+    {
+      "id": "R-9",
+      "group": "risk",
+      "title": "Single-maintainer dependence (High)",
+      "gate": "Contributor guide, external reviewer, reproducible release runbook.",
+      "status": "partial",
+      "evidence": [
+        "CONTRIBUTING.md",
+        "docs/release/RELEASE_RUNBOOK.md",
+        "docs/REPLICATION_GUIDE.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "A contributor guide, a release runbook and a replication guide exist. There is still one maintainer and no external reviewer.",
+      "who": "external"
+    },
+    {
+      "id": "R-10",
+      "group": "risk",
+      "title": "Scope creep (High)",
+      "gate": "Feature freeze, research-driven backlog and explicit non-goals; maintainer.",
+      "status": "partial",
+      "evidence": [
+        "docs/ROADMAP.md"
+      ],
+      "evidence_level": "E1",
+      "remaining": "A written freeze policy and the audit's non-goals are in the roadmap; whether it holds is the maintainer's discipline.",
+      "who": "maintainer"
+    }
+  ]
+}

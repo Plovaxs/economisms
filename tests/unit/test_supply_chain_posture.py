@@ -91,13 +91,17 @@ def test_only_codeql_and_the_release_publish_job_may_write_anything() -> None:
         if path.name == "codeql.yml":
             assert writes == ["security-events"], writes
         elif path.name == "release.yml":
-            # one write, `contents`, in the one job that publishes, which runs for a tag only
-            assert writes == ["contents"], writes
+            # `contents` to create the release, and `id-token` + `attestations` to sign its build
+            # provenance, all in the one job that publishes, which runs for a tag only
+            assert sorted(writes) == ["attestations", "contents", "id-token"], writes
             jobs = _jobs(path.read_text())
-            owners = [
-                n for n, b in jobs.items() if any(re.search(r"contents:\s*write", x) for x in b)
-            ]
-            assert owners == ["publish"], owners
+            for permission in ("contents", "id-token", "attestations"):
+                owners = [
+                    n
+                    for n, b in jobs.items()
+                    if any(re.search(rf"{permission}:\s*write", x) for x in b)
+                ]
+                assert owners == ["publish"], (permission, owners)
             assert any("github.ref_type == 'tag'" in x for x in jobs["publish"]), "only for a tag"
         else:
             assert writes == [], (path.name, writes)

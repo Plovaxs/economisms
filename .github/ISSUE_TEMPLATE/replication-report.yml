@@ -1,0 +1,75 @@
+name: Replication report
+description: You ran part of this project on your own machine and want to report what you got, matching or not.
+title: "Replication: <what you ran>"
+labels: ["replication"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. A replication report is useful whether or not the numbers matched. Please follow
+        [docs/REPLICATION_GUIDE.md](../blob/main/docs/REPLICATION_GUIDE.md) and paste real output, not a summary.
+        This project is research software: no part of it is advice, and nothing here is reviewed independently
+        yet, so an honest "this did not reproduce" is the most valuable report.
+  - type: dropdown
+    id: independence
+    attributes:
+      label: Are you independent of the maintainer?
+      description: Independent means you did not write or review the code or the findings you are checking.
+      options:
+        - "Yes, independent"
+        - "No, I contributed to the project"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit
+      placeholder: "v0.5.3 or a commit hash"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Python version, CPU/GPU, and how you installed it (installer, source checkout, other).
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `econosim doctor`
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: ran
+    attributes:
+      label: What you ran
+      description: The exact commands, in order.
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - "Everything matched"
+        - "Matched, with differences in the last digits"
+        - "Some numbers or conclusions did not match"
+        - "It did not run"
+    validations:
+      required: true
+  - type: textarea
+    id: numbers
+    attributes:
+      label: The numbers
+      description: What the documentation says you should get, and what you got. Paste the real output.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Anything that confused you or took longer than the guide says
+      description: Install problems, unclear steps, time spent. This is the usability evidence the project lacks.

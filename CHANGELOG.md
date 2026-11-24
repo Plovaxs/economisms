@@ -42,6 +42,24 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   and Debian 12 machines, and on Ubuntu 22.04 (Python 3.10) to check the installer refuses cleanly. Not Wayland, a
   physical display, or an offline install. It passed locally on Ubuntu 24.04 before it was added.
 
+- **An audit response register** (`docs/audit/`): the 24 November 2026 technical audit's 58 work packages, risks
+  and milestones, each with a status (done, partial, needs the maintainer, needs someone outside, not started),
+  the files that are its evidence and what is missing; validated and rendered from data
+  (`python -m prometheus.evidence.audit_register`), with the audit's weighted score recomputed (8.118) and the
+  reviewer's scores pinned: **no score is changed**, because the audit's rule is that a score moves only with
+  independent evidence and nothing here is independent. Also a source manifest of the commit the audit reviewed.
+  Of the 58: 5 done, 43 partial, 1 needs the maintainer's decision (AppImage/DEB), 5 need someone outside the
+  project, 4 not started.
+
+- **Documents the audit asked for:** a literature map with a scoped novelty statement (20 works, abstract-level,
+  not a systematic review; `docs/LITERATURE_MAP.md`), a replication guide and a replication-report issue form, a
+  roadmap with a feature freeze and the audit's non-goals, a release runbook, extension points and
+  compatibility, a support matrix, and a guide to verifying a release.
+
+- **Build-provenance attestation in the release workflow** (`actions/attest`, pinned): each release file gets a
+  signed SLSA provenance attestation, verifiable with `gh attestation verify`, created before the release so a
+  failure publishes nothing. **Unproven until the next release runs it.**
+
 - **The first real run of the clean-machine test found two things.** The desktop entry said `Version=1.5`, which
   `desktop-file-utils` 0.26 (Debian 12) rejects as an unknown spec version; it now says `Version=1.0`, accepted
   everywhere. And the workflow's own `| tee` hid a failing step (a state directory the application rightly refused
