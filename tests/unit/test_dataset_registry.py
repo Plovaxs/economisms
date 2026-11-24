@@ -55,8 +55,8 @@ def test_no_snapshot_has_a_provenance_gap_and_the_french_factors_were_verified_a
     None
 ):
     """The registry once found that `ff3_monthly_snapshot.csv` had no `.meta.json`. Its
-    metadata says what is known and what is not: the download date was not recorded, but every month was compared
-    with the library's own file on 2026-11-25 and all 1,203 matched."""
+    metadata says what is known and what is not: the download date was not recorded, but every
+    month was compared with the library's own file on 2026-11-25 and all 1,203 matched."""
     entries = build_registry()["datasets"]
     assert [e["file"] for e in entries if e["registry_gaps"]] == []
     meta = json.loads((DATA / "ff3_monthly_snapshot.meta.json").read_text())
