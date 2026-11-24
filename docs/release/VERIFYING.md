@@ -36,4 +36,4 @@ the installer and the archive the same way before running them.
   and the lock is reviewed; the SBOM lists them; a vulnerability scan (`security` workflow) checks the lock against
   published advisories. A zero today is not a guarantee about tomorrow.
 - **No attestation exists for releases before the one that introduced this file** (0.5.3 and earlier carry
-  checksums only). The first attested release is the first real test of the mechanism.
+  checksums only). The first attested release is 0.5.4: on 24 November 2026 all seven of its files passed `gh attestation verify`.

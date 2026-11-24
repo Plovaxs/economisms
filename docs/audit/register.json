@@ -607,7 +607,7 @@
         "docs/release/dependency-sbom.cdx.json"
       ],
       "evidence_level": "E1",
-      "remaining": "SBOM and SHA-256 are published; a signed build-provenance attestation step and a verification guide are in place and have not yet run on a real release.",
+      "remaining": "SBOM, SHA-256 and a signed build-provenance attestation are published; release 0.5.4 was the first, and all seven of its files verify with `gh attestation verify` (24 Nov 2026). Earlier releases carry checksums only. Attestation proves where bytes came from, not that the code is safe; no independent review.",
       "who": "maintainer"
     },
     {
@@ -818,7 +818,7 @@
         "docs/release/RELEASE_RUNBOOK.md"
       ],
       "evidence_level": "E1",
-      "remaining": "Attestation step, verification guide and runbook written; no independent security review; the attestation has not yet run on a release.",
+      "remaining": "Attestation step, verification guide and runbook exist and the attestation ran on release 0.5.4 (all files verified); no independent security review.",
       "who": "maintainer"
     },
     {
@@ -940,7 +940,7 @@
         "docs/release/VERIFYING.md"
       ],
       "evidence_level": "E2",
-      "remaining": "Hash-locked dependencies, pinned actions, scanning and a secret scan exist; attestation is in place but unproven until a release.",
+      "remaining": "Hash-locked dependencies, pinned actions, scanning, a secret scan and, from 0.5.4, verified build-provenance attestations. Anyone who can push a tag can still make a validly attested release; account security and review are the real protection.",
       "who": "maintainer"
     },
     {
