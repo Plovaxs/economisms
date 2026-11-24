@@ -163,8 +163,8 @@ class SystemPage(PageBase):
         self.theme_box.currentTextChanged.connect(self._theme_chosen)
         row.addWidget(self.theme_box)
         row.addSpacing(24)
-        self.install_button = QPushButton("Add to the application menu")
-        self.remove_button = QPushButton("Remove from the menu")
+        self.install_button = QPushButton("Add to the menu and the desktop")
+        self.remove_button = QPushButton("Remove them again")
         self.install_button.clicked.connect(self._install)
         self.remove_button.clicked.connect(self._remove)
         row.addWidget(self.install_button)
@@ -188,13 +188,15 @@ class SystemPage(PageBase):
     def _install(self) -> None:
         try:
             entry, _ = launcher.install_launcher()
+            icon = launcher.install_desktop_icon()
         except OSError as exc:
             self.launcher_text.setText(f"✕  {exc}")
         else:
-            self.launcher_text.setText(f"✓  Added: {entry}")
+            where = f"{entry} and {icon}" if icon else f"{entry} (there is no desktop folder)"
+            self.launcher_text.setText(f"✓  Added: {where}")
 
     def _remove(self) -> None:
-        removed = launcher.uninstall_launcher()
+        removed = launcher.uninstall_launcher() + launcher.uninstall_desktop_icon()
         self.launcher_text.setText(
             "✓  Removed: " + ", ".join(str(p) for p in removed) if removed else "Nothing to remove."
         )

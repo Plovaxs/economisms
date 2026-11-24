@@ -8,7 +8,8 @@
 # What it does: downloads the release's source archive and its SHA256SUMS, checks the archive against
 # them (an integrity check, not a signature), unpacks it under ~/.local/share/econosim-app, installs it
 # into a private virtualenv in editable mode with the CPU build of PyTorch and the quantum extra, puts
-# `econosim` on your PATH and adds ECONOSIM, with its icon, to the application menu.
+# `econosim` on your PATH and adds ECONOSIM, with its icon, to the application menu and to your desktop
+# (ECONOSIM_NO_DESKTOP_ICON=1 skips the desktop icon).
 #
 # Why the source and not the wheel: the labs read the committed `data_cache/` next to the source tree,
 # and a wheel does not carry it, so a wheel install opens but its data-driven labs cannot run.
@@ -92,7 +93,10 @@ say "Installing (this downloads PyTorch, CPU build, and takes a few minutes; abo
 "$HOME_DIR/venv/bin/python" -m pip install --quiet --extra-index-url "$TORCH_INDEX" -c "$WORK/constraints.txt" -e "$HOME_DIR/src[desktop,quantum]"
 
 ln -sf "$HOME_DIR/venv/bin/econosim" "$BIN_DIR/econosim"
-"$HOME_DIR/venv/bin/econosim" desktop --install-launcher   # also warns if Qt needs libxcb-cursor0
+ICON_FLAG="--desktop-icon"
+[ "${ECONOSIM_NO_DESKTOP_ICON:-}" = "1" ] && ICON_FLAG=""   # menu entry only
+# shellcheck disable=SC2086
+"$HOME_DIR/venv/bin/econosim" desktop --install-launcher $ICON_FLAG   # also warns if Qt needs libxcb-cursor0
 
 case ":$PATH:" in *":$BIN_DIR:"*) ;; *) say "Add $BIN_DIR to your PATH to run \`econosim desktop\` from a terminal." ;; esac
 say "Done. Open ECONOSIM from your application menu, or run: econosim desktop"

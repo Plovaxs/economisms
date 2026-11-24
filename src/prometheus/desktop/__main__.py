@@ -3,6 +3,7 @@
 econosim desktop                      open the window
 econosim desktop --check              test everything that does not need a display, and exit
 econosim desktop --install-launcher   add ECONOSIM to the application menu
+econosim desktop --install-launcher --desktop-icon   ... and put an icon on the desktop
 econosim desktop --uninstall-launcher remove it again
 econosim desktop --screenshots DIR    render every page to PNG files (headless) and exit
 """
@@ -58,7 +59,14 @@ def _parser() -> argparse.ArgumentParser:
         "--install-launcher", action="store_true", help="add ECONOSIM to the application menu"
     )
     action.add_argument(
-        "--uninstall-launcher", action="store_true", help="remove the application-menu entry"
+        "--uninstall-launcher",
+        action="store_true",
+        help="remove the application-menu entry and the desktop icon",
+    )
+    parser.add_argument(
+        "--desktop-icon",
+        action="store_true",
+        help="with --install-launcher: also put an icon on the desktop",
     )
     action.add_argument(
         "--screenshots",
@@ -100,19 +108,26 @@ def _cannot_open(state: Path, problems: list[displaycheck.DisplayProblem]) -> in
     return 1
 
 
-def _launcher(install: bool) -> int:
+def _launcher(install: bool, *, desktop_icon: bool = False) -> int:
     try:
         if install:
             entry, icon = launcher.install_launcher()
             print(f"installed {entry}\ninstalled {icon}")
             print("It may take a moment (or a re-login) for the menu to show ECONOSIM.")
+            if desktop_icon:
+                placed = launcher.install_desktop_icon()
+                print(
+                    f"installed {placed}"
+                    if placed
+                    else "no desktop folder found; only the menu entry was added"
+                )
             for problem in displaycheck.check_display():
                 print(
                     f"warning: the menu entry will not open a window yet.\n{problem.text()}",
                     file=sys.stderr,
                 )
         else:
-            removed = launcher.uninstall_launcher()
+            removed = launcher.uninstall_launcher() + launcher.uninstall_desktop_icon()
             print("\n".join(f"removed {path}" for path in removed) or "nothing to remove")
     except OSError as exc:
         print(f"econosim desktop: {exc}", file=sys.stderr)
@@ -126,7 +141,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.check:
         return _run_check()
     if args.install_launcher or args.uninstall_launcher:
-        return _launcher(args.install_launcher)
+        return _launcher(args.install_launcher, desktop_icon=args.desktop_icon)
     if importlib.util.find_spec("PySide6") is None:
         print(MISSING_QT, file=sys.stderr)
         return 1

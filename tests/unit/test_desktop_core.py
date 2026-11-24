@@ -29,8 +29,10 @@ from prometheus.desktop.launcher import (
     ICON_SVG,
     LauncherError,
     desktop_entry,
+    install_desktop_icon,
     install_launcher,
     quote_exec_argument,
+    uninstall_desktop_icon,
     uninstall_launcher,
 )
 from prometheus.desktop.paths import InstanceLock
@@ -367,6 +369,95 @@ def test_a_failed_write_leaves_neither_a_temp_file_nor_a_changed_entry(
         install_launcher(tmp_path, python="/new/python")
     assert "/orig/python" in entry_path.read_text()
     assert sorted(p.name for p in entry_path.parent.iterdir()) == ["econosim.desktop"]
+
+
+# ------------------------------------------------------------------ the icon on the desktop
+
+
+def test_the_desktop_icon_is_an_executable_copy_of_the_entry_and_is_marked_trusted(
+    tmp_path: Path,
+) -> None:
+    desktop = tmp_path / "Desktop"
+    desktop.mkdir()
+    trusted: list[Path] = []
+    placed = install_desktop_icon(desktop, python="/opt/py", trust=trusted.append)
+    assert placed == desktop / "ECONOSIM.desktop"
+    assert placed.read_text() == desktop_entry("/opt/py"), "the same launcher as the menu's"
+    assert stat.S_IMODE(placed.stat().st_mode) == 0o755, (
+        "a desktop ignores a launcher that is not executable"
+    )
+    assert trusted == [placed], "GNOME needs 'Allow Launching' or it shows the icon as untrusted"
+
+
+def test_there_is_no_icon_and_no_new_folder_when_the_machine_has_no_desktop_folder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(launcher.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv("XDG_DESKTOP_DIR", raising=False)
+    assert install_desktop_icon() is None
+    assert uninstall_desktop_icon() == []
+    assert not (tmp_path / "Desktop").exists(), "a folder is never created for it"
+
+
+def test_the_desktop_folder_is_found_the_way_the_system_names_it(tmp_path: Path) -> None:
+    translated = tmp_path / "Skrivbord"
+    translated.mkdir()
+    (tmp_path / "Desktop").mkdir()
+    config = tmp_path / ".config"
+    config.mkdir()
+    (config / "user-dirs.dirs").write_text('XDG_DESKTOP_DIR="$HOME/Skrivbord"\n')
+    assert launcher.default_desktop_dir({}, home=tmp_path) == translated
+    explicit = tmp_path / "elsewhere"
+    explicit.mkdir()
+    assert (
+        launcher.default_desktop_dir({"XDG_DESKTOP_DIR": str(explicit)}, home=tmp_path) == explicit
+    )
+    assert (
+        launcher.default_desktop_dir({"XDG_DESKTOP_DIR": "relative"}, home=tmp_path) == translated
+    )
+    (config / "user-dirs.dirs").unlink()
+    assert launcher.default_desktop_dir({}, home=tmp_path) == tmp_path / "Desktop"
+
+
+def test_the_desktop_icon_never_overwrites_or_removes_a_file_that_is_not_ours(
+    tmp_path: Path,
+) -> None:
+    foreign = tmp_path / "ECONOSIM.desktop"
+    foreign.write_text("[Desktop Entry]\nName=mine\n")
+    with pytest.raises(LauncherError, match="not created by ECONOSIM"):
+        install_desktop_icon(tmp_path, trust=lambda _: None)
+    assert uninstall_desktop_icon(tmp_path) == [] and foreign.read_text().endswith("mine\n")
+    foreign.unlink()
+    foreign.symlink_to(tmp_path / "victim")
+    with pytest.raises(LauncherError, match="symlink"):
+        install_desktop_icon(tmp_path, trust=lambda _: None)
+    assert uninstall_desktop_icon(tmp_path) == []
+
+
+def test_the_desktop_icon_can_be_updated_and_removed(tmp_path: Path) -> None:
+    install_desktop_icon(tmp_path, python="/old/py", trust=lambda _: None)
+    placed = install_desktop_icon(tmp_path, python="/new/py", trust=lambda _: None)
+    assert placed is not None and "/new/py" in placed.read_text()
+    assert uninstall_desktop_icon(tmp_path) == [placed] and not placed.exists()
+
+
+def test_the_command_line_puts_the_icon_on_the_desktop_only_when_asked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    desktop = tmp_path / "Desktop"
+    desktop.mkdir()
+    monkeypatch.setattr(launcher.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setattr(launcher, "_trust", lambda _: None)
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    monkeypatch.delenv("XDG_DESKTOP_DIR", raising=False)
+    assert entry.main(["--install-launcher"]) == 0
+    assert not (desktop / "ECONOSIM.desktop").exists()
+    assert entry.main(["--install-launcher", "--desktop-icon"]) == 0
+    assert (desktop / "ECONOSIM.desktop").is_file()
+    assert "ECONOSIM.desktop" in capsys.readouterr().out
+    assert entry.main(["--uninstall-launcher"]) == 0
+    assert not (desktop / "ECONOSIM.desktop").exists(), "uninstalling takes the desktop icon too"
+    assert not (tmp_path / "data" / "applications" / "econosim.desktop").exists()
 
 
 def test_the_data_home_follows_the_xdg_variable(tmp_path: Path) -> None:

@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
 )
 
 from prometheus.desktop import findings as findings_module
+from prometheus.desktop import launcher
 from prometheus.desktop.findings import FindingsDocument
 from prometheus.desktop.runner import WorkerLoop
 from prometheus.desktop.ui import app as app_module
@@ -528,13 +529,20 @@ def test_the_launcher_can_be_added_and_removed_from_the_system_page(
     window: MainWindow, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    monkeypatch.setenv("HOME", str(tmp_path))  # the desktop folder is looked up under it
+    monkeypatch.delenv("XDG_DESKTOP_DIR", raising=False)
+    monkeypatch.setattr(launcher, "_trust", lambda _: None)
+    (tmp_path / "Desktop").mkdir()
     window.show_page("system")
     page = window.system
     page.install_button.click()
     entry = tmp_path / "data" / "applications" / "econosim.desktop"
+    icon = tmp_path / "Desktop" / "ECONOSIM.desktop"
     assert entry.is_file() and page.launcher_text.text().startswith("✓  Added")
+    assert icon.is_file(), "the same click puts the icon on the desktop"
     page.remove_button.click()
-    assert not entry.exists() and page.launcher_text.text().startswith("✓  Removed")
+    assert not entry.exists() and not icon.exists()
+    assert page.launcher_text.text().startswith("✓  Removed")
     page.remove_button.click()
     assert page.launcher_text.text() == "Nothing to remove."
 

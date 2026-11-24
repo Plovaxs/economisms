@@ -177,7 +177,7 @@ The same engine, two front doors. Pick one; neither removes the other.
 
 | | **Desktop software** | **Web app** |
 |---|---|---|
-| Start it | Linux: `bash install-linux.sh` (from the release; no root; adds a menu icon). Any system: `pip install -e '.[desktop,quantum]'` from a checkout, then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
+| Start it | Linux: `bash install-linux.sh` (from the release; no root; adds an icon to the menu and the desktop). Any system: `pip install -e '.[desktop,quantum]'` from a checkout, then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
 | What it is | a native Qt window; no server, port or token | React frontend + API gateway in the browser |
 | Needs | Linux for running jobs; `libxcb-cursor0` on X11 | Docker, or Python + a built `frontend/dist` |
 | Details | [Desktop application](#desktop-application) | [Quickstart](#quickstart), [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |

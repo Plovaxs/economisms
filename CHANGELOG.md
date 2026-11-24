@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Desktop icon on Linux.** `econosim desktop --install-launcher --desktop-icon` also places an executable launcher on
+  the desktop (found through `XDG_DESKTOP_DIR`, `user-dirs.dirs` or `~/Desktop`; never created), marked trusted for
+  GNOME; the installer script does this by default and the System page's button does both. Only files that carry
+  ECONOSIM's marker are ever overwritten or removed; uninstalling removes the icon too.
+
 ## [0.5.2] -- 2026-11-24 -- a demo edition for the web, and a Linux installer
 
 - **Linux installer** (`scripts/install-linux.sh`, published with each release): no root; verifies the release's source
