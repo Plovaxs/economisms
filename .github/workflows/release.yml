@@ -155,12 +155,17 @@ jobs:
           VERSION: ${{ needs.version.outputs.version }}
         run: |
           cp docs/release/dependency-sbom.cdx.json "assets/econosim-${VERSION}-sbom.cdx.json"
+          # The source archive is what the Linux installer uses: the labs read data_cache/ beside the
+          # source tree, which a wheel does not carry. The installer ships next to it.
+          git archive --format=tar.gz --prefix="econosim-${VERSION}/" -o "assets/econosim-source-${VERSION}.tar.gz" HEAD
+          cp scripts/install-linux.sh assets/install-linux.sh
           (cd assets && sha256sum -- * | grep -v SHA256SUMS > SHA256SUMS)
           awk -v v="## [${VERSION}]" 'index($0, v)==1 {on=1; next} /^## \[/ && on {exit} on' CHANGELOG.md > notes.md
           {
             echo
             echo "### Two editions"
-            echo "- **Desktop:** \`pip install 'prometheus_econ-${VERSION}-py3-none-any.whl[desktop]'\` then \`econosim desktop\` (Linux needs \`libxcb-cursor0\`)."
+            echo "- **Desktop (Linux):** \`bash install-linux.sh\` (read it first; no root; adds ECONOSIM to the application menu). Qt needs \`libxcb-cursor0\` on X11."
+            echo "- **Desktop (other systems):** from a source checkout, \`pip install -e '.[desktop,quantum]'\` then \`econosim desktop\`; jobs need Linux."
             echo "- **Web:** unpack \`econosim-web-${VERSION}.tar.gz\` and serve it with \`python -m prometheus.webgateway serve --dist dist\`, or use \`docker compose up\`."
             echo
             echo "Verify downloads with \`sha256sum -c SHA256SUMS\`. Research software: NO-GO for trading or advice."

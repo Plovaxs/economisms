@@ -177,10 +177,17 @@ The same engine, two front doors. Pick one; neither removes the other.
 
 | | **Desktop software** | **Web app** |
 |---|---|---|
-| Start it | `pip install '.[desktop]'` then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
+| Start it | Linux: `bash install-linux.sh` (from the release; no root; adds a menu icon). Any system: `pip install -e '.[desktop,quantum]'` from a checkout, then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
 | What it is | a native Qt window; no server, port or token | React frontend + API gateway in the browser |
 | Needs | Linux for running jobs; `libxcb-cursor0` on X11 | Docker, or Python + a built `frontend/dist` |
 | Details | [Desktop application](#desktop-application) | [Quickstart](#quickstart), [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
+
+**Why the Linux installer uses the source archive and not the wheel:** the labs read the committed `data_cache/`
+next to the source tree and a wheel does not carry it, so a wheel install opens but its data-driven labs cannot
+run (found by testing a clean install; the wheel is still published for the API). The installer pins every
+dependency to `uv.lock`, so `econosim doctor` agrees with the install, and was tested here from nothing to
+"desktop check: all clear" (real job run, 24 data files verified). **Not tested:** Windows and macOS (no
+installer, jobs need Linux there), and a graphical launch from the menu entry on a machine other than this one.
 
 A third, lighter way to look: the **demo edition** of the web app needs no install, no token and no backend. It
 shows real responses recorded from the real backend (default settings only, clearly labelled), see

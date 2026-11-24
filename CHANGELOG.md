@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Linux installer** (`scripts/install-linux.sh`, published with each release): no root; verifies the release's source
+  archive against `SHA256SUMS`, installs into a private virtualenv pinned to `uv.lock` (CPU PyTorch), adds ECONOSIM
+  and its icon to the application menu; `--uninstall` removes it. The release now also publishes
+  `econosim-source-<version>.tar.gz`. Tested from a clean directory to `econosim desktop --check` all clear.
+
 - **Demo edition of the web app** (`npm run build:demo`): no token screen and no backend. It answers from
   `frontend/demo-data/recording.json`, real responses recorded by `tools/record_demo.py` from the real backend
   (ten dashboard pages, seven labs, default settings). A banner says so on every page; settings that were not
