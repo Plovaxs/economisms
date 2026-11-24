@@ -14,7 +14,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="${SMOKE_WORKDIR:-$(mktemp -d)}"
 FAKE_HOME="$WORK/home"; REL="$WORK/rel"; APP="$WORK/app"; BIN="$WORK/bin"; STATE="$WORK/state"; XDG="$WORK/xdg"
-mkdir -p "$REL" "$FAKE_HOME/Desktop" "$STATE"
+mkdir -p "$REL" "$FAKE_HOME/Desktop"
+mkdir -m 700 "$STATE"   # the application insists on a private state directory
 step() { printf '\n=== %s\n' "$*"; }
 fail() { printf 'SMOKE FAILED: %s\n' "$*" >&2; exit 1; }
 

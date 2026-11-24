@@ -1,0 +1,396 @@
+{
+  "datasets": [
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "Mkt-RF",
+        "SMB",
+        "HML",
+        "RF"
+      ],
+      "downloaded_at": null,
+      "file": "ff3_monthly_snapshot.csv",
+      "first_date": "1926-07-01",
+      "frequency": "monthly",
+      "last_date": "2026-09-01",
+      "license": "Kenneth R. French Data Library (free for academic research use)",
+      "lineage": {
+        "derived_by": null,
+        "raw_files_sha256": null
+      },
+      "meta_file": null,
+      "publication_lag_days": null,
+      "registry_gaps": [
+        "no .meta.json: source, download date and raw-file digests are not recorded"
+      ],
+      "rows": 1203,
+      "sha256": "992452a26f777ddcedfbb59883d39741fdd68984e546c6b602cfada58d972641",
+      "size_bytes": 34894,
+      "source": "Kenneth R. French Data Library, Fama/French 3 factors (monthly)",
+      "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+      "units_and_columns": null,
+      "vintage": "not recorded"
+    },
+    {
+      "caveat": "The seasonally adjusted series as it stands today: seasonal factors are re-estimated for years after publication, so a level here can differ slightly from the one first published (the real-time vintage is not reachable from this environment).",
+      "columns": [
+        "date",
+        "CPI_INDEX_SA"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_cpi_index_monthly.csv",
+      "first_date": "1947-02-01",
+      "frequency": "monthly",
+      "last_date": "2023-04-01",
+      "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.build_cpi_index_grid",
+        "raw_files_sha256": {
+          "Consumer Price Index for All Urban Consumers All Items in U.S. City Average.csv": "822049d0eadb03a1e0a6d6c41a9b13b3a082b8401cc6b967e871adacd6038306"
+        }
+      },
+      "meta_file": "kaggle_cpi_index_monthly.meta.json",
+      "publication_lag_days": null,
+      "registry_gaps": [],
+      "rows": 915,
+      "sha256": "4a305d881163e6e476e531451fc28d614e5c185be0d9d3028180ddb8cd21b4ac",
+      "size_bytes": 11945,
+      "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (FRED CPIAUCSL, CPI-U all items, seasonally adjusted)",
+      "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+      "units_and_columns": {
+        "CPI_INDEX_SA": "index level (1982-84 = 100) of the PREVIOUS month: row r holds the level of month r - 1, knowable 15 days after that month ends"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "FFR_EFFECTIVE",
+        "UNRATE",
+        "INFLATION",
+        "REAL_GDP_GROWTH"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_fed_policy_monthly.csv",
+      "first_date": "1954-07-01",
+      "frequency": "monthly",
+      "last_date": "2017-02-01",
+      "license": "CC0-1.0 (Kaggle: federalreserve/interest-rates)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.build_fed_policy_grid",
+        "raw_files_sha256": {
+          "index.csv": "091410052c817546c1d7d944d909fd58971af1b5ce204a57f0a9372c24c3450c"
+        }
+      },
+      "meta_file": "kaggle_fed_policy_monthly.meta.json",
+      "publication_lag_days": null,
+      "registry_gaps": [],
+      "rows": 752,
+      "sha256": "0c3eb1f3426b86c215f82c87268718a9187f316e5f212ad34187532aa7f415c2",
+      "size_bytes": 16093,
+      "source": "Kaggle dataset federalreserve/interest-rates (Federal Reserve Interest Rates, 1954-Present)",
+      "source_url": "https://www.kaggle.com/datasets/federalreserve/interest-rates",
+      "units_and_columns": {
+        "FFR_EFFECTIVE": "effective federal funds rate, percent (the row dated day 01)",
+        "INFLATION": "inflation rate, percent, as published in the dataset",
+        "REAL_GDP_GROWTH": "quarterly real GDP growth, percent (SA rate of change); blank except in the first month of a quarter",
+        "UNRATE": "unemployment rate, percent, seasonally adjusted"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": "A single vendor series with no second source to cross-check against; only 20 years of it precede the year 2000.",
+      "columns": [
+        "date",
+        "close"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_nasdaq_daily_close.csv",
+      "first_date": "1980-03-18",
+      "frequency": "daily",
+      "last_date": "2023-05-03",
+      "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.write_close_csv",
+        "raw_files_sha256": {
+          "NASDAQ.csv": "8a1188cf28a9107f44453e12ae0a880b4796ce48917225145689da8843756762"
+        }
+      },
+      "meta_file": "kaggle_nasdaq_daily_close.meta.json",
+      "publication_lag_days": null,
+      "registry_gaps": [],
+      "rows": 10875,
+      "sha256": "0bd11411c358bc1b3640cc8b34bfbb2a40b41074acf1cee68866b2d493b45a63",
+      "size_bytes": 202212,
+      "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (NASDAQ.csv, Investing.com NASDAQ composite)",
+      "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+      "units_and_columns": {
+        "close": "daily closing level of the NASDAQ composite, price index"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": "Open = High = Low = Close on 8,547 early rows (last 1983-06-30): a close-only era, so only close-based statistics are meaningful there.",
+      "columns": [
+        "date",
+        "close"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_sp500_daily_close.csv",
+      "first_date": "1927-12-30",
+      "frequency": "daily",
+      "last_date": "2020-11-04",
+      "license": "ODbL-1.0 (Kaggle: henryhan117/sp-500-historical-data)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.write_close_csv",
+        "raw_files_sha256": {
+          "SPX.csv": "54aa877d5d275b660bc8171642dc3a2eece16b9709e1d35f13a3b4e7972cc35c"
+        }
+      },
+      "meta_file": "kaggle_sp500_daily_close.meta.json",
+      "publication_lag_days": null,
+      "registry_gaps": [],
+      "rows": 23323,
+      "sha256": "b144c66e1b56a402f60b6b770fddce229efb4bb578186af596a8dbfa7aff36da",
+      "size_bytes": 475125,
+      "source": "Kaggle dataset henryhan117/sp-500-historical-data (Yahoo Finance ^GSPC daily history)",
+      "source_url": "https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data",
+      "units_and_columns": {
+        "close": "daily closing level; Adj Close equals Close on every row (an index), so only Close is stored"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": "Two vendors joined at one date: they agree on the days both contain (see `splice`), but the continuation is not the original source, and the early history is a close-only era (Open = High = Low = Close before 1983-07).",
+      "columns": [
+        "date",
+        "close"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_sp500_spliced_daily_close.csv",
+      "first_date": "1927-12-30",
+      "frequency": "daily",
+      "last_date": "2023-05-03",
+      "license": "ODbL-1.0 (both Kaggle datasets)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.build_spliced_sp500",
+        "raw_files_sha256": {
+          "SPX.csv": "54aa877d5d275b660bc8171642dc3a2eece16b9709e1d35f13a3b4e7972cc35c",
+          "SPX500.csv": "96fb963668e841e237671898f3a950331416857ee1580364e54bea88ab820c65"
+        }
+      },
+      "meta_file": "kaggle_sp500_spliced_daily_close.meta.json",
+      "publication_lag_days": null,
+      "registry_gaps": [],
+      "rows": 23949,
+      "sha256": "878d4aba526c447f4ea7920d7928b96d63158a3fb13659071f622aafaa23d98a",
+      "size_bytes": 489462,
+      "source": "Kaggle dataset henryhan117/sp-500-historical-data (Yahoo Finance ^GSPC) through 2020-11-04, continued with the SPX500 series (Investing.com) of Kaggle dataset mikoajfish99/us-recession-and-financial-indicators",
+      "source_url": "https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data",
+      "units_and_columns": {
+        "close": "daily closing level, price index (no dividends)"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "TERM_SPREAD_10Y3M",
+        "n_trading_days"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_term_spread_monthly.csv",
+      "first_date": "1981-09-01",
+      "frequency": "monthly",
+      "last_date": "2024-05-01",
+      "license": "CC BY-NC 4.0 (Kaggle: guillemservera/us-treasury-yields-daily; non-commercial use)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.build_term_spread_grid",
+        "raw_files_sha256": {
+          "us_treasury_yields_daily.csv": "0467a612c3437da991d365ba54765c83d30363e615ed55e8a589df673d72c7fc"
+        }
+      },
+      "meta_file": "kaggle_term_spread_monthly.meta.json",
+      "publication_lag_days": {
+        "TERM_SPREAD_10Y3M": 0
+      },
+      "registry_gaps": [],
+      "rows": 513,
+      "sha256": "e84175ddbc9b070125b94d12da7a4ab85dbaddd173945558cf8557e5ec94d422",
+      "size_bytes": 10679,
+      "source": "Kaggle dataset guillemservera/us-treasury-yields-daily (daily US Treasury constant-maturity yields)",
+      "source_url": "https://www.kaggle.com/datasets/guillemservera/us-treasury-yields-daily",
+      "units_and_columns": {
+        "TERM_SPREAD_10Y3M": "mean over the month's trading days of (US10Y - US3M), percentage points; needs >= 10 days with both yields published"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "GDP_YOY",
+        "CLAIMS_YOY",
+        "FEDFUNDS",
+        "UNRATE",
+        "CPI_YOY_SA",
+        "BANK_CREDIT_YOY",
+        "SPX_YOY",
+        "SPX_VOL"
+      ],
+      "downloaded_at": "2026-11-19",
+      "file": "kaggle_us_macro_extended_monthly.csv",
+      "first_date": "1960-01-01",
+      "frequency": "monthly",
+      "last_date": "2023-01-01",
+      "license": "ODbL-1.0 (Kaggle: mikoajfish99/us-recession-and-financial-indicators)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.kaggle_build.build_extended_macro_grid",
+        "raw_files_sha256": {
+          "Bank Credit All Commercial Banks.csv": "00bca353171b34579b52f8377110ae5ced26e1c5ce07be3d46958b1874d37686",
+          "Consumer Price Index for All Urban Consumers All Items in U.S. City Average.csv": "822049d0eadb03a1e0a6d6c41a9b13b3a082b8401cc6b967e871adacd6038306",
+          "Continued Claims (Insured Unemployment).csv": "77deb49f3e14581d22dda3a5f563566ca127e93a52edf4b36217f08737a0df3f",
+          "Federal Funds Effective Rate.csv": "7fa2af9a71d6eba08b126b1996e24b80ef35f9411be7d1a37a80a82511d2565e",
+          "Gross Domestic Product.csv": "c47443fa09abc14f8dacf383a06f380a72a0a985d4dbf88accd8fa69fc2c88a8",
+          "SPX500.csv": "96fb963668e841e237671898f3a950331416857ee1580364e54bea88ab820c65",
+          "Unemployment Rate.csv": "6418c82beda4c8411e4d8f75063eba5e7c362f8138ad46cb8468a54adf2db392"
+        }
+      },
+      "meta_file": "kaggle_us_macro_extended_monthly.meta.json",
+      "publication_lag_days": {
+        "BANK_CREDIT_YOY": 9,
+        "CLAIMS_YOY": 7,
+        "CPI_YOY_SA": 15,
+        "FEDFUNDS": 0,
+        "GDP_YOY": 30,
+        "SPX_VOL": 0,
+        "SPX_YOY": 0,
+        "UNRATE": 7
+      },
+      "registry_gaps": [],
+      "rows": 757,
+      "sha256": "32498a553800b58c11cd8c666a3bc3bcfc96888918d4bf2a1670546c769b2615",
+      "size_bytes": 58192,
+      "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators (FRED series plus Investing.com S&P 500 prices)",
+      "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+      "units_and_columns": {
+        "BANK_CREDIT_YOY": "FRED TOTBKCR bank credit of all commercial banks (weekly), last weekly value at or before month-end, YoY %",
+        "CLAIMS_YOY": "FRED CCSA continued claims (weekly), last weekly value at or before month-end, YoY %",
+        "CPI_YOY_SA": "FRED CPIAUCSL CPI-U all items, SEASONALLY ADJUSTED (not the NSA series the INFLATIONCAST target uses), YoY %",
+        "FEDFUNDS": "FRED DFF effective federal funds rate (daily), last value at or before month-end, level in percent",
+        "GDP_YOY": "FRED GDP (quarterly, nominal), YoY % vs the same quarter a year earlier; released once per quarter and HELD until the next release",
+        "SPX_VOL": "annualised realised volatility (%) of the month's daily log returns, needs >= 15 returns",
+        "SPX_YOY": "Investing.com S&P 500 daily close, last close at or before month-end, YoY %",
+        "UNRATE": "FRED UNRATE unemployment rate (monthly, seasonally adjusted), level in percent"
+      },
+      "vintage": "as published on 2026-11-19; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "GDP_YOY",
+        "CLAIMS_YOY",
+        "FEDFUNDS",
+        "M2_YOY",
+        "NASDAQ_YOY"
+      ],
+      "downloaded_at": "2026-11-09",
+      "file": "kaggle_us_macro_monthly.csv",
+      "first_date": "1981-12-01",
+      "frequency": "monthly",
+      "last_date": "2023-01-01",
+      "license": "ODbL-1.0",
+      "lineage": {
+        "derived_by": "now committed: prometheus.data_ingestion.kaggle_build. Audit with: python -m prometheus.data_ingestion.kaggle_build --backbone-zip <the Kaggle zip> --verify-baseline data_cache/kaggle_us_macro_monthly.csv (all five columns reproduce exactly; the pre-PR-197 file differed in 288 GDP_YOY rows).",
+        "raw_files_sha256": null
+      },
+      "meta_file": "kaggle_us_macro_monthly.meta.json",
+      "publication_lag_days": {
+        "CLAIMS_YOY": 7,
+        "FEDFUNDS": 0,
+        "GDP_YOY": 30,
+        "M2_YOY": 7,
+        "NASDAQ_YOY": 0
+      },
+      "registry_gaps": [],
+      "rows": 494,
+      "sha256": "55788b6791417246962bcc243aab17f19c5faddeab5385754622159c738b642f",
+      "size_bytes": 43054,
+      "source": "Kaggle dataset mikoajfish99/us-recession-and-financial-indicators",
+      "source_url": "https://www.kaggle.com/datasets/mikoajfish99/us-recession-and-financial-indicators",
+      "units_and_columns": null,
+      "vintage": "as published on 2026-11-09; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "TREASURY_3MO",
+        "TREASURY_10YR",
+        "TREASURY_10Y_3M_SPREAD",
+        "n_trading_days"
+      ],
+      "downloaded_at": "2026-11-13",
+      "file": "treasury_yield_spread_monthly.csv",
+      "first_date": "1990-01-01",
+      "frequency": "monthly",
+      "last_date": "2023-12-01",
+      "license": "US Government work, public domain",
+      "lineage": {
+        "derived_by": null,
+        "raw_files_sha256": null
+      },
+      "meta_file": "treasury_yield_spread_monthly.meta.json",
+      "publication_lag_days": {
+        "TREASURY_10YR": 0,
+        "TREASURY_10Y_3M_SPREAD": 0,
+        "TREASURY_3MO": 0
+      },
+      "registry_gaps": [],
+      "rows": 408,
+      "sha256": "c7f90c7498e273ba1f724ece21f39015f5c65db813bc01041d52393b9f82d488",
+      "size_bytes": 12852,
+      "source": "US Treasury daily par yield curve rates",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv",
+      "units_and_columns": null,
+      "vintage": "as published on 2026-11-13; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": null,
+      "columns": [
+        "date",
+        "CPI_U_INDEX_NSA",
+        "CPI_YOY"
+      ],
+      "downloaded_at": "2026-11-11",
+      "file": "us_cpi_monthly.csv",
+      "first_date": "2006-01-01",
+      "frequency": "monthly",
+      "last_date": "2026-10-01",
+      "license": "U.S. government work -- public domain, no restriction on reuse",
+      "lineage": {
+        "derived_by": null,
+        "raw_files_sha256": null
+      },
+      "meta_file": "us_cpi_monthly.meta.json",
+      "publication_lag_days": {
+        "CPI_YOY": 15,
+        "note": "A FIXED, documented assumption (BLS's own well-publicized release schedule: the CPI for month M is released in a press release roughly 2 weeks into month M+1), not fetched real per-release vintage data (ALFRED, which has true vintage timestamps, is unreachable from this environment -- see CHECKLIST_STATUS.md's DAT-02/DAT-03 entries). Each month's CPI_YOY value is treated as first knowable 15 days after that month's own month-end, i.e. effectively mid-month M+1."
+      },
+      "registry_gaps": [],
+      "rows": 249,
+      "sha256": "8b5f003501b279e474ce3b5d1c054acf8d45ed66f3e42410de16157541bd20e6",
+      "size_bytes": 8649,
+      "source": "U.S. Bureau of Labor Statistics, Public Data API v2 (no registration key)",
+      "source_url": "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+      "units_and_columns": null,
+      "vintage": "as published on 2026-11-11; revised series (a later download can differ), not a real-time vintage"
+    }
+  ],
+  "format": "econosim-dataset-registry/1",
+  "generated_from": "data_cache/*.csv, data_cache/*.meta.json and MANIFEST.sha256.json"
+}

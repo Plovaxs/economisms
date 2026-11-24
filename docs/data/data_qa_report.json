@@ -1,0 +1,567 @@
+{
+  "files": {
+    "ff3_monthly_snapshot.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "HML": {
+                "largest_robust_z": 13.5,
+                "points_over_threshold": 1
+              },
+              "RF": {
+                "largest_robust_z": 15.2,
+                "points_over_threshold": 1
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1926-07-01",
+      "frequency": "monthly",
+      "last_date": "2026-09-01",
+      "rows": 1203,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
+    "kaggle_cpi_index_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "CPI_INDEX_SA": {
+                "largest_robust_z": 13.6,
+                "points_over_threshold": 1
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1947-02-01",
+      "frequency": "monthly",
+      "last_date": "2023-04-01",
+      "rows": 915,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
+    "kaggle_fed_policy_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "detail": {
+            "blank_cells_by_column": {
+              "INFLATION": 42,
+              "REAL_GDP_GROWTH": 502
+            }
+          },
+          "status": "warn"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "FFR_EFFECTIVE": {
+                "largest_robust_z": 20.4,
+                "points_over_threshold": 7
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1954-07-01",
+      "frequency": "monthly",
+      "last_date": "2017-02-01",
+      "rows": 752,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": [
+        "no_blank_cells"
+      ]
+    },
+    "kaggle_nasdaq_daily_close.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_gap_over_seven_days": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "close": {
+                "largest_robust_z": 15.5,
+                "points_over_threshold": 4
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1980-03-18",
+      "frequency": "daily",
+      "last_date": "2023-05-03",
+      "rows": 10875,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
+    "kaggle_sp500_daily_close.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_gap_over_seven_days": {
+          "detail": {
+            "count": 1,
+            "longest_days": 12
+          },
+          "status": "warn"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "close": {
+                "largest_robust_z": 31.2,
+                "points_over_threshold": 28
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1927-12-30",
+      "frequency": "daily",
+      "last_date": "2020-11-04",
+      "rows": 23323,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": [
+        "no_gap_over_seven_days"
+      ]
+    },
+    "kaggle_sp500_spliced_daily_close.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_gap_over_seven_days": {
+          "detail": {
+            "count": 1,
+            "longest_days": 12
+          },
+          "status": "warn"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "close": {
+                "largest_robust_z": 30.9,
+                "points_over_threshold": 28
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1927-12-30",
+      "frequency": "daily",
+      "last_date": "2023-05-03",
+      "rows": 23949,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": [
+        "no_gap_over_seven_days"
+      ]
+    },
+    "kaggle_term_spread_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "detail": {
+            "declared_not_in_file": [],
+            "in_file_not_declared": [
+              "n_trading_days"
+            ]
+          },
+          "status": "warn"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "status": "ok"
+        }
+      },
+      "first_date": "1981-09-01",
+      "frequency": "monthly",
+      "last_date": "2024-05-01",
+      "rows": 513,
+      "to_review": [],
+      "warnings": [
+        "header_matches_declared_columns"
+      ]
+    },
+    "kaggle_us_macro_extended_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "detail": {
+            "blank_cells_by_column": {
+              "BANK_CREDIT_YOY": 169,
+              "CLAIMS_YOY": 97,
+              "SPX_VOL": 240,
+              "SPX_YOY": 251
+            }
+          },
+          "status": "warn"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "CLAIMS_YOY": {
+                "largest_robust_z": 207.3,
+                "points_over_threshold": 10
+              },
+              "FEDFUNDS": {
+                "largest_robust_z": 31.1,
+                "points_over_threshold": 8
+              },
+              "UNRATE": {
+                "largest_robust_z": 69.5,
+                "points_over_threshold": 3
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1960-01-01",
+      "frequency": "monthly",
+      "last_date": "2023-01-01",
+      "rows": 757,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": [
+        "no_blank_cells"
+      ]
+    },
+    "kaggle_us_macro_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "CLAIMS_YOY": {
+                "largest_robust_z": 224.5,
+                "points_over_threshold": 10
+              },
+              "FEDFUNDS": {
+                "largest_robust_z": 29.8,
+                "points_over_threshold": 4
+              },
+              "M2_YOY": {
+                "largest_robust_z": 14.1,
+                "points_over_threshold": 1
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1981-12-01",
+      "frequency": "monthly",
+      "last_date": "2023-01-01",
+      "rows": 494,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
+    "treasury_yield_spread_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "TREASURY_3MO": {
+                "largest_robust_z": 31.4,
+                "points_over_threshold": 13
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1990-01-01",
+      "frequency": "monthly",
+      "last_date": "2023-12-01",
+      "rows": 408,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
+    "us_cpi_monthly.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "detail": {
+            "blank_cells_by_column": {
+              "CPI_YOY": 13
+            }
+          },
+          "status": "warn"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_missing_months": {
+          "detail": {
+            "count": 1,
+            "missing_months": [
+              "2025-10"
+            ]
+          },
+          "status": "warn"
+        },
+        "no_outlier_in_first_difference": {
+          "status": "ok"
+        }
+      },
+      "first_date": "2006-01-01",
+      "frequency": "monthly",
+      "last_date": "2026-10-01",
+      "rows": 249,
+      "to_review": [],
+      "warnings": [
+        "no_blank_cells",
+        "no_missing_months"
+      ]
+    }
+  },
+  "files_to_review": [
+    "ff3_monthly_snapshot.csv",
+    "kaggle_cpi_index_monthly.csv",
+    "kaggle_fed_policy_monthly.csv",
+    "kaggle_nasdaq_daily_close.csv",
+    "kaggle_sp500_daily_close.csv",
+    "kaggle_sp500_spliced_daily_close.csv",
+    "kaggle_us_macro_extended_monthly.csv",
+    "kaggle_us_macro_monthly.csv",
+    "treasury_yield_spread_monthly.csv"
+  ],
+  "files_with_warnings": [
+    "kaggle_fed_policy_monthly.csv",
+    "kaggle_sp500_daily_close.csv",
+    "kaggle_sp500_spliced_daily_close.csv",
+    "kaggle_term_spread_monthly.csv",
+    "kaggle_us_macro_extended_monthly.csv",
+    "us_cpi_monthly.csv"
+  ],
+  "format": "econosim-data-qa/1",
+  "outlier_robust_z_threshold": 12.0
+}

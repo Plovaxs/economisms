@@ -42,6 +42,19 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   and Debian 12 machines, and on Ubuntu 22.04 (Python 3.10) to check the installer refuses cleanly. Not Wayland, a
   physical display, or an offline install. It passed locally on Ubuntu 24.04 before it was added.
 
+- **The first real run of the clean-machine test found two things.** The desktop entry said `Version=1.5`, which
+  `desktop-file-utils` 0.26 (Debian 12) rejects as an unknown spec version; it now says `Version=1.0`, accepted
+  everywhere. And the workflow's own `| tee` hid a failing step (a state directory the application rightly refused
+  for being world-readable), so the job passed; its steps now run with `pipefail`. Ubuntu 22.04 (Python 3.10)
+  refused cleanly, as intended.
+
+- **A dataset registry and a data-quality report** (`python -m prometheus.data_ingestion.dataset_registry`,
+  committed under `docs/data/`, with a drift test): for each snapshot its source, licence, vintage, checksum, rows,
+  dates, frequency and lineage, and checks for blank and non-numeric cells, duplicate or out-of-order dates,
+  missing periods, outliers, constant columns and header drift. It found that `ff3_monthly_snapshot.csv` has no
+  metadata file (its download date and raw-file digest are not recorded) and that `kaggle_term_spread_monthly.csv`
+  has a column its metadata does not declare; the other warnings are gaps the metadata already explains.
+
 - **A mutation check** (`tools/mutation_check.py`, `.github/workflows/mutation-check.yml`, no third-party tool):
   24 deliberate faults (a flipped sign, a dropped check, an off-by-one) in the ledger, the Black-Scholes closed
   forms, the risk metrics, the hedging accounting and the block bootstrap; each must make a guarding test fail. The

@@ -67,7 +67,7 @@ def desktop_entry(python: str | None = None) -> str:
     return (
         "[Desktop Entry]\n"
         "Type=Application\n"
-        "Version=1.5\n"
+        "Version=1.0\n"  # the spec version; 1.5 is rejected by desktop-file-utils 0.26 (Debian 12)
         "Name=ECONOSIM\n"
         "GenericName=Economics research workbench\n"
         "Comment=PROMETHEUS-X: simulation and deep-learning research for quantitative "

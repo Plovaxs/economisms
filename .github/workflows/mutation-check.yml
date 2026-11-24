@@ -50,6 +50,7 @@ jobs:
       - name: Install the locked dependencies
         run: uv sync --locked --all-extras --group build --python 3.14.7
       - name: Inject each fault and require a test to fail
+        shell: bash   # -o pipefail: `| tee` must not hide a failure
         run: .venv/bin/python tools/mutation_check.py --json "$RUNNER_TEMP/mutation.json" | tee "$RUNNER_TEMP/mutation.log"
       - name: Summary
         if: always()

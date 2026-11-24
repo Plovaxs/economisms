@@ -61,6 +61,7 @@ jobs:
       - name: Install, check, upgrade, launch on Xvfb, uninstall
         env:
           SMOKE_X11: "1"
+        shell: bash   # -o pipefail: without it `| tee` hides the script's failure and the job passes
         run: bash scripts/installer-smoke.sh 2>&1 | tee "$RUNNER_TEMP/smoke.log"
       - name: Summary
         if: always()
@@ -88,6 +89,7 @@ jobs:
       - name: Install, check, upgrade, launch on Xvfb, uninstall
         env:
           SMOKE_X11: "1"
+        shell: bash   # -o pipefail, as above
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           bash scripts/installer-smoke.sh 2>&1 | tee "$RUNNER_TEMP/smoke.log"

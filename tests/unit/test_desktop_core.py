@@ -238,6 +238,13 @@ def test_a_missing_or_unreadable_document_is_reported_as_unavailable(tmp_path: P
 # ------------------------------------------------------------------ the launcher
 
 
+def test_the_entry_names_a_desktop_entry_spec_version_every_validator_knows() -> None:
+    """Found by the clean-machine test: `Version=1.5` is an error to desktop-file-utils 0.26
+    (Debian 12), which does not know that spec version. 1.0 is accepted everywhere and the entry
+    needs nothing newer."""
+    assert "\nVersion=1.0\n" in launcher.desktop_entry()
+
+
 def test_the_desktop_entry_has_the_fields_a_menu_needs() -> None:
     text = desktop_entry("/opt/env/bin/python")
     lines = dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
