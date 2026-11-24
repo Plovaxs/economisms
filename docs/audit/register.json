@@ -219,11 +219,13 @@
       "status": "partial",
       "evidence": [
         "src/prometheus/confirmatory/intervals.py",
+        "src/prometheus/experiments/forecast_comparison.py",
         "docs/confirmatory/power_note.json",
-        "tests/unit/test_confirmatory_intervals.py"
+        "tests/unit/test_confirmatory_intervals.py",
+        "tests/unit/test_forecast_comparison.py"
       ],
       "evidence_level": "E2",
-      "remaining": "Paired block-bootstrap intervals, Bonferroni, equivalence margins, exact binomial intervals and power notes exist for the confirmatory endpoints. No Diebold-Mariano test; the earlier findings use no multiplicity control.",
+      "remaining": "Paired block-bootstrap intervals, Bonferroni, equivalence margins, exact binomial intervals and power notes exist for the confirmatory endpoints, and a Diebold-Mariano test (Harvey-Leybourne-Newbold correction, Bartlett long-run variance) is implemented and tested for size, power and the repair of serial dependence. Exploratory use: on Finding 18's Q1 (277 months, absolute error, 11 lags) it gives -5.84 (p = 1.5e-8), agreeing with the bootstrap interval. The earlier findings use no multiplicity control, and the test is not part of the confirmatory protocol.",
       "who": "assistant"
     },
     {

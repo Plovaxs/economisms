@@ -80,6 +80,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   accounting, the number of bootstrap blocks, or the interval's percentile pair) and now have tests. A catalogue
   check runs with the ordinary tests so it cannot go stale.
 
+- **A Diebold-Mariano test** (`prometheus.experiments.forecast_comparison`) with the Harvey-Leybourne-Newbold
+  small-sample correction and a Bartlett long-run variance, tested against hand computation, for its size (5%), its
+  power, and the case it exists for: with serially dependent differentials the naive test over-rejects and the
+  long-run variance repairs it. On Finding 18's Q1 it gives -5.84 (p = 1.5e-8), agreeing with the bootstrap
+  interval; exploratory, not part of the confirmatory protocol.
+
 - **Branch coverage of the critical modules.** The five modules the mutation check targets are now covered 100% by
   statements and branches by their own guarding tests (it was 95% for the ledger and 84% for the hedging
   accounting: untested validation and an untested funding-schedule feature, now tested), and the weekly mutation
