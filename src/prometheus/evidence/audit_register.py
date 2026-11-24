@@ -42,7 +42,7 @@ GROUP_TITLES = {
     "roadmap": "v1.0 roadmap milestones",
     "risk": "Risk register",
 }
-STATUS_ORDER = ("done", "partial", "needs_maintainer", "needs_external", "not_started")
+STATUS_ORDER = ("done", "partial", "needs_maintainer", "needs_external", "not_started", "declined")
 
 
 class RegisterError(ValueError):

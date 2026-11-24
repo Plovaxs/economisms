@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Decision: no AppImage or DEB.** The maintainer weighed them (gigabyte bundle, Qt LGPL obligations, glibc and
+  other distributions untestable here, the audit's own advice) and chose the install script and its clean-machine
+  test as the supported route. Recorded as `declined` in the audit register; revisit with an AppImage only if
+  someone cannot use the script.
+
 ## [0.5.4] -- 2026-11-24 -- an installer data-loss fix, an audit response, and a signed-provenance step
 
 The entries below were written under `[Unreleased]` during the audit response; they ship in this release.

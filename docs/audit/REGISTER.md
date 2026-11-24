@@ -20,8 +20,9 @@ Statuses:
 - **not_started**: nothing yet
 - **needs_maintainer**: only the maintainer can decide or do it
 - **needs_external**: needs a person or party outside the project
+- **declined**: decided against by the maintainer, with the reasons recorded; revisit only if a real need appears
 
-**58 items: 6 done, 42 partial, 1 needs maintainer, 5 needs external, 4 not started.** No item is above evidence level E2.
+**58 items: 6 done, 42 partial, 5 needs external, 4 not started, 1 declined.** No item is above evidence level E2.
 
 ## Scientific redesign (SCI)
 
@@ -66,7 +67,7 @@ Statuses:
 
 | ID | Item | Status | Level | Evidence | What is missing | Who |
 | --- | --- | --- | --- | --- | --- | --- |
-| L-01 | AppImage + DEB | needs maintainer | E0 | `scripts/install-linux.sh` | Not built, and not built on purpose: the application bundles PyTorch and Qt (a bundle runs to gigabytes), Qt's LGPL would then bind the project to shipping its source and license terms, glibc compatibility cannot be tested here, and the audit itself says to avoid extra formats until needed. The maintainer decides. | maintainer |
+| L-01 | AppImage + DEB | declined | E0 | `scripts/install-linux.sh` | Decided against by the maintainer on 25 Nov 2026 after weighing it: the bundle would be gigabytes (PyTorch and Qt), bundling Qt brings LGPL obligations (license texts, a source offer, replaceable libraries), glibc compatibility and other distributions cannot be tested here, and the audit itself advises against extra formats until a real need appears. The install script and its clean-machine test remain the supported route. Revisit with an AppImage only (no DEB) if someone cannot use the script. | maintainer |
 | L-02 | Support matrix | partial | E2 | `docs/SUPPORT_MATRIX.md`<br>`.github/workflows/installer-smoke.yml` | Ubuntu 22.04 (clean refusal: Python 3.10), Ubuntu 24.04 and Debian 12 on x86-64, X11 via Xvfb. No Wayland, no Arm. | assistant |
 | L-03 | Clean install | partial | E2 | `.github/workflows/installer-smoke.yml`<br>`scripts/installer-smoke.sh` | Fresh GitHub-hosted VMs and a container, every run. No independent physical machine. | external |
 | L-04 | CPU / optional CUDA | partial | E1 | `scripts/install-linux.sh` | The installer uses the CPU build of PyTorch and every lab runs on it. CUDA is not validated and not documented as supported. | maintainer |
@@ -97,7 +98,7 @@ Statuses:
 | RM-1 | M1 / reliability | partial | E2 | `docs/data/data_qa_report.json`<br>`tests/unit/test_surface_parity.py` | Data QA, the data-use audit, resilience and parity tests exist; independent checks and cross-machine replay do not. | external |
 | RM-2 | M2 / science | partial | E2 | `docs/CONFIRMATORY_PROTOCOL.md` | Everything up to the freeze is built; nothing has been preregistered or run on untouched data. | maintainer |
 | RM-3 | M3 / math | partial | E2 | `tests/unit/test_numerical_verification.py` | Monte Carlo and grid-solver rates measured; strong convergence and dimension scaling are not. | assistant |
-| RM-4 | M4 / desktop | partial | E2 | `.github/workflows/installer-smoke.yml`<br>`docs/SUPPORT_MATRIX.md` | Linux matrix and clean-install evidence exist; AppImage/DEB not built (maintainer's decision); no user task results. | maintainer |
+| RM-4 | M4 / desktop | partial | E2 | `.github/workflows/installer-smoke.yml`<br>`docs/SUPPORT_MATRIX.md` | Linux matrix and clean-install evidence exist; AppImage/DEB deliberately not built (declined, see L-01); no user task results. | maintainer |
 | RM-5 | M5 / release | partial | E1 | `docs/release/VERIFYING.md`<br>`.github/workflows/release.yml`<br>`docs/release/RELEASE_RUNBOOK.md` | Attestation step, verification guide and runbook exist and the attestation ran on release 0.5.4 (all files verified); no independent security review. | maintainer |
 | RM-6 | M6 / dissemination | partial | E1 | `CITATION.cff`<br>`docs/REPLICATION_GUIDE.md` | Citation metadata and the replication package exist; no archival DOI, no external reports, no paper submission. | maintainer |
 

@@ -19,7 +19,8 @@
     "partial": "some of the gate is met; `remaining` says what is not",
     "not_started": "nothing yet",
     "needs_maintainer": "only the maintainer can decide or do it",
-    "needs_external": "needs a person or party outside the project"
+    "needs_external": "needs a person or party outside the project",
+    "declined": "decided against by the maintainer, with the reasons recorded; revisit only if a real need appears"
   },
   "scorecard": {
     "formula": "sum(weight * score) / sum(weight)",
@@ -506,12 +507,12 @@
       "group": "linux",
       "title": "AppImage + DEB",
       "gate": "CI produces actual versioned assets; verify checksums and installation from published files.",
-      "status": "needs_maintainer",
+      "status": "declined",
       "evidence": [
         "scripts/install-linux.sh"
       ],
       "evidence_level": "E0",
-      "remaining": "Not built, and not built on purpose: the application bundles PyTorch and Qt (a bundle runs to gigabytes), Qt's LGPL would then bind the project to shipping its source and license terms, glibc compatibility cannot be tested here, and the audit itself says to avoid extra formats until needed. The maintainer decides.",
+      "remaining": "Decided against by the maintainer on 25 Nov 2026 after weighing it: the bundle would be gigabytes (PyTorch and Qt), bundling Qt brings LGPL obligations (license texts, a source offer, replaceable libraries), glibc compatibility and other distributions cannot be tested here, and the audit itself advises against extra formats until a real need appears. The install script and its clean-machine test remain the supported route. Revisit with an AppImage only (no DEB) if someone cannot use the script.",
       "who": "maintainer"
     },
     {
@@ -803,7 +804,7 @@
         "docs/SUPPORT_MATRIX.md"
       ],
       "evidence_level": "E2",
-      "remaining": "Linux matrix and clean-install evidence exist; AppImage/DEB not built (maintainer's decision); no user task results.",
+      "remaining": "Linux matrix and clean-install evidence exist; AppImage/DEB deliberately not built (declined, see L-01); no user task results.",
       "who": "maintainer"
     },
     {
