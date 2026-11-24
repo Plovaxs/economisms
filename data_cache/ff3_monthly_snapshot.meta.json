@@ -1,0 +1,25 @@
+{
+  "source": "Kenneth R. French Data Library, Fama/French 3 factors (monthly)",
+  "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+  "license": "Kenneth R. French Data Library (free for academic research use)",
+  "downloaded_at": "2026-11-09 (the date the file was first committed; the actual download date was not recorded at the time)",
+  "derived_by": "data_ingestion.french_factors (monthly section of F-F_Research_Data_Factors.csv, dates as YYYYMM)",
+  "columns": {
+    "Mkt-RF": "excess return of the market, percent per month",
+    "SMB": "size factor (small minus big), percent per month",
+    "HML": "value factor (high minus low book-to-market), percent per month",
+    "RF": "one-month Treasury bill rate, percent per month"
+  },
+  "rows": 1203,
+  "real_range": "192607 .. 202609",
+  "point_in_time": "NOT point-in-time: the library revises its factor returns; this is the series as published on the verification date, not a real-time vintage.",
+  "provenance_gap_closed_on": "2026-11-25",
+  "verified_against_source": {
+    "verified_on": "2026-11-25",
+    "method": "downloaded the library's zip again and compared every monthly row with this file",
+    "result": "all 1203 months identical in all four columns; no month only in one of them",
+    "verification_download_zip_sha256": "b03d39e4bb253dda0f14893db3b78e64b40b8d6549a0fc0fd4111dae84c98618",
+    "verification_download_csv_sha256": "a3894d74d553cab812eabbe706bdbf443c97eb20b24b05e3e5f3ce47e46b90bb",
+    "caveat": "these digests are of the verification download, not of the original download, which was not kept"
+  }
+}

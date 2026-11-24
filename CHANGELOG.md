@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **French-factor snapshot provenance recorded.** `ff3_monthly_snapshot.csv` now has a metadata file: its download date
+  was never recorded (it says so), but the library's file was downloaded again and every one of the 1,203 months
+  compared: identical in all four columns. The registry now has no provenance gap. The maintainer also confirmed the
+  confirmatory protocol's margins, seeds, block lengths and dates as proposed (the protocol is still not frozen).
+
 - **Decision: no AppImage or DEB.** The maintainer weighed them (gigabyte bundle, Qt LGPL obligations, glibc and
   other distributions untestable here, the audit's own advice) and chose the install script and its clean-machine
   test as the supported route. Recorded as `declined` in the audit register; revisit with an AppImage only if

@@ -51,15 +51,20 @@ def test_every_snapshot_is_registered_with_the_digest_the_manifest_records() -> 
         assert entry["license"] and entry["source"] and entry["source_url"], entry["file"]
 
 
-def test_the_only_provenance_gap_today_is_the_french_factor_snapshot_with_no_metadata() -> None:
-    """Found by the registry: `ff3_monthly_snapshot.csv` has no `.meta.json`, so its download date
-    and raw-file digest are not recorded. The connector's own constants fill source and licence;
-    the rest stays a flagged gap. Fixing it means recording that provenance, then removing this
-    entry."""
+def test_no_snapshot_has_a_provenance_gap_and_the_french_factors_were_verified_against_source() -> (
+    None
+):
+    """The registry once found that `ff3_monthly_snapshot.csv` had no `.meta.json`. Its
+    metadata says what is known and what is not: the download date was not recorded, but every month was compared
+    with the library's own file on 2026-11-25 and all 1,203 matched."""
     entries = build_registry()["datasets"]
-    gaps = {e["file"]: e["registry_gaps"] for e in entries if e["registry_gaps"]}
-    assert list(gaps) == ["ff3_monthly_snapshot.csv"]
-    assert "no .meta.json" in gaps["ff3_monthly_snapshot.csv"][0]
+    assert [e["file"] for e in entries if e["registry_gaps"]] == []
+    meta = json.loads((DATA / "ff3_monthly_snapshot.meta.json").read_text())
+    assert meta["verified_against_source"]["verified_on"] == "2026-11-25"
+    assert (
+        "not recorded" in meta["downloaded_at"]
+        and "original download" in meta["verified_against_source"]["caveat"]
+    )
 
 
 def test_the_warnings_the_qa_report_finds_in_the_real_data_are_the_ones_known_today() -> None:

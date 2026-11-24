@@ -54,7 +54,7 @@ Statuses:
 
 | ID | Item | Status | Level | Evidence | What is missing | Who |
 | --- | --- | --- | --- | --- | --- | --- |
-| D-01 | Dataset registry | partial | E2 | `docs/data/dataset_registry.json`<br>`src/prometheus/data_ingestion/dataset_registry.py`<br>`tests/unit/test_dataset_registry.py` | Generated from the files, drift-tested. One snapshot (ff3_monthly_snapshot.csv) has no metadata file; units are only as declared in the metadata. | maintainer |
+| D-01 | Dataset registry | partial | E2 | `docs/data/dataset_registry.json`<br>`src/prometheus/data_ingestion/dataset_registry.py`<br>`tests/unit/test_dataset_registry.py` | Generated from the files, drift-tested, no snapshot lacks metadata. The French-factor snapshot's download date was never recorded (its metadata says so and records a full comparison with the library's file on 25 Nov 2026: all 1,203 months identical); units are only as declared in the metadata. | maintainer |
 | D-02 | Release-aware alignment | partial | E2 | `src/prometheus/econosim/pit.py`<br>`docs/DATA_DICTIONARY.md` | A fixed-lag point-in-time convention with leak tests exists; a per-feature audit is not automated. The GDP look-ahead is the proof that one was needed. | external |
 | D-03 | Historical vintages | partial | E1 | `docs/data/dataset_registry.json` | Every snapshot is labelled revised-only in the registry. ALFRED is not reachable from the development environment, so no real-time vintage was used. | maintainer |
 | D-04 | Pipeline isolation | partial | E2 | `src/prometheus/orchestration/market_risk_study.py` | Chronological splits and a per-forecaster leak test exist in the studies that have them; no repository-wide audit. | external |

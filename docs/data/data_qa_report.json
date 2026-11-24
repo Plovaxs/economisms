@@ -11,6 +11,9 @@
         "dates_strictly_increasing": {
           "status": "ok"
         },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
         "no_blank_cells": {
           "status": "ok"
         },

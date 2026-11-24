@@ -186,11 +186,11 @@ A test also caught a real defect while this was written: a month written as `202
 | Analysis code for E1-E3, shown to reproduce Findings 8, 15 and 18 on old data | **done** (see above) |
 | A guard that keeps untouched data and the reserved seeds unread until frozen | **done** |
 | Power note per endpoint (an endpoint with power below 0.8 is declared estimation-only up front) | **done**: E1 adequate; E2 and E3 estimation-only (`confirmatory/power_note.json`) |
-| Data-use audit: which windows each frozen model has already read | **done by the assistant** (`confirmatory/DATA_USE_AUDIT.md`); it changed E2's label; the maintainer must confirm it |
+| Data-use audit: which windows each frozen model has already read | **done by the assistant** (`confirmatory/DATA_USE_AUDIT.md`); it changed E2's label; the maintainer accepted it on 25 November 2026 without an independent check |
 | Source and SHA-256 of the post-snapshot CPI data | **done**: BLS `CUSR0000SA0`, locked in `confirmatory_data/`, digest above (a one-month gap, 2025-10) |
 | Source and SHA-256 of the post-snapshot S&P 500 data | **not chosen**: only the maintainer can (Kaggle token or another download) |
-| Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**, the maintainer's choice, to be written in the freeze record |
-| Maintainer confirms every margin `δ`, block length, seed, sample size and date above | not done |
+| Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**; if the maintainer does not choose, the code's default (all three, Bonferroni `0.05/3`) applies and is recorded in the freeze record |
+| Maintainer confirms every margin `δ`, block length, seed, sample size and date above | **confirmed on 25 November 2026**, accepting the proposals as written (the maintainer did not change any, and did not independently re-derive them); changing one after the freeze is a deviation |
 | E4 event list and audit, or E4 dropped | open |
 | A collector that records each new CPI and price on release day, for the prospective extension | not built |
 

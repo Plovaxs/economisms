@@ -9,28 +9,31 @@
         "HML",
         "RF"
       ],
-      "downloaded_at": null,
+      "downloaded_at": "2026-11-09 (the date the file was first committed; the actual download date was not recorded at the time)",
       "file": "ff3_monthly_snapshot.csv",
       "first_date": "1926-07-01",
       "frequency": "monthly",
       "last_date": "2026-09-01",
       "license": "Kenneth R. French Data Library (free for academic research use)",
       "lineage": {
-        "derived_by": null,
+        "derived_by": "data_ingestion.french_factors (monthly section of F-F_Research_Data_Factors.csv, dates as YYYYMM)",
         "raw_files_sha256": null
       },
-      "meta_file": null,
+      "meta_file": "ff3_monthly_snapshot.meta.json",
       "publication_lag_days": null,
-      "registry_gaps": [
-        "no .meta.json: source, download date and raw-file digests are not recorded"
-      ],
+      "registry_gaps": [],
       "rows": 1203,
       "sha256": "992452a26f777ddcedfbb59883d39741fdd68984e546c6b602cfada58d972641",
       "size_bytes": 34894,
       "source": "Kenneth R. French Data Library, Fama/French 3 factors (monthly)",
       "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
-      "units_and_columns": null,
-      "vintage": "not recorded"
+      "units_and_columns": {
+        "HML": "value factor (high minus low book-to-market), percent per month",
+        "Mkt-RF": "excess return of the market, percent per month",
+        "RF": "one-month Treasury bill rate, percent per month",
+        "SMB": "size factor (small minus big), percent per month"
+      },
+      "vintage": "as published on 2026-11-09 (the date the file was first committed; the actual download date was not recorded at the time); revised series (a later download can differ), not a real-time vintage"
     },
     {
       "caveat": "The seasonally adjusted series as it stands today: seasonal factors are re-estimated for years after publication, so a level here can differ slightly from the one first published (the real-time vintage is not reachable from this environment).",

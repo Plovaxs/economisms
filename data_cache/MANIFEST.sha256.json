@@ -5,6 +5,10 @@
       "bytes": 34894,
       "sha256": "992452a26f777ddcedfbb59883d39741fdd68984e546c6b602cfada58d972641"
     },
+    "ff3_monthly_snapshot.meta.json": {
+      "bytes": 1654,
+      "sha256": "1eab1d5fc35fd102c1d66e28bc9483b24de2c2c3c1a60f64c0834ad04481eca9"
+    },
     "kaggle_cpi_index_monthly.csv": {
       "bytes": 11945,
       "sha256": "4a305d881163e6e476e531451fc28d614e5c185be0d9d3028180ddb8cd21b4ac"

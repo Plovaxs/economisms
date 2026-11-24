@@ -406,7 +406,7 @@
         "tests/unit/test_dataset_registry.py"
       ],
       "evidence_level": "E2",
-      "remaining": "Generated from the files, drift-tested. One snapshot (ff3_monthly_snapshot.csv) has no metadata file; units are only as declared in the metadata.",
+      "remaining": "Generated from the files, drift-tested, no snapshot lacks metadata. The French-factor snapshot's download date was never recorded (its metadata says so and records a full comparison with the library's file on 25 Nov 2026: all 1,203 months identical); units are only as declared in the metadata.",
       "who": "maintainer"
     },
     {
