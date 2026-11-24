@@ -1,8 +1,9 @@
 # Confirmatory protocol (DRAFT, not frozen)
 
 **Status: draft.** Nothing below binds the project, and nothing here may be cited as "pre-registered", until the
-freeze checklist at the end is complete: the open items filled in, the analysis code written, a commit tagged, and
-that tag anchored somewhere the maintainer cannot edit. Until then this is a plan.
+freeze checklist at the end is complete: the open items filled in, a commit tagged, and that tag anchored somewhere
+the maintainer cannot edit. Until then this is a plan. The analysis code now exists and is described under "The
+analysis code"; the plan around it does not yet bind anyone.
 
 **Why it exists.** [FINAL_PROJECT_HYPOTHESES.md](./FINAL_PROJECT_HYPOTHESES.md) is a *retrospective* freeze: the five
 hypotheses were tested before that document existed, so every verdict in
@@ -33,9 +34,10 @@ Every claim made from this protocol carries exactly one label.
 3. **Everything is reported**, including nulls and reversals. A negative result is a result.
 4. **Intervals.** Three primary endpoints, so each is reported with a two-sided `1 - 0.05/3` (98.33%) interval
    (Bonferroni). Paired differences use a moving-block bootstrap, 10,000 resamples, seed fixed in advance.
-5. **Outcome classes** for a paired effect `θ` (positive means the *baseline* is worse) with interval `[L, U]` and
-   an equivalence margin `δ` fixed in advance: **better** if `L > 0`; **worse** if `U < 0`; **equivalent** if
-   `-δ < L` and `U < δ`; otherwise **inconclusive**. An interval that contains zero is *not* evidence of equality.
+5. **Outcome classes** for a paired effect `θ` (positive means the frozen model beats its baseline) with interval
+   `[L, U]` and an equivalence margin `δ` fixed in advance, checked in this order: **equivalent** if `-δ < L` and
+   `U < δ` (a real but negligible difference counts as equivalent); otherwise **better** if `L > 0`; otherwise
+   **worse** if `U < 0`; otherwise **inconclusive**. An interval that contains zero is *not* evidence of equality.
 6. **Margins are practical, not statistical.** Each `δ`, block length, seed and sample size below is a proposal the
    maintainer must confirm before the freeze; changing one afterwards is a deviation.
 
@@ -44,25 +46,35 @@ Every claim made from this protocol carries exactly one label.
 ### E1. Deep hedging against the static baseline (H5). Label: untouched (fresh simulated paths)
 
 - **Question.** Does the REINFORCE hedging policy beat the delta / no-trade-band baseline on conditional value at
-  risk of terminal hedging loss, on the same paths?
-- **Frozen.** `rl_hedge` runner with its default configuration at the freeze commit (the CVaR reward and the epoch
-  budget recorded there). The CVaR level is whatever that runner reports; record it in the freeze record.
-- **Seeds.** 50 fresh seeds, `10000`-`10049`, none used by any earlier run in this repository.
-- **Statistic.** Per seed, `r = CVaR(policy) / CVaR(baseline)` on common paths; `θ = -mean(log r)`, so positive
-  favours the policy. Interval: across seeds (t interval at the level in rule 4).
+  risk (95%) of terminal hedging loss, on the same paths?
+- **Frozen.** The `rl_hedge` runner with its default configuration at the freeze commit, one training run per seed
+  on that seed's 2,000 simulated paths; its recipe hash goes in the freeze record.
+- **Seeds.** 50 fresh seeds, `10000`-`10049`, none used by any earlier run in this repository. The analysis code
+  refuses to run them until the freeze record below is complete.
+- **Statistic.** Scored on **held-out** paths, which Finding 8 did not do: 20,000 fresh paths per seed from a generator
+  independent of the training one, the policy acting deterministically (its mean action), both hedges on the same
+  paths. `r = CVaR(policy) / CVaR(baseline)`; `θ = -mean(log r)` over seeds, so positive favours the policy;
+  interval: t interval across the 50 independent training runs.
 - **Margin.** `δ = ln(1.05)`: a 5% CVaR difference is treated as no difference that matters.
-- **Context (exploratory, Finding 8).** 8 seeds gave ratios of about 1.04 to 1.41, none below 1.
+- **Why not Finding 8's number.** Finding 8 compares the policy's last-epoch *sampled* (exploring) rollout with the
+  baseline on the *training* paths: the two biases point in opposite directions, so the result stands, but it is not
+  the cleanest comparison. The code reports that number too (`in_sample_ratio`), so the old finding stays reproducible.
+- **Context (exploratory).** The held-out ratios on the eight old seeds were seen while the code was written, after
+  `δ` was proposed; they are in "The analysis code" below and are not evidence for this endpoint.
 
 ### E2. Inflation nowcast: base-effect rule against persistence (Finding 18). Label: untouched, then prospective
 
 - **Question.** Does forecasting this month's price growth as the mean of the previous 12 months' growth give a
   smaller absolute error in the year-over-year rate than persisting the last year-over-year rate?
-- **Frozen.** The two rules exactly as `orchestration.inflationcast_long_study` defines them. No learned model is
-  involved, so nothing is fitted.
-- **Data.** CPI-U all items, seasonally adjusted, for months **after** the last month in the committed snapshot
-  (`data_cache/kaggle_cpi_index_monthly.csv`, last month 2023-04). The source is chosen and its checksum recorded
-  before any model sees it.
-- **Statistic.** `d_t = |e_persistence| - |e_rule|` in percentage points; `θ = mean(d_t)`; block length 3.
+- **Frozen.** The two rules exactly as `orchestration.inflationcast_long_study` defines them (`base_mean12` and the
+  previous year-over-year rate). No learned model is involved, so nothing is fitted.
+- **Data.** CPI-U all items, seasonally adjusted, for target months **after** the last month measured in the
+  committed snapshot (`data_cache/kaggle_cpi_index_monthly.csv`, whose last row measures **2023-03**): the first
+  untouched target month is **2023-04**. A new `month,level` CSV is hashed against a SHA-256 stated in advance and
+  must continue the series with no gap and no overlap. The source is chosen and its checksum recorded before any
+  model sees it.
+- **Statistic.** `d_t = |e_persistence| - |e_rule|` in percentage points; `θ = mean(d_t)`; block length 3 (about
+  `n^(1/3)` for the months expected); blocks of 6 and 12 are reported as sensitivity, never decisive.
 - **Margin.** `δ = 0.03` percentage points (about 10% of persistence's 0.326 pp test error in Finding 18).
 - **Two analyses.** *Primary:* every untouched month available at the freeze. *Extension (prospective):* one
   re-analysis once 24 months have accrued after the freeze, each month's value captured on release day with its
@@ -75,17 +87,19 @@ Every claim made from this protocol carries exactly one label.
 
 - **Question.** Is the model that came closest in Finding 15 well calibrated on data it never saw?
 - **Frozen.** GARCH(1,1) with filtered historical simulation, parameters estimated once on returns before 2000
-  exactly as in Finding 15; the filter conditions on returns up to the previous day. At the freeze the maintainer
-  confirms from the study's code that nothing is refitted during the test window.
+  exactly as in Finding 15; the filter conditions on returns up to the previous day. The code reproduces the study's
+  own forecaster and a test compares the two number for number, so nothing is refitted on the scored days.
 - **Data.** Daily S&P 500 closes **after** the last day in the committed snapshot
-  (`data_cache/kaggle_sp500_spliced_daily_close.csv`, last day 2023-05-03); source and checksum recorded first.
-- **Statistics.** Exceedance counts at 99% and 97.5%; the conditional-coverage test at 5% as in Finding 15; the
-  pinball-loss difference, 250-day historical simulation minus GARCH-FHS so that positive favours
-  GARCH-FHS (paired, block length 20).
-- **Reading.** "Consistent with coverage" only if the exact binomial interval for the exceedance rate contains the
-  nominal rate *and* the conditional-coverage test does not reject; with about 9 expected exceedances at 99% over
-  roughly 900 days, failing to reject is weak evidence, and the report says so.
-- **Margin.** For the pinball difference, `δ = 0.2` basis points (about 5% of the 3.92 bp score in Finding 15).
+  (`data_cache/kaggle_sp500_spliced_daily_close.csv`, last day 2023-05-03): the first untouched day is 2023-05-04. A
+  new `date,close` CSV is hashed against a SHA-256 stated in advance and may not overlap the committed series. The
+  source is chosen and its checksum recorded first.
+- **Primary claim (99% VaR).** "Consistent with coverage" only if the exact binomial interval for the exceedance rate
+  contains 1% *and* the conditional-coverage test does not reject at the Bonferroni level `0.05/3`. With about 9
+  expected exceedances over roughly 900 days, failing to reject is weak evidence, and the report prints the interval
+  rather than a verdict alone.
+- **Secondary.** The same at 97.5%; and the paired pinball-loss difference (250-day historical simulation minus
+  GARCH-FHS, so positive favours GARCH-FHS), block length 22 (the study's own), margins `δ = 0.2` bp at 99% and
+  `0.4` bp at 97.5% (about 5% of GARCH-FHS's 3.92 and 8.22 bp in Finding 15).
 - **Two analyses.** As E2: everything untouched at the freeze, then one prospective re-analysis after 750 further
   trading days.
 
@@ -109,11 +123,42 @@ into one universal score.
 - **H4 (methodology).** A statement about how evaluation choices change conclusions; it was already shown twice
   (Findings 1 and 7) and is not a hypothesis about fresh data.
 
+## The analysis code
+
+`src/prometheus/confirmatory/`, no network call, no model added: each forecaster is the original study's, imported
+unchanged or reproduced line for line and compared with it by a test.
+
+```
+python -m prometheus.confirmatory reproduce            # old data and seeds 0-7 only; no freeze needed
+python -m prometheus.confirmatory e1 --seeds 10000-10049
+python -m prometheus.confirmatory e2 --new cpi.csv --new-sha256 <hex> --scored-from 2023-04-30
+python -m prometheus.confirmatory e3 --new px.csv  --new-sha256 <hex> --scored-from 2023-05-04
+```
+
+The last three refuse to run (before reading the data file or training anything) until the freeze record below has
+every field filled in. The guard stops an accident, not a deliberate bypass: it reads a table the maintainer edits.
+
+**What `reproduce` showed on the old data (24 November 2026).** 14 documented numbers compared, all matching:
+
+| Endpoint | Old finding | The new code gave |
+| --- | --- | --- |
+| E2 | Finding 18: 277 months; error 0.326 pp (persistence), 0.226 (rule); difference -0.100, 95% interval [-0.136, -0.068] | identical to three decimals, from the same bootstrap seed |
+| E3 | Finding 15: 3,235 test days; GARCH-FHS 48 exceedances at 99%, pinball 3.92 and 8.22 bp; 250-day historical 56 exceedances, 5.63 and 10.40 bp | identical |
+| E1 | Finding 8: 1.04x-1.41x the baseline's CVaR over 8 seeds; 0 of 8 beat it | 1.04-1.41 over the two budgets together; 0 of 8 at either budget |
+
+Two things came out of it. First, Finding 8's range was attributed to "800 epochs", but it belongs to the two
+budgets together: at 400 epochs the eight seeds gave 1.08x-1.41x, at 800 epochs 1.04x-1.19x (the text of the finding
+is corrected). Second, the new held-out statistic on the same eight seeds gave ratios of 1.03-1.20 at 400 epochs
+and 1.00-1.14 at 800, none below 1: exploratory, because those seeds are old, and not a prediction for E1.
+
+A test also caught a real defect while this was written: a month written as `2023-13` was read as January.
+
 ## Open items before the freeze
 
 | Item | Status |
 | --- | --- |
-| Analysis code for E1-E3, run on old data first to show it works and reproduces Finding 8, 15 and 18 | not written |
+| Analysis code for E1-E3, shown to reproduce Findings 8, 15 and 18 on old data | **done** (see above) |
+| A guard that keeps untouched data and the reserved seeds unread until frozen | **done** |
 | Power note per endpoint, from the retrospective paired differences (an endpoint with power below 0.8 is declared estimation-only up front) | not computed |
 | Data-use audit: which windows each frozen model has already read | not done |
 | Source and SHA-256 of the post-snapshot CPI and S&P 500 data | not chosen |
@@ -123,13 +168,13 @@ into one universal score.
 
 ## Freeze checklist (only the maintainer can do these)
 
-1. Close every open item above and commit the analysis code.
-2. Run the whole analysis once on old data to prove it works. Do not run it on any untouched data yet.
+1. Close every open item above and commit the result.
+2. Run `python -m prometheus.confirmatory reproduce` once more on the freeze commit and keep its output.
 3. Fill in the freeze record below, commit, and push an annotated tag `protocol-v1`.
 4. **Anchor the tag outside GitHub's editable history**: register this file on an independent registry (for
    example OSF), or archive a release in a service that issues a DOI. A commit date is set by its author and proves
    little on its own.
-5. Only then load the untouched data and run E1-E3.
+5. Only then load the untouched data and run E1-E3 (the e1, e2 and e3 commands refuse to run until step 3 is done).
 
 ## Freeze record
 

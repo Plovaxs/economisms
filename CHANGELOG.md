@@ -16,13 +16,20 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
-- **A draft confirmatory protocol** ([docs/CONFIRMATORY_PROTOCOL.md](./docs/CONFIRMATORY_PROTOCOL.md)). The five
-  hypotheses were frozen after most of the experiments ran, so every verdict is exploratory. The draft names three
-  primary endpoints (deep hedging on fresh seeds; the inflation base-effect rule and the GARCH-FHS value-at-risk
-  model on data that postdate the committed snapshots), their statistics, equivalence margins and outcome rules,
-  and separates *untouched* from *prospective* from *re-used* data. It is a draft: the analysis code, power notes,
-  data-use audit and data sources do not exist yet, and it binds nothing until the maintainer freezes and
-  externally anchors it.
+- **A draft confirmatory protocol** ([docs/CONFIRMATORY_PROTOCOL.md](./docs/CONFIRMATORY_PROTOCOL.md)) **and the
+  analysis code for it** (`prometheus.confirmatory`). The five hypotheses were frozen after most of the experiments
+  ran, so every verdict is exploratory. The draft names three primary endpoints (deep hedging on fresh seeds and
+  held-out paths; the inflation base-effect rule and the GARCH-FHS value-at-risk model on data that postdate the
+  committed snapshots), their statistics, equivalence margins and outcome rules, and separates *untouched* from
+  *prospective* from *re-used* data. `python -m prometheus.confirmatory reproduce` runs the new code on the OLD data
+  and matches 14 numbers documented in Findings 8, 15 and 18 (the forecasters are the original studies', compared
+  with them by tests). The commands that would read untouched data or the reserved seeds refuse to run until the
+  protocol's freeze record is complete. It is still a draft: the power notes, data-use audit and data sources do not
+  exist yet, and it binds nothing until the maintainer freezes and externally anchors it.
+
+- **Finding 8, corrected.** Its "~1.04x-1.41x" range was attributed to 800 epochs alone; re-running the eight seeds
+  gives 1.08x-1.41x at 400 epochs and 1.04x-1.19x at 800, so the range spans both budgets. The conclusion (0 of 8
+  seeds beat the baseline) is unchanged.
 
 ## [0.5.3] -- 2026-11-24 -- a desktop icon on Linux, and citation metadata
 

@@ -225,8 +225,12 @@ Rockafellar-Uryasev CVaR estimator's differentiable half) combined
 with a longer, still-modest training budget (400–800 vs. the original
 40 epochs; the policy has 82 parameters, so this stays fast) narrows
 the gap from ~2.5x the static baseline's CVaR down to ~1.04x–1.41x
-across 8 seeds at 800 epochs — but does not close it: 0/8 seeds beat
-the static baseline at either 400 or 800 epochs. **Honest result: a
+across 8 seeds — but does not close it: 0/8 seeds beat the static
+baseline at either 400 or 800 epochs. (Correction, 2026-11-24: this
+sentence first attributed that range to 800 epochs alone. Re-running
+the eight seeds with `python -m prometheus.confirmatory reproduce`
+gives 1.08x–1.41x at 400 epochs and 1.04x–1.19x at 800, so the range
+spans both budgets.) **Honest result: a
 real, substantial improvement, and the qualitative conclusion
 (REINFORCE still loses) is unchanged** — now ruled out as an artifact
 of either an undertrained policy or a misaligned reward, rather than

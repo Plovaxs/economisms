@@ -2,7 +2,7 @@
 
 **A research platform for computational economics, stochastic finance, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-4%2C849%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-4%2C945%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.5.3-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
@@ -132,7 +132,7 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,849 / 4,849** passing, 12 skipped by design (Python, `uv run pytest -q`); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,945 / 4,945** passing, 12 skipped by design (Python, `uv run pytest -q`); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | 205, each independently verified |
 
@@ -361,6 +361,8 @@ src/prometheus/
   jobs/            durable, bounded research-job queue and worker
   data_ingestion/  external data source connectors (point-in-time schema)
   orchestration/   demo, benchmark/study and replay runners
+  confirmatory/    analysis code for the draft confirmatory protocol: reproduces Findings 8, 15 and 18 on
+                   the old data, and refuses to read untouched data until the protocol is frozen
 tests/
   unit/            one behavior per test, no hidden randomness
   property/        Hypothesis-based invariant and extreme-input testing
