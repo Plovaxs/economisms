@@ -27,6 +27,34 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   protocol's freeze record is complete. It is still a draft: the power notes, data-use audit and data sources do not
   exist yet, and it binds nothing until the maintainer freezes and externally anchors it.
 
+- **Installer: a data-loss hazard fixed.** `scripts/install-linux.sh` used `ECONOSIM_HOME` for its own install
+  directory, but `ECONOSIM_HOME` is also where the application keeps your results (README, DEPLOYMENT). Someone who
+  followed the README and then ran `install-linux.sh --uninstall` would have deleted their results. The installer
+  now uses `ECONOSIM_INSTALL_DIR`, refuses to touch `ECONOSIM_HOME`, the home directory, the root, or any non-empty
+  directory it did not make (checked before anything is downloaded), and marks its own directory. Releases 0.5.2 and
+  0.5.3 have the old behaviour: do not set `ECONOSIM_HOME` to a directory you care about when running their
+  uninstaller. 11 tests run the real script.
+
+- **A clean-machine installer test** (`scripts/installer-smoke.sh`, `.github/workflows/installer-smoke.yml`): installs
+  from a source archive of the commit into a scratch directory, checks the files, runs `econosim desktop --check` and
+  `econosim doctor`, installs again over the install (an upgrade) and checks the results survive, launches the window
+  on a virtual X11 display, uninstalls and checks that only the installer's own files went. Run on fresh Ubuntu 24.04
+  and Debian 12 machines, and on Ubuntu 22.04 (Python 3.10) to check the installer refuses cleanly. Not Wayland, a
+  physical display, or an offline install. It passed locally on Ubuntu 24.04 before it was added.
+
+- **A mutation check** (`tools/mutation_check.py`, `.github/workflows/mutation-check.yml`, no third-party tool):
+  24 deliberate faults (a flipped sign, a dropped check, an off-by-one) in the ledger, the Black-Scholes closed
+  forms, the risk metrics, the hedging accounting and the block bootstrap; each must make a guarding test fail. The
+  first run caught 21; the three survivors were real test gaps (nothing tested a put's payoff in the hedging
+  accounting, the number of bootstrap blocks, or the interval's percentile pair) and now have tests. A catalogue
+  check runs with the ordinary tests so it cannot go stale.
+
+- **More verification.** Disk-full and I/O-error injection into the artifact store (nothing half-written is ever
+  visible, no staging debris, the store is not wedged); the direct runner, the job engine and the desktop session
+  give the same sealed result for the same recipe; Monte Carlo standard errors are calibrated and shrink like
+  N^(-1/2); the grid solver is second order in space, and its observed order in time is first-to-1.5 for a payoff
+  with a kink (measured and pinned, not assumed to be 2).
+
 - **Confirmatory protocol, ready to freeze (all but the maintainer's part).** A data-use audit
   (`docs/confirmatory/DATA_USE_AUDIT.md`) found that INFLATIONCAST already scores persistence on the 2023-2026
   not-seasonally-adjusted CPI, so E2's window is *re-used*, not untouched: only months after 2026-10 are

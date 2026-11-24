@@ -122,3 +122,21 @@ def test_holdings_path_records_target_holdings_at_each_step() -> None:
     result = simulate_self_financing_hedge(paths, 0.1, 100.0, "call", 0.0, 0.0, 10.0, ratios)
     assert np.allclose(result.holdings_path[:, :3], ratios)
     assert np.allclose(result.holdings_path[:, 3], ratios[:, -1])  # held through to liquidation
+
+
+def test_a_put_pays_the_put_payoff_and_a_call_the_call_payoff() -> None:
+    """Found by a deliberate fault: a mutation that made the put pay the CALL's payoff survived the
+    suite, because every test above uses a call. With no trading the result is exact:
+    final_wealth = premium * e^{rT} - payoff(S_T), and the two payoffs differ on both sides of the
+    strike."""
+    r, maturity, strike, premium = 0.04, 1.0, 100.0, 7.0
+    dt = maturity / 2
+    terminal = np.array([130.0, 100.0, 70.0])
+    paths = np.stack([np.full(3, 100.0), np.full(3, 100.0), terminal], axis=1)
+    ratios = np.zeros((3, 2))
+    carried = premium * np.exp(r * maturity)
+
+    put = simulate_self_financing_hedge(paths, dt, strike, "put", r, 0.0, premium, ratios)
+    call = simulate_self_financing_hedge(paths, dt, strike, "call", r, 0.0, premium, ratios)
+    np.testing.assert_allclose(-put.terminal_loss, carried - np.array([0.0, 0.0, 30.0]))
+    np.testing.assert_allclose(-call.terminal_loss, carried - np.array([30.0, 0.0, 0.0]))

@@ -1,0 +1,102 @@
+name: installer-smoke
+
+# Does the Linux installer work on a CLEAN machine? Each job is a fresh virtual machine (or a fresh
+# container) with nothing of this project on it. It builds the source archive from the commit the way
+# the release workflow does, installs it with scripts/install-linux.sh into a scratch directory,
+# checks the files, runs `econosim desktop --check` and `econosim doctor`, installs again over the
+# first install (an upgrade) and checks the user's results survive, launches the window on a virtual
+# X11 display, uninstalls, and checks that only the installer's own files went.
+#
+# What this is evidence for, and what it is not: it exercises the installer on the systems listed
+# below, headless or on Xvfb (X11). It does not test Wayland, a physical display, other distributions,
+# an offline install, or a person using the application. Ubuntu 22.04 ships Python 3.10, which the
+# project does not support, so its job checks that the installer REFUSES cleanly instead.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"   # weekly: a base image or a dependency can change under an unchanged repository
+  push:
+    branches: [main]
+    paths:
+      - "scripts/install-linux.sh"
+      - "scripts/installer-smoke.sh"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "src/prometheus/desktop/**"
+      - ".github/workflows/installer-smoke.yml"
+  pull_request:
+    paths:
+      - "scripts/install-linux.sh"
+      - "scripts/installer-smoke.sh"
+      - "src/prometheus/desktop/**"
+      - ".github/workflows/installer-smoke.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  X11_PACKAGES: >-
+    xvfb libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
+    libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libegl1 libgl1
+    libfontconfig1 libdbus-1-3 desktop-file-utils
+
+jobs:
+  ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Install what a graphical session needs (the application's own warning names libxcb-cursor0)
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends $X11_PACKAGES
+      - name: Install, check, upgrade, launch on Xvfb, uninstall
+        env:
+          SMOKE_X11: "1"
+        run: bash scripts/installer-smoke.sh 2>&1 | tee "$RUNNER_TEMP/smoke.log"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### installer-smoke on ${{ matrix.image }}"
+            echo '```'
+            grep -E '^(===|SMOKE|refused|the window|Ubuntu|Debian|Python)' "$RUNNER_TEMP/smoke.log" || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  debian:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: debian:12
+    steps:
+      - name: Install the tools a fresh Debian lacks (git is needed before checkout)
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends ca-certificates curl git python3 python3-venv sudo $X11_PACKAGES
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Install, check, upgrade, launch on Xvfb, uninstall
+        env:
+          SMOKE_X11: "1"
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          bash scripts/installer-smoke.sh 2>&1 | tee "$RUNNER_TEMP/smoke.log"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### installer-smoke on Debian 12 (container)"
+            echo '```'
+            grep -E '^(===|SMOKE|refused|the window|Ubuntu|Debian|Python)' "$RUNNER_TEMP/smoke.log" || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

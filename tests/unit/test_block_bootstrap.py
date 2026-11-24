@@ -159,3 +159,34 @@ def test_deterministic_given_a_fixed_rng_seed() -> None:
     result_a = moving_block_bootstrap(np.mean, sample, 5, np.random.default_rng(42))
     result_b = moving_block_bootstrap(np.mean, sample, 5, np.random.default_rng(42))
     assert result_a == result_b
+
+
+def test_every_resample_has_the_full_sample_length_even_when_the_blocks_do_not_divide_it() -> None:
+    """Found by a deliberate fault: drawing floor(n / block) blocks instead of ceil survived the
+    suite, because the mean is insensitive to a slightly shorter resample. A metric that reports the
+    length of what it is given cannot be fooled."""
+    seen: list[int] = []
+
+    def length(sample: np.ndarray) -> float:
+        seen.append(int(sample.size))
+        return float(sample.size)
+
+    moving_block_bootstrap(length, np.arange(23.0), 5, np.random.default_rng(0), n_resamples=20)
+    assert seen == [23] * 21  # the point estimate, then twenty resamples, each of length 23
+
+
+def test_the_interval_is_the_alpha_over_two_percentile_pair_of_the_resampled_metric() -> None:
+    """Found by a deliberate fault: using (alpha, 1 - alpha) instead of (alpha/2, 1 - alpha/2)
+    survived. A metric that returns 0, 1, 2, ... makes the resampled values 1..1000 exactly, so the
+    interval's ends are known without any statistics."""
+    calls = iter(range(10_000))
+
+    def counter(_sample: np.ndarray) -> float:
+        return float(next(calls))
+
+    result = moving_block_bootstrap(
+        counter, np.arange(40.0), 4, np.random.default_rng(0), n_resamples=1000, confidence=0.9
+    )
+    values = np.arange(1, 1001, dtype=float)
+    assert result.ci_low == pytest.approx(np.quantile(values, 0.05))
+    assert result.ci_high == pytest.approx(np.quantile(values, 0.95))

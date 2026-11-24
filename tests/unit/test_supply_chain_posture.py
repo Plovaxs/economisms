@@ -26,6 +26,8 @@ EXPECTED = {
     "security.yml",
     "codeql.yml",
     "release.yml",
+    "installer-smoke.yml",
+    "mutation-check.yml",
 }
 
 

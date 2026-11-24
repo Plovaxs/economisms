@@ -87,3 +87,79 @@ def test_fifo_object_is_rejected_without_waiting_for_a_writer(tmp_path):
     os.mkfifo(prefix / ("a" * 64 + ".json"), 0o600)
     with pytest.raises(ArtifactError):
         store.get("a" * 64)
+
+
+def _fail_the_nth_fsync(monkeypatch, which: int, error: OSError) -> None:
+    """Make the `which`-th `os.fsync` call raise: 1 is the artifact's own data, 2 and 3 are the two
+    directory syncs after it has been linked into place."""
+    from prometheus.jobs import artifacts
+
+    real, calls = artifacts.os.fsync, {"n": 0}
+
+    def flaky(fd):
+        calls["n"] += 1
+        if calls["n"] == which:
+            raise error
+        return real(fd)
+
+    monkeypatch.setattr(artifacts.os, "fsync", flaky)
+
+
+def _only_the_lock_remains(store) -> bool:
+    return [p.name for p in store.root.rglob("*") if p.is_file()] == ["publish.lock"]
+
+
+def test_a_full_disk_while_writing_publishes_nothing_and_leaves_no_debris(
+    tmp_path, bundle, monkeypatch
+):
+    """ENOSPC while the artifact's bytes are being made durable: the call fails loudly, no artifact
+    is visible, no staging file is left behind, and the store is not wedged: the same bundle can
+    be published once the disk has room."""
+    import errno
+
+    store = ArtifactStore(tmp_path / "objects")
+    with monkeypatch.context() as patch:
+        _fail_the_nth_fsync(patch, 1, OSError(errno.ENOSPC, "No space left on device"))
+        with pytest.raises(OSError, match="No space left"):
+            store.put(bundle)
+    assert _only_the_lock_remains(store)  # nothing published, no orphan staging file
+    saved = store.put(bundle)  # the disk has room again
+    assert store.get(saved.content_sha256)["run_manifest"]["result_hash"] == saved.result_hash
+
+
+@pytest.mark.parametrize("which", [2, 3], ids=["parent-directory-sync", "root-directory-sync"])
+def test_a_failure_after_the_artifact_is_linked_leaves_a_complete_verified_object(
+    tmp_path, bundle, monkeypatch, which
+):
+    """The data were already durable and linked into place when a directory sync failed: the caller
+    sees the error, and what is on disk is a COMPLETE object that verifies, never a half-written
+    one. Publishing again returns it as a duplicate."""
+    import errno
+
+    store = ArtifactStore(tmp_path / "objects")
+    with monkeypatch.context() as patch:
+        _fail_the_nth_fsync(patch, which, OSError(errno.EIO, "Input/output error"))
+        with pytest.raises(OSError, match="Input/output error"):
+            store.put(bundle)
+    objects = [p for p in store.root.rglob("*.json")]
+    assert len(objects) == 1
+    digest = objects[0].stem
+    assert store.get(digest)["run_manifest"]["result_hash"]  # complete, and verified on read
+    assert [p.name for p in objects[0].parent.iterdir()] == [objects[0].name]  # no staging file
+    again = store.put(bundle)
+    assert again.content_sha256 == digest
+
+
+def test_a_store_that_cannot_make_its_directory_publishes_nothing(tmp_path, bundle):
+    import os
+
+    store = ArtifactStore(tmp_path / "objects")
+    store.root.chmod(0o500)  # read-only: no new prefix directory can be created
+    try:
+        if os.access(store.root, os.W_OK):
+            pytest.skip("running as a user that can write to a read-only directory")
+        with pytest.raises(OSError):
+            store.put(bundle)
+    finally:
+        store.root.chmod(0o700)
+    assert _only_the_lock_remains(store) or not [p for p in store.root.rglob("*.json")]
