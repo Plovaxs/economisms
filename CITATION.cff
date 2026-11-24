@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata. It is research software with no independent review: cite the version you ran, and read docs/RESULTS_AND_LIMITATIONS.md before relying on any number."
 title: "ECONOSIM (PROMETHEUS-X): a research platform for computational economics, stochastic finance, and neural risk control"
 type: software
-version: 0.5.3
+version: 0.5.4
 date-released: 2026-11-24
 license: MIT
 repository-code: "https://github.com/Plovaxs/economisms"

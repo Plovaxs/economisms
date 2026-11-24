@@ -16,6 +16,10 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+## [0.5.4] -- 2026-11-24 -- an installer data-loss fix, an audit response, and a signed-provenance step
+
+The entries below were written under `[Unreleased]` during the audit response; they ship in this release.
+
 - **A draft confirmatory protocol** ([docs/CONFIRMATORY_PROTOCOL.md](./docs/CONFIRMATORY_PROTOCOL.md)) **and the
   analysis code for it** (`prometheus.confirmatory`). The five hypotheses were frozen after most of the experiments
   ran, so every verdict is exploratory. The draft names three primary endpoints (deep hedging on fresh seeds and

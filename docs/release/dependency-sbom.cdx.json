@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:fdd07336-9be2-4607-a9f6-237272f6af7b",
+  "serialNumber": "urn:uuid:ef0323ec-17c2-4521-b0ac-2b578c9d6887",
   "metadata": {
-    "timestamp": "2026-11-24T11:35:02.223648375Z",
+    "timestamp": "2026-11-24T16:32:14.515096757Z",
     "tools": [
       {
         "vendor": "Astral Software Inc.",
@@ -14,9 +14,9 @@
     ],
     "component": {
       "type": "library",
-      "bom-ref": "prometheus-econ-1@0.5.3",
+      "bom-ref": "prometheus-econ-1@0.5.4",
       "name": "prometheus-econ",
-      "version": "0.5.3",
+      "version": "0.5.4",
       "properties": [
         {
           "name": "uv:package:is_project_root",
@@ -7658,7 +7658,7 @@
       "ref": "numpy-17@2.5.4"
     },
     {
-      "ref": "prometheus-econ-1@0.5.3",
+      "ref": "prometheus-econ-1@0.5.4",
       "dependsOn": [
         "cryptography-5@50.0.2",
         "jsonschema-10@4.26.0",
