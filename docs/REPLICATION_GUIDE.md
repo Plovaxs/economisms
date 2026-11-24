@@ -30,11 +30,12 @@ python -m prometheus.confirmatory reproduce
 ```
 
 About six minutes (add `--skip-e1` for 15 seconds without the hedging runs). It re-runs three studies on the
-committed data and compares 14 numbers with the ones the findings document. **Expected:** `"all_checks_match": true`
-and `"n_checks": 14`. The numbers are the inflation base-effect result (277 months, errors 0.326 and 0.226
+committed data and compares 16 numbers with the ones the findings document. **Expected:** `"all_checks_match": true`
+and `"n_checks": 16`. The numbers are the inflation base-effect result (277 months, errors 0.326 and 0.226
 percentage points, a difference of -0.100 with the interval [-0.136, -0.068]), the value-at-risk result (3,235
-days, 48 and 56 exceedances, pinball losses 3.92, 8.22, 5.63 and 10.40 basis points) and the hedging range
-(1.04 to 1.41 times the baseline over eight seeds at two epoch budgets, none below 1).
+days, 48 and 56 exceedances, pinball losses 3.92, 8.22, 5.63 and 10.40 basis points) the hedging range
+(1.04 to 1.41 times the baseline over eight seeds at two epoch budgets, none below 1) and Finding 5's COVID
+degradations for seed 0 (+6.99 neural, +26.45 GBM).
 
 ## 2. Re-run a finding
 

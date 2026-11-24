@@ -16,6 +16,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **E4 designed and built** (`prometheus.confirmatory.e4_shocks`): the neural SDE against a constant GBM shock by
+  shock (2001, 2008, COVID), trained only on data before each event, `patience` fixed, no pooling, no inference
+  across events, seeds 20000-20009 reserved for the frozen run. **An exploratory 10-seed run found that Finding 5's
+  "more robust under COVID" result is seed 0**: the neural SDE degraded less in only 4 of 10 seeds (0 of 10 in 2001,
+  4 of 10 in 2008). Notes added to Finding 5 and to H2; the verdicts are not rewritten.
+
 - **French-factor snapshot provenance recorded.** `ff3_monthly_snapshot.csv` now has a metadata file: its download date
   was never recorded (it says so), but the library's file was downloaded again and every one of the 1,203 months
   compared: identical in all four columns. The registry now has no provenance gap. The maintainer also confirmed the

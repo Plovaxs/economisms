@@ -57,6 +57,11 @@ for a constant-volatility GBM baseline; revised 2026-11-19 in PR-197 after a
 GDP look-ahead in the input data was corrected -- the figures on the freeze
 day were +5.58 vs. +29.97, verdict unchanged).
 
+**Update, 2026-11-25 (a pointer; the verdict above is unchanged):** an exploratory 10-seed check found the OOD-robustness
+half of H2 is not stable across training seeds (the neural SDE degraded less than the GBM under COVID in 4 of 10
+seeds, in 2001 in 0 of 10, in 2008 in 4 of 10); see `RESULTS_AND_LIMITATIONS.md` Finding 5. Whether the verdict
+should change is the maintainer's call.
+
 **H3 (PDE solvers).** A neural PDE solver (PINN / deep BSDE) earns its
 additional computational cost over a classical finite-difference grid
 once problem dimensionality is high enough. **Verdict: supported, with

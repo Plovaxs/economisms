@@ -22,7 +22,7 @@ Statuses:
 - **needs_external**: needs a person or party outside the project
 - **declined**: decided against by the maintainer, with the reasons recorded; revisit only if a real need appears
 
-**58 items: 6 done, 42 partial, 5 needs external, 4 not started, 1 declined.** No item is above evidence level E2.
+**58 items: 6 done, 43 partial, 5 needs external, 3 not started, 1 declined.** No item is above evidence level E2.
 
 ## Scientific redesign (SCI)
 
@@ -32,7 +32,7 @@ Statuses:
 | SCI-02 | Prospective protocol | partial | E2 | `docs/CONFIRMATORY_PROTOCOL.md`<br>`docs/confirmatory/DATA_USE_AUDIT.md`<br>`docs/confirmatory/power_note.json`<br>`src/prometheus/confirmatory/freeze.py` | Draft is complete except the maintainer's part: confirm every margin, choose the S&P source, decide the multiplicity family, design E4, freeze and anchor externally (OSF or a DOI). Binds nothing until then. | maintainer |
 | SCI-03 | Temporal holdout | partial | E2 | `docs/confirmatory/DATA_USE_AUDIT.md`<br>`tests/unit/test_confirmatory_e3.py` | E1-E3 are covered: frozen pipelines, a data-use audit, a guard on untouched data, and a differential test that E3's forecaster equals the study's. Split manifests of the older studies have not been audited. | maintainer |
 | SCI-04 | Statistical analysis | partial | E2 | `src/prometheus/confirmatory/intervals.py`<br>`src/prometheus/experiments/forecast_comparison.py`<br>`docs/confirmatory/power_note.json`<br>`tests/unit/test_confirmatory_intervals.py`<br>`tests/unit/test_forecast_comparison.py` | Paired block-bootstrap intervals, Bonferroni, equivalence margins, exact binomial intervals and power notes exist for the confirmatory endpoints, and a Diebold-Mariano test (Harvey-Leybourne-Newbold correction, Bartlett long-run variance) is implemented and tested for size, power and the repair of serial dependence. Exploratory use: on Finding 18's Q1 (277 months, absolute error, 11 lags) it gives -5.84 (p = 1.5e-8), agreeing with the bootstrap interval. The earlier findings use no multiplicity control, and the test is not part of the confirmatory protocol. | assistant |
-| SCI-05 | Robustness | not started | E0 | `docs/CONFIRMATORY_PROTOCOL.md` | E4 (neural SDE under several shocks) is left open on purpose pending a data-use audit; one country and one market throughout. | maintainer |
+| SCI-05 | Robustness | partial | E2 | `src/prometheus/confirmatory/e4_shocks.py`<br>`tests/unit/test_confirmatory_e4.py`<br>`docs/confirmatory/e4_exploratory_seeds0-9.json`<br>`docs/CONFIRMATORY_PROTOCOL.md` | E4 reports the neural SDE shock by shock (2001, 2008, COVID), trained only before each event, with the frozen run waiting for the freeze. An exploratory 10-seed run found the COVID result is seed-dependent. Still one country and one market, three events, no untouched shock, no independent markets. | maintainer |
 | SCI-06 | External replication | needs external | E1 | `docs/REPLICATION_GUIDE.md`<br>`.github/ISSUE_TEMPLATE/replication-report.yml` | The guide and the report form exist. No one else has run anything. | external |
 | SCI-07 | Economic validity | needs external | E0 | none | Needs a domain economist; nothing here can stand in for one. | external |
 | SCI-08 | Publication package | partial | E1 | `CITATION.cff`<br>`docs/FINAL_PAPER.md`<br>`docs/release/VERIFYING.md`<br>`confirmatory_data/README.md` | CITATION.cff, tagged releases with checksums, an SBOM, locked confirmatory data and a draft paper exist. No DOI (the maintainer must connect an archive) and no submitted paper. | maintainer |

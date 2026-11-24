@@ -130,6 +130,13 @@ only after the window ends. The qualitative result is unchanged.)*
 **Limitation:** one historical shock, not a distribution of shocks;
 "more robust under this shock" is not a general robustness guarantee.
 
+**Update, 2026-11-25 (an exploratory 10-seed check; the verdict above is not rewritten):** the +6.99 against +26.45
+above is seed 0. Over seeds 0-9, the same event-window code gives a median COVID degradation of +28.73 for the neural
+SDE against +26.45 for the GBM, and the neural SDE degraded less in only 4 of 10 seeds (advantage range -25.8 to
++19.5). In the 2001 recession it degraded less in 0 of 10 seeds, in 2008 in 4 of 10. So the "more robust under a
+shock" half of H2 rests on a favourable seed and is not stable. Details: `docs/confirmatory/
+e4_exploratory_seeds0-9.json` and the E4 section of `docs/CONFIRMATORY_PROTOCOL.md`.
+
 **Follow-up (PR-177): checked whether `patience=20` is simply
 undertraining this model -- the opposite turned out to be true, which
 matters because this finding depends on it.** `benchmark_report`'s

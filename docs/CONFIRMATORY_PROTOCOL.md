@@ -129,13 +129,32 @@ Every claim made from this protocol carries exactly one label.
 
 ## Pre-specified but re-used
 
-### E4. Neural SDE under shocks (H2). Label: re-used; left open on purpose
+### E4. Neural SDE under shocks (H2). Label: re-used; pre-specified; estimation only
 
-H2 rests on a single shock (COVID). A fair test needs several shocks fixed before any result is seen, and a data-use
-audit showing no event window influenced training, early stopping or any hyperparameter. That audit has not been
-done, so the event list, windows and loss are **not** guessed here. They are filled in at the freeze, together with
-the audit, or E4 is dropped from the confirmatory set. Per-event results are reported one by one, never pooled
-into one universal score.
+Designed and approved by the maintainer on 25 November 2026; code in `confirmatory/e4_shocks.py`.
+
+- **Why it cannot be confirmatory.** Every shock in the committed macro grid (1981-12 to 2023-01) was read by code:
+  2001 and 2008 sat inside the training data of the model Finding 5 reports, and COVID's window also decided
+  `patience=20` (Finding 5's follow-up kept it after seeing the window), so COVID is flagged
+  *selection-contaminated*. No shock after 2023-01 is in the data.
+- **Question.** Per shock, does the neural SDE's log-score degrade less than a constant-parameter GBM's?
+- **Events, fixed now:** the 2001 recession (decision times 2001-03-31 to 2001-11-30), the 2007-2009 crisis
+  (2007-12-31 to 2009-06-30), both from the NBER dates already in `recessionnet/labels.py`, and COVID in
+  Finding 5's own window (2020-02-29 to 2020-06-30).
+- **Method.** Per event, train only on transitions decided strictly before it (80/20 chronological split, early
+  stopping on the validation part, `patience` fixed at 20 and never tuned, 300 epochs at most); fit a GBM on the
+  same training part; score both without retuning on the event window. Statistic: degradation = event log score
+  minus in-distribution (validation) log score; `advantage = GBM degradation - neural degradation`, positive
+  favouring the neural SDE.
+- **Seeds.** 20000-20009, reserved for the frozen run (the guard refuses them until the freeze). Exploratory runs
+  use seeds 0-9.
+- **Inference.** None across events: three events cannot support an interval, and seeds measure only training
+  noise. Reported event by event with the spread over seeds; never pooled into one score; outside the Bonferroni
+  family.
+- **Exploratory dry run (seeds 0-9, `confirmatory/e4_exploratory_seeds0-9.json`).** The neural SDE degraded
+  *less* than the GBM in 0 of 10 seeds for 2001 (median advantage -0.81), 4 of 10 for 2008 (-0.69) and 4 of 10
+  for COVID (-2.29, range -25.8 to +19.5). Seed 0 reproduces Finding 5's +6.99 against +26.45 exactly; most other
+  seeds do not: **the "more robust under COVID" half of H2 is not stable across seeds.**
 
 ## Not testable now
 
@@ -157,6 +176,7 @@ python -m prometheus.confirmatory reproduce            # old data and seeds 0-7 
 python -m prometheus.confirmatory fetch-cpi --start-year 2022 --end-year 2026 --out FILE   # prints no value
 python -m prometheus.confirmatory power --lock-meta FILE.meta.json --output power.json     # old data only
 python -m prometheus.confirmatory e1 --seeds 10000-10049
+python -m prometheus.confirmatory e4 --seeds 20000-20009
 python -m prometheus.confirmatory e2 --series cpi.csv --series-sha256 <hex> --scored-from 2023-04-30
 python -m prometheus.confirmatory e3 --new px.csv  --new-sha256 <hex> --scored-from 2023-05-04
 ```
@@ -164,7 +184,7 @@ python -m prometheus.confirmatory e3 --new px.csv  --new-sha256 <hex> --scored-f
 `e1`, `e2` and `e3` refuse to run (before reading the data file or training anything) until the freeze record below has
 every field filled in. The guard stops an accident, not a deliberate bypass: it reads a table the maintainer edits.
 
-**What `reproduce` showed on the old data (24 November 2026).** 14 documented numbers compared, all matching:
+**What `reproduce` showed on the old data (24 November 2026).** 14 documented numbers compared, all matching (a 15th and 16th, Finding 5's COVID degradations for seed 0, were added with E4 and also match):
 
 | Endpoint | Old finding | The new code gave |
 | --- | --- | --- |
@@ -191,7 +211,7 @@ A test also caught a real defect while this was written: a month written as `202
 | Source and SHA-256 of the post-snapshot S&P 500 data | **not chosen**: only the maintainer can (Kaggle token or another download) |
 | Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**; if the maintainer does not choose, the code's default (all three, Bonferroni `0.05/3`) applies and is recorded in the freeze record |
 | Maintainer confirms every margin `δ`, block length, seed, sample size and date above | **confirmed on 25 November 2026**, accepting the proposals as written (the maintainer did not change any, and did not independently re-derive them); changing one after the freeze is a deviation |
-| E4 event list and audit, or E4 dropped | open |
+| E4 event list and audit, or E4 dropped | **designed and approved 25 Nov 2026** (code, tests, exploratory dry run on seeds 0-9); the frozen run on seeds 20000-20009 waits for the freeze |
 | A collector that records each new CPI and price on release day, for the prospective extension | not built |
 
 ## Disclosures made before the freeze

@@ -4,6 +4,7 @@
     python -m prometheus.confirmatory fetch-cpi --start-year 2022 --end-year 2026 --out FILE
     python -m prometheus.confirmatory power --lock-meta FILE.meta.json --output power.json
     python -m prometheus.confirmatory e1 --seeds 10000-10049
+    python -m prometheus.confirmatory e4 --seeds 20000-20009
     python -m prometheus.confirmatory e2 --series c.csv --series-sha256 H --scored-from 2023-04-30
     python -m prometheus.confirmatory e3 --new px.csv --new-sha256 H --scored-from 2023-05-04
 
@@ -24,7 +25,7 @@ from typing import Any
 
 import numpy as np
 
-from prometheus.confirmatory import bls_fetch, e1_hedging, e2_inflation, e3_var, power
+from prometheus.confirmatory import bls_fetch, e1_hedging, e2_inflation, e3_var, e4_shocks, power
 from prometheus.confirmatory.freeze import (
     PROTOCOL_PATH,
     NotFrozenError,
@@ -35,6 +36,7 @@ from prometheus.confirmatory.intervals import bonferroni_confidence
 from prometheus.data_ingestion.kaggle_sp500 import load_daily_closes
 from prometheus.orchestration.inflationcast_long_study import N_LAGS
 from prometheus.orchestration.market_risk_study import DATA_PATH as YAHOO_SP500_PATH
+from prometheus.orchestration.neural_sde_run import DEFAULT_CSV_PATH as DEFAULT_MACRO_CSV
 
 FINDING_8_SEEDS = tuple(range(8))
 FINDING_8_EPOCHS = (400, 800)
@@ -48,6 +50,7 @@ DOCUMENTED: dict[str, Any] = {
         "in_sample_ratio_range_rounded": [1.04, 1.41],
         "seeds_beating_baseline": 0,
     },
+    "finding_5": {"neural_degradation": 6.99, "baseline_degradation": 26.45},
     "finding_18": {
         "n_months": 277,
         "mae_persistence": 0.326,
@@ -198,6 +201,23 @@ def reproduce_e3() -> dict[str, Any]:
     return {"measured": measured, "checks": checks}
 
 
+def reproduce_e4() -> dict[str, Any]:
+    """Finding 5's COVID numbers (+6.99 neural, +26.45 GBM, seed 0) through the E4 code."""
+    covid = next(ev for ev in e4_shocks.EVENTS if ev.name == "covid_2020")
+    result = e4_shocks.run_event_seed(e4_shocks._examples(DEFAULT_MACRO_CSV), covid, 0)
+    measured = {
+        "neural_degradation": round(result.neural_degradation, 2),
+        "baseline_degradation": round(result.baseline_degradation, 2),
+    }
+    documented = DOCUMENTED["finding_5"]
+    return {
+        "measured": measured,
+        "checks": [
+            _check(k, measured[k], documented[k], measured[k] == documented[k]) for k in documented
+        ],
+    }
+
+
 def reproduce(
     seeds: Sequence[int] = FINDING_8_SEEDS,
     epochs: Sequence[int] = FINDING_8_EPOCHS,
@@ -210,6 +230,7 @@ def reproduce(
         report["E1_finding_8"] = reproduce_e1(seeds, epochs)
     report["E2_finding_18"] = reproduce_e2()
     report["E3_finding_15"] = reproduce_e3()
+    report["E4_finding_5"] = reproduce_e4()
     checks = [c for part in report.values() for c in part.get("checks", [])]
     report["all_checks_match"] = bool(checks) and all(c["match"] for c in checks)
     report["n_checks"] = len(checks)
@@ -368,6 +389,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     rep.add_argument("--skip-e1", action="store_true", help="skip the slow hedging runs")
     e1 = commands.add_parser("e1", help="E1 on fresh seeds (needs a frozen protocol)")
     e1.add_argument("--seeds", default="10000-10049")
+    e4 = commands.add_parser("e4", help="E4: shock by shock, on re-used data (seeds 20000-20009)")
+    e4.add_argument("--seeds", default="20000-20009")
     _add_data_arguments(
         commands.add_parser("e2", help="E2 on untouched CPI months"),
         "series",
@@ -395,6 +418,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             _emit(bls_fetch.write_locked(fetched, args.out), args.output)
             return 0
         confidence = bonferroni_confidence()
+        if args.command == "e4":
+            seeds = _parse_seeds(args.seeds)
+            require_seeds_allowed(seeds, args.protocol)
+            _emit(e4_shocks.run_e4(seeds), args.output)
+            return 0
         if args.command == "e1":
             seeds = _parse_seeds(args.seeds)
             require_seeds_allowed(seeds, args.protocol)

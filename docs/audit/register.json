@@ -234,12 +234,15 @@
       "group": "science",
       "title": "Robustness",
       "gate": "Preselect multiple crises and independent countries/markets where suitable; report per-event results.",
-      "status": "not_started",
+      "status": "partial",
       "evidence": [
+        "src/prometheus/confirmatory/e4_shocks.py",
+        "tests/unit/test_confirmatory_e4.py",
+        "docs/confirmatory/e4_exploratory_seeds0-9.json",
         "docs/CONFIRMATORY_PROTOCOL.md"
       ],
-      "evidence_level": "E0",
-      "remaining": "E4 (neural SDE under several shocks) is left open on purpose pending a data-use audit; one country and one market throughout.",
+      "evidence_level": "E2",
+      "remaining": "E4 reports the neural SDE shock by shock (2001, 2008, COVID), trained only before each event, with the frozen run waiting for the freeze. An exploratory 10-seed run found the COVID result is seed-dependent. Still one country and one market, three events, no untouched shock, no independent markets.",
       "who": "maintainer"
     },
     {

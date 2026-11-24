@@ -21,6 +21,8 @@ from pathlib import Path
 PROTOCOL_PATH = Path(__file__).resolve().parents[3] / "docs" / "CONFIRMATORY_PROTOCOL.md"
 RESERVED_SEEDS = range(10_000, 10_050)
 """E1's fresh seeds. No earlier run in this repository uses a seed this large."""
+E4_RESERVED_SEEDS = range(20_000, 20_010)
+"""E4's seeds, kept for the frozen run so exploratory runs (seeds 0-9) cannot use them up."""
 
 _SECTION = "## Freeze record"
 _UNFILLED = {"", "not frozen", "none", "tbd", "todo", "n/a", "-"}
@@ -89,5 +91,5 @@ def require_frozen(path: Path = PROTOCOL_PATH) -> dict[str, str]:
 
 def require_seeds_allowed(seeds: Iterable[int], path: Path = PROTOCOL_PATH) -> None:
     """A run that includes any reserved seed needs a frozen protocol; other seeds never do."""
-    if any(seed in RESERVED_SEEDS for seed in seeds):
+    if any(seed in RESERVED_SEEDS or seed in E4_RESERVED_SEEDS for seed in seeds):
         require_frozen(path)
