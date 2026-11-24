@@ -132,7 +132,7 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **4,945 / 4,945** passing, 12 skipped by design (Python, `uv run pytest -q`); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **4,945 / 4,945** passing, 12 skipped by design (Python, `uv run pytest -q`, on a machine with `desktop-file-utils`; the CI image lacks it, so its logs read 4,942 passed, 15 skipped, the same 4,957 tests); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | 205, each independently verified |
 
