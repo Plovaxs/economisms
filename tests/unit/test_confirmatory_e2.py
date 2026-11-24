@@ -18,9 +18,10 @@ from prometheus.confirmatory.e2_inflation import (
     analyse_window,
     committed_levels,
     first_untouched_month,
-    merge_levels,
+    impute_single_gaps,
     nowcast_data_from_levels,
     parse_new_levels,
+    vintage_overlap,
 )
 from prometheus.orchestration.inflationcast_long_study import build_nowcast_data
 
@@ -135,7 +136,8 @@ def test_new_levels_are_checked_against_the_stated_hash_before_anything_is_read(
         (_csv([("2023-04", 301.5)], header="when,level"), "columns month,level"),
         (_csv([("2023-13", 301.5)]), "malformed row"),
         (_csv([("2023-04", -1.0)]), "finite and positive"),
-        (_csv([("2023-04", float("nan"))]), "finite and positive"),
+        (_csv([("2023-04", float("inf"))]), "finite and positive"),
+        (_csv([("2023-04", 1.0), ("2023-06", 1.0)]), "must be consecutive"),
         (b"month,level\n", "empty"),
     ],
 )
@@ -149,17 +151,40 @@ def _parsed(rows: list[tuple[str, float]]) -> tuple[tuple[date, ...], np.ndarray
     return parse_new_levels(content, _digest(content))
 
 
-def test_merging_requires_the_very_next_month_and_no_gaps() -> None:
+def test_the_vintage_overlap_measures_the_revision_on_months_both_series_contain() -> None:
     old = committed_levels()
-    months, levels = merge_levels(old, _parsed([("2023-04", 301.0), ("2023-05", 302.0)]))
-    assert months[-1] == date(2023, 5, 31) and len(levels) == len(old[1]) + 2
+    by_month = dict(zip(old[0], old[1].tolist(), strict=True))
+    feb, mar = date(2023, 2, 28), date(2023, 3, 31)
+    revised = _parsed(
+        [
+            ("2023-02", by_month[feb] * 1.002),
+            ("2023-03", by_month[mar]),
+            ("2023-04", 301.0),
+        ]
+    )
+    report = vintage_overlap(old, revised)
+    assert report["n_overlap_months"] == 2
+    assert (report["first_overlap_month"], report["last_overlap_month"]) == (
+        "2023-02-28",
+        "2023-03-31",
+    )
+    assert report["max_relative_difference"] == pytest.approx(0.002)
+    assert report["mean_relative_difference"] == pytest.approx(0.001)
+    assert vintage_overlap(old, _parsed([("2024-01", 310.0)])) == {"n_overlap_months": 0}
 
-    with pytest.raises(ValueError, match="must start the month after 2023-03"):
-        merge_levels(old, _parsed([("2023-03", 301.0)]))  # overlap would let a revision in
-    with pytest.raises(ValueError, match="must start the month after 2023-03"):
-        merge_levels(old, _parsed([("2023-05", 301.0)]))  # a gap
-    with pytest.raises(ValueError, match="skips a month after 2023-04"):
-        merge_levels(old, _parsed([("2023-04", 301.0), ("2023-06", 302.0)]))
+
+def test_a_window_that_would_silently_lose_its_first_months_is_refused() -> None:
+    # 15 months of levels support targets only from the 14th month on (2023-02)
+    with pytest.raises(ValueError, match="supports target months only from 2023-02.*2023-01"):
+        analyse_window(
+            _MONTHS, _LEVELS, scored_from=date(2023, 1, 1), scored_to=None,
+            confidence=0.9, block_length=1, n_resamples=20,
+        )  # fmt: skip
+    ok = analyse_window(
+        _MONTHS, _LEVELS, scored_from=date(2023, 2, 1), scored_to=None,
+        confidence=0.9, block_length=1, n_resamples=20,
+    )  # fmt: skip
+    assert ok["first_month"] == "2023-02-28"
 
 
 def test_the_endpoint_reproduces_finding_18_with_that_findings_settings() -> None:
@@ -167,3 +192,39 @@ def test_the_endpoint_reproduces_finding_18_with_that_findings_settings() -> Non
     failed = [c for c in report["checks"] if not c["match"]]
     assert not failed, failed
     assert report["measured"]["n_months"] == 277
+
+
+def test_a_blank_level_is_a_gap_and_a_gap_removes_exactly_the_fourteen_targets_that_need_it() -> (
+    None
+):
+    months = _month_ends(2022, 1, 29)  # 2022-01 .. 2024-05
+    growth = [0.002 + 0.001 * (i % 3) for i in range(29)]
+    levels = 281.0 * np.cumprod(1.0 + np.array(growth))
+    gap = 21  # 2023-10 has no published index
+    with_gap = levels.copy()
+    with_gap[gap] = np.nan
+    report = analyse_window(
+        months, with_gap, scored_from=date(2023, 4, 1), scored_to=None,
+        confidence=0.9, block_length=3, n_resamples=50,
+    )  # fmt: skip
+    # a level at index k is needed by the targets k .. k+13 (this month, last month, and the
+    # twelve months of growth history and the year-ago level behind them)
+    assert report["excluded_months"] == [m.isoformat() for m in months[21:29]]
+    assert report["n_months_in_window"] == 14 and report["n_months"] == 6
+    assert report["last_month"] == months[20].isoformat()
+    assert set(report["sensitivity"]) == {"6"}  # a block of 12 does not fit in 6 months
+
+    imputed = report["sensitivity_imputed"]
+    assert imputed["n_months"] == 14 and imputed["excluded_months"] == []
+    assert imputed["outcome"] in {"better", "worse", "equivalent", "inconclusive"}
+    assert "sensitivity_imputed" not in analyse_window(
+        months, levels, scored_from=date(2023, 4, 1), scored_to=None,
+        confidence=0.9, block_length=3, n_resamples=50,
+    )  # fmt: skip
+
+
+def test_imputation_fills_only_an_isolated_gap_with_the_geometric_mean() -> None:
+    filled = impute_single_gaps(np.array([100.0, np.nan, 121.0, np.nan, np.nan, 130.0, np.nan]))
+    assert filled[1] == pytest.approx(110.0)
+    assert np.isnan(filled[3]) and np.isnan(filled[4])  # a longer gap stays a gap
+    assert np.isnan(filled[6])  # an end point has no second neighbour

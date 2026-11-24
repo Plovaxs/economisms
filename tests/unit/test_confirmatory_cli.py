@@ -60,15 +60,15 @@ def test_a_reserved_seed_run_is_refused_before_anything_trains(
     assert err.startswith("refused:") and "not frozen" in err
 
 
-@pytest.mark.parametrize("command", ["e2", "e3"])
+@pytest.mark.parametrize(("command", "flag"), [("e2", "series"), ("e3", "new")])
 def test_untouched_data_commands_are_refused_before_the_file_is_read(
-    command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    command: str, flag: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     code = cli.main(
         [
             "--protocol", str(_unfrozen(tmp_path)), command,
-            "--new", str(tmp_path / "does-not-exist.csv"),
-            "--new-sha256", "0" * 64,
+            f"--{flag}", str(tmp_path / "does-not-exist.csv"),
+            f"--{flag}-sha256", "0" * 64,
             "--scored-from", "2023-05-04",
         ]
     )  # fmt: skip
@@ -105,21 +105,22 @@ def test_seed_lists_parse(text: str, expected: list[int]) -> None:
     assert cli._parse_seeds(text) == expected
 
 
-def test_a_frozen_protocol_runs_e2_end_to_end_on_the_committed_series_plus_new_months(
+def test_a_frozen_protocol_runs_e2_end_to_end_on_one_single_vintage_series(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    months = [f"2023-{m:02d}" for m in range(4, 13)] + [f"2024-{m:02d}" for m in range(1, 6)]
-    level, rows = 301.808, []
+    months = [f"2022-{m:02d}" for m in range(1, 13)] + [f"2023-{m:02d}" for m in range(1, 13)]
+    months += [f"2024-{m:02d}" for m in range(1, 6)]
+    level, rows = 281.0, []
     for i, month in enumerate(months):
         level *= 1.0 + 0.002 + 0.001 * (i % 3)
         rows.append(f"{month},{level:.3f}")
     content = ("month,level\n" + "\n".join(rows) + "\n").encode()
-    new = tmp_path / "cpi_new.csv"
-    new.write_bytes(content)
+    series = tmp_path / "cpi_series.csv"
+    series.write_bytes(content)
     code = cli.main(
         [
             "--protocol", str(_frozen(tmp_path)), "e2",
-            "--new", str(new), "--new-sha256", hashlib.sha256(content).hexdigest(),
+            "--series", str(series), "--series-sha256", hashlib.sha256(content).hexdigest(),
             "--scored-from", "2023-04-30",
         ]
     )  # fmt: skip
@@ -130,6 +131,7 @@ def test_a_frozen_protocol_runs_e2_end_to_end_on_the_committed_series_plus_new_m
     assert report["interval"]["confidence"] == pytest.approx(bonferroni_confidence())
     assert report["outcome"] in {"better", "worse", "equivalent", "inconclusive"}
     assert set(report["sensitivity"]) == {"6", "12"}
+    assert report["vintage_check"]["n_overlap_months"] == 15  # 2022-01 .. 2023-03
 
 
 def test_a_file_that_does_not_match_its_stated_hash_is_refused(
@@ -140,7 +142,7 @@ def test_a_file_that_does_not_match_its_stated_hash_is_refused(
     code = cli.main(
         [
             "--protocol", str(_frozen(tmp_path)), "e2",
-            "--new", str(new), "--new-sha256", "0" * 64,
+            "--series", str(new), "--series-sha256", "0" * 64,
             "--scored-from", "2023-04-30",
         ]
     )  # fmt: skip

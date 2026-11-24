@@ -1,0 +1,28 @@
+{
+  "source": "U.S. Bureau of Labor Statistics, Public Data API v1 (no key)",
+  "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+  "request": {
+    "seriesid": [
+      "CUSR0000SA0"
+    ],
+    "startyear": "2022",
+    "endyear": "2026"
+  },
+  "series_id": "CUSR0000SA0",
+  "retrieved_at_utc": "2026-11-24T14:21:21+00:00",
+  "first_month": "2022-01",
+  "last_month": "2026-10",
+  "n_months": 58,
+  "missing_months": [
+    "2025-10"
+  ],
+  "missing_note": "BLS published no index level for the months listed (a blank in the CSV); analyses must exclude or declare an imputation for every month that needs them.",
+  "raw_response_sha256": "7ca351abf93355e271918e4d6c1f80e855a0ce1268808f81fb977d8438a1a573",
+  "csv_sha256": "236a14d4b6ac86d721feb9533e324ab2a411ec8dfcee0edbf15da4de13874951",
+  "license": "U.S. government work -- public domain",
+  "vintage_note": "Seasonally adjusted indexes are revised each February for the previous five years: this file is the vintage published on the retrieval date, not the real-time vintage a forecaster had.",
+  "columns": {
+    "month": "YYYY-MM of the month measured",
+    "level": "index level, as published"
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "assumption": "the new sample behaves like the old one; planning numbers, not predictions",
+  "target_power": 0.8,
+  "interval_confidence": 0.9833333333333333,
+  "E1": {
+    "spread_of_theta_across_old_seeds": 0.0510471035084105,
+    "old_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "n_seeds_planned": 50,
+    "reference_effect": "the margin: a 5% CVaR improvement",
+    "analytic_smallest_effect_at_80pct": 0.024025126985639793,
+    "table": [
+      {
+        "true_theta": 0.02,
+        "power_better": 0.07175,
+        "share_equivalent": 0.92825,
+        "share_inconclusive": 0.0
+      },
+      {
+        "true_theta": 0.03,
+        "power_better": 0.4415,
+        "share_equivalent": 0.5585,
+        "share_inconclusive": 0.0
+      },
+      {
+        "true_theta": 0.05,
+        "power_better": 0.995,
+        "share_equivalent": 0.005,
+        "share_inconclusive": 0.0
+      },
+      {
+        "true_theta": 0.075,
+        "power_better": 1.0,
+        "share_equivalent": 0.0,
+        "share_inconclusive": 0.0
+      },
+      {
+        "true_theta": 0.1,
+        "power_better": 1.0,
+        "share_equivalent": 0.0,
+        "share_inconclusive": 0.0
+      },
+      {
+        "true_theta": 0.04879016416943205,
+        "power_better": 0.99325,
+        "share_equivalent": 0.00675,
+        "share_inconclusive": 0.0
+      }
+    ],
+    "power_at_reference": 0.99325,
+    "verdict": "adequate: the endpoint can support a verdict"
+  },
+  "E2": {
+    "old_months": 277,
+    "old_mean_theta": 0.10022060827413948,
+    "old_sd_theta": 0.23573912416859916,
+    "reference_effect": "the retrospective mean (Finding 18)",
+    "by_sample_size": {
+      "30": {
+        "table": [
+          {
+            "true_theta": 0.03,
+            "power_better": 0.07,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.9166666666666666
+          },
+          {
+            "true_theta": 0.05,
+            "power_better": 0.15,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.85
+          },
+          {
+            "true_theta": 0.075,
+            "power_better": 0.3466666666666667,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.6533333333333333
+          },
+          {
+            "true_theta": 0.1,
+            "power_better": 0.5866666666666667,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.41333333333333333
+          },
+          {
+            "true_theta": 0.15,
+            "power_better": 0.9566666666666667,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.043333333333333335
+          }
+        ],
+        "smallest_effect_at_80pct": 0.15,
+        "power_at_reference": 0.5866666666666667,
+        "verdict": "estimation-only: report a size and an interval, not a verdict"
+      },
+      "24": {
+        "table": [
+          {
+            "true_theta": 0.03,
+            "power_better": 0.06666666666666667,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.8966666666666666
+          },
+          {
+            "true_theta": 0.05,
+            "power_better": 0.14333333333333334,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.8433333333333334
+          },
+          {
+            "true_theta": 0.075,
+            "power_better": 0.29333333333333333,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.7066666666666667
+          },
+          {
+            "true_theta": 0.1,
+            "power_better": 0.5233333333333333,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.4766666666666667
+          },
+          {
+            "true_theta": 0.15,
+            "power_better": 0.8666666666666667,
+            "share_equivalent": 0.0,
+            "share_inconclusive": 0.13333333333333333
+          }
+        ],
+        "smallest_effect_at_80pct": 0.15,
+        "power_at_reference": 0.5233333333333333,
+        "verdict": "estimation-only: report a size and an interval, not a verdict"
+      }
+    }
+  },
+  "E3": {
+    "nominal_rate": 0.01,
+    "by_days": {
+      "750": {
+        "table": [
+          {
+            "true_rate": 0.005,
+            "n_days": 750,
+            "expected_exceedances": 3.75,
+            "power_to_exclude_nominal": 0.11110446271057986
+          },
+          {
+            "true_rate": 0.01,
+            "n_days": 750,
+            "expected_exceedances": 7.5,
+            "power_to_exclude_nominal": 0.00896588369940987
+          },
+          {
+            "true_rate": 0.0148,
+            "n_days": 750,
+            "expected_exceedances": 11.1,
+            "power_to_exclude_nominal": 0.09659927908821846
+          },
+          {
+            "true_rate": 0.02,
+            "n_days": 750,
+            "expected_exceedances": 15.0,
+            "power_to_exclude_nominal": 0.43191122483925526
+          },
+          {
+            "true_rate": 0.03,
+            "n_days": 750,
+            "expected_exceedances": 22.5,
+            "power_to_exclude_nominal": 0.9393866599531613
+          }
+        ],
+        "false_alarm_rate_at_nominal": 0.00896588369940987,
+        "power_at_finding_15_rate": 0.09659927908821846,
+        "verdict": "estimation-only: report a size and an interval, not a verdict"
+      },
+      "880": {
+        "table": [
+          {
+            "true_rate": 0.005,
+            "n_days": 880,
+            "expected_exceedances": 4.4,
+            "power_to_exclude_nominal": 0.18442884166444956
+          },
+          {
+            "true_rate": 0.01,
+            "n_days": 880,
+            "expected_exceedances": 8.8,
+            "power_to_exclude_nominal": 0.01118148144609427
+          },
+          {
+            "true_rate": 0.0148,
+            "n_days": 880,
+            "expected_exceedances": 13.024000000000001,
+            "power_to_exclude_nominal": 0.10942029370779721
+          },
+          {
+            "true_rate": 0.02,
+            "n_days": 880,
+            "expected_exceedances": 17.6,
+            "power_to_exclude_nominal": 0.4941287963196831
+          },
+          {
+            "true_rate": 0.03,
+            "n_days": 880,
+            "expected_exceedances": 26.4,
+            "power_to_exclude_nominal": 0.9669624366068593
+          }
+        ],
+        "false_alarm_rate_at_nominal": 0.01118148144609427,
+        "power_at_finding_15_rate": 0.10942029370779721,
+        "verdict": "estimation-only: report a size and an interval, not a verdict"
+      }
+    }
+  }
+}

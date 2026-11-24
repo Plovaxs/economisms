@@ -3,7 +3,9 @@
 **Status: draft.** Nothing below binds the project, and nothing here may be cited as "pre-registered", until the
 freeze checklist at the end is complete: the open items filled in, a commit tagged, and that tag anchored somewhere
 the maintainer cannot edit. Until then this is a plan. The analysis code now exists and is described under "The
-analysis code"; the plan around it does not yet bind anyone.
+analysis code"; the data-use audit is [confirmatory/DATA_USE_AUDIT.md](./confirmatory/DATA_USE_AUDIT.md) and the
+power note is [confirmatory/power_note.json](./confirmatory/power_note.json). The plan around them does not yet
+bind anyone.
 
 **Why it exists.** [FINAL_PROJECT_HYPOTHESES.md](./FINAL_PROJECT_HYPOTHESES.md) is a *retrospective* freeze: the five
 hypotheses were tested before that document existed, so every verdict in
@@ -59,26 +61,42 @@ Every claim made from this protocol carries exactly one label.
 - **Why not Finding 8's number.** Finding 8 compares the policy's last-epoch *sampled* (exploring) rollout with the
   baseline on the *training* paths: the two biases point in opposite directions, so the result stands, but it is not
   the cleanest comparison. The code reports that number too (`in_sample_ratio`), so the old finding stays reproducible.
+- **Power (old data, 80% target).** The spread of `θ` over the eight old seeds is 0.051. With 50 seeds the endpoint
+  reaches "better" 99% of the time if the policy is truly 5% better, and can detect an improvement of about 2.4%
+  (`θ` = 0.024) with 80% power: **adequate, it can support a verdict.** Planning numbers that assume the new seeds
+  behave like the old ones.
 - **Context (exploratory).** The held-out ratios on the eight old seeds were seen while the code was written, after
   `δ` was proposed; they are in "The analysis code" below and are not evidence for this endpoint.
 
-### E2. Inflation nowcast: base-effect rule against persistence (Finding 18). Label: untouched, then prospective
+### E2. Inflation nowcast: base-effect rule against persistence (Finding 18). Label: re-used (2023-04 to 2026-10); prospective after
 
 - **Question.** Does forecasting this month's price growth as the mean of the previous 12 months' growth give a
   smaller absolute error in the year-over-year rate than persisting the last year-over-year rate?
 - **Frozen.** The two rules exactly as `orchestration.inflationcast_long_study` defines them (`base_mean12` and the
   previous year-over-year rate). No learned model is involved, so nothing is fitted.
-- **Data.** CPI-U all items, seasonally adjusted, for target months **after** the last month measured in the
-  committed snapshot (`data_cache/kaggle_cpi_index_monthly.csv`, whose last row measures **2023-03**): the first
-  untouched target month is **2023-04**. A new `month,level` CSV is hashed against a SHA-256 stated in advance and
-  must continue the series with no gap and no overlap. The source is chosen and its checksum recorded before any
-  model sees it.
+- **Why the label is not "untouched".** The data-use audit found that INFLATIONCAST scores persistence on the
+  not-seasonally-adjusted CPI for every month from 2022-01 to 2026-10 (`data_cache/us_cpi_monthly.csv`, 56 test
+  months), so the months a seasonally adjusted series would add after 2023-03 were already read and scored by code
+  in this repository. The base-effect rule was never run on them, but they are **re-used**. Anything on them is
+  exploratory; the only confirmatory E2 analysis is the prospective extension.
+- **Data.** One single-vintage series, `confirmatory_data/cpi_sa_bls_2026-11-24.csv` (BLS `CUSR0000SA0`, seasonally
+  adjusted, 2022-01 to 2026-10, SHA-256 `236a14d4b6ac86d721feb9533e324ab2a411ec8dfcee0edbf15da4de13874951`), scored
+  on its own: it is **not** joined to the committed Kaggle series, because seasonally adjusted indexes are revised
+  and a join would put a revision artefact into the first scored month; the output reports how far the two differ on
+  the months they share. No value was read when it was fetched. **BLS published no index for 2025-10**, so a target
+  month that needs that level (targets 2025-10 to 2026-11) is excluded and listed, and the endpoint is repeated as a
+  clearly labelled sensitivity with the gap interpolated.
 - **Statistic.** `d_t = |e_persistence| - |e_rule|` in percentage points; `θ = mean(d_t)`; block length 3 (about
   `n^(1/3)` for the months expected); blocks of 6 and 12 are reported as sensitivity, never decisive.
 - **Margin.** `δ = 0.03` percentage points (about 10% of persistence's 0.326 pp test error in Finding 18).
-- **Two analyses.** *Primary:* every untouched month available at the freeze. *Extension (prospective):* one
-  re-analysis once 24 months have accrued after the freeze, each month's value captured on release day with its
-  retrieval time and hash. These are reported separately and never pooled.
+- **Two analyses.** *Re-used window* (exploratory): 2023-04 to 2026-10, 30 usable months after the gap. *Extension
+  (prospective, the confirmatory one):* one analysis once 24 usable months have accrued after 2026-10 (the first
+  usable month is 2026-12, because the gap also removes 2026-11), each month's value captured on release day with its
+  retrieval time and hash. Never pooled.
+- **Power (old data, 80% target).** The old paired differences have mean 0.100 pp and spread 0.236 pp. With 30
+  months the endpoint reaches "better" 59% of the time if the true effect is the old 0.100 (24 months: 52%), and
+  needs a true effect of about 0.15 pp for 80%: **estimation-only under the 0.8 rule.** It can report a size and an
+  interval; it cannot support a verdict.
 - **Known weakness.** Seasonally adjusted values are revised, so months taken from today's file are not the
   real-time values a forecaster would have had. Only the extension fixes that.
 - **Context (exploratory).** On 277 test months the rule's error was 0.226 pp against 0.326 for persistence.
@@ -91,8 +109,10 @@ Every claim made from this protocol carries exactly one label.
   own forecaster and a test compares the two number for number, so nothing is refitted on the scored days.
 - **Data.** Daily S&P 500 closes **after** the last day in the committed snapshot
   (`data_cache/kaggle_sp500_spliced_daily_close.csv`, last day 2023-05-03): the first untouched day is 2023-05-04. A
-  new `date,close` CSV is hashed against a SHA-256 stated in advance and may not overlap the committed series. The
-  source is chosen and its checksum recorded first.
+  new `date,close` CSV is hashed against a SHA-256 stated in advance and may not overlap the committed series.
+  **No source is chosen**: Yahoo, FRED and Stooq are not reachable from the environment that wrote the code and
+  Kaggle needs the maintainer's token, so the maintainer downloads the file and records its checksum. No daily
+  return after 2023-05-03 is in the repository (monthly factor returns to 2026-09 are, see the audit).
 - **Primary claim (99% VaR).** "Consistent with coverage" only if the exact binomial interval for the exceedance rate
   contains 1% *and* the conditional-coverage test does not reject at the Bonferroni level `0.05/3`. With about 9
   expected exceedances over roughly 900 days, failing to reject is weak evidence, and the report prints the interval
@@ -102,6 +122,10 @@ Every claim made from this protocol carries exactly one label.
   `0.4` bp at 97.5% (about 5% of GARCH-FHS's 3.92 and 8.22 bp in Finding 15).
 - **Two analyses.** As E2: everything untouched at the freeze, then one prospective re-analysis after 750 further
   trading days.
+- **Power (exact, 98.33% interval).** The false-alarm rate is 1.1% over 880 days (below the 1.7% allowed). If the
+  model's true exceedance rate is Finding 15's 1.48%, the interval excludes 1% only 11% of the time (10% over 750
+  days); at 2% it is 49%, at 3% 97%. **Estimation-only for a modest miscalibration:** it can detect gross failure
+  (about 3% or worse), not a 1.5% rate, and "consistent with coverage" over a few hundred days says little.
 
 ## Pre-specified but re-used
 
@@ -130,12 +154,14 @@ unchanged or reproduced line for line and compared with it by a test.
 
 ```
 python -m prometheus.confirmatory reproduce            # old data and seeds 0-7 only; no freeze needed
+python -m prometheus.confirmatory fetch-cpi --start-year 2022 --end-year 2026 --out FILE   # prints no value
+python -m prometheus.confirmatory power --lock-meta FILE.meta.json --output power.json     # old data only
 python -m prometheus.confirmatory e1 --seeds 10000-10049
-python -m prometheus.confirmatory e2 --new cpi.csv --new-sha256 <hex> --scored-from 2023-04-30
+python -m prometheus.confirmatory e2 --series cpi.csv --series-sha256 <hex> --scored-from 2023-04-30
 python -m prometheus.confirmatory e3 --new px.csv  --new-sha256 <hex> --scored-from 2023-05-04
 ```
 
-The last three refuse to run (before reading the data file or training anything) until the freeze record below has
+`e1`, `e2` and `e3` refuse to run (before reading the data file or training anything) until the freeze record below has
 every field filled in. The guard stops an accident, not a deliberate bypass: it reads a table the maintainer edits.
 
 **What `reproduce` showed on the old data (24 November 2026).** 14 documented numbers compared, all matching:
@@ -159,12 +185,22 @@ A test also caught a real defect while this was written: a month written as `202
 | --- | --- |
 | Analysis code for E1-E3, shown to reproduce Findings 8, 15 and 18 on old data | **done** (see above) |
 | A guard that keeps untouched data and the reserved seeds unread until frozen | **done** |
-| Power note per endpoint, from the retrospective paired differences (an endpoint with power below 0.8 is declared estimation-only up front) | not computed |
-| Data-use audit: which windows each frozen model has already read | not done |
-| Source and SHA-256 of the post-snapshot CPI and S&P 500 data | not chosen |
+| Power note per endpoint (an endpoint with power below 0.8 is declared estimation-only up front) | **done**: E1 adequate; E2 and E3 estimation-only (`confirmatory/power_note.json`) |
+| Data-use audit: which windows each frozen model has already read | **done by the assistant** (`confirmatory/DATA_USE_AUDIT.md`); it changed E2's label; the maintainer must confirm it |
+| Source and SHA-256 of the post-snapshot CPI data | **done**: BLS `CUSR0000SA0`, locked in `confirmatory_data/`, digest above (a one-month gap, 2025-10) |
+| Source and SHA-256 of the post-snapshot S&P 500 data | **not chosen**: only the maintainer can (Kaggle token or another download) |
+| Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**, the maintainer's choice, to be written in the freeze record |
 | Maintainer confirms every margin `δ`, block length, seed, sample size and date above | not done |
 | E4 event list and audit, or E4 dropped | open |
-| A collector that records each new CPI and price on release day, for the prospective extensions | not built |
+| A collector that records each new CPI and price on release day, for the prospective extension | not built |
+
+## Disclosures made before the freeze
+
+- The assistant saw three seasonally adjusted CPI values (2026-08, 2026-09, 2026-10) when it printed the start of
+  a BLS response to check that the API was reachable. They are inside the window labelled re-used.
+- The held-out hedging ratios on the eight old seeds were seen while the code was written, after `δ` was proposed.
+- INFLATIONCAST's use of the 2023-2026 not-seasonally-adjusted CPI (see E2) was found by the data-use audit, after
+  E2 had first been labelled "untouched" in an earlier draft of this file.
 
 ## Freeze checklist (only the maintainer can do these)
 

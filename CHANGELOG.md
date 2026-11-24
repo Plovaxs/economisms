@@ -27,6 +27,16 @@ semantic-version history that never happened before `0.2.0`. Newest first.
   protocol's freeze record is complete. It is still a draft: the power notes, data-use audit and data sources do not
   exist yet, and it binds nothing until the maintainer freezes and externally anchors it.
 
+- **Confirmatory protocol, ready to freeze (all but the maintainer's part).** A data-use audit
+  (`docs/confirmatory/DATA_USE_AUDIT.md`) found that INFLATIONCAST already scores persistence on the 2023-2026
+  not-seasonally-adjusted CPI, so E2's window is *re-used*, not untouched: only months after 2026-10 are
+  confirmatory. A power note (`docs/confirmatory/power_note.json`, old data only) shows that under the protocol's
+  own 0.8 rule only E1 can support a verdict; E2 and E3 are estimation-only. `python -m prometheus.confirmatory
+  fetch-cpi` locked a BLS seasonally adjusted CPI series in `confirmatory_data/` without printing a value; BLS
+  published no index for 2025-10, so E2 now scores one single-vintage series, excludes (and lists) the 14 target
+  months that need the missing level, and repeats the endpoint with the gap interpolated as a labelled sensitivity.
+  Mutation checks on the new code found two real test gaps, now closed.
+
 - **Finding 8, corrected.** Its "~1.04x-1.41x" range was attributed to 800 epochs alone; re-running the eight seeds
   gives 1.08x-1.41x at 400 epochs and 1.04x-1.19x at 800, so the range spans both budgets. The conclusion (0 of 8
   seeds beat the baseline) is unchanged.
