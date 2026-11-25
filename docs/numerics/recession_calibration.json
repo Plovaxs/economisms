@@ -1,0 +1,93 @@
+{
+  "config": {
+    "feature_set": "macro_5_long",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "max_epochs": 500,
+    "patience": 20,
+    "first_out_of_fold_block": "1985-01-01",
+    "block_years": 3,
+    "n_test": 175,
+    "n_test_positive": 14
+  },
+  "test_brier": {
+    "raw": 0.09500374546256085,
+    "calibrated": 0.09864280520947057,
+    "base_rate": 0.07905325443786983
+  },
+  "test_roc_auc": {
+    "raw": 0.8584738243123337,
+    "calibrated": 0.8584738243123337
+  },
+  "per_seed": [
+    {
+      "platt_a": 1.2421481380304815,
+      "platt_b": -0.7481972920012342,
+      "selected_epoch": 86,
+      "n_out_of_fold": 192,
+      "n_out_of_fold_positive": 11,
+      "brier_raw": 0.09534208074690895,
+      "brier_calibrated": 0.099228894606789
+    },
+    {
+      "platt_a": 1.2357206752048049,
+      "platt_b": -0.784791041972762,
+      "selected_epoch": 95,
+      "n_out_of_fold": 192,
+      "n_out_of_fold_positive": 11,
+      "brier_raw": 0.09456577001346696,
+      "brier_calibrated": 0.09814598650232227
+    },
+    {
+      "platt_a": 1.2355813518672354,
+      "platt_b": -0.7391378589441422,
+      "selected_epoch": 80,
+      "n_out_of_fold": 192,
+      "n_out_of_fold_positive": 11,
+      "brier_raw": 0.09626289685513585,
+      "brier_calibrated": 0.10002810797651579
+    },
+    {
+      "platt_a": 1.2508360204129876,
+      "platt_b": -0.7168740909828863,
+      "selected_epoch": 83,
+      "n_out_of_fold": 192,
+      "n_out_of_fold_positive": 11,
+      "brier_raw": 0.09503032519801152,
+      "brier_calibrated": 0.09873954932837872
+    },
+    {
+      "platt_a": 1.2247904300118266,
+      "platt_b": -0.8212792622695506,
+      "selected_epoch": 102,
+      "n_out_of_fold": 192,
+      "n_out_of_fold_positive": 11,
+      "brier_raw": 0.09401676554366215,
+      "brier_calibrated": 0.09751650543083203
+    }
+  ],
+  "comparisons": {
+    "R-A_calibrated_vs_raw": {
+      "brier_difference_first_minus_second": 0.0036390597469097255,
+      "ci_low": -0.010142275213850293,
+      "ci_high": 0.019948493370091715,
+      "preregistered_verdict": "INCONCLUSIVE"
+    },
+    "R-B_calibrated_vs_base_rate": {
+      "brier_difference_first_minus_second": 0.01958955077160074,
+      "ci_low": -0.01642428467014655,
+      "ci_high": 0.06871388716289165,
+      "preregistered_verdict": "INCONCLUSIVE"
+    }
+  },
+  "caveats": [
+    "175 test months, 14 positive, from two recession episodes: a Brier difference is a statement about those two episodes, and the test window was already seen in Finding 14.",
+    "The calibration map is fitted on out-of-fold predictions inside the training months; its few positive months come from the 1969-1991 recessions.",
+    "Publication lags are fixed assumptions and GDP / seasonally adjusted CPI are latest-revised values (Finding 13)."
+  ]
+}

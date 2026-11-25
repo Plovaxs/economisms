@@ -1,0 +1,381 @@
+{
+  "config": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "max_epochs": 400,
+    "patience": 25,
+    "alphas": [
+      0.99,
+      0.975
+    ],
+    "grid_size": 16,
+    "selected": {
+      "anchor": "gjr",
+      "features": "extended",
+      "hidden": 32,
+      "weight_decay": 0.0
+    },
+    "selection_rule": "lowest pooled QLIKE of the seed-ensemble on 2000-2007; ties go to the earlier (simpler) configuration"
+  },
+  "grid": [
+    {
+      "config": "gjr/extended/h32/wd0",
+      "pooled_validation_qlike": -7.8782514941828925,
+      "validation_qlike": {
+        "sp500_extended": -8.289921962706549,
+        "nasdaq": -7.466581025659236
+      }
+    },
+    {
+      "config": "gjr/extended/h32/wd0.001",
+      "pooled_validation_qlike": -7.876115545688005,
+      "validation_qlike": {
+        "sp500_extended": -8.289960017914826,
+        "nasdaq": -7.462271073461188
+      }
+    },
+    {
+      "config": "gjr/extended/h16/wd0",
+      "pooled_validation_qlike": -7.874644589254471,
+      "validation_qlike": {
+        "sp500_extended": -8.290073116524947,
+        "nasdaq": -7.4592160619839945
+      }
+    },
+    {
+      "config": "gjr/extended/h16/wd0.001",
+      "pooled_validation_qlike": -7.872830757311538,
+      "validation_qlike": {
+        "sp500_extended": -8.289892813436945,
+        "nasdaq": -7.45576870118613
+      }
+    },
+    {
+      "config": "gjr/base/h32/wd0",
+      "pooled_validation_qlike": -7.86978266338874,
+      "validation_qlike": {
+        "sp500_extended": -8.29084149757884,
+        "nasdaq": -7.448723829198641
+      }
+    },
+    {
+      "config": "gjr/base/h16/wd0",
+      "pooled_validation_qlike": -7.869172342780418,
+      "validation_qlike": {
+        "sp500_extended": -8.291237583077697,
+        "nasdaq": -7.4471071024831375
+      }
+    },
+    {
+      "config": "gjr/base/h32/wd0.001",
+      "pooled_validation_qlike": -7.867601197842661,
+      "validation_qlike": {
+        "sp500_extended": -8.290658505996818,
+        "nasdaq": -7.444543889688502
+      }
+    },
+    {
+      "config": "gjr/base/h16/wd0.001",
+      "pooled_validation_qlike": -7.866190007447902,
+      "validation_qlike": {
+        "sp500_extended": -8.290929873712322,
+        "nasdaq": -7.441450141183483
+      }
+    },
+    {
+      "config": "constant/extended/h32/wd0",
+      "pooled_validation_qlike": -7.839142504337149,
+      "validation_qlike": {
+        "sp500_extended": -8.246370963738539,
+        "nasdaq": -7.431914044935758
+      }
+    },
+    {
+      "config": "constant/extended/h32/wd0.001",
+      "pooled_validation_qlike": -7.838750030498007,
+      "validation_qlike": {
+        "sp500_extended": -8.24635043376436,
+        "nasdaq": -7.431149627231654
+      }
+    },
+    {
+      "config": "constant/extended/h16/wd0",
+      "pooled_validation_qlike": -7.836398443651754,
+      "validation_qlike": {
+        "sp500_extended": -8.23226275357283,
+        "nasdaq": -7.4405341337306785
+      }
+    },
+    {
+      "config": "constant/extended/h16/wd0.001",
+      "pooled_validation_qlike": -7.835553184634762,
+      "validation_qlike": {
+        "sp500_extended": -8.232320338492983,
+        "nasdaq": -7.438786030776539
+      }
+    },
+    {
+      "config": "constant/base/h32/wd0",
+      "pooled_validation_qlike": -7.829190552509351,
+      "validation_qlike": {
+        "sp500_extended": -8.23925741867112,
+        "nasdaq": -7.4191236863475805
+      }
+    },
+    {
+      "config": "constant/base/h16/wd0.001",
+      "pooled_validation_qlike": -7.828240313724863,
+      "validation_qlike": {
+        "sp500_extended": -8.24735343908755,
+        "nasdaq": -7.409127188362178
+      }
+    },
+    {
+      "config": "constant/base/h16/wd0",
+      "pooled_validation_qlike": -7.82820028737686,
+      "validation_qlike": {
+        "sp500_extended": -8.246660686619542,
+        "nasdaq": -7.409739888134177
+      }
+    },
+    {
+      "config": "constant/base/h32/wd0.001",
+      "pooled_validation_qlike": -7.827646901133505,
+      "validation_qlike": {
+        "sp500_extended": -8.238227064824288,
+        "nasdaq": -7.417066737442725
+      }
+    }
+  ],
+  "markets": {
+    "sp500_extended": {
+      "n_test_days": 3861,
+      "test_qlike_mean": {
+        "tuned": -8.277309520016674,
+        "finding17_pooled_neural": -8.250782626168215,
+        "gjr_normal@all": -8.273008879847795,
+        "grid_reference": -8.243690277532945
+      },
+      "comparisons": {
+        "V-A": {
+          "qlike_difference_first_minus_second": -0.026526893848459646,
+          "ci_low": -0.04117074244192139,
+          "ci_high": -0.012555910717589672,
+          "verdict": "first_has_lower_qlike",
+          "preregistered_verdict": "SUPPORTED"
+        },
+        "V-B": {
+          "qlike_difference_first_minus_second": -0.004300640168878056,
+          "ci_low": -0.01670485812793838,
+          "ci_high": 0.008496386831698436,
+          "verdict": "inconclusive",
+          "preregistered_verdict": "INCONCLUSIVE"
+        }
+      },
+      "backtests": {
+        "tuned_normal": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 77.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.019943019943019943,
+            "kupiec_p": 4.5206904692648346e-08,
+            "christoffersen_independence_p": 0.28432178682516773,
+            "conditional_coverage_p": 1.8019304497982723e-07,
+            "mean_var_pct": 2.6264656481311133,
+            "pinball_loss_bp": 4.093744631066828
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 130.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.03367003367003367,
+            "kupiec_p": 0.0010377435871784593,
+            "christoffersen_independence_p": 0.4712980039847531,
+            "conditional_coverage_p": 0.0035565747662776015,
+            "mean_var_pct": 2.212815260525503,
+            "pinball_loss_bp": 8.160053400684474
+          }
+        },
+        "tuned_fhs": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 53.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.013727013727013727,
+            "kupiec_p": 0.02759832387246348,
+            "christoffersen_independence_p": 0.21133510755898643,
+            "conditional_coverage_p": 0.04045273232462504,
+            "mean_var_pct": 2.891109163536841,
+            "pinball_loss_bp": 3.958901275844581
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 127.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.03289303289303289,
+            "kupiec_p": 0.0027128612795123746,
+            "christoffersen_independence_p": 0.5313092347678595,
+            "conditional_coverage_p": 0.0091726208016848,
+            "mean_var_pct": 2.2361601380251797,
+            "pinball_loss_bp": 8.140448434231855
+          }
+        },
+        "gjr_normal": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 82.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.021238021238021237,
+            "kupiec_p": 1.044214169531671e-09,
+            "christoffersen_independence_p": 0.37543699425603183,
+            "conditional_coverage_p": 5.530129907981578e-09,
+            "mean_var_pct": 2.607102608328834,
+            "pinball_loss_bp": 4.0595658943024775
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 142.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.03677803677803678,
+            "kupiec_p": 1.157160620947421e-05,
+            "christoffersen_independence_p": 0.918472399648544,
+            "conditional_coverage_p": 6.62832465797055e-05,
+            "mean_var_pct": 2.196501767145098,
+            "pinball_loss_bp": 8.123601535302178
+          }
+        }
+      }
+    },
+    "nasdaq": {
+      "n_test_days": 3861,
+      "test_qlike_mean": {
+        "tuned": -7.9320587539806375,
+        "finding17_pooled_neural": -7.895111020718939,
+        "gjr_normal@all": -7.912331199063869,
+        "grid_reference": -7.834105869976374
+      },
+      "comparisons": {
+        "V-A": {
+          "qlike_difference_first_minus_second": -0.03694773326169887,
+          "ci_low": -0.05730284884613431,
+          "ci_high": -0.016976195064416548,
+          "verdict": "first_has_lower_qlike",
+          "preregistered_verdict": "SUPPORTED"
+        },
+        "V-B": {
+          "qlike_difference_first_minus_second": -0.01972755491676939,
+          "ci_low": -0.03201278934231555,
+          "ci_high": -0.00867657290464677,
+          "verdict": "first_has_lower_qlike",
+          "preregistered_verdict": "SUPPORTED"
+        }
+      },
+      "backtests": {
+        "tuned_normal": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 105.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.027195027195027196,
+            "kupiec_p": 8.105228526247967e-19,
+            "christoffersen_independence_p": 0.19473298781887696,
+            "conditional_coverage_p": 3.9303946510369204e-18,
+            "mean_var_pct": 2.853375219449818,
+            "pinball_loss_bp": 4.604818317075819
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 156.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.04040404040404041,
+            "kupiec_p": 1.7342140932743767e-08,
+            "christoffersen_independence_p": 0.12927564050491072,
+            "conditional_coverage_p": 3.992247230316399e-08,
+            "mean_var_pct": 2.403988125295544,
+            "pinball_loss_bp": 9.25279298077569
+          }
+        },
+        "tuned_fhs": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 60.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.01554001554001554,
+            "kupiec_p": 0.0013743414045414876,
+            "christoffersen_independence_p": 0.94415646939363,
+            "conditional_coverage_p": 0.005961642220162658,
+            "mean_var_pct": 3.224480879191764,
+            "pinball_loss_bp": 4.2412239531356795
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 135.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.03496503496503497,
+            "kupiec_p": 0.00018066297155168033,
+            "christoffersen_independence_p": 0.14519051632643099,
+            "conditional_coverage_p": 0.0003121134548024358,
+            "mean_var_pct": 2.581815813761238,
+            "pinball_loss_bp": 9.058545239442626
+          }
+        },
+        "gjr_normal": {
+          "alpha_0.99": {
+            "n_days": 3861.0,
+            "n_exceedances": 115.0,
+            "expected_exceedances": 38.610000000000035,
+            "exceedance_rate": 0.029785029785029785,
+            "kupiec_p": 1.6998299756273782e-23,
+            "christoffersen_independence_p": 0.8086329752332295,
+            "conditional_coverage_p": 2.0869238576052434e-22,
+            "mean_var_pct": 2.7905094799707335,
+            "pinball_loss_bp": 4.686231664973204
+          },
+          "alpha_0.975": {
+            "n_days": 3861.0,
+            "n_exceedances": 171.0,
+            "expected_exceedances": 96.52500000000009,
+            "exceedance_rate": 0.04428904428904429,
+            "kupiec_p": 4.029994645053673e-12,
+            "christoffersen_independence_p": 0.049663041804554935,
+            "conditional_coverage_p": 5.205431853427295e-12,
+            "mean_var_pct": 2.3510233100951154,
+            "pinball_loss_bp": 9.31720281663634
+          }
+        }
+      }
+    }
+  },
+  "hypotheses": {
+    "V-A": {
+      "sp500_extended": "SUPPORTED",
+      "nasdaq": "SUPPORTED"
+    },
+    "V-B": {
+      "sp500_extended": "INCONCLUSIVE",
+      "nasdaq": "SUPPORTED"
+    },
+    "V-C": {
+      "sp500_extended": {
+        "verdict": "CONTRADICTED",
+        "passing": []
+      },
+      "nasdaq": {
+        "verdict": "CONTRADICTED",
+        "passing": []
+      }
+    }
+  },
+  "caveats": [
+    "The test window (2008 onward) was already seen in Findings 15 and 17: nothing here is selected on it, but this is a model-selection study, not an untouched confirmation.",
+    "Two equity indices and one test window dominated by two crises; coverage tests are asymptotic and a few exceedances move a rate by several tenths of a percent.",
+    "Sixteen configurations were compared on one validation decade; the winner's margin over the runner-up is reported so a near-tie is visible.",
+    "QLIKE uses the squared return as its variance proxy; paired differences use a 22-day moving-block bootstrap."
+  ]
+}

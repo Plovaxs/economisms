@@ -1,0 +1,163 @@
+{
+  "config": {
+    "selected": {
+      "lags": 12,
+      "target": "residual",
+      "loss": "l2",
+      "start": "1980"
+    },
+    "selected_penalty": 100.0,
+    "grid_size": 24,
+    "n_test_months": 277,
+    "selection_rule": "lowest mean absolute YoY error on 1990-1999; ties go to the earlier (simpler) configuration"
+  },
+  "validation_margin_over_runner_up": 0.0014691151706828637,
+  "grid": [
+    {
+      "config": "lags12/residual/l2/1980",
+      "penalty": 100.0,
+      "validation_mae": 0.10940822031746474
+    },
+    {
+      "config": "lags6/residual/l2/1980",
+      "penalty": 1000.0,
+      "validation_mae": 0.1108773354881476
+    },
+    {
+      "config": "lags12/residual/l1/1980",
+      "penalty": 0.1,
+      "validation_mae": 0.11102236609833376
+    },
+    {
+      "config": "lags12/raw/l2/1980",
+      "penalty": 10.0,
+      "validation_mae": 0.11115585109472062
+    },
+    {
+      "config": "lags12/raw/l1/1980",
+      "penalty": 0.1,
+      "validation_mae": 0.11159639359195636
+    },
+    {
+      "config": "lags24/residual/l2/1980",
+      "penalty": 1000.0,
+      "validation_mae": 0.11223306034087258
+    },
+    {
+      "config": "lags24/residual/l1/1980",
+      "penalty": 10.0,
+      "validation_mae": 0.11224206545818109
+    },
+    {
+      "config": "lags6/residual/l1/1980",
+      "penalty": 100.0,
+      "validation_mae": 0.11234892146712472
+    },
+    {
+      "config": "lags12/raw/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11272829604395482
+    },
+    {
+      "config": "lags12/residual/l2/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11292384008620908
+    },
+    {
+      "config": "lags12/raw/l2/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11299935730699613
+    },
+    {
+      "config": "lags12/residual/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.1133506901309165
+    },
+    {
+      "config": "lags24/residual/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11446718447863084
+    },
+    {
+      "config": "lags24/raw/l2/1980",
+      "penalty": 100.0,
+      "validation_mae": 0.11447471693091053
+    },
+    {
+      "config": "lags24/raw/l1/1980",
+      "penalty": 1.0,
+      "validation_mae": 0.11467364066727047
+    },
+    {
+      "config": "lags24/raw/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11511479221066767
+    },
+    {
+      "config": "lags6/residual/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11524614060443916
+    },
+    {
+      "config": "lags6/residual/l2/1962",
+      "penalty": 1000.0,
+      "validation_mae": 0.11625495771757513
+    },
+    {
+      "config": "lags6/raw/l1/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.11723685641372754
+    },
+    {
+      "config": "lags24/residual/l2/1962",
+      "penalty": 100.0,
+      "validation_mae": 0.11780747073246704
+    },
+    {
+      "config": "lags24/raw/l2/1962",
+      "penalty": 100.0,
+      "validation_mae": 0.11794038828714141
+    },
+    {
+      "config": "lags6/raw/l1/1980",
+      "penalty": 0.1,
+      "validation_mae": 0.11965586953102125
+    },
+    {
+      "config": "lags6/raw/l2/1962",
+      "penalty": 10.0,
+      "validation_mae": 0.12385652551664572
+    },
+    {
+      "config": "lags6/raw/l2/1980",
+      "penalty": 10.0,
+      "validation_mae": 0.12520321069294404
+    }
+  ],
+  "test_mae": {
+    "persistence_yoy": 0.32607601289381566,
+    "base_mean12": 0.22585540461967613,
+    "finding18_ridge_own@1962": 0.21174930992037003,
+    "tuned": 0.2084071025027941
+  },
+  "comparisons": {
+    "I-A_tuned_vs_finding18_ridge": {
+      "mae_difference_first_minus_second": -0.003342207417575939,
+      "ci_low": -0.012366849213834302,
+      "ci_high": 0.007576059928464755,
+      "preregistered_verdict": "INCONCLUSIVE"
+    },
+    "I-B_tuned_vs_base_mean12": {
+      "mae_difference_first_minus_second": -0.01744830211688206,
+      "ci_low": -0.025557758447178277,
+      "ci_high": -0.009277139271002741,
+      "preregistered_verdict": "SUPPORTED"
+    }
+  },
+  "caveats": [
+    "The test window was already seen in Finding 18: nothing here is selected on it, but this is a model-selection study, not an untouched confirmation.",
+    "Twenty-four configurations were compared on 120 validation months; the winner's margin over the runner-up is reported so a near-tie is visible.",
+    "One country and one price index; 277 serially dependent errors (12-month blocks).",
+    "CPI levels are today's seasonally adjusted series, not the real-time vintage."
+  ]
+}

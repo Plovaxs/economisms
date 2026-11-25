@@ -16,6 +16,14 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Three learned models tuned on validation only (Finding 20).** Neural volatility: a GJR-GARCH anchor with a
+  zero-initialised correction network, ten features and 32 units, chosen from 16 configurations on 2000-2007, beats
+  Finding 17's neural model on both markets (QLIKE -0.0265 and -0.0369) and GJR-GARCH on NASDAQ (-0.0197), ties it on the
+  S&P 500, and still passes no conditional-coverage test at 99%. Inflation nowcast: 24 configurations, test MAE 0.2084
+  against 0.2117 for Finding 18's ridge, inconclusive. Recession classifier: out-of-fold Platt recalibration did not
+  lower the Brier score (+0.0036), because the model's over-confidence is not stable across periods. A look-ahead in the
+  volatility study's first feature draft was caught by its leak test and fixed. Deep hedging and the neural SDE were not
+  touched (frozen protocol recipes), and no untouched data was read.
 - **H2's verdict revised from "partially supported" to "not supported."** The maintainer approved it. The one robustness
   result (+6.99 against +26.45 under COVID) is a single training seed; over ten seeds the neural SDE degraded less than
   the GBM in 4 of 10 under COVID, 0 of 10 in 2001 and 4 of 10 in 2008. Changed in `FINAL_PROJECT_HYPOTHESES.md` (which

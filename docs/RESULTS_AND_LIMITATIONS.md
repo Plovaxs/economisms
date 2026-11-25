@@ -783,6 +783,70 @@ xi 1.0, ratio 0.04) it falls to **0.30 and 0.30** (spread over three seeds below
 variance cannot reach zero and fails in the regime calibrated equity parameters live in (the ratio is often below 1);
 a finer time step helps less than it looks. The reference's own error biases the fitted order slightly low.
 
+## Finding 20 (PR-215..217): tuning the models helped only where a strong classical model could be built in, and left the other two questions open
+
+Asked to "train the models to be more accurate", this round tuned three of the project's learned models
+under one rule: every choice is made on the validation window alone, the questions and their decision rule
+are written in each module's docstring before any number was computed, and the test windows (already seen
+in Findings 14, 17 and 18) are read only to score the selected model. Each study ships its output in
+`docs/numerics/`. The deep-hedging and neural-SDE recipes were deliberately **not** touched: they are the
+frozen pipelines of protocol experiments E1 and E4, and changing them now would change their recipe hash
+(see the protocol's open items).
+
+**Neural volatility (PR-215, `orchestration.neural_volatility_v2_study`).** Sixteen configurations -- an
+anchor (the old constant, or log of the GJR-GARCH volatility fitted on the same market's training rows with
+the network's output layer starting at zero, so training begins exactly at GJR), six or ten features,
+16 or 32 units, weight decay 0 or 1e-3 -- were trained on both markets pooled (5 seeds) and ranked by the
+seed-ensemble's QLIKE on 2000-2007. The anchor dominates: every one of the eight GJR-anchored
+configurations (pooled validation QLIKE -7.866 to -7.878) beats every constant-anchored one (-7.828 to
+-7.839), and the longer-memory features add about 0.005 to 0.01 on top. The winner (GJR anchor, ten
+features, 32 units, no decay) leads the runner-up by only 0.002, so the choice among the top four is not
+resolved; the anchor choice is. On the test window it lowers the QLIKE of Finding 17's pooled neural model
+by 0.0265 (95% interval [-0.0412, -0.0126]) on the S&P 500 and 0.0369 ([-0.0573, -0.0170]) on NASDAQ
+(V-A supported on both). Against GJR-GARCH, the strongest classical forecast of Finding 17, it is
+indistinguishable on the S&P 500 (-0.0043, [-0.0167, +0.0085]; V-B inconclusive) and better on NASDAQ
+(-0.0197, [-0.0320, -0.0087]; V-B supported). **Coverage did not move**: no tuned VaR passes the
+conditional-coverage test at 99% (V-C contradicted); its filtered-historical-simulation quantile is the
+closest, with 53 exceedances on the S&P 500 (38.6 expected, p = 0.04) and 60 on NASDAQ (p = 0.006). So the
+tuned model closes the gap to GARCH and, on one market, passes it, by starting from GJR and learning a
+correction to it; it is not a model that found structure GARCH misses on the S&P 500. A look-ahead in this
+study's own first draft -- the EWMA features started from the variance of the first 1,000 returns, so early
+training rows saw later returns -- was caught by the leak test, fixed (the first 250 returns, all before
+the first usable row) and the study rerun; no number moved by more than 0.0001.
+
+**Inflation nowcast (PR-216, `orchestration.inflation_tuning_study`).** Twenty-four configurations (6, 12 or
+24 lags; predicting MoM directly or as a residual on the 12-month mean; squared or absolute error; fit from
+1962 or 1980), each with its ridge penalty, ranked by mean absolute YoY error on 1990-1999. The winner (12
+lags, residual target, squared error, from 1980, penalty 100) leads the runner-up by 0.0015 over 120
+months. Test MAE: 0.2084, against 0.2117 for Finding 18's ridge, 0.2259 for the base-effect rule and 0.3261
+for persistence. Against Finding 18's ridge the difference is -0.0033 ([-0.0124, +0.0076]): **inconclusive**
+(I-A). Against the base-effect rule it is -0.0174 ([-0.0256, -0.0093]), supported (I-B), but Finding 18
+already established that the learned ridge beats it. Tuning bought about 1.5% over Finding 18's model, which
+is inside the noise; the validation decade cannot rank these variants and the test window would not either.
+
+**Recession classifier (PR-217, `orchestration.recession_calibration_study`).** Finding 14's logistic
+regression ranks months well (ROC-AUC 0.86) but has a Brier score of 0.095 against the base rate's 0.079,
+which reads as over-confidence. A two-parameter map `sigmoid(a * logit + b)` was fitted on out-of-fold
+predictions inside the training months only (expanding window, three-year blocks from 1985, no block ever
+scored by a model that saw its own labels; 192 months, 11 positive), so the validation and test months
+played no part. It **did not help**: Brier 0.0986 against 0.0950 uncalibrated (+0.0036,
+[-0.0101, +0.0199], R-A inconclusive) and against 0.0791 for the base rate (+0.0196, [-0.0164, +0.0687],
+R-B inconclusive). The fitted map stretches (a is about 1.24, b about -0.75): on 1985-2000 the model was
+under-confident, on 2008 onward over-confident, so the miscalibration is not a stable property a map can
+remove. That fits the data: the test window holds two episodes (2008-09, and 2020, a shock no macro
+history could signal), 14 positive months, and a 175-month Brier difference is a statement about those
+two. The recession classifier's honest status is unchanged: it ranks, it does not give calibrated
+probabilities that beat the base rate.
+
+**What this does not show.** All three test windows were seen before; none of this is an untouched
+confirmation. One feature family, one anchor, two markets, one country, two recession episodes. Sixteen,
+twenty-four and a one-shot map were tried, so a lone interval excluding zero is weak evidence, and the
+margins by which the winners were chosen are reported above so that near-ties are visible. Nothing here
+changes the NO-GO decision, and nothing says which model to deploy. No data after 2023-05-03 or from a
+reserved seed was read: new data was permitted, but none exists in the repository for the volatility
+and inflation tests, and the protocol's untouched windows are worth more intact than spent on a tuning
+run.
+
 ## Known limitations that are not findings, just open scope
 
 
