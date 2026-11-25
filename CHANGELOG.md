@@ -16,6 +16,26 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **H2's verdict revised from "partially supported" to "not supported."** The maintainer approved it. The one robustness
+  result (+6.99 against +26.45 under COVID) is a single training seed; over ten seeds the neural SDE degraded less than
+  the GBM in 4 of 10 under COVID, 0 of 10 in 2001 and 4 of 10 in 2008. Changed in `FINAL_PROJECT_HYPOTHESES.md` (which
+  says what changed and why), the README, `RESEARCH_CONTRIBUTIONS.md`, `FINAL_PAPER.md`, `PORTFOLIO_DEMO.md` and Finding 5
+  (original numbers kept). Not "rejected": the evidence is exploratory and re-used.
+- **Dimension scaling measured (audit M-04, Finding 19).** `pde_solvers.dimension_scaling`: a call on the geometric
+  average of d independent assets has an exact price in every dimension, so the finite-difference grid (sparse direct
+  solve) and Monte Carlo are compared at matched error. At an error of 0.02 the grid takes 0.02 s at d = 1, 0.06 s at
+  d = 2, **29 s and 1.3 GB of factors at d = 3**, and does not reach it at d = 4; Monte Carlo needs about 0.04 s at every
+  d. No neural solver was run, and H3's verdict is unchanged but now says it has not been shown against Monte Carlo.
+- **Heston's strong convergence measured (audit M-01, Finding 19).** `heston_strong_convergence_study` drives coarse and
+  fine grids with the same Brownian path: order about 0.5 (log-price 0.51, variance 0.61) when the Feller condition
+  holds and about 0.30 when badly violated. `stochastica.heston` now has one shared `heston_step` (bit-identical
+  paths, checked).
+- **Offline install (audit L-05).** `install-linux.sh --make-offline-bundle DIR` on a connected machine, then
+  `ECONOSIM_OFFLINE_DIR=DIR bash install-linux.sh` on the offline one: pip runs `--no-index`, every file is checked against
+  the bundle's `SHA256SUMS`, and a bundle for another Python or architecture is refused before anything changes. The
+  installer-smoke script has a `SMOKE_OFFLINE=1` mode that runs the whole install, upgrade and uninstall inside a network
+  namespace with no interface, and CI has an `offline` job. See `docs/release/OFFLINE_INSTALL.md`.
+
 - **E4 designed and built** (`prometheus.confirmatory.e4_shocks`): the neural SDE against a constant GBM shock by
   shock (2001, 2008, COVID), trained only on data before each event, `patience` fixed, no pooling, no inference
   across events, seeds 20000-20009 reserved for the frozen run. **An exploratory 10-seed run found that Finding 5's

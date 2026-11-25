@@ -297,7 +297,7 @@
         "tests/unit/test_stochastica_convergence.py"
       ],
       "evidence_level": "E2",
-      "remaining": "The repository's two integrators (Euler-Maruyama and the drift-corrected stochastic Heun scheme) were run unchanged on geometric Brownian motion against its exact solution on the same Brownian path: strong order 0.486 and 0.489 (expected 1/2 for Euler-type noise), seed-to-seed spread 0.001, and the mean of each scheme equals the closed form of what it computes within Monte Carlo error, the corrected scheme about 15-25 times closer to the exact mean. Heston's weak order is measured separately. No Milstein scheme exists to test, and Heston's strong convergence is not measured.",
+      "remaining": "The repository's two integrators (Euler-Maruyama and the drift-corrected stochastic Heun scheme) were run unchanged on geometric Brownian motion against its exact solution on the same Brownian path: strong order 0.486 and 0.489 (expected 1/2 for Euler-type noise), seed-to-seed spread 0.001, and the mean of each scheme equals the closed form of what it computes within Monte Carlo error, the corrected scheme about 15-25 times closer to the exact mean. Heston's weak order is measured separately, and its strong order too: the full-truncation scheme converges at about 0.5 (log-price 0.51, variance 0.61) when the Feller condition holds and at about 0.30 when it is badly violated, against a reference 8x finer on the same Brownian path (Finding 19). No Milstein scheme exists to test.",
       "who": "assistant"
     },
     {
@@ -332,12 +332,15 @@
       "group": "math",
       "title": "Dimension scaling",
       "gate": "Compare runtime, memory and error at d=1,2,3 and higher where feasible.",
-      "status": "partial",
+      "status": "done",
       "evidence": [
+        "src/prometheus/pde_solvers/dimension_scaling.py",
+        "tests/unit/test_pde_dimension_scaling.py",
+        "docs/numerics/dimension_scaling.json",
         "docs/RESULTS_AND_LIMITATIONS.md"
       ],
-      "evidence_level": "E1",
-      "remaining": "Finding 6 measures 1D and the grid's M^d mechanism; matched-error runtime and memory at d = 2, 3 and above are not measured.",
+      "evidence_level": "E2",
+      "remaining": "Runtime, memory and error at d = 1-4 on a problem with an exact price in every dimension (a geometric basket), grid against Monte Carlo at matched error: the direct-solver grid costs 29 s and 1.3 GB at d = 3 for an error of 0.02 and does not reach it at d = 4, while Monte Carlo needs about 0.04 s at every d. The deep-BSDE and PINN solvers were not run at matched error in d >= 2, and ADI or multigrid grids were not tried, so what this shows is the classical grid's wall, not a neural solver's win.",
       "who": "assistant"
     },
     {
@@ -564,10 +567,16 @@
       "group": "linux",
       "title": "Offline workflow",
       "gate": "Bundled datasets/dependencies or documented offline installer; clearly flag network-only tasks.",
-      "status": "not_started",
-      "evidence": [],
-      "evidence_level": "E0",
-      "remaining": "The installer needs the network (PyTorch and others). The datasets are committed, so the labs themselves run offline once installed; this is not documented as a workflow.",
+      "status": "partial",
+      "evidence": [
+        "scripts/install-linux.sh",
+        "scripts/installer-smoke.sh",
+        ".github/workflows/installer-smoke.yml",
+        "tests/unit/test_install_script.py",
+        "docs/release/OFFLINE_INSTALL.md"
+      ],
+      "evidence_level": "E2",
+      "remaining": "An offline bundle (`install-linux.sh --make-offline-bundle`, installed with ECONOSIM_OFFLINE_DIR) makes the install, upgrade and uninstall with pip --no-index, checked inside a network namespace with no interface on a fresh Ubuntu 24.04 runner; refusals for a wrong Python, wrong architecture or corrupted file are tested; the network-only tasks are listed. Not tested: another distribution or architecture, a bundle carried to a different machine, a Python other than the runner's.",
       "who": "assistant"
     },
     {

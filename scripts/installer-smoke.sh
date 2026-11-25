@@ -8,6 +8,10 @@
 # (an upgrade) and checks the user's results survive, optionally launches the window under Xvfb
 # (SMOKE_X11=1), uninstalls and checks that only the installer's own files went.
 #
+# SMOKE_OFFLINE=1 runs the whole flow from an OFFLINE BUNDLE with the network switched off: the bundle is made
+# first (that step needs network), then every install, upgrade and uninstall runs inside a network namespace
+# with no interface, so anything that tried to reach the internet would fail instead of quietly succeeding.
+#
 # On a machine whose python3 is older than 3.11 it checks the installer REFUSES cleanly instead.
 set -euo pipefail
 
@@ -26,11 +30,33 @@ fi
 git -C "$ROOT" archive --format=tar.gz --prefix="econosim-$VERSION/" -o "$REL/econosim-source-$VERSION.tar.gz" HEAD
 (cd "$REL" && sha256sum "econosim-source-$VERSION.tar.gz" > SHA256SUMS)
 
-installer() {
-  HOME="$FAKE_HOME" XDG_DESKTOP_DIR="$FAKE_HOME/Desktop" XDG_DATA_HOME="$XDG" ECONOSIM_BASE_URL="file://$REL" \
-    ECONOSIM_INSTALL_DIR="$APP" ECONOSIM_BIN="$BIN" ECONOSIM_HOME="$STATE" bash "$ROOT/scripts/install-linux.sh" "$@"
+BUNDLE="$WORK/bundle"
+OFFLINE=""; [ "${SMOKE_OFFLINE:-0}" = "1" ] && OFFLINE="$BUNDLE"
+
+# Run a command with no network at all: an unprivileged user+net namespace, else root's `unshare -n`.
+nonet() {
+  if unshare --user --map-current-user --net true 2>/dev/null; then
+    unshare --user --map-current-user --net "$@"
+  elif sudo -n true 2>/dev/null; then
+    sudo -n -E unshare --net setpriv --reuid="$(id -u)" --regid="$(id -g)" --clear-groups "$@"
+  else
+    fail "cannot create a network namespace here (needs unprivileged user namespaces or passwordless sudo)"
+  fi
 }
-app() { HOME="$FAKE_HOME" XDG_DATA_HOME="$XDG" ECONOSIM_HOME="$STATE" "$@"; }
+
+installer() {
+  local run=(bash "$ROOT/scripts/install-linux.sh" "$@")
+  [ -n "$OFFLINE" ] && run=(nonet "${run[@]}")
+  HOME="$FAKE_HOME" XDG_DESKTOP_DIR="$FAKE_HOME/Desktop" XDG_DATA_HOME="$XDG" ECONOSIM_BASE_URL="file://$REL" \
+    ECONOSIM_OFFLINE_DIR="$OFFLINE" ECONOSIM_INSTALL_DIR="$APP" ECONOSIM_BIN="$BIN" ECONOSIM_HOME="$STATE" "${run[@]}"
+}
+app() {   # the installed application; in the offline run also with the network switched off
+  if [ -n "$OFFLINE" ]; then
+    HOME="$FAKE_HOME" XDG_DATA_HOME="$XDG" ECONOSIM_HOME="$STATE" nonet "$@"
+  else
+    HOME="$FAKE_HOME" XDG_DATA_HOME="$XDG" ECONOSIM_HOME="$STATE" "$@"
+  fi
+}
 
 step "environment"
 uname -srm; (. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME") || true
@@ -45,7 +71,18 @@ if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' 
   exit 0
 fi
 
-step "install"
+if [ -n "$OFFLINE" ]; then
+  step "make the offline bundle (the one step that needs network)"
+  HOME="$FAKE_HOME" ECONOSIM_BASE_URL="file://$REL" bash "$ROOT/scripts/install-linux.sh" --make-offline-bundle "$BUNDLE"
+  for f in OFFLINE-BUNDLE SHA256SUMS "econosim-source-$VERSION.tar.gz"; do [ -e "$BUNDLE/$f" ] || fail "bundle lacks $f"; done
+  [ -n "$(ls -A "$BUNDLE/wheelhouse")" ] || fail "the bundle's wheelhouse is empty"
+  cat "$BUNDLE/OFFLINE-BUNDLE"; du -sh "$BUNDLE"
+  step "prove the network is really off inside the sandbox"
+  if nonet curl -sS --max-time 5 -o /dev/null https://pypi.org/simple/ 2>/dev/null; then fail "the sandbox still reaches the internet"; fi
+  echo "no route to the internet from inside nonet, as intended"
+fi
+
+step "install${OFFLINE:+ (offline)}"
 installer
 for f in "$BIN/econosim" "$XDG/applications/econosim.desktop" "$XDG/icons/hicolor/scalable/apps/econosim.svg" \
          "$FAKE_HOME/Desktop/ECONOSIM.desktop" "$APP/.econosim-install"; do

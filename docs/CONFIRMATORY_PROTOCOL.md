@@ -162,7 +162,8 @@ Designed and approved by the maintainer on 25 November 2026; code in `confirmato
   sample to wait for, and a fair equivalence test needs matched capacity and compute, which is a design task. It
   stays exploratory.
 - **H3 (neural PDE solvers).** The claim is about a crossover in dimension; that is a matched-error benchmark
-  (runtime, memory and error at d = 1, 2, 3 and beyond), not a hypothesis test on fresh data.
+  (runtime, memory and error at d = 1, 2, 3 and beyond), not a hypothesis test on fresh data. The grid half of that
+  benchmark now exists (`docs/RESULTS_AND_LIMITATIONS.md` Finding 19); the neural half, at matched error, does not.
 - **H4 (methodology).** A statement about how evaluation choices change conclusions; it was already shown twice
   (Findings 1 and 7) and is not a hypothesis about fresh data.
 

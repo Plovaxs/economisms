@@ -58,7 +58,7 @@ ones where the fancier approach lost**, not a curated highlight reel.
 
 - [`docs/RESEARCH_CONTRIBUTIONS.md`](./RESEARCH_CONTRIBUTIONS.md) — five
   specific research questions, what was tested, and what was found
-  (three "not supported," one "partially supported," one "supported" —
+  (four "not supported," one "supported" —
   deliberately not five wins).
 - [`docs/RESULTS_AND_LIMITATIONS.md`](./RESULTS_AND_LIMITATIONS.md) —
   the same findings with full numbers and explicit sample-size caveats.

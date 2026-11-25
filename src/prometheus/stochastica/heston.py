@@ -68,6 +68,25 @@ class HestonParams:
         return float(mean), float(variance)
 
 
+def heston_step(
+    log_s: np.ndarray,
+    v: np.ndarray,
+    params: HestonParams,
+    dt: float,
+    dw_s: np.ndarray,
+    dw_v: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """One log-Euler / full-truncation step given the Brownian increments `dw_s`, `dw_v` (already
+    scaled by sqrt(dt) and correlated). This is the single place the scheme is defined: the path
+    simulator and the strong-convergence study (which must drive a coarse and a fine grid with the
+    SAME Brownian path) both call it."""
+    v_pos = np.maximum(v, 0.0)
+    sqrt_v_pos = np.sqrt(v_pos)
+    log_s_next = log_s + (params.mu - 0.5 * v_pos) * dt + sqrt_v_pos * dw_s
+    v_next = v + params.kappa * (params.theta - v_pos) * dt + params.xi * sqrt_v_pos * dw_v
+    return log_s_next, np.maximum(v_next, 0.0)
+
+
 def simulate_heston_paths(
     s0: float,
     params: HestonParams,
@@ -102,17 +121,7 @@ def simulate_heston_paths(
     log_s = np.full(n_paths, np.log(s0))
     v_current = v[:, 0].copy()
     for t in range(n_steps):
-        v_pos = np.maximum(v_current, 0.0)
-        sqrt_v_pos = np.sqrt(v_pos)
-
-        log_s = log_s + (params.mu - 0.5 * v_pos) * dt + sqrt_v_pos * dw_s[:, t]
-        v_next = (
-            v_current
-            + params.kappa * (params.theta - v_pos) * dt
-            + params.xi * sqrt_v_pos * dw_v[:, t]
-        )
-        v_current = np.maximum(v_next, 0.0)
-
+        log_s, v_current = heston_step(log_s, v_current, params, dt, dw_s[:, t], dw_v[:, t])
         s[:, t + 1] = np.exp(log_s)
         v[:, t + 1] = v_current
 

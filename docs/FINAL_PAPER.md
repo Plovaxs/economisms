@@ -30,15 +30,17 @@ pricing via neural PDE/BSDE solvers, multi-agent reinforcement learning
 in a simulated economy, and deep hedging via a REINFORCE policy. Five
 falsifiable hypotheses (H1–H5) were frozen on 2026-11-11 against evidence
 gathered through that date and are reported here without revision to
-their wording or verdict; a sixth result (inflation nowcasting) and two
+their wording; one verdict, H2's, was revised afterwards and says so
+(§5.2); a sixth result (inflation nowcasting) and two
 further post-freeze checks are reported alongside them, disclosed as
 such. Across all of these, the more complex method winning was the
 exception, not the rule: a hybrid quantum-classical classifier showed no
 significant advantage over classical baselines on recession prediction
 (3 independent tests, all bootstrap confidence intervals including
-zero); a neural SDE did not beat simple baselines in-distribution but
-degraded measurably less than a classical GBM baseline under a real
-2020 shock; a REINFORCE hedging policy lost to a well-specified static
+zero); a neural SDE did not beat simple baselines in-distribution, and
+the one result that had suggested it degraded less than a classical GBM
+baseline under the 2020 shock turned out to be a single training seed;
+a REINFORCE hedging policy lost to a well-specified static
 baseline even after a real implementation bug and a reward/metric
 mismatch were found and fixed; naive persistence beat every learned
 inflation-forecasting candidate, and the one calibration-aware candidate
@@ -278,7 +280,7 @@ ways — not reframed as a tuning problem.
 match classical baselines (GBM, GARCH) in-distribution and degrade less
 under a genuine out-of-distribution shock.
 
-**Verdict: partially supported.** In-distribution, the neural SDE does
+**Verdict: not supported** (revised 2026-11-25; it was "partially supported"). In-distribution, the neural SDE does
 *not* beat simple baselines (validation log-score 4.82 vs. baselines'
 ≈4.0–4.1). Under the real 2020 COVID shock — the genuine sample-wide
 extremum in real unemployment-claims growth, independently verified
@@ -287,12 +289,14 @@ degrades by **+6.99**, while a constant-parameter GBM baseline degrades
 by **+26.45** (re-measured after the PR-197 correction of a GDP look-ahead
 in the input data; originally +5.58 vs. +29.97, see
 `docs/RESULTS_AND_LIMITATIONS.md` Finding 13). The neural SDE
-is not a better unconditional model, but its regime-conditioning
-provides real, measured robustness under a genuine distributional shift
-that a non-conditioned classical model lacks: a concrete, falsifiable
-distinction between "better on average" and "more robust under shock,"
-demonstrated on one real historical event rather than a synthetic
-stress scenario.
+is not a better unconditional model, and that COVID result is one
+training seed: an exploratory re-run over seeds 0-9 found the neural SDE
+degraded less than the GBM in 4 of 10 seeds under COVID (median
+degradation +28.73 against +26.45), in 0 of 10 in 2001 and in 4 of 10
+in 2008 (`docs/confirmatory/e4_exploratory_seeds0-9.json`, re-used data,
+not confirmatory). The robustness claim is therefore withdrawn, not
+reversed: it was not shown, and the frozen run of the confirmatory
+protocol's E4 is where a different answer could appear.
 
 ### 5.3 H3 — Neural PDE solvers: when does the computational cost pay off?
 
@@ -444,8 +448,8 @@ training longer (patience/epoch-count sweeps) found, honestly, that two
 of the apparent "wins" were artifacts of undertraining in the wrong
 direction:
 
-- The neural SDE's one genuinely positive result (§5.2's COVID-shock
-  robustness) **collapses under more training**: raising patience from
+- The neural SDE's one apparently positive result (§5.2's COVID-shock
+  robustness, since withdrawn as a single-seed result) **collapses under more training**: raising patience from
   20 to 60 improves the in-distribution score (the model's own selection
   metric) but makes COVID-window log-score degradation explode from
   +6.99 to +47.41 — worse than the GBM baseline, destroying the exact
@@ -628,7 +632,7 @@ two months before it was released (288 of 494 cells; Finding 13). Removing the
 look-ahead lowered the hybrid-quantum classifier's five-seed mean test ROC-AUC
 from 0.842 to 0.721 and moved the neural SDE's COVID-window degradation from
 +5.58 versus +29.97 to +6.99 versus +26.45; the verdicts of H1 and H2 did not
-change, and a Brier-score "blind spot" reported earlier stopped reproducing.
+change then (H2's was revised later, §5.2), and a Brier-score "blind spot" reported earlier stopped reproducing.
 
 With four new real datasets committed, the question "does more data help?" was
 then asked three times, each time separating the kinds of "more". For recession

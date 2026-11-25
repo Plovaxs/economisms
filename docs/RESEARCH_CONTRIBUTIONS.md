@@ -109,12 +109,14 @@ assumed), the neural SDE's log-score degrades by +6.99 while a
 constant-parameter GBM baseline degrades by +26.45 (re-measured in
 PR-197 after a GDP look-ahead was corrected; originally +5.58 vs. +29.97).
 
-**Finding: partially supported, in a specific and interesting way.**
-The neural SDE is not a better unconditional model, but its
-regime-conditioning provides real, measured robustness under a genuine
-distributional shift that a non-conditioned classical model lacks —
-a concrete, falsifiable distinction between "better on average" and
-"more robust under shock," demonstrated on one real historical event.
+**Finding: not supported (revised 2026-11-25; it was "partially supported").**
+The neural SDE is not a better unconditional model, and the robustness
+reading above does not hold up: +6.99 against +26.45 is seed 0. Over ten
+training seeds the neural SDE degraded less than the GBM in 4 of 10 under
+COVID (median +28.73 against +26.45), 0 of 10 in 2001 and 4 of 10 in 2008
+(exploratory, `docs/confirmatory/e4_exploratory_seeds0-9.json`). The
+distinction between "better on average" and "more robust under shock" is
+still the right question; this repository has not shown the answer.
 
 **Follow-up (PR-177):** checked directly whether the training budget
 (`patience=20`) was undertraining this model — the opposite turned out

@@ -92,7 +92,7 @@ re-running until a result looked good.
 | ID | Question | Verdict |
 |---|---|---|
 | **H1** | Does a hybrid quantum-classical model beat classical baselines on recession classification / factor regression? | **Rejected.** Tested 3 independent ways (2 real datasets, 2 task families); every bootstrap CI includes zero. |
-| **H2** | Does a neural SDE beat classical baselines in-distribution, and degrade less under a real shock? | **Partially supported.** Not better in-distribution — but genuinely more robust under the real 2020 COVID shock (+6.99 vs. a GBM baseline's +26.45 log-score degradation). |
+| **H2** | Does a neural SDE beat classical baselines in-distribution, and degrade less under a real shock? | **Not supported** (revised 2026-11-25; was "partially supported"). Not better in-distribution, and the one robustness result (+6.99 vs. a GBM baseline's +26.45 under COVID) is a single training seed: over 10 seeds the neural SDE degraded less in 4 of 10 under COVID, 0 of 10 in 2001 and 4 of 10 in 2008. |
 | **H3** | Does a neural PDE solver (PINN/deep-BSDE) earn its cost over a classical grid at high dimension? | **Supported**, crossover measured not assumed — revised 2026-11-13 once an undertrained baseline was caught and fixed (grid's accuracy edge over deep-BSDE: ~580x → ~2x; verdict unchanged). |
 | **H4** | Can naive fixed-epoch training or an unaudited reward silently produce a false conclusion? | **Supported, twice**, independently (RECESSIONNET's early-stopping fix; MARL's reward-design fix). |
 | **H5** | Does a REINFORCE hedging agent beat a well-specified static baseline? | **Rejected.** Still loses after fixing a real reward/metric mismatch and training 10–20x longer (gap narrowed ~2.5x → ~1.04–1.41x, still a loss). |
@@ -184,7 +184,7 @@ The same engine, two front doors. Pick one; neither removes the other.
 
 | | **Desktop software** | **Web app** |
 |---|---|---|
-| Start it | Linux: `bash install-linux.sh` (from the release; no root; adds an icon to the menu and the desktop). Any system: `pip install -e '.[desktop,quantum]'` from a checkout, then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
+| Start it | Linux: `bash install-linux.sh` (from the release; no root; adds an icon to the menu and the desktop; [offline install](./docs/release/OFFLINE_INSTALL.md) from a bundle). Any system: `pip install -e '.[desktop,quantum]'` from a checkout, then `econosim desktop` | `docker compose up`, or `python -m prometheus.webgateway serve --dist frontend/dist` |
 | What it is | a native Qt window; no server, port or token | React frontend + API gateway in the browser |
 | Needs | Linux for running jobs; `libxcb-cursor0` on X11 | Docker, or Python + a built `frontend/dist` |
 | Details | [Desktop application](#desktop-application) | [Quickstart](#quickstart), [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |

@@ -63,6 +63,7 @@ def _count_committed_data_files() -> int:
 _COMMITTED_DATA_FILES = (
     _count_committed_data_files()
 )  # derived, so adding a snapshot cannot break this
+_FINDINGS = len(findings_module.load().findings)  # derived, so adding a finding cannot break this
 
 
 def child_pids() -> list[int]:
@@ -440,7 +441,7 @@ def test_the_findings_page_lists_the_whole_document(window: MainWindow) -> None:
     entries = page.entries()
     assert entries[0] == "gate" and entries[-1] == "limitations"
     assert [e for e in entries if e.startswith("finding:")] == [
-        f"finding:{n}" for n in range(1, 19)
+        f"finding:{n}" for n in range(1, _FINDINGS + 1)
     ]
     page.select("finding:13")
     text = page.browser.toPlainText()
@@ -461,7 +462,7 @@ def test_searching_the_findings_filters_the_list(window: MainWindow) -> None:
     assert page.visible_entries() == []
     page.search.setText("")
     assert len(page.visible_entries()) == len(page.entries())
-    assert page.count.text() == "18 findings recorded"
+    assert page.count.text() == f"{_FINDINGS} findings recorded"
 
 
 def test_without_the_document_the_page_says_so_and_invents_nothing(
@@ -578,7 +579,7 @@ def test_the_overview_leads_with_the_standing_and_offers_the_next_steps(window: 
     assert page.health_tile.value_text == "All clear"
     assert (
         page.data_tile.value_text == f"{_COMMITTED_DATA_FILES} of {_COMMITTED_DATA_FILES} verified"
-        and page.findings_tile.value_text == "18"
+        and page.findings_tile.value_text == str(_FINDINGS)
     )
     assert page.jobs_tile.value_text == "0"
     for key in ("labs", "explorers", "findings"):

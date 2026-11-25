@@ -8,8 +8,10 @@ name: installer-smoke
 # X11 display, uninstalls, and checks that only the installer's own files went.
 #
 # What this is evidence for, and what it is not: it exercises the installer on the systems listed
-# below, headless or on Xvfb (X11). It does not test Wayland, a physical display, other distributions,
-# an offline install, or a person using the application. Ubuntu 22.04 ships Python 3.10, which the
+# below, headless or on Xvfb (X11). The `offline` job makes an offline bundle (the one step that needs
+# network) and then installs, upgrades and uninstalls from it inside a network namespace with no
+# interface. It does not test Wayland, a physical display, other distributions, a bundle moved to another
+# machine, or a person using the application. Ubuntu 22.04 ships Python 3.10, which the
 # project does not support, so its job checks that the installer REFUSES cleanly instead.
 on:
   workflow_dispatch:
@@ -100,5 +102,32 @@ jobs:
             echo "### installer-smoke on Debian 12 (container)"
             echo '```'
             grep -E '^(===|SMOKE|refused|the window|Ubuntu|Debian|Python)' "$RUNNER_TEMP/smoke.log" || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  offline:
+    # The whole flow from an offline bundle, with the network switched off (a network namespace with no
+    # interface; the script first proves pypi.org is unreachable inside it). Making the bundle downloads
+    # about 400 MB of wheels, so this job is slower than the others.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Install what a graphical session needs
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends $X11_PACKAGES
+      - name: Make the bundle, then install, upgrade and uninstall with no network
+        env:
+          SMOKE_OFFLINE: "1"
+        shell: bash   # -o pipefail, as above
+        run: bash scripts/installer-smoke.sh 2>&1 | tee "$RUNNER_TEMP/smoke.log"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### installer-smoke, offline, on ubuntu-24.04"
+            echo '```'
+            grep -E '^(===|SMOKE|no route|Ubuntu|Python|python=|machine=)' "$RUNNER_TEMP/smoke.log" || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

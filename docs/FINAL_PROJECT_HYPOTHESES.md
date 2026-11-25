@@ -49,18 +49,29 @@ inconclusive as of this freeze).
 
 **H2 (Neural SDE).** A neural stochastic differential equation will
 both match classical baselines (GBM, GARCH) in-distribution and degrade
-less under a genuine out-of-distribution shock. **Verdict: partially
-supported.** The in-distribution half is rejected (the neural SDE does
-not beat simple baselines there); the OOD-robustness half is supported
-(real 2020 COVID-shock degradation: +6.99 for the neural SDE vs. +26.45
-for a constant-volatility GBM baseline; revised 2026-11-19 in PR-197 after a
-GDP look-ahead in the input data was corrected -- the figures on the freeze
-day were +5.58 vs. +29.97, verdict unchanged).
+less under a genuine out-of-distribution shock. **Verdict: not supported
+(revised 2026-11-25; it was "partially supported" from the freeze until
+then).** The in-distribution half is rejected (the neural SDE does not
+beat simple baselines there). The OOD-robustness half rested on one
+number, the 2020 COVID window with one training seed (+6.99 for the neural
+SDE vs. +26.45 for a constant-volatility GBM baseline; the figures on the
+freeze day were +5.58 vs. +29.97 until PR-197 corrected a GDP look-ahead).
 
-**Update, 2026-11-25 (a pointer; the verdict above is unchanged):** an exploratory 10-seed check found the OOD-robustness
-half of H2 is not stable across training seeds (the neural SDE degraded less than the GBM under COVID in 4 of 10
-seeds, in 2001 in 0 of 10, in 2008 in 4 of 10); see `RESULTS_AND_LIMITATIONS.md` Finding 5. Whether the verdict
-should change is the maintainer's call.
+**What changed and why (per this document's own rule).** An exploratory
+10-seed check (PR-211, `docs/confirmatory/e4_exploratory_seeds0-9.json`)
+re-ran that window and two more recessions with the same code, training
+only on data before each event: the neural SDE degraded less than the GBM
+in 4 of 10 seeds under COVID (median degradation +28.73 vs. +26.45, so
+worse on the median), in 0 of 10 seeds in 2001 and in 4 of 10 in 2008.
+The +6.99 is seed 0, a favourable draw, not a property of the model. A
+claim that holds in 4 of 10 seeds in one window and fails everywhere else
+is not "supported", and the maintainer approved revising the verdict. It
+is "not supported" rather than "rejected" because the check is exploratory
+(re-used data, three events, one country) and cannot show the model is
+worse, only that no robustness was shown. The frozen run of the
+confirmatory protocol's E4 remains the place a different answer could
+appear. `RESULTS_AND_LIMITATIONS.md` Finding 5 keeps the original numbers
+and carries the same revision.
 
 **H3 (PDE solvers).** A neural PDE solver (PINN / deep BSDE) earns its
 additional computational cost over a classical finite-difference grid
@@ -80,6 +91,13 @@ is unchanged — the grid still wins outright in 1D on both speed and
 accuracy, and the `M^d`-vs-flat scaling mechanism is untouched — only
 the specific accuracy-gap magnitude cited as evidence changed. See
 `docs/RESULTS_AND_LIMITATIONS.md`'s Finding 6 for the full numbers.
+
+**Update, 2026-11-25 (the verdict above is unchanged; its reading narrows).** A matched-error measurement of the grid
+itself at d = 1-4 (`RESULTS_AND_LIMITATIONS.md` Finding 19) found its direct-solver cost wall between d = 3 (29 s, 1.3 GB
+for an error of 0.02) and d = 4 (not reached). It also found plain Monte Carlo reaching the same error in about 0.04 s at
+every d for a smooth European basket. So what is supported is the claim in H3's own words, a neural solver could earn its
+cost over a classical grid once dimension is high; this repository has not shown it earns it over Monte Carlo, and has
+not run a neural solver at matched error in d >= 2.
 
 **H4 (methodology).** Naive fixed-epoch training and unaudited reward
 design can each, independently, produce a false conclusion about model

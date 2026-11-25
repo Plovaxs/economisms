@@ -14,8 +14,13 @@
 # Why the source and not the wheel: the labs read the committed `data_cache/` next to the source tree,
 # and a wheel does not carry it, so a wheel install opens but its data-driven labs cannot run.
 # Overrides: ECONOSIM_INSTALL_DIR (default ~/.local/share/econosim-app), ECONOSIM_BIN, ECONOSIM_VERSION,
-# ECONOSIM_REPO, ECONOSIM_TORCH_INDEX, ECONOSIM_NO_DESKTOP_ICON. ECONOSIM_HOME is the application's state
-# directory and is never used for installing; the installer refuses to touch it.
+# ECONOSIM_REPO, ECONOSIM_TORCH_INDEX, ECONOSIM_NO_DESKTOP_ICON, ECONOSIM_OFFLINE_DIR. ECONOSIM_HOME is the
+# application's state directory and is never used for installing; the installer refuses to touch it.
+#
+# Offline: on a machine WITH network, `bash install-linux.sh --make-offline-bundle DIR` downloads the source
+# archive and every wheel (PyTorch included, about 400 MB) into DIR; copy DIR to the offline machine (same
+# Linux architecture and same Python minor version) and run `ECONOSIM_OFFLINE_DIR=DIR bash install-linux.sh`.
+# That install makes no network request: pip runs with --no-index. See docs/release/OFFLINE_INSTALL.md.
 # Research software: NO-GO for trading or advice.
 set -euo pipefail
 
@@ -69,42 +74,10 @@ python3 -c 'import venv, ensurepip' 2>/dev/null || die "python3-venv is missing 
 command -v curl >/dev/null || die "curl is required"
 command -v sha256sum >/dev/null || die "sha256sum is required"
 
-guard_install_dir   # before anything is downloaded: a refusal costs nothing
-
-if [ -n "${ECONOSIM_BASE_URL:-}" ]; then
-  BASE="$ECONOSIM_BASE_URL"   # a directory (file://...) holding SHA256SUMS and the archive; for testing
-elif [ "$VERSION" = "latest" ]; then
-  BASE="https://github.com/$REPO/releases/latest/download"
-else
-  BASE="https://github.com/$REPO/releases/download/v${VERSION#v}"
-fi
-
-WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK"' EXIT
-
-say "Fetching the checksum list"
-curl -fsSL -o "$WORK/SHA256SUMS" "$BASE/SHA256SUMS" || die "could not download $BASE/SHA256SUMS"
-ARCHIVE="$(awk '{print $2}' "$WORK/SHA256SUMS" | tr -d '*' | grep -E '^econosim-source-.*\.tar\.gz$' | head -n1)"
-[ -n "$ARCHIVE" ] || die "the release lists no source archive"
-
-say "Downloading $ARCHIVE"
-curl -fsSL -o "$WORK/$ARCHIVE" "$BASE/$ARCHIVE" || die "could not download the source archive"
-(cd "$WORK" && grep -F " $ARCHIVE" SHA256SUMS | sed 's/ \*/  /' | sha256sum -c --quiet -) || die "the archive does not match SHA256SUMS; nothing was installed"
-say "Checksum OK"
-
-say "Unpacking into $HOME_DIR/src"
-rm -rf "$HOME_DIR/src" "$HOME_DIR/venv"
-mkdir -p "$HOME_DIR/src" "$BIN_DIR"
-printf 'econosim installer\nversion=%s\n' "$ARCHIVE" > "$MARKER"
-tar -xzf "$WORK/$ARCHIVE" -C "$HOME_DIR/src" --strip-components=1
-[ -f "$HOME_DIR/src/pyproject.toml" ] || die "the archive is not the project source"
-
-say "Creating a private environment in $HOME_DIR/venv"
-python3 -m venv "$HOME_DIR/venv"
-"$HOME_DIR/venv/bin/python" -m pip install --quiet --upgrade pip
 # Pin every dependency to (at most) the version uv.lock records (what the test suite ran against), so the numbers
 # match the project's; a plain `pip install` would resolve newer releases and `econosim doctor` says so.
-python3 - "$HOME_DIR/src/uv.lock" "$WORK/constraints.txt" <<'PY'
+write_constraints() {   # write_constraints UV_LOCK OUT
+  python3 - "$1" "$2" <<'PY'
 import sys, tomllib
 versions = {}
 for package in tomllib.load(open(sys.argv[1], "rb")).get("package", []):
@@ -121,8 +94,94 @@ with open(sys.argv[2], "w") as out:
                 return [int(x) if x.isdigit() else 0 for x in v.replace("-", ".").split(".")]
             out.write(f"{name}<={max(found, key=key)}\n")
 PY
-say "Installing (this downloads PyTorch, CPU build, and takes a few minutes; about 1.7 GB on disk)"
-"$HOME_DIR/venv/bin/python" -m pip install --quiet --extra-index-url "$TORCH_INDEX" -c "$WORK/constraints.txt" -e "$HOME_DIR/src[desktop,quantum]"
+}
+
+if [ -n "${ECONOSIM_BASE_URL:-}" ]; then
+  BASE="$ECONOSIM_BASE_URL"   # a directory (file://...) holding SHA256SUMS and the archive; for testing
+elif [ "$VERSION" = "latest" ]; then
+  BASE="https://github.com/$REPO/releases/latest/download"
+else
+  BASE="https://github.com/$REPO/releases/download/v${VERSION#v}"
+fi
+
+fetch_archive() {   # fetch_archive DIR: SHA256SUMS and the source archive from $BASE into DIR, checked; sets ARCHIVE
+  say "Fetching the checksum list"
+  curl -fsSL -o "$1/SHA256SUMS" "$BASE/SHA256SUMS" || die "could not download $BASE/SHA256SUMS"
+  ARCHIVE="$(awk '{print $2}' "$1/SHA256SUMS" | tr -d '*' | grep -E '^econosim-source-.*\.tar\.gz$' | head -n1)"
+  [ -n "$ARCHIVE" ] || die "the release lists no source archive"
+  say "Downloading $ARCHIVE"
+  curl -fsSL -o "$1/$ARCHIVE" "$BASE/$ARCHIVE" || die "could not download the source archive"
+  (cd "$1" && grep -F " $ARCHIVE" SHA256SUMS | sed 's/ \*/  /' | sha256sum -c --quiet -) || die "the archive does not match SHA256SUMS; nothing was installed"
+  say "Checksum OK"
+}
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+if [ "${1:-}" = "--make-offline-bundle" ]; then
+  # Needs network. Everything an offline install needs, in one directory: the checked source archive, a
+  # wheelhouse (every dependency as a wheel, plus the build tools the editable install needs), and a
+  # SHA256SUMS over all of it. Wheels are specific to this Python minor version and CPU architecture.
+  OUT="${2:-}"; [ -n "$OUT" ] || die "usage: install-linux.sh --make-offline-bundle DIR"
+  mkdir -p "$OUT/wheelhouse"
+  [ -z "$(ls -A "$OUT/wheelhouse")" ] || die "$OUT/wheelhouse is not empty; use a new directory"
+  fetch_archive "$WORK"
+  mkdir "$WORK/src"; tar -xzf "$WORK/$ARCHIVE" -C "$WORK/src" --strip-components=1
+  [ -f "$WORK/src/pyproject.toml" ] || die "the archive is not the project source"
+  write_constraints "$WORK/src/uv.lock" "$WORK/constraints.txt"
+  python3 -m venv "$WORK/venv"
+  BUILD_REQUIRES="$(python3 -c 'import sys, tomllib; print(" ".join(tomllib.load(open(sys.argv[1], "rb"))["build-system"]["requires"]))' "$WORK/src/pyproject.toml")"
+  say "Downloading every wheel (PyTorch CPU build included; about 400 MB)"
+  # --only-binary: a dependency that only ships source would need a compiler on the offline machine, so fail HERE
+  "$WORK/venv/bin/python" -m pip download --quiet --only-binary=:all: --dest "$OUT/wheelhouse" \
+    --extra-index-url "$TORCH_INDEX" -c "$WORK/constraints.txt" "$WORK/src[desktop,quantum]"
+  # shellcheck disable=SC2086
+  "$WORK/venv/bin/python" -m pip download --quiet --only-binary=:all: --dest "$OUT/wheelhouse" $BUILD_REQUIRES
+  cp "$WORK/$ARCHIVE" "$OUT/$ARCHIVE"
+  printf 'system=%s\nmachine=%s\npython=%s\narchive=%s\n' "$(uname -s)" "$(uname -m)" \
+    "$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')" "$ARCHIVE" > "$OUT/OFFLINE-BUNDLE"
+  (cd "$OUT" && sha256sum -- "$ARCHIVE" wheelhouse/* > SHA256SUMS)
+  say "Bundle written to $OUT ($(du -sh "$OUT" | cut -f1)). On the offline machine: ECONOSIM_OFFLINE_DIR=$OUT bash install-linux.sh"
+  exit 0
+fi
+
+OFFLINE_DIR="${ECONOSIM_OFFLINE_DIR:-}"
+if [ -n "$OFFLINE_DIR" ]; then
+  [ -f "$OFFLINE_DIR/OFFLINE-BUNDLE" ] && [ -d "$OFFLINE_DIR/wheelhouse" ] || die "$OFFLINE_DIR is not an offline bundle (make one with --make-offline-bundle)"
+  OFFLINE_DIR="$(cd "$OFFLINE_DIR" && pwd)"
+  bundle_field() { sed -n "s/^$1=//p" "$OFFLINE_DIR/OFFLINE-BUNDLE"; }
+  have_python="$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+  [ "$(bundle_field python)" = "$have_python" ] || die "the bundle holds wheels for Python $(bundle_field python), this is Python $have_python; make a bundle on a machine with the same Python"
+  [ "$(bundle_field machine)" = "$(uname -m)" ] || die "the bundle is for $(bundle_field machine), this machine is $(uname -m)"
+  BASE="file://$OFFLINE_DIR"   # curl copies from the directory; no network
+fi
+
+guard_install_dir   # before anything is downloaded: a refusal costs nothing
+
+fetch_archive "$WORK"
+if [ -n "$OFFLINE_DIR" ]; then   # the bundle's SHA256SUMS also covers every wheel: a corrupted copy stops here
+  (cd "$OFFLINE_DIR" && sha256sum -c --quiet SHA256SUMS) || die "the offline bundle does not match its SHA256SUMS; nothing was installed"
+  say "Offline bundle checksums OK"
+fi
+
+say "Unpacking into $HOME_DIR/src"
+rm -rf "$HOME_DIR/src" "$HOME_DIR/venv"
+mkdir -p "$HOME_DIR/src" "$BIN_DIR"
+printf 'econosim installer\nversion=%s\n' "$ARCHIVE" > "$MARKER"
+tar -xzf "$WORK/$ARCHIVE" -C "$HOME_DIR/src" --strip-components=1
+[ -f "$HOME_DIR/src/pyproject.toml" ] || die "the archive is not the project source"
+
+say "Creating a private environment in $HOME_DIR/venv"
+python3 -m venv "$HOME_DIR/venv"
+write_constraints "$HOME_DIR/src/uv.lock" "$WORK/constraints.txt"
+if [ -n "$OFFLINE_DIR" ]; then
+  say "Installing from the offline bundle (no network: pip runs with --no-index)"
+  "$HOME_DIR/venv/bin/python" -m pip install --quiet --no-index --find-links "$OFFLINE_DIR/wheelhouse" -c "$WORK/constraints.txt" -e "$HOME_DIR/src[desktop,quantum]"
+else
+  "$HOME_DIR/venv/bin/python" -m pip install --quiet --upgrade pip
+  say "Installing (this downloads PyTorch, CPU build, and takes a few minutes; about 1.7 GB on disk)"
+  "$HOME_DIR/venv/bin/python" -m pip install --quiet --extra-index-url "$TORCH_INDEX" -c "$WORK/constraints.txt" -e "$HOME_DIR/src[desktop,quantum]"
+fi
 
 ln -sf "$HOME_DIR/venv/bin/econosim" "$BIN_DIR/econosim"
 ICON_FLAG="--desktop-icon"

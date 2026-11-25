@@ -115,7 +115,12 @@ specifically because it is a bond-market closure that is **not** a federal
 holiday — proving the detection is derived from real data gaps rather than
 copied from a wrong, generic federal-holiday list.
 
-## Finding 5 (PR-150): a neural SDE is not a better average model, but is measurably more robust under a genuine shock
+## Finding 5 (PR-150, revised 2026-11-25): a neural SDE is not a better average model, and its "more robust under a shock" result is one training seed
+
+**Revised 2026-11-25: the headline originally read "but is measurably more robust under a genuine shock". It is not
+supported.** The +6.99 against +26.45 below is real for seed 0 and does not survive other seeds (the 10-seed update
+below); H2's verdict was changed to "not supported" in `FINAL_PROJECT_HYPOTHESES.md`. The original paragraph is kept as
+written so the change can be audited.
 
 `neural_sde` does *not* beat simple GBM/GARCH baselines in distribution
 (validation log-score 4.83 vs. baselines' ≈4.0–4.1 on real GDP YoY/
@@ -130,11 +135,11 @@ only after the window ends. The qualitative result is unchanged.)*
 **Limitation:** one historical shock, not a distribution of shocks;
 "more robust under this shock" is not a general robustness guarantee.
 
-**Update, 2026-11-25 (an exploratory 10-seed check; the verdict above is not rewritten):** the +6.99 against +26.45
+**Update, 2026-11-25 (an exploratory 10-seed check; this is what changed the verdict):** the +6.99 against +26.45
 above is seed 0. Over seeds 0-9, the same event-window code gives a median COVID degradation of +28.73 for the neural
 SDE against +26.45 for the GBM, and the neural SDE degraded less in only 4 of 10 seeds (advantage range -25.8 to
 +19.5). In the 2001 recession it degraded less in 0 of 10 seeds, in 2008 in 4 of 10. So the "more robust under a
-shock" half of H2 rests on a favourable seed and is not stable. Details: `docs/confirmatory/
+shock" half of H2 rests on a favourable seed and is not stable; H2 is now "not supported". Details: `docs/confirmatory/
 e4_exploratory_seeds0-9.json` and the E4 section of `docs/CONFIRMATORY_PROTOCOL.md`.
 
 **Follow-up (PR-177): checked whether `patience=20` is simply
@@ -733,7 +738,53 @@ factors are re-estimated for years after publication). The macro predictors sit 
 fixed-lag point-in-time convention. The 2020-onward subperiod has 37 months. Nothing here is a forecast
 of future inflation, and `INFLATIONCAST` itself is unchanged: the finding is about its baseline.
 
+## Finding 19 (PR-212): the grid's cost wall is measured at d = 3 and 4, plain Monte Carlo does not have one, and Heston's full-truncation scheme converges strongly at 1/2 only when the Feller condition holds
+
+Two audit items (M-04 dimension scaling, M-01's missing Heston half) were answered with measurements instead of
+statements. Code: `pde_solvers/dimension_scaling.py`, `stochastica/convergence.py`
+(`heston_strong_convergence_study`); data: `docs/numerics/dimension_scaling.json`.
+
+**Dimension scaling.** The problem is a call on the geometric average of d independent lognormal assets (sigma 0.2,
+T = 1, r = 5%, at the money), chosen because it has an exact price in every dimension (a lognormal average, so
+Black-Scholes with forward `S0 exp((r - sigma^2/2)T + sigma^2 T/(2d))` and volatility `sigma/sqrt(d)`; checked against
+the repository's own Black-Scholes at d = 1 and against a 600,000-path Monte Carlo at d = 2, 3, 5). The grid is a
+tensor-product finite-difference grid in log-price, Crank-Nicolson with Rannacher start-up and one sparse LU
+factorization; its error falls at second order in space (ratio 3.2-4.8 per halving, tested) and does not depend on
+the width of the box. For an absolute error of 0.02 (about 0.3% of the price):
+
+| d | grid nodes per axis | unknowns | grid error | grid time | factor storage | Monte Carlo paths | MC time |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 161 | 161 | 0.005 | 0.018 s | ~0 | 2,055,315 | 0.042 s |
+| 2 | 81 | 6,561 | 0.0075 | 0.062 s | 4 MB | 1,005,217 | 0.040 s |
+| 3 | 41 | 68,921 | 0.0166 | **28.9 s** | **1.3 GB** | 655,561 | 0.037 s |
+| 4 | not reached (best 0.189 at 11 nodes) | 14,641 | 0.189 | 0.9 s | 87 MB | 505,719 | 0.034 s |
+
+At d = 3 the cheapest grid that reaches the target already costs 29 seconds and 1.3 GB of factors; at d = 4 the
+ladder stopped at 11 nodes per axis (14,641 unknowns) with an error ten times the target, and the next rungs were not
+run: 150,000 nodes is the cap, because a direct factorization that size has taken tens of gigabytes. Monte Carlo, which
+samples all d assets exactly, needs fewer paths as d grows here (the payoff gets smoother) and about 0.04 s at every d.
+Fill-in, not node count, is what hurts: at roughly 6,600-6,900 unknowns the 3-D factors are more than twice the size
+of the 2-D ones (tested).
+
+**What this does and does not show.** It shows that the classical grid with a direct solver hits a wall between
+d = 3 and d = 4, which is the mechanism Finding 6 argued for with node counts alone, now measured with runtime, memory
+and error. It does not show a neural solver wins: none was run here, the repository's deep-BSDE and PINN numbers are
+Finding 6's and were not repeated at matched error in d >= 2, and for a smooth European payoff plain Monte Carlo already
+solves every d in this table in a few hundredths of a second. The comparison a neural method has to win is against that,
+not only against a grid. ADI splitting and multigrid would move the grid's wall and were not tried. Memory is
+`tracemalloc`'s peak for NumPy/SciPy arrays; the LU factors live inside SuperLU, so they are reported separately
+(entries x 12 bytes). One machine, one run of the timings; the errors are deterministic and a test recomputes them.
+
+**Heston strong convergence.** The log-Euler / full-truncation scheme was driven on a coarse grid by the sums of the
+increments of one fine Brownian path and compared pathwise with the same scheme on a grid 8x finer than the finest tested
+(steps 4, 8, 16, 32, 64 against 512; 16,000 paths). With the Feller condition satisfied (kappa 2, theta 0.04, xi 0.3,
+ratio 1.78) the strong order is **0.51 for log-price and 0.61 for variance**; with it badly violated (kappa 0.5,
+xi 1.0, ratio 0.04) it falls to **0.30 and 0.30** (spread over three seeds below 0.02). So the usual "strong order 1/2" statement holds in the regime where
+variance cannot reach zero and fails in the regime calibrated equity parameters live in (the ratio is often below 1);
+a finer time step helps less than it looks. The reference's own error biases the fitted order slightly low.
+
 ## Known limitations that are not findings, just open scope
+
 
 - **No independent human review of any claim in this repository has
   happened.** "Evidenced" means covered by a passing automated test here —
