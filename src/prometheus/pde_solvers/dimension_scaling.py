@@ -138,10 +138,9 @@ def solve_grid(
         eye = sp.identity(m, format="csr")
         operator = sp.csr_matrix((total, total))
         for axis in range(d):
-            term = None
+            term = sp.identity(1, format="csr")  # kron(1, A) = A: the start of the product
             for j in range(d):
-                factor = one_d if j == axis else eye
-                term = factor if term is None else sp.kron(term, factor, format="csr")
+                term = sp.kron(term, one_d if j == axis else eye, format="csr")
             operator = operator + term
         operator = operator - r * sp.identity(total, format="csr")
 
