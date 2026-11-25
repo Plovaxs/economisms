@@ -102,11 +102,11 @@ class HedgeRLPolicyNet(nn.Module):
     policy never collapses to a literal Dirac delta (which would make
     its own log-prob gradient undefined)."""
 
-    def __init__(self, hidden_size: int = 16) -> None:
+    def __init__(self, hidden_size: int = 16, initial_log_std: float = 0.0) -> None:
         super().__init__()
         self.encoder = nn.Sequential(nn.Linear(3, hidden_size), nn.Tanh())
         self.mu_head = nn.Linear(hidden_size, 1)
-        self.log_std = nn.Parameter(torch.zeros(1))
+        self.log_std = nn.Parameter(torch.full((1,), float(initial_log_std)))
 
     def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         hidden = self.encoder(obs)
@@ -151,6 +151,8 @@ def train_reinforce_hedge_policy(
     cvar_alpha: float = 0.95,
     learning_rate: float = 0.01,
     reward_objective: RewardObjective = "mean_loss",
+    hidden_size: int = 16,
+    initial_log_std: float = 0.0,
 ) -> TrainedReinforceHedge:
     if not math.isfinite(static_baseline_cvar):
         raise StaticBaselineNotPassedError(
@@ -163,7 +165,7 @@ def train_reinforce_hedge_policy(
         raise ValueError("reward_objective must be 'mean_loss' or 'cvar'")
 
     torch.manual_seed(seed)
-    policy = HedgeRLPolicyNet()
+    policy = HedgeRLPolicyNet(hidden_size=hidden_size, initial_log_std=initial_log_std)
     optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
 
     paths_t = torch.tensor(price_paths, dtype=torch.float32)

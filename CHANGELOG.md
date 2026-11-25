@@ -16,6 +16,14 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Deep hedging and neural SDE recipes tuned before the freeze (Finding 21).** With the maintainer's permission. The
+  hedging policy (36 recipes, then a corner-of-grid round, validated on 32 fresh seeds) went from a held-out CVaR about
+  8% above the static baseline's to about 2-4% above: better than before, still not better than the baseline, so E1
+  will most likely report "equivalent", not "better". E1 now freezes the tuned recipe (learning rate 0.003, 2,000
+  epochs); the legacy recipe stays for Finding 8. The neural SDE (36 recipes, selected on data before 2001-03 only)
+  scores better in ordinary months than both the old recipe and a constant GBM, but degrades more under the shocks
+  (0, 0 and 1 of 10 seeds better than the GBM in 2001, 2008, COVID); which recipe E4 freezes is left to the
+  maintainer. No reserved seed and no data after 2023-05-03 was read.
 - **Three learned models tuned on validation only (Finding 20).** Neural volatility: a GJR-GARCH anchor with a
   zero-initialised correction network, ten features and 32 units, chosen from 16 configurations on 2000-2007, beats
   Finding 17's neural model on both markets (QLIKE -0.0265 and -0.0369) and GJR-GARCH on NASDAQ (-0.0197), ties it on the

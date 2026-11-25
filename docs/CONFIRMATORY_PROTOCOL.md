@@ -49,8 +49,11 @@ Every claim made from this protocol carries exactly one label.
 
 - **Question.** Does the REINFORCE hedging policy beat the delta / no-trade-band baseline on conditional value at
   risk (95%) of terminal hedging loss, on the same paths?
-- **Frozen.** The `rl_hedge` runner with its default configuration at the freeze commit, one training run per seed
-  on that seed's 2,000 simulated paths; its recipe hash goes in the freeze record.
+- **Frozen.** The `rl_hedge` runner at the freeze commit with the **tuned recipe** (learning rate 0.003, 2,000
+  epochs; every other field at the runner's default), one training run per seed on that seed's 2,000 simulated paths;
+  its recipe hash goes in the freeze record. The runner's own defaults (0.01, 400 epochs) are the *legacy* recipe
+  behind Finding 8, kept so that finding stays reproducible. The tuned recipe was chosen on seeds 1000-1007, 3000-3015
+  and 4000-4015 (never a reserved seed), see Finding 21 and `docs/numerics/hedging_tuning*.json`.
 - **Seeds.** 50 fresh seeds, `10000`-`10049`, none used by any earlier run in this repository. The analysis code
   refuses to run them until the freeze record below is complete.
 - **Statistic.** Scored on **held-out** paths, which Finding 8 did not do: 20,000 fresh paths per seed from a generator
@@ -67,6 +70,12 @@ Every claim made from this protocol carries exactly one label.
   behave like the old ones.
 - **Context (exploratory).** The held-out ratios on the eight old seeds were seen while the code was written, after
   `δ` was proposed; they are in "The analysis code" below and are not evidence for this endpoint.
+- **What tuning did to the planning numbers (exploratory).** With the tuned recipe, 32 exploratory seeds gave a mean
+  `θ` of -0.030 (the policy's CVaR about 3% above the baseline's) and a spread of 0.021, against -0.077 and 0.051 for
+  the legacy recipe. If the 50 new seeds behave like those, the interval will sit inside the margin (`±ln 1.05`) and E1
+  will report **"equivalent"**, not "better": the policy comes within 5% of the baseline, it does not beat it. The
+  legacy recipe would most likely have reported "worse". That change in the likely label comes from tuning, and the
+  margin `δ` was proposed before it; both are disclosed here so a reader can discount the word "equivalent".
 
 ### E2. Inflation nowcast: base-effect rule against persistence (Finding 18). Label: re-used (2023-04 to 2026-10); prospective after
 
@@ -146,6 +155,9 @@ Designed and approved by the maintainer on 25 November 2026; code in `confirmato
   same training part; score both without retuning on the event window. Statistic: degradation = event log score
   minus in-distribution (validation) log score; `advantage = GBM degradation - neural degradation`, positive
   favouring the neural SDE.
+- **Recipe.** Learning rate 0.003, 16 units, at most 300 epochs, `patience` 50 (`FROZEN_RECIPE`), chosen by
+  `orchestration.neural_sde_tuning_study` on transitions decided before 2001-03-31 only, so no event window selected
+  it (Finding 21). The earlier recipe (0.01, `patience` 20) is `LEGACY_RECIPE` and still reproduces Finding 5.
 - **Seeds.** 20000-20009, reserved for the frozen run (the guard refuses them until the freeze). Exploratory runs
   use seeds 0-9.
 - **Inference.** None across events: three events cannot support an interval, and seeds measure only training
@@ -155,6 +167,13 @@ Designed and approved by the maintainer on 25 November 2026; code in `confirmato
   *less* than the GBM in 0 of 10 seeds for 2001 (median advantage -0.81), 4 of 10 for 2008 (-0.69) and 4 of 10
   for COVID (-2.29, range -25.8 to +19.5). Seed 0 reproduces Finding 5's +6.99 against +26.45 exactly; most other
   seeds do not: **the "more robust under COVID" half of H2 is not stable across seeds.**
+- **Exploratory dry run with the tuned recipe (seeds 0-9, `confirmatory/e4_exploratory_tuned_seeds0-9.json`).** More
+  stable across seeds, and *worse* for the shock question: the neural SDE degraded less than the GBM in 0 of 10 seeds for
+  2001 (median advantage -0.46), 0 of 10 for 2008 (-1.35) and 1 of 10 for COVID (-15.47). The tuned model fits ordinary
+  months better (in-distribution log score 3.94 against 4.11 for COVID's training part) but is sharper, so it is hurt
+  more when a shock arrives; in absolute event-window scores it beats the GBM in 6 of 10 seeds for 2001 and in 0 and 1
+  of 10 for 2008 and COVID (`docs/numerics/neural_sde_shock_by_recipe.json`). Neither recipe supports "more robust
+  under shocks". Which recipe E4 freezes is the maintainer's decision (see the open items).
 
 ## Not testable now
 
@@ -211,11 +230,18 @@ A test also caught a real defect while this was written: a month written as `202
 | Source and SHA-256 of the post-snapshot CPI data | **done**: BLS `CUSR0000SA0`, locked in `confirmatory_data/`, digest above (a one-month gap, 2025-10) |
 | Source and SHA-256 of the post-snapshot S&P 500 data | **not chosen**: only the maintainer can (Kaggle token or another download) |
 | Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**; if the maintainer does not choose, the code's default (all three, Bonferroni `0.05/3`) applies and is recorded in the freeze record |
+| Maintainer decides which training recipes E1 and E4 freeze: the tuned ones now in the code (`e1_hedging.FROZEN_*`, `e4_shocks.FROZEN_RECIPE`) or the legacy ones. For E4 the tuned recipe made the shock result worse (see E4), which is a reason to look before freezing it; switching back is one line | **open**; the code currently uses the tuned recipes |
 | Maintainer confirms every margin `δ`, block length, seed, sample size and date above | **confirmed on 25 November 2026**, accepting the proposals as written (the maintainer did not change any, and did not independently re-derive them); changing one after the freeze is a deviation |
 | E4 event list and audit, or E4 dropped | **designed and approved 25 Nov 2026** (code, tests, exploratory dry run on seeds 0-9); the frozen run on seeds 20000-20009 waits for the freeze |
 | A collector that records each new CPI and price on release day, for the prospective extension | not built |
 
 ## Disclosures made before the freeze
+
+- Before the freeze the E1 and E4 training recipes were **tuned** (PR-218, PR-219; Finding 21), with the maintainer's
+  permission. E1's recipe was chosen on exploratory simulated seeds only; E4's on transitions before 2001-03-31 only.
+  The E4 event windows were scored afterwards, once per recipe, as an estimation-only report and selected nothing. No
+  reserved seed (10000-10049, 20000-20009) and no data after 2023-05-03 was read. The recipe hash recorded at the
+  freeze will be the tuned one, and the old power numbers for E1 (spread 0.051) describe the legacy recipe.
 
 - The assistant saw three seasonally adjusted CPI values (2026-08, 2026-09, 2026-10) when it printed the start of
   a BLS response to check that the API was reachable. They are inside the window labelled re-used.

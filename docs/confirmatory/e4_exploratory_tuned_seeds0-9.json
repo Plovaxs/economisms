@@ -1,0 +1,373 @@
+{
+  "endpoint": "E4",
+  "label": "re-used data; pre-specified; estimation only; never pooled across events",
+  "patience": 50,
+  "recipe": {
+    "learning_rate": 0.003,
+    "hidden_size": 16,
+    "max_epochs": 300,
+    "patience": 50
+  },
+  "events": [
+    {
+      "event": "dotcom_2001",
+      "window": [
+        "2001-03-31",
+        "2001-11-30"
+      ],
+      "selection_contaminated": false,
+      "note": "NBER peak 2001-03 to trough 2001-11; was inside the training data of Finding 5's model",
+      "n_seeds": 10,
+      "n_train": 184,
+      "n_event_transitions": 9,
+      "neural_degradation_median": -0.7101659690304025,
+      "baseline_degradation_median": -1.1747402269217186,
+      "advantage_median": -0.4645742578913161,
+      "advantage_min": -1.250510891277374,
+      "advantage_max": -0.25213254166077537,
+      "seeds_where_neural_degraded_less": 0,
+      "per_seed": [
+        {
+          "event": "dotcom_2001",
+          "seed": 0,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.6920651339635571,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.4826750929581616
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 1,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.6934992364258896,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.481240990495829
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 2,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.9226076852609433,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.25213254166077537
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 3,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.7496272474568819,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.4251129794648367
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 4,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.21277407922131708,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.9619661477004016
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 5,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.7512824390605539,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.4234577878611647
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 6,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.4489076959109086,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.72583253101081
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 7,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": 0.07577066435565527,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -1.250510891277374
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 8,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.7268327016349154,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.4479075252868032
+        },
+        {
+          "event": "dotcom_2001",
+          "seed": 9,
+          "n_train": 184,
+          "n_validation": 47,
+          "n_event": 9,
+          "neural_degradation": -0.8152331644338755,
+          "baseline_degradation": -1.1747402269217186,
+          "advantage": -0.35950706248784314
+        }
+      ]
+    },
+    {
+      "event": "financial_crisis_2008",
+      "window": [
+        "2007-12-31",
+        "2009-06-30"
+      ],
+      "selection_contaminated": false,
+      "note": "NBER peak 2007-12 to trough 2009-06; was inside the training data of Finding 5's model",
+      "n_seeds": 10,
+      "n_train": 249,
+      "n_event_transitions": 19,
+      "neural_degradation_median": 2.06800247137072,
+      "baseline_degradation_median": 0.7139234544057347,
+      "advantage_median": -1.3540790169649854,
+      "advantage_min": -1.5957593535242705,
+      "advantage_max": -0.8883040551946313,
+      "seeds_where_neural_degraded_less": 0,
+      "per_seed": [
+        {
+          "event": "financial_crisis_2008",
+          "seed": 0,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.309682807930005,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.5957593535242705
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 1,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.183242061604925,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.4693186071991904
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 2,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 1.8687234382990412,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.1547999838933065
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 3,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.210266881509397,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.4963434271036622
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 4,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.012271324056386,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.2983478696506512
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 5,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.1237336186850544,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.4098101642793197
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 6,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 1.9430754688822747,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.22915201447654
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 7,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 2.286667610651499,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.5727441562457645
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 8,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 1.7640698656446183,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -1.0501464112388836
+        },
+        {
+          "event": "financial_crisis_2008",
+          "seed": 9,
+          "n_train": 249,
+          "n_validation": 63,
+          "n_event": 19,
+          "neural_degradation": 1.602227509600366,
+          "baseline_degradation": 0.7139234544057347,
+          "advantage": -0.8883040551946313
+        }
+      ]
+    },
+    {
+      "event": "covid_2020",
+      "window": [
+        "2020-02-29",
+        "2020-06-30"
+      ],
+      "selection_contaminated": true,
+      "note": "Finding 5's own window; patience=20 was kept after seeing it (selection-contaminated)",
+      "n_seeds": 10,
+      "n_train": 366,
+      "n_event_transitions": 5,
+      "neural_degradation_median": 41.92185952726361,
+      "baseline_degradation_median": 26.449300443940125,
+      "advantage_median": -15.472559083323478,
+      "advantage_min": -32.86421865367798,
+      "advantage_max": 2.9021128378442,
+      "seeds_where_neural_degraded_less": 1,
+      "per_seed": [
+        {
+          "event": "covid_2020",
+          "seed": 0,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 52.451531892625304,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -26.00223144868518
+        },
+        {
+          "event": "covid_2020",
+          "seed": 1,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 40.40026309194865,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -13.950962648008527
+        },
+        {
+          "event": "covid_2020",
+          "seed": 2,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 59.313519097618105,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -32.86421865367798
+        },
+        {
+          "event": "covid_2020",
+          "seed": 3,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 42.965987798326566,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -16.51668735438644
+        },
+        {
+          "event": "covid_2020",
+          "seed": 4,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 45.429176311631984,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -18.97987586769186
+        },
+        {
+          "event": "covid_2020",
+          "seed": 5,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 23.547187606095925,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": 2.9021128378442
+        },
+        {
+          "event": "covid_2020",
+          "seed": 6,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 39.05729834992573,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -12.607997905985606
+        },
+        {
+          "event": "covid_2020",
+          "seed": 7,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 42.035419720292495,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -15.58611927635237
+        },
+        {
+          "event": "covid_2020",
+          "seed": 8,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 41.80829933423471,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -15.358998890294586
+        },
+        {
+          "event": "covid_2020",
+          "seed": 9,
+          "n_train": 366,
+          "n_validation": 92,
+          "n_event": 5,
+          "neural_degradation": 32.01721007165564,
+          "baseline_degradation": 26.449300443940125,
+          "advantage": -5.567909627715515
+        }
+      ]
+    }
+  ]
+}

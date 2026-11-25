@@ -7,9 +7,8 @@ follow-up). Nothing here can be "untouched"; what it adds is the audit's request
 shock by shock result instead of one shock.
 
 For each pre-declared event the model is trained ONLY on transitions decided strictly before the
-event (80/20 chronological split, early stopping on the validation part, `patience` fixed at the
-default 20 and never tuned), a constant-parameter GBM is fitted on the same training part, and
-both are scored without retuning on the event window with
+event (80/20 chronological split, early stopping on the validation part), a constant-parameter GBM
+is fitted on the same training part, and both are scored without retuning on the event window with
 `neural_sde.ood.evaluate_ood_without_retuning`. The statistic is Finding 5's: degradation =
 event-window log score minus in-distribution (validation) log score, lower is better, and
 `advantage = baseline degradation - neural degradation` (positive favours the neural SDE).
@@ -48,6 +47,23 @@ from prometheus.orchestration.neural_sde_run import DEFAULT_CSV_PATH
 
 PATIENCE = 20
 MAX_EPOCHS = 300
+LEGACY_LEARNING_RATE = 0.01
+HIDDEN_SIZE = 16
+
+
+@dataclass(frozen=True, slots=True)
+class NeuralSdeRecipe:
+    learning_rate: float
+    hidden_size: int
+    max_epochs: int
+    patience: int
+
+
+LEGACY_RECIPE = NeuralSdeRecipe(LEGACY_LEARNING_RATE, HIDDEN_SIZE, MAX_EPOCHS, PATIENCE)
+"""The recipe behind Finding 5 and the first exploratory dry run (seeds 0-9)."""
+FROZEN_RECIPE = NeuralSdeRecipe(0.003, 16, 300, 50)
+"""The recipe E4 freezes: chosen by `orchestration.neural_sde_tuning_study` (PR-219) on transitions
+decided before 2001-03-31, so no event window selected it."""
 E4_SEEDS = tuple(range(20_000, 20_010))
 
 
@@ -121,8 +137,7 @@ def run_event_seed(
     event: Event,
     seed: int,
     *,
-    max_epochs: int = MAX_EPOCHS,
-    patience: int = PATIENCE,
+    recipe: NeuralSdeRecipe = FROZEN_RECIPE,
 ) -> EventSeedResult:
     before, window = split_for_event(examples, event)
     train, validation = chronological_split(before, train_fraction=0.8)
@@ -130,7 +145,8 @@ def run_event_seed(
     regime_scaler = fit_scaler(np.array([e.regime for e in train]))
     trained = train_neural_sde(
         train, validation, state_scaler, regime_scaler,
-        seed=seed, max_epochs=max_epochs, patience=patience,
+        seed=seed, max_epochs=recipe.max_epochs, patience=recipe.patience,
+        learning_rate=recipe.learning_rate, hidden_size=recipe.hidden_size,
     )  # fmt: skip
     report = evaluate_ood_without_retuning(trained, validation, window, train)
     return EventSeedResult(
@@ -170,15 +186,17 @@ def run_e4(
     *,
     csv_path: Path = DEFAULT_CSV_PATH,
     events: Sequence[Event] = EVENTS,
+    recipe: NeuralSdeRecipe = FROZEN_RECIPE,
 ) -> dict[str, Any]:
     """Every event and seed, reported event by event: no pooled score, no interval across events."""
     examples = _examples(csv_path)
     return {
         "endpoint": "E4",
         "label": "re-used data; pre-specified; estimation only; never pooled across events",
-        "patience": PATIENCE,
+        "patience": recipe.patience,
+        "recipe": asdict(recipe),
         "events": [
-            summarise([run_event_seed(examples, event, s) for s in seeds], event)
+            summarise([run_event_seed(examples, event, s, recipe=recipe) for s in seeds], event)
             for event in events
         ],
     }

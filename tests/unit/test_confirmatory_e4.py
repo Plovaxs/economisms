@@ -22,7 +22,8 @@ def test_the_events_are_the_three_prespecified_ones_and_only_covid_is_contaminat
         ("financial_crisis_2008", False),
         ("covid_2020", True),
     ]
-    assert e4.PATIENCE == 20 and e4.E4_SEEDS == tuple(range(20_000, 20_010))
+    assert e4.LEGACY_RECIPE.patience == e4.PATIENCE == 20
+    assert e4.E4_SEEDS == tuple(range(20_000, 20_010))
     assert tuple(e4.E4_SEEDS) == tuple(E4_RESERVED_SEEDS)
 
 
@@ -50,19 +51,25 @@ def test_a_later_event_trains_on_more_history_and_the_windows_do_not_overlap() -
 
 def test_covid_seed_zero_reproduces_finding_5_through_the_event_code(examples) -> None:  # type: ignore[no-untyped-def]
     covid = next(ev for ev in e4.EVENTS if ev.name == "covid_2020")
-    result = e4.run_event_seed(examples, covid, 0)
+    result = e4.run_event_seed(examples, covid, 0, recipe=e4.LEGACY_RECIPE)
     assert round(result.neural_degradation, 2) == 6.99
     assert round(result.baseline_degradation, 2) == 26.45
     assert result.advantage == pytest.approx(
         result.baseline_degradation - result.neural_degradation
     )
-    assert e4.run_event_seed(examples, covid, 0) == result  # deterministic
+    assert e4.run_event_seed(examples, covid, 0, recipe=e4.LEGACY_RECIPE) == result  # deterministic
 
 
 def test_the_summary_is_per_event_with_no_pooled_score_or_interval(examples) -> None:  # type: ignore[no-untyped-def]
     report = e4.run_e4((0, 1))
     assert [row["event"] for row in report["events"]] == [ev.name for ev in e4.EVENTS]
-    assert set(report) == {"endpoint", "label", "patience", "events"}
+    assert set(report) == {"endpoint", "label", "patience", "recipe", "events"}
+    assert report["recipe"] == {
+        "learning_rate": 0.003,
+        "hidden_size": 16,
+        "max_epochs": 300,
+        "patience": 50,
+    }
     for row in report["events"]:
         assert row["n_seeds"] == 2 and len(row["per_seed"]) == 2
         assert "interval" not in row and "pooled" not in row

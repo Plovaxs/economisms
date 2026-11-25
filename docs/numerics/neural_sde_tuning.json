@@ -1,0 +1,226 @@
+{
+  "config": {
+    "selected": {
+      "learning_rate": 0.003,
+      "hidden_size": 16,
+      "max_epochs": 300,
+      "patience": 50
+    },
+    "selected_name": "lr0.003/h16/ep300/p50",
+    "default": {
+      "learning_rate": 0.01,
+      "hidden_size": 16,
+      "max_epochs": 300,
+      "patience": 20
+    },
+    "grid_size": 36,
+    "selection_seeds": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109
+    ],
+    "check_seeds": [
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215
+    ],
+    "n_train": 110,
+    "n_early_stopping": 28,
+    "n_selection": 46,
+    "n_check": 47,
+    "last_decision_time_used": "2001-02-28",
+    "selection_rule": "lowest mean log score on the selection months; ties go to the earlier recipe, the current one first"
+  },
+  "selection_margin_over_runner_up": 0.0,
+  "grid": [
+    {
+      "recipe": "lr0.003/h16/ep300/p50",
+      "mean_selection_log_score": 3.9070006631342267
+    },
+    {
+      "recipe": "lr0.003/h16/ep1000/p50",
+      "mean_selection_log_score": 3.9070006631342267
+    },
+    {
+      "recipe": "lr0.003/h32/ep300/p50",
+      "mean_selection_log_score": 3.9283719046310708
+    },
+    {
+      "recipe": "lr0.003/h32/ep1000/p50",
+      "mean_selection_log_score": 3.9283719046310708
+    },
+    {
+      "recipe": "lr0.01/h16/ep300/p50",
+      "mean_selection_log_score": 3.929596751076469
+    },
+    {
+      "recipe": "lr0.01/h16/ep1000/p50",
+      "mean_selection_log_score": 3.929596751076469
+    },
+    {
+      "recipe": "lr0.003/h16/ep300/p20",
+      "mean_selection_log_score": 3.935145267917556
+    },
+    {
+      "recipe": "lr0.003/h16/ep1000/p20",
+      "mean_selection_log_score": 3.935145267917556
+    },
+    {
+      "recipe": "lr0.003/h32/ep300/p20",
+      "mean_selection_log_score": 3.9465200145891144
+    },
+    {
+      "recipe": "lr0.003/h32/ep1000/p20",
+      "mean_selection_log_score": 3.9465200145891144
+    },
+    {
+      "recipe": "lr0.01/h16/ep300/p20",
+      "mean_selection_log_score": 4.3037375263863735
+    },
+    {
+      "recipe": "lr0.01/h16/ep1000/p20",
+      "mean_selection_log_score": 4.3037375263863735
+    },
+    {
+      "recipe": "lr0.003/h64/ep300/p50",
+      "mean_selection_log_score": 4.5850934626349815
+    },
+    {
+      "recipe": "lr0.003/h64/ep1000/p50",
+      "mean_selection_log_score": 4.5850934626349815
+    },
+    {
+      "recipe": "lr0.01/h32/ep300/p50",
+      "mean_selection_log_score": 4.757204636285906
+    },
+    {
+      "recipe": "lr0.01/h32/ep1000/p50",
+      "mean_selection_log_score": 4.757204636285906
+    },
+    {
+      "recipe": "lr0.003/h64/ep300/p20",
+      "mean_selection_log_score": 4.939859392857264
+    },
+    {
+      "recipe": "lr0.003/h64/ep1000/p20",
+      "mean_selection_log_score": 4.939859392857264
+    },
+    {
+      "recipe": "lr0.03/h16/ep300/p50",
+      "mean_selection_log_score": 5.345775570901349
+    },
+    {
+      "recipe": "lr0.03/h16/ep1000/p50",
+      "mean_selection_log_score": 5.345775570901349
+    },
+    {
+      "recipe": "lr0.01/h32/ep300/p20",
+      "mean_selection_log_score": 5.631535151683833
+    },
+    {
+      "recipe": "lr0.01/h32/ep1000/p20",
+      "mean_selection_log_score": 5.631535151683833
+    },
+    {
+      "recipe": "lr0.03/h16/ep300/p20",
+      "mean_selection_log_score": 6.359247092032992
+    },
+    {
+      "recipe": "lr0.03/h16/ep1000/p20",
+      "mean_selection_log_score": 6.359247092032992
+    },
+    {
+      "recipe": "lr0.01/h64/ep300/p50",
+      "mean_selection_log_score": 6.461068347582952
+    },
+    {
+      "recipe": "lr0.01/h64/ep1000/p50",
+      "mean_selection_log_score": 6.461068347582952
+    },
+    {
+      "recipe": "lr0.03/h64/ep300/p50",
+      "mean_selection_log_score": 6.838651459497969
+    },
+    {
+      "recipe": "lr0.03/h64/ep1000/p50",
+      "mean_selection_log_score": 6.838651459497969
+    },
+    {
+      "recipe": "lr0.03/h32/ep300/p50",
+      "mean_selection_log_score": 6.844160298434723
+    },
+    {
+      "recipe": "lr0.03/h32/ep1000/p50",
+      "mean_selection_log_score": 6.844160298434723
+    },
+    {
+      "recipe": "lr0.03/h32/ep300/p20",
+      "mean_selection_log_score": 7.4030971670901735
+    },
+    {
+      "recipe": "lr0.03/h32/ep1000/p20",
+      "mean_selection_log_score": 7.4030971670901735
+    },
+    {
+      "recipe": "lr0.01/h64/ep300/p20",
+      "mean_selection_log_score": 7.478958270968856
+    },
+    {
+      "recipe": "lr0.01/h64/ep1000/p20",
+      "mean_selection_log_score": 7.478958270968856
+    },
+    {
+      "recipe": "lr0.03/h64/ep300/p20",
+      "mean_selection_log_score": 8.020661765522455
+    },
+    {
+      "recipe": "lr0.03/h64/ep1000/p20",
+      "mean_selection_log_score": 8.020661765522455
+    }
+  ],
+  "check_log_score": {
+    "default": 5.863350234728831,
+    "selected": 5.6852732225371945,
+    "gbm_constant": 5.888073862516548
+  },
+  "comparisons": {
+    "N-A_selected_vs_default": {
+      "score_difference_first_minus_second": -0.17807701219163538,
+      "ci_low": -0.2996154082555979,
+      "ci_high": -0.02773586253324712,
+      "preregistered_verdict": "SUPPORTED"
+    },
+    "N-B_selected_vs_constant_gbm": {
+      "score_difference_first_minus_second": -0.20280063997935527,
+      "ci_low": -0.3457106184844334,
+      "ci_high": -0.02741506268784916,
+      "preregistered_verdict": "SUPPORTED"
+    }
+  },
+  "caveats": [
+    "About forty months per part: the check interval is wide, and a recipe that is better here may not be better in a shock.",
+    "Thirty-six recipes were compared on the selection months; the check months, which selected nothing, and fresh seeds carry the claim.",
+    "No shock window was read by this study; the selected recipe is then run once on E4's exploratory seeds as an estimation-only report, never as a selection.",
+    "Per-month scores are averaged over seeds before the bootstrap, so the interval is about the months, not about training noise."
+  ]
+}

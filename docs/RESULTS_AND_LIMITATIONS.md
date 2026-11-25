@@ -789,9 +789,9 @@ Asked to "train the models to be more accurate", this round tuned three of the p
 under one rule: every choice is made on the validation window alone, the questions and their decision rule
 are written in each module's docstring before any number was computed, and the test windows (already seen
 in Findings 14, 17 and 18) are read only to score the selected model. Each study ships its output in
-`docs/numerics/`. The deep-hedging and neural-SDE recipes were deliberately **not** touched: they are the
-frozen pipelines of protocol experiments E1 and E4, and changing them now would change their recipe hash
-(see the protocol's open items).
+`docs/numerics/`. The deep-hedging and neural-SDE recipes were deliberately **not** touched in this round:
+they are the pipelines of protocol experiments E1 and E4 (Finding 21 tunes them, with the maintainer's
+permission and under the same rule).
 
 **Neural volatility (PR-215, `orchestration.neural_volatility_v2_study`).** Sixteen configurations -- an
 anchor (the old constant, or log of the GJR-GARCH volatility fitted on the same market's training rows with
@@ -846,6 +846,54 @@ changes the NO-GO decision, and nothing says which model to deploy. No data afte
 reserved seed was read: new data was permitted, but none exists in the repository for the volatility
 and inflation tests, and the protocol's untouched windows are worth more intact than spent on a tuning
 run.
+
+## Finding 21 (PR-218, PR-219): tuning the deep-hedging policy closed about half of its gap to the static baseline but did not beat it, and tuning the neural SDE made it better in ordinary months and worse in shocks
+
+With the maintainer's permission, the two recipes that Finding 20 left alone were tuned **before** the
+confirmatory freeze, each under the same rule: questions and a decision rule written in the module's docstring
+first, selection on data that no confirmatory endpoint reads, and the claim carried by seeds or months that
+selected nothing. No reserved seed (10000-10049, 20000-20009) and no data after 2023-05-03 was read.
+
+**Deep hedging (PR-218, `orchestration.hedging_tuning_study`).** Thirty-six recipes (learning rate 0.003, 0.01 or
+0.03; 400, 1,000 or 2,000 epochs; 16 or 64 units; initial exploration log-std 0 or -1) were each trained on eight
+selection seeds (1000-1007) and ranked by the E1 statistic `theta = -log(CVaR95 policy / CVaR95 static)` on 20,000
+held-out paths per seed. The baseline (band, delta, costs) was not touched: tuning it would be tuning the
+opponent. The current recipe (0.01, 400 epochs) scored -0.081 on the selection seeds; the best, at the corner of
+the grid (0.003, 2,000 epochs), -0.031, leading the runner-up by 0.012. On 16 fresh validation seeds
+(3000-3015) the selected recipe had theta -0.039 ([-0.050, -0.027]) against -0.077 ([-0.111, -0.043]) for the
+current one: **better than the current recipe** by +0.038 ([+0.003, +0.074]; H-A supported), and **still worse
+than the static baseline** (theta below zero; H-B contradicted), about 4% more CVaR. Because the winner sat on the
+grid's corner, a second round extended the grid toward smaller steps and longer training (12 recipes) and used 16
+new validation seeds (4000-4015). Its winner (0.001, 4,000 epochs, 64 units) was not better than round 1's
+(-0.002, [-0.015, +0.011]; H-C inconclusive), and round 1's recipe scored theta -0.021 ([-0.030, -0.013], about 2%
+more CVaR than the baseline). The gain flattened, so round 1's cheaper recipe (0.003, 2,000 epochs, 16 units) was
+adopted; that tie-break was applied after seeing round 2 and is disclosed as such. E1 now freezes this recipe;
+the runner's defaults remain as the legacy recipe for Finding 8. **What it means for E1:** over 32 exploratory
+seeds the tuned policy's theta averaged -0.030 with spread 0.021; if new seeds agree, E1 will report
+"equivalent" (within the 5% margin), not "better". That is a smaller claim than "the policy beats the baseline",
+and a more favourable label than the legacy recipe would have earned, because tuning moved the estimate toward
+the margin; the protocol says so.
+
+**Neural SDE (PR-219, `orchestration.neural_sde_tuning_study`).** The 36 recipes (learning rate, 16/32/64
+units, 300 or 1,000 epochs, `patience` 20 or 50) were selected using transitions decided before 2001-03-31 only
+(110 training, 28 early-stopping, 46 selection months; 47 later months for the check), so no shock window played
+any part. The selected recipe (0.003, 16 units, `patience` 50) had a mean log score of 5.685 on the check months
+against 5.863 for the current recipe and 5.888 for the constant GBM: a lower score than both (N-A: -0.178,
+[-0.300, -0.028]; N-B: -0.203, [-0.346, -0.027]; both supported, with upper limits close to zero and 47 months).
+The 300- and 1,000-epoch versions are identical because early stopping ends training first, which is why the
+reported margin over the "runner-up" is 0. **The shock question went the other way.** Scored once afterwards on
+E4's exploratory seeds 0-9 (estimation only, nothing selected on it), the neural SDE degraded less than the GBM in
+0 of 10 seeds for 2001, 0 of 10 for 2008 and 1 of 10 for COVID (medians -0.46, -1.35 and -15.47), against 0, 4 and
+4 of 10 for the old recipe. In absolute event-window scores, the tuned model beats the GBM in 6 of 10 seeds for 2001
+(4.69 against 4.73) but not in 2008 (6.00 against 4.93) or COVID (45.85 against 30.57). A sharper model is rewarded in
+ordinary months and punished harder when the world leaves them. So the claim "tuning made the neural SDE more
+accurate" holds for ordinary months, and "more robust under shocks" holds for neither recipe. The maintainer decides
+which recipe E4 freezes; the code currently uses the tuned one.
+
+**What this does not show.** The deep-hedging simulator is one option, one geometric Brownian motion and one cost
+rate; its seeds are exploratory, not a test of E1. The neural-SDE check has 47 months and three shocks. Thirty-six
+recipes were compared in each study; the margins, the corner-of-the-grid caveat and the post-hoc tie-break are
+stated above. Nothing here changes the NO-GO decision.
 
 ## Known limitations that are not findings, just open scope
 

@@ -1,7 +1,10 @@
 """E1: does the REINFORCE hedging policy beat the static delta / no-trade-band baseline? (H5)
 
-The frozen pipeline is `orchestration.rl_hedge_run.run_rl_hedge` with its default configuration,
-unchanged: one training run per seed on that seed's 2,000 simulated GBM paths. The statistic is new,
+The frozen pipeline is `orchestration.rl_hedge_run.run_rl_hedge` with the TUNED recipe below
+(`FROZEN_LEARNING_RATE`, `FROZEN_N_EPOCHS`) and every other field at its default: one training run
+per seed on that seed's 2,000 simulated GBM paths. The recipe was chosen on exploratory seeds
+(`orchestration.hedging_tuning_study`, PR-218); the runner's own defaults (0.01, 400 epochs) are the
+LEGACY recipe, kept so Finding 8 stays reproducible. The statistic is new,
 and it differs from Finding 8's on purpose:
 
 - Finding 8 compares the trained policy's CVaR with the baseline's on the SAME paths the policy was
@@ -36,6 +39,11 @@ from prometheus.orchestration.rl_hedge_run import RlHedgeRunConfig, run_rl_hedge
 from prometheus.stochastica.gbm import simulate_gbm_paths
 
 MARGIN = math.log(1.05)
+FROZEN_LEARNING_RATE = 0.003
+FROZEN_N_EPOCHS = 2000
+LEGACY_LEARNING_RATE = 0.01
+LEGACY_N_EPOCHS = 400
+"""The runner's default learning rate, which produced Finding 8 (with 400 or 800 epochs)."""
 N_EVAL_PATHS = 20_000
 EVAL_STREAM = 1
 """Second element of the evaluation generator's seed `[seed, EVAL_STREAM]`: training uses
@@ -132,14 +140,17 @@ def evaluate_seed(
     seed: int,
     *,
     n_epochs: int | None = None,
+    learning_rate: float | None = None,
     n_paths: int | None = None,
     n_eval_paths: int = N_EVAL_PATHS,
 ) -> SeedResult:
-    """Train once with the runner's defaults (overridable only for Finding 8's 800-epoch check
-    and for fast tests) and score on held-out paths."""
-    config = RlHedgeRunConfig(seed=seed)
-    if n_epochs is not None:
-        config = replace(config, n_epochs=n_epochs)
+    """Train once with the frozen (tuned) recipe, overridable only to reproduce Finding 8 (legacy
+    learning rate, 400 or 800 epochs) and for fast tests, and score on held-out paths."""
+    config = replace(
+        RlHedgeRunConfig(seed=seed),
+        n_epochs=FROZEN_N_EPOCHS if n_epochs is None else n_epochs,
+        learning_rate=FROZEN_LEARNING_RATE if learning_rate is None else learning_rate,
+    )
     if n_paths is not None:
         config = replace(config, n_paths=n_paths)
     run = run_rl_hedge(config)

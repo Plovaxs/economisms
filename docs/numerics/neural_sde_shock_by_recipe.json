@@ -1,0 +1,68 @@
+{
+  "label": "estimation only; post hoc; the recipe was chosen before any event window was scored",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "events": {
+    "dotcom_2001": {
+      "n_event_transitions": 9,
+      "legacy": {
+        "neural_in_distribution_median": 5.079150648006324,
+        "neural_event_median": 4.778148088735906,
+        "gbm_in_distribution": 5.908562931419413,
+        "gbm_event": 4.733822704497694,
+        "seeds_where_neural_event_score_beats_gbm": 4
+      },
+      "selected": {
+        "neural_in_distribution_median": 5.406207906132289,
+        "neural_event_median": 4.686687635702235,
+        "gbm_in_distribution": 5.908562931419413,
+        "gbm_event": 4.733822704497694,
+        "seeds_where_neural_event_score_beats_gbm": 6
+      }
+    },
+    "financial_crisis_2008": {
+      "n_event_transitions": 19,
+      "legacy": {
+        "neural_in_distribution_median": 4.6392816171144275,
+        "neural_event_median": 5.789471533931054,
+        "gbm_in_distribution": 4.211787863132859,
+        "gbm_event": 4.925711317538593,
+        "seeds_where_neural_event_score_beats_gbm": 1
+      },
+      "selected": {
+        "neural_in_distribution_median": 3.8991696583260715,
+        "neural_event_median": 5.99706895466437,
+        "gbm_in_distribution": 4.211787863132859,
+        "gbm_event": 4.925711317538593,
+        "seeds_where_neural_event_score_beats_gbm": 0
+      }
+    },
+    "covid_2020": {
+      "n_event_transitions": 5,
+      "legacy": {
+        "neural_in_distribution_median": 4.111768513823706,
+        "neural_event_median": 32.72959050814015,
+        "gbm_in_distribution": 4.116614058690995,
+        "gbm_event": 30.56591450263112,
+        "seeds_where_neural_event_score_beats_gbm": 4
+      },
+      "selected": {
+        "neural_in_distribution_median": 3.9395373090244505,
+        "neural_event_median": 45.851298326041984,
+        "gbm_in_distribution": 4.116614058690995,
+        "gbm_event": 30.56591450263112,
+        "seeds_where_neural_event_score_beats_gbm": 1
+      }
+    }
+  }
+}

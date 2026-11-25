@@ -80,7 +80,13 @@ def reproduce_e1(
     seeds: Sequence[int] = FINDING_8_SEEDS, epochs: Sequence[int] = FINDING_8_EPOCHS
 ) -> dict[str, Any]:
     """Finding 8 on its eight seeds at both budgets, with the new held-out statistic beside it."""
-    runs = {e: [e1_hedging.evaluate_seed(s, n_epochs=e) for s in seeds] for e in epochs}
+    runs = {
+        e: [
+            e1_hedging.evaluate_seed(s, n_epochs=e, learning_rate=e1_hedging.LEGACY_LEARNING_RATE)
+            for s in seeds
+        ]
+        for e in epochs
+    }
     in_sample = {e: [r.in_sample_ratio for r in rs] for e, rs in runs.items()}
     everything = [x for xs in in_sample.values() for x in xs]
     below = {e: int(sum(x < 1.0 for x in xs)) for e, xs in in_sample.items()}
@@ -204,7 +210,9 @@ def reproduce_e3() -> dict[str, Any]:
 def reproduce_e4() -> dict[str, Any]:
     """Finding 5's COVID numbers (+6.99 neural, +26.45 GBM, seed 0) through the E4 code."""
     covid = next(ev for ev in e4_shocks.EVENTS if ev.name == "covid_2020")
-    result = e4_shocks.run_event_seed(e4_shocks._examples(DEFAULT_MACRO_CSV), covid, 0)
+    result = e4_shocks.run_event_seed(
+        e4_shocks._examples(DEFAULT_MACRO_CSV), covid, 0, recipe=e4_shocks.LEGACY_RECIPE
+    )
     measured = {
         "neural_degradation": round(result.neural_degradation, 2),
         "baseline_degradation": round(result.baseline_degradation, 2),
@@ -263,7 +271,14 @@ def power_report(*, include_e1: bool = True, meta_path: Path | None = None) -> d
         "interval_confidence": confidence,
     }
     if include_e1:
-        results = [e1_hedging.evaluate_seed(s) for s in FINDING_8_SEEDS]
+        results = [
+            e1_hedging.evaluate_seed(
+                s,
+                n_epochs=e1_hedging.LEGACY_N_EPOCHS,
+                learning_rate=e1_hedging.LEGACY_LEARNING_RATE,
+            )
+            for s in FINDING_8_SEEDS
+        ]
         theta = -np.log([r.ratio for r in results])
         sd = float(np.std(theta, ddof=1))
         rows = power.power_e1(

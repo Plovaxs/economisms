@@ -11,6 +11,7 @@ reproduction of Finding 8 on its eight seeds takes minutes and is run by
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -132,3 +133,29 @@ def test_a_reduced_reproduction_reports_without_claiming_a_comparison() -> None:
     assert "checks" not in report  # one seed and two epochs are not Finding 8's setting
     assert set(report["in_sample_ratio_by_epochs"]) == {"2"}
     assert len(report["held_out_ratio_by_epochs"]["2"]) == 1
+
+
+class _Stop(Exception):
+    pass
+
+
+def test_the_frozen_recipe_is_the_tuned_one_and_the_legacy_recipe_stays_reproducible(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from prometheus.confirmatory import e1_hedging
+
+    seen: list[RlHedgeRunConfig] = []
+
+    def capture(config: RlHedgeRunConfig) -> None:
+        seen.append(config)
+        raise _Stop
+
+    monkeypatch.setattr(e1_hedging, "run_rl_hedge", capture)
+    for kwargs in ({}, {"n_epochs": 400, "learning_rate": e1_hedging.LEGACY_LEARNING_RATE}):
+        with pytest.raises(_Stop):
+            e1_hedging.evaluate_seed(5, **kwargs)  # type: ignore[arg-type]
+    tuned, legacy = seen
+    assert (tuned.learning_rate, tuned.n_epochs) == (0.003, 2000)
+    assert (legacy.learning_rate, legacy.n_epochs) == (0.01, 400)
+    assert legacy == RlHedgeRunConfig(seed=5)  # the runner's own defaults are the legacy recipe
+    assert replace(tuned, learning_rate=0.01, n_epochs=400) == legacy
