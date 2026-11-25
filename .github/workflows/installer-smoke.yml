@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install what a graphical session needs (the application's own warning names libxcb-cursor0)
@@ -85,7 +85,7 @@ jobs:
         run: |
           apt-get update -qq
           apt-get install -y --no-install-recommends ca-certificates curl git python3 python3-venv sudo $X11_PACKAGES
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install, check, upgrade, launch on Xvfb, uninstall
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install what a graphical session needs
