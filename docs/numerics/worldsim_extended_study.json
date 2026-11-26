@@ -1,0 +1,445 @@
+{
+  "study": "worldsim_extended_study (PR-224)",
+  "n_seeds": 200,
+  "arms": {
+    "stressed_full/none": {
+      "mean_failed_banks": 7.035,
+      "share_of_runs_with_failure": 0.735,
+      "mean_min_output_gap": -9.311339395214977,
+      "mean_peak_unemployment": 9.155669697607488,
+      "mean_peak_inflation": 2.956779937280727,
+      "mean_debt_end": 1.5027017113688665,
+      "mean_debt_max": 1.5425325858293382,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7447423376837646,
+      "mean_top10_share_end": 0.6399851448319344
+    },
+    "stressed_full/liquidity": {
+      "mean_failed_banks": 5.15,
+      "share_of_runs_with_failure": 0.535,
+      "mean_min_output_gap": -8.346687148075764,
+      "mean_peak_unemployment": 8.673343574037881,
+      "mean_peak_inflation": 3.1821911118881507,
+      "mean_debt_end": 1.2637657459809675,
+      "mean_debt_max": 1.3240216050528983,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7453798330933714,
+      "mean_top10_share_end": 0.6408763489315674
+    },
+    "stressed_full/recapitalise": {
+      "mean_failed_banks": 0.0,
+      "share_of_runs_with_failure": 0.0,
+      "mean_min_output_gap": -7.509408087742741,
+      "mean_peak_unemployment": 8.25470404387137,
+      "mean_peak_inflation": 3.208546203574807,
+      "mean_debt_end": 1.2141175746237178,
+      "mean_debt_max": 1.2696713846000722,
+      "mean_injection": 254.82876884396777,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7388402393868172,
+      "mean_top10_share_end": 0.6332971326267821
+    },
+    "stressed_full/none, no counter-cyclical rule": {
+      "mean_failed_banks": 8.345,
+      "share_of_runs_with_failure": 0.855,
+      "mean_min_output_gap": -14.04248805863121,
+      "mean_peak_unemployment": 11.469419231780199,
+      "mean_peak_inflation": 2.829276233922104,
+      "mean_debt_end": 2.1899683456122125,
+      "mean_debt_max": 2.223631613058935,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7529081892047057,
+      "mean_top10_share_end": 0.6503903718970214
+    },
+    "stressed_full/none, no FX debt": {
+      "mean_failed_banks": 6.295,
+      "share_of_runs_with_failure": 0.64,
+      "mean_min_output_gap": -9.028774586159237,
+      "mean_peak_unemployment": 9.014387293079619,
+      "mean_peak_inflation": 3.0029437704109445,
+      "mean_debt_end": 1.4417486000891881,
+      "mean_debt_max": 1.4898424367105954,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7438145286268362,
+      "mean_top10_share_end": 0.6390175664107131
+    },
+    "stressed_full/recapitalise, no moral hazard": {
+      "mean_failed_banks": 0.0,
+      "share_of_runs_with_failure": 0.0,
+      "mean_min_output_gap": -7.487028190686317,
+      "mean_peak_unemployment": 8.24351409534316,
+      "mean_peak_inflation": 3.2139311167280096,
+      "mean_debt_end": 1.1967097751209448,
+      "mean_debt_max": 1.2527831715615785,
+      "mean_injection": 240.88359042864175,
+      "mean_crisis_share": 0.0911875,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7387683574655688,
+      "mean_top10_share_end": 0.6332255469537614
+    },
+    "volatile_full/none": {
+      "mean_failed_banks": 0.73,
+      "share_of_runs_with_failure": 0.075,
+      "mean_min_output_gap": -3.697524143130348,
+      "mean_peak_unemployment": 6.348762071565173,
+      "mean_peak_inflation": 3.6079025352250174,
+      "mean_debt_end": 0.7108498829295266,
+      "mean_debt_max": 0.8440312884223015,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.03933333333333333,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7500959310759542,
+      "mean_top10_share_end": 0.6444294323079427
+    },
+    "volatile_full/none, no firms": {
+      "mean_failed_banks": 0.15,
+      "share_of_runs_with_failure": 0.015,
+      "mean_min_output_gap": -3.4324127067268226,
+      "mean_peak_unemployment": 6.216206353363411,
+      "mean_peak_inflation": 3.715766803516341,
+      "mean_debt_end": 0.6671177658584619,
+      "mean_debt_max": 0.80531143399777,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.03933333333333333,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7479433588741642,
+      "mean_top10_share_end": 0.6426751359133658
+    },
+    "volatile (Finding 25 world)": {
+      "mean_failed_banks": 0.085,
+      "share_of_runs_with_failure": 0.01,
+      "mean_min_output_gap": -3.9363879801416455,
+      "mean_peak_unemployment": 6.468193990070822,
+      "mean_peak_inflation": 3.670053064762128,
+      "mean_debt_end": 0.8,
+      "mean_debt_max": 0.8,
+      "mean_injection": 0.0,
+      "mean_crisis_share": 0.03933333333333333,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7213231662988882,
+      "mean_top10_share_end": 0.6274848827025103
+    }
+  },
+  "hypotheses": {
+    "E-A_recapitalisation_reduces_failed_banks": {
+      "estimate": 7.035,
+      "low": 6.409163971153557,
+      "high": 7.660836028846443,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "E-B_recapitalisation_raises_public_debt_at_the_end": {
+      "estimate": -0.28858413674514866,
+      "low": -0.33548264502735664,
+      "high": -0.2416856284629407,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "CONTRADICTED"
+    },
+    "E-C_counter_cyclical_rule_raises_the_worst_output_gap": {
+      "estimate": 4.731148663416231,
+      "low": 4.399913595726724,
+      "high": 5.062383731105739,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "E-D_foreign_currency_bank_debt_raises_failed_banks": {
+      "estimate": 0.74,
+      "low": 0.3229152085965976,
+      "high": 1.1570847914034024,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "E-E_firm_leverage_raises_failed_banks_volatile_full": {
+      "estimate": 0.58,
+      "low": 0.2568621935017377,
+      "high": 0.9031378064982623,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "E-G_moral_hazard_raises_the_total_injected": {
+      "estimate": 13.945178415326025,
+      "low": 10.867199680318043,
+      "high": 17.023157150334008,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "E-F_learned_warning_beats_the_composite_out_of_sample": {
+      "verdict": "INCONCLUSIVE",
+      "learned_minus_composite": {
+        "estimate": 0.02190862524379633,
+        "low": -0.019717369755556144,
+        "high": 0.06123418963792297,
+        "confidence": 0.95
+      }
+    }
+  },
+  "early_warning": {
+    "n_train_samples": 18985,
+    "n_test_samples": 19016,
+    "test_samples_before_a_crisis": 1062,
+    "auc_learned": 0.5532805955038478,
+    "auc_composite": 0.5313719702600515,
+    "auc_oracle_knows_the_regime": 0.6452693397040816,
+    "learned_minus_composite": {
+      "estimate": 0.02190862524379633,
+      "low": -0.019717369755556144,
+      "high": 0.06123418963792297,
+      "confidence": 0.95
+    },
+    "verdict": "INCONCLUSIVE",
+    "weights": {
+      "equity_volatility": 0.3162910324482971,
+      "weakest_bank_capital": 0.1098483690344541,
+      "output_gap": -0.05670787669563666,
+      "credit_growth_12m": -0.2997136419091365,
+      "composite": 0.07648121425694342,
+      "firm_leverage": -0.3515682770902804,
+      "public_debt": -0.1819395355842323,
+      "sovereign_spread": -0.2710750202301136,
+      "fx_change_6m": 0.008270671745566841
+    }
+  },
+  "calibration_of_the_volatile_scenario": {
+    "equity_volatility_annual": {
+      "value": 0.14983751559098588,
+      "low": 0.1,
+      "high": 0.22,
+      "ok": true
+    },
+    "equity_excess_kurtosis": {
+      "value": 3.4881632050129125,
+      "low": 1.5,
+      "high": 10.0,
+      "ok": true
+    },
+    "equity_bond_correlation_in_crisis": {
+      "value": -0.37298616958953773,
+      "low": -0.7,
+      "high": -0.1,
+      "ok": true
+    },
+    "equity_bond_correlation_outside_crisis": {
+      "value": 0.053477163272177775,
+      "low": -0.2,
+      "high": 0.3,
+      "ok": true
+    },
+    "mean_crisis_share": {
+      "value": 0.039625,
+      "low": 0.02,
+      "high": 0.08,
+      "ok": true
+    },
+    "mean_min_output_gap": {
+      "value": -3.931837902027262,
+      "low": -6.0,
+      "high": -2.0,
+      "ok": true
+    },
+    "mean_peak_unemployment": {
+      "value": 6.46591895101363,
+      "low": 5.5,
+      "high": 9.0,
+      "ok": true
+    },
+    "share_of_runs_with_a_bank_failure": {
+      "value": 0.01,
+      "low": 0.0,
+      "high": 0.1,
+      "ok": true
+    }
+  },
+  "sensitivity_stressed_full_25_percent_moves": [
+    {
+      "parameter": "banks.deposit_funding",
+      "base_value": 86.0,
+      "low": {
+        "mean_failed_banks": 9.75,
+        "share_of_runs_with_failure": 0.975,
+        "mean_min_output_gap": -12.188460722277425
+      },
+      "high": {
+        "mean_failed_banks": 4.7,
+        "share_of_runs_with_failure": 0.5,
+        "mean_min_output_gap": -8.356432064925203
+      },
+      "swing_mean_failed_banks": -5.05,
+      "swing_min_output_gap": 3.8320286573522218
+    },
+    {
+      "parameter": "banks.capital_trigger",
+      "base_value": 0.05,
+      "low": {
+        "mean_failed_banks": 6.725,
+        "share_of_runs_with_failure": 0.675,
+        "mean_min_output_gap": -9.623002568008598
+      },
+      "high": {
+        "mean_failed_banks": 8.775,
+        "share_of_runs_with_failure": 0.9,
+        "mean_min_output_gap": -11.163127643979589
+      },
+      "swing_mean_failed_banks": 2.0500000000000007,
+      "swing_min_output_gap": -1.540125075970991
+    },
+    {
+      "parameter": "banks.loss_given_default",
+      "base_value": 0.6,
+      "low": {
+        "mean_failed_banks": 6.525,
+        "share_of_runs_with_failure": 0.675,
+        "mean_min_output_gap": -9.776230513050232
+      },
+      "high": {
+        "mean_failed_banks": 8.55,
+        "share_of_runs_with_failure": 0.875,
+        "mean_min_output_gap": -10.611738711329133
+      },
+      "swing_mean_failed_banks": 2.0250000000000004,
+      "swing_min_output_gap": -0.8355081982789017
+    },
+    {
+      "parameter": "banks.default_sensitivity",
+      "base_value": 0.45,
+      "low": {
+        "mean_failed_banks": 6.725,
+        "share_of_runs_with_failure": 0.675,
+        "mean_min_output_gap": -9.789149937496585
+      },
+      "high": {
+        "mean_failed_banks": 8.075,
+        "share_of_runs_with_failure": 0.85,
+        "mean_min_output_gap": -10.415360726759374
+      },
+      "swing_mean_failed_banks": 1.3499999999999996,
+      "swing_min_output_gap": -0.6262107892627888
+    },
+    {
+      "parameter": "firms.default_sensitivity",
+      "base_value": 6.0,
+      "low": {
+        "mean_failed_banks": 7.0,
+        "share_of_runs_with_failure": 0.7,
+        "mean_min_output_gap": -10.192233021205595
+      },
+      "high": {
+        "mean_failed_banks": 7.575,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -10.27436905696887
+      },
+      "swing_mean_failed_banks": 0.5750000000000002,
+      "swing_min_output_gap": -0.08213603576327522
+    },
+    {
+      "parameter": "macro.regime_output_vol",
+      "base_value": [
+        0.25,
+        0.35,
+        0.6
+      ],
+      "low": {
+        "mean_failed_banks": 7.075,
+        "share_of_runs_with_failure": 0.75,
+        "mean_min_output_gap": -10.040748924598478
+      },
+      "high": {
+        "mean_failed_banks": 7.45,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -10.446238169066032
+      },
+      "swing_mean_failed_banks": 0.375,
+      "swing_min_output_gap": -0.4054892444675531
+    },
+    {
+      "parameter": "banks.fire_sale_fraction",
+      "base_value": 0.1,
+      "low": {
+        "mean_failed_banks": 7.075,
+        "share_of_runs_with_failure": 0.75,
+        "mean_min_output_gap": -10.133594228965505
+      },
+      "high": {
+        "mean_failed_banks": 7.425,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -10.295268802746588
+      },
+      "swing_mean_failed_banks": 0.34999999999999964,
+      "swing_min_output_gap": -0.16167457378108274
+    },
+    {
+      "parameter": "macro.credit_crunch_drag",
+      "base_value": 0.4,
+      "low": {
+        "mean_failed_banks": 7.075,
+        "share_of_runs_with_failure": 0.75,
+        "mean_min_output_gap": -8.88394486578844
+      },
+      "high": {
+        "mean_failed_banks": 7.325,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -11.224400225719902
+      },
+      "swing_mean_failed_banks": 0.25,
+      "swing_min_output_gap": -2.340455359931463
+    },
+    {
+      "parameter": "market.price_impact",
+      "base_value": 1.0,
+      "low": {
+        "mean_failed_banks": 7.075,
+        "share_of_runs_with_failure": 0.75,
+        "mean_min_output_gap": -10.172032056351933
+      },
+      "high": {
+        "mean_failed_banks": 7.3,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -10.290069469180787
+      },
+      "swing_mean_failed_banks": 0.22499999999999964,
+      "swing_min_output_gap": -0.11803741282885483
+    },
+    {
+      "parameter": "foreign.bank_fx_debt_share",
+      "base_value": 0.15,
+      "low": {
+        "mean_failed_banks": 7.175,
+        "share_of_runs_with_failure": 0.725,
+        "mean_min_output_gap": -10.236455826602878
+      },
+      "high": {
+        "mean_failed_banks": 7.325,
+        "share_of_runs_with_failure": 0.775,
+        "mean_min_output_gap": -10.240375761021046
+      },
+      "swing_mean_failed_banks": 0.15000000000000036,
+      "swing_min_output_gap": -0.003919934418167514
+    }
+  ],
+  "caveats": [
+    "A simulation with chosen, not estimated, parameters: results describe the simulator.",
+    "The crisis regime is an exogenous random switch; bail-outs cannot change how often crises start, only what they do to banks and output.",
+    "Firms are one aggregate leverage ratio, the government one budget, the foreign sector one exchange rate; no sectoral detail, no trade partners, no default on sovereign debt.",
+    "Bank rescue is mechanical (inject up to a target ratio); real rescues involve negotiation, conditionality and political limits."
+  ]
+}

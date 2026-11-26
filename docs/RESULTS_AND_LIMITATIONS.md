@@ -1061,6 +1061,70 @@ not an estimate, and the W-C and W-D magnitudes depend on it. The hypotheses and
 taxes are absent; households are price takers and every participant holds the same portfolio; bank loan losses depend on the
 output gap only. The gate decision is unchanged (NO-GO).
 
+## Finding 26 (PR-224): adding firms, a government, a foreign sector and bail-outs to the simulated economy: recapitalisation ended bank failures but cost 17% of GDP, a counter-cyclical rule did more than any rescue, and a learned early-warning model did not beat the hand-made one
+
+Finding 25 left four things out of WORLDSIM; they are now in (`config.full_scenario`, `volatile_full` and
+`stressed_full`). **Firms**: one aggregate leverage ratio that builds in expansions and jumps in recessions,
+raising the bank loan-loss rate (a Minsky cycle). **A government**: taxes, spending that rises when output
+falls, debt dynamics (interest less inflation and growth), a sovereign spread above 90% debt and austerity
+above 120%. **A foreign sector**: an exchange rate with a carry term, volatility that rises with the regime and a
+risk-off depreciation when a crisis starts, imported inflation, an output effect, equity flight and bank debt
+denominated in foreign currency (a currency mismatch). **Bail-outs**: none, liquidity support (central-bank
+lending instead of fire sales) or recapitalisation (inject equity into banks under 3% capital up to 6%, paid by
+the government, with a moral-hazard term that makes surviving banks lend faster). With every extension off the
+world is exactly the one Finding 25 used (six seed-by-scenario pins in a test). Seven questions, each with its
+prediction, were written before the final run (`orchestration.worldsim_extended_study`); 200 seeds of 240
+months, every comparison paired on the same random draws; `docs/numerics/worldsim_extended_study.json`.
+
+`stressed_full`, 200 seeds:
+
+| Arm | failed banks (of 10) | runs with a failure | worst output gap | peak unemployment | public debt, end (start 0.80) |
+| --- | --- | --- | --- | --- | --- |
+| no rescue | 7.0 | 73.5% | -9.3% | 9.2% | 1.50 |
+| liquidity support | 5.2 | 53.5% | -8.3% | 8.7% | 1.26 |
+| **recapitalisation** | **0.0** | **0%** | -7.5% | 8.3% | 1.21 (cost 255, 17% of GDP) |
+| no rescue, no counter-cyclical rule | 8.3 | 85.5% | -14.0% | 11.5% | 2.19 |
+| no rescue, no foreign-currency bank debt | 6.3 | 64.0% | -9.0% | 9.0% | 1.44 |
+
+| Question (prediction) | Result |
+| --- | --- |
+| **E-A** recapitalisation lowers failed banks (yes) | SUPPORTED, -7.0 banks [6.4, 7.7]. Nearly true by construction: an injection that restores capital prevents the failure it targets |
+| **E-B** it raises public debt at the end (yes) | **CONTRADICTED**: debt is 0.29 of GDP *lower* [-0.34, -0.24], because the banking crisis and credit crunch it prevents cost more revenue than the injection |
+| **E-C** a counter-cyclical rule raises the worst output gap (yes) | SUPPORTED, +4.7 points [4.4, 5.1]; debt also ends lower (1.50 against 2.19) through a debt-deflation spiral without it |
+| **E-D** foreign-currency bank debt raises failures (yes) | SUPPORTED, +0.74 banks [0.32, 1.16] |
+| **E-E** firm leverage raises failures, `volatile_full` (yes) | SUPPORTED, +0.58 banks [0.26, 0.90]: 7.5% of runs have a failure against 1.5% without firms (1.0% in Finding 25's world) |
+| **E-F** a learned warning beats the composite out of sample (yes) | **INCONCLUSIVE**: AUC 0.553 against 0.531, difference +0.022 [-0.020, 0.061]; the ceiling, knowing the true regime, is 0.645 |
+| **E-G** moral hazard raises the total injected (yes) | SUPPORTED, +13.9 [10.9, 17.0] on 255 (about 6%) |
+
+**What to take from it.**
+- **Rescue design matters less than macro policy here.** Recapitalisation removed every bank failure, but the
+  counter-cyclical rule moved the worst output gap by 4.7 points against 1.8 for recapitalisation, and lowered
+  debt. Both lean on assumptions: a fiscal multiplier of 0.8 (steady state, `impulse_scale`) and no cost to the
+  state of a bank failure (no deposit insurance payout or resolution cost is modelled), which flatters "no rescue" on
+  debt and understates E-B's sign. E-B and E-C are therefore statements about this model's channels, not
+  about real fiscal arithmetic.
+- **A learned warning model adds almost nothing.** The crisis is an exogenous random switch, so the best any
+  indicator can do is read the slowdown regime that precedes it; even the oracle that knows the regime reaches 0.645.
+  Nine indicators and 19,000 training months gave 0.553.
+- **Sensitivity (25% moves, mean failed banks, `stressed_full`).** The results lean first on bank equity (25% more
+  equity at the start: 5.1 fewer failed banks), then on the capital trigger (+2.1), loss given default (+2.0), the loan-default
+  sensitivity to the output gap (+1.4) and firm default sensitivity (+0.6); the fire-sale price impact (+0.2) and the
+  foreign-currency debt share (+0.2) matter little. Higher capital trigger raises failures here because more banks sell into a thin market.
+- **Calibration.** All eight stylised-fact guard rails hold for `volatile` (equity volatility 15.0%, excess kurtosis
+  3.5, equity-bond correlation -0.37 in crises, crises 4.0% of months, worst output gap -3.9, peak unemployment 6.5%,
+  bank failure in 1% of runs). They are broad ranges, not a fit.
+- **Inequality still falls** (Gini 0.82 at the start, 0.75 at the end of `volatile_full`; 0.72 in Finding 25's world):
+  wealth-dependent saving and a return premium for the top decile slow the fall but do not stop it. A model of rising
+  inequality needs forces this one does not have.
+
+**How it was built.** The first leverage rule had no mean reversion and drifted to its bounds, which made
+`volatile_full` fail 8.8 banks on average; it was redesigned (build in expansions, bump in recessions, revert) before
+the final run, and scenario values such as the initial debt (0.80), the multiplier and the moral-hazard coefficient were
+chosen, not estimated. Everything in the table comes from the one final run.
+
+**Not shown:** anything about real economies. No sovereign default, deposit insurance, central-bank balance sheet,
+bank resolution, trade partners or housing; every number depends on chosen parameters.
+
 ## Known limitations that are not findings, just open scope
 
 

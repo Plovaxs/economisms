@@ -29,6 +29,12 @@ class WorldPath:
     fire_sale_volume: np.ndarray
     credit_crunch: np.ndarray
     total_loans: np.ndarray
+    firm_leverage: np.ndarray
+    debt_ratio: np.ndarray
+    sovereign_spread: np.ndarray
+    fx_level: np.ndarray  # log exchange rate, up = domestic currency weaker
+    injection: np.ndarray
+    liquidity_support: np.ndarray
 
     @property
     def n_months(self) -> int:
@@ -60,6 +66,11 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
     jump_scale = rng.uniform(0.5, 1.5, size=n)
     cholesky = [np.linalg.cholesky(_correlation(config, r)) for r in range(3)]
 
+    ext_rng = np.random.default_rng(seed + 7_000_003)
+    fx_noise = ext_rng.standard_normal(n)
+    fx_jump = ext_rng.uniform(0.5, 1.5, size=n)
+    firms, fiscal, foreign, policy = config.firms, config.fiscal, config.foreign, config.policy
+
     banks = initial_banks(config.banks, rng)
     n_banks = config.banks.n_banks
 
@@ -80,16 +91,45 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
     initial = banks.equity / np.maximum(banks.assets, 1e-9)
     ratio[0], loans[0] = initial, banks.loans.sum()
     impact = 0.0
+    leverage = np.full(n, firms.initial_leverage)
+    debt = np.full(n, fiscal.initial_debt)
+    spread = np.zeros(n)
+    fx = np.zeros(n)
+    injection = np.zeros(n)
+    liquidity = np.zeros(n)
+    cumulative_injection = 0.0
 
     for t in range(1, n):
         r = int(regime[t])
         real_rate = rate[t - 1] - pi[t - 1]
+        depreciation = 0.0
+        if foreign.enabled:
+            depreciation = (
+                -foreign.carry_response * (rate[t - 1] - foreign.foreign_rate) / 1200.0
+                + foreign.fx_volatility[r] * fx_noise[t]
+            )
+            if r == CRISIS and regime[t - 1] != CRISIS:
+                depreciation += foreign.crisis_depreciation * fx_jump[t]
+            fx[t] = fx[t - 1] + depreciation
+        spending = fiscal.spending_share
+        if fiscal.enabled:
+            spending = (
+                fiscal.spending_share
+                - fiscal.countercyclical * y[t - 1] / 100.0
+                - (fiscal.austerity_cut if debt[t - 1] > fiscal.austerity_threshold else 0.0)
+            )
+        extension_output = (
+            -firms.output_drag * (leverage[t - 1] - firms.initial_leverage) * firms.enabled
+            + fiscal.impulse_scale * fiscal.multiplier * 100.0 * (spending - fiscal.spending_share)
+            + foreign.trade_effect * depreciation * 100.0
+        )
         y[t] = (
             macro.output_persistence * y[t - 1]
             - macro.rate_sensitivity * (real_rate - macro.neutral_real_rate)
             + macro.regime_output_shift[r]
             + macro.regime_output_vol[r] * eps_y[t]
             - macro.credit_crunch_drag * crunch[t - 1]
+            + extension_output
         )
         pi[t] = (
             macro.inflation_persistence * pi[t - 1]
@@ -97,6 +137,7 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
             + macro.phillips_slope * y[t]
             + macro.inflation_vol * eps_pi[t]
             + supply[t]
+            + foreign.inflation_pass_through * depreciation * 100.0
         )
         target = (
             macro.neutral_real_rate
@@ -125,6 +166,13 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
             equity += market.crisis_jump[0] * jump_scale[t]
             bond += market.crisis_jump[1] * jump_scale[t]
             real += market.crisis_jump[2] * jump_scale[t]
+        if fiscal.enabled:
+            spread[t] = fiscal.spread_slope * max(
+                0.0, (debt[t - 1] - fiscal.spread_threshold) * 100.0
+            )
+            bond -= macro.bond_duration * (spread[t] - spread[t - 1]) / 100.0
+        if foreign.enabled:
+            equity -= foreign.equity_flight * max(depreciation, 0.0)
         equity -= impact
         real -= 0.5 * impact
         returns[t] = (max(equity, -0.95), bond, max(real, -0.95), rate[t - 1] / 1200.0)
@@ -136,6 +184,15 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
             bond_return=float(returns[t, 1]),
             output_gap=float(y[t]),
             market_size=market.market_size,
+            default_multiplier=float(
+                np.exp(firms.default_sensitivity * (leverage[t - 1] - firms.initial_leverage))
+                if firms.enabled
+                else 1.0
+            ),
+            fx_depreciation=depreciation,
+            fx_debt_share=foreign.bank_fx_debt_share if foreign.enabled else 0.0,
+            growth_boost=policy.moral_hazard * cumulative_injection / fiscal.gdp_scale,
+            policy=policy,
         )
         ratio[t], failed[t], constrained[t] = step.capital_ratio, step.failed, step.constrained
         new_failures[t], contagion[t] = step.new_failures, step.contagion_defaults
@@ -145,6 +202,29 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
             step.total_loans,
         )
         impact = market.price_impact * step.fire_sale_volume / market.market_size
+        injection[t], liquidity[t] = step.injection, step.liquidity_support
+        cumulative_injection += step.injection
+        if firms.enabled:
+            leverage[t] = float(
+                np.clip(
+                    leverage[t - 1]
+                    + firms.leverage_build * y[t]
+                    + firms.leverage_bust * max(0.0, -y[t])
+                    - firms.leverage_reversion * (leverage[t - 1] - firms.initial_leverage),
+                    0.2,
+                    0.9,
+                )
+            )
+        if fiscal.enabled:
+            revenue = fiscal.tax_rate * (1.0 + y[t] / 100.0)
+            carry = (rate[t] + spread[t] - pi[t] - fiscal.trend_growth) / 1200.0
+            debt[t] = (
+                debt[t - 1] * (1.0 + carry)
+                + (spending - revenue) / 12.0
+                + step.injection / fiscal.gdp_scale
+            )
+        else:
+            debt[t] = debt[t - 1]
 
     return WorldPath(
         config_name=config.name,
@@ -164,4 +244,10 @@ def simulate_world(config: WorldConfig, seed: int) -> WorldPath:
         fire_sale_volume=fire_sale,
         credit_crunch=crunch,
         total_loans=loans,
+        firm_leverage=leverage,
+        debt_ratio=debt,
+        sovereign_spread=spread,
+        fx_level=fx,
+        injection=injection,
+        liquidity_support=liquidity,
     )

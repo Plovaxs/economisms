@@ -17,7 +17,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from prometheus.titan.contagion import eisenberg_noe_clearing
-from prometheus.worldsim.config import BankParams
+from prometheus.worldsim.config import BankParams, PolicyParams
 
 
 @dataclass(slots=True)
@@ -57,6 +57,8 @@ class BankStep:
     fire_sale_volume: float
     credit_crunch: float
     total_loans: float
+    injection: float = 0.0
+    liquidity_support: float = 0.0
 
 
 def initial_banks(params: BankParams, rng: np.random.Generator) -> BankState:
@@ -93,10 +95,21 @@ def step_banks(
     bond_return: float,
     output_gap: float,
     market_size: float,
+    default_multiplier: float = 1.0,
+    fx_depreciation: float = 0.0,
+    fx_debt_share: float = 0.0,
+    growth_boost: float = 0.0,
+    policy: PolicyParams | None = None,
 ) -> BankStep:
     already_failed = state.failed.copy()
+    if fx_depreciation != 0.0 and fx_debt_share > 0.0:
+        state.deposits = state.deposits * (1.0 + fx_debt_share * fx_depreciation)
     default_rate = np.clip(
-        params.base_default_rate * np.exp(-params.default_sensitivity * output_gap), 3e-4, 0.02
+        params.base_default_rate
+        * np.exp(-params.default_sensitivity * output_gap)
+        * default_multiplier,
+        3e-4,
+        0.02 * max(1.0, default_multiplier),
     )
     loss = state.loans * default_rate * params.loss_given_default
     income = state.loans * params.net_interest_margin
@@ -108,12 +121,23 @@ def step_banks(
     state.cash = state.cash + income
     state.securities = state.securities * (1.0 + security_return)
 
+    injection = 0.0
+    if policy is not None and policy.mode == "recapitalise":
+        weak = (state.equity / np.maximum(state.assets, 1e-9) < policy.rescue_threshold) & ~(
+            state.failed
+        )
+        needed = policy.target_ratio * state.assets - state.equity
+        amount = np.where(
+            weak, np.clip(needed, 0.0, policy.max_injection_share * state.assets), 0.0
+        )
+        state.cash = state.cash + amount
+        injection = float(amount.sum())
     ratio_before = state.equity / np.maximum(state.assets, 1e-9)
     constrained = (ratio_before < params.capital_trigger) & ~state.failed
     growth = np.where(
         constrained | state.failed,
         0.0,
-        params.loan_growth_base + params.loan_growth_slope * output_gap,
+        params.loan_growth_base + growth_boost + params.loan_growth_slope * output_gap,
     )
     new_loans = state.loans * np.clip(growth, -0.01, 0.01)
     state.loans = state.loans + new_loans
@@ -127,7 +151,13 @@ def step_banks(
     contagion = defaulted & (full_payment_equity >= 0.0) & ~already_failed
     state.failed = already_failed | defaulted
 
-    sale = np.where(constrained & ~state.failed, params.fire_sale_fraction * state.securities, 0.0)
+    wanted = np.where(
+        constrained & ~state.failed, params.fire_sale_fraction * state.securities, 0.0
+    )
+    supported = np.zeros_like(wanted)
+    if policy is not None and policy.mode == "liquidity":
+        supported = np.where(state.equity > 0.0, wanted, 0.0)  # central-bank lending, no fire sale
+    sale = wanted - supported
     state.securities = state.securities - sale
     state.cash = state.cash + sale
     equity = state.equity
@@ -144,4 +174,6 @@ def step_banks(
         fire_sale_volume=float(sale.sum()),
         credit_crunch=float((state.failed.sum() + still_constrained.sum()) / n),
         total_loans=float(np.where(state.failed, 0.0, state.loans).sum()),
+        injection=injection,
+        liquidity_support=float(supported.sum()),
     )

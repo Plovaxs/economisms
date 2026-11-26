@@ -482,6 +482,7 @@ class DashboardService:
         if path == "/dashboard/worldsim":
             world_name = token_param(query, "scenario", "volatile")
             world_rule = token_param(query, "rule", "equal_weight")
+            world_mode = token_param(query, "mode", "none")
             world_seed = int_param(query, "seed", 0, lo=SEED_RANGE[0], hi=SEED_RANGE[1])
             try:
                 if want_json:
@@ -491,7 +492,9 @@ class DashboardService:
                     return 200, _json_body(world_payload), _JSON_CONTENT_TYPE
                 return (
                     200,
-                    render_worldsim(name=world_name, seed=world_seed, rule=world_rule),
+                    render_worldsim(
+                        name=world_name, seed=world_seed, rule=world_rule, mode=world_mode
+                    ),
                     _HTML_CONTENT_TYPE,
                 )
             except ValueError as exc:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from typing import Literal
 
 import numpy as np
 
@@ -91,8 +92,72 @@ class HouseholdParams:
     consumption_rate: float = 0.92
     wealth_consumption: float = 0.001
     unemployment_benefit: float = 0.5
+    heterogeneous: bool = False
+    saving_rank_slope: float = 0.12
+    top_return_premium: float = 0.0004
     base_unemployment: float = 4.5
     okun: float = 0.5
+
+
+BailoutMode = Literal["none", "liquidity", "recapitalise"]
+
+
+@dataclass(frozen=True, slots=True)
+class FirmParams:
+    """Non-financial firms: leverage builds in booms and the default rate rises with it (Minsky)."""
+
+    enabled: bool = False
+    initial_leverage: float = 0.45
+    leverage_build: float = 0.002
+    leverage_bust: float = 0.004
+    leverage_reversion: float = 0.02
+    default_sensitivity: float = 6.0
+    output_drag: float = 0.5
+
+
+@dataclass(frozen=True, slots=True)
+class FiscalParams:
+    """A government: taxes, counter-cyclical spending, debt, a sovereign spread and austerity."""
+
+    enabled: bool = False
+    tax_rate: float = 0.30
+    spending_share: float = 0.30
+    countercyclical: float = 0.5
+    multiplier: float = 0.8
+    impulse_scale: float = 0.1
+    initial_debt: float = 0.80
+    trend_growth: float = 2.0
+    spread_threshold: float = 0.90
+    spread_slope: float = 0.03
+    austerity_threshold: float = 1.20
+    austerity_cut: float = 0.02
+    gdp_scale: float = 1_500.0
+
+
+@dataclass(frozen=True, slots=True)
+class ForeignParams:
+    """A foreign sector: an exchange rate with carry and jumps, pass-through, FX bank debt."""
+
+    enabled: bool = False
+    foreign_rate: float = 2.0
+    carry_response: float = 0.5
+    fx_volatility: tuple[float, float, float] = (0.01, 0.015, 0.03)
+    crisis_depreciation: float = 0.08
+    inflation_pass_through: float = 0.08
+    trade_effect: float = 0.03
+    equity_flight: float = 0.30
+    bank_fx_debt_share: float = 0.15
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyParams:
+    """What the authorities do about failing banks."""
+
+    mode: BailoutMode = "none"
+    rescue_threshold: float = 0.03
+    target_ratio: float = 0.06
+    max_injection_share: float = 0.15
+    moral_hazard: float = 0.02
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,6 +173,10 @@ class WorldConfig:
     market: MarketParams = field(default_factory=MarketParams)
     banks: BankParams = field(default_factory=BankParams)
     households: HouseholdParams = field(default_factory=HouseholdParams)
+    firms: FirmParams = field(default_factory=FirmParams)
+    fiscal: FiscalParams = field(default_factory=FiscalParams)
+    foreign: ForeignParams = field(default_factory=ForeignParams)
+    policy: PolicyParams = field(default_factory=PolicyParams)
 
     def __post_init__(self) -> None:
         if self.n_months < 24:
@@ -155,3 +224,26 @@ def scenario(name: str) -> WorldConfig:
 
 
 SCENARIOS = ("calm", "volatile", "stressed")
+
+
+EXTENDED_SCENARIOS = ("volatile_full", "stressed_full")
+
+
+def extended(config: WorldConfig, *, mode: BailoutMode = "none") -> WorldConfig:
+    """`config` with firms, a government, a foreign sector and unequal households switched on."""
+    return replace(
+        config,
+        name=f"{config.name}_full",
+        firms=replace(config.firms, enabled=True),
+        fiscal=replace(config.fiscal, enabled=True),
+        foreign=replace(config.foreign, enabled=True),
+        policy=replace(config.policy, mode=mode),
+        households=replace(config.households, heterogeneous=True),
+    )
+
+
+def full_scenario(name: str, *, mode: BailoutMode = "none") -> WorldConfig:
+    """`volatile_full` or `stressed_full`: the v1 scenario with every extension on."""
+    if name not in EXTENDED_SCENARIOS:
+        raise ValueError(f"unknown extended scenario {name!r}; choose from {EXTENDED_SCENARIOS}")
+    return extended(scenario(name.removesuffix("_full")), mode=mode)

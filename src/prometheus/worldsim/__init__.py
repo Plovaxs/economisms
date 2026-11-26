@@ -20,6 +20,13 @@ The pieces, one module each:
 - ``households``  a wealth distribution, income, unemployment, consumption, saving and portfolio
   rebalancing, and inequality measures.
 - ``monitor``     early-warning indicators, alert levels and a scored composite.
+- ``learned_warning``  a logistic early-warning model scored on worlds it has not seen.
+- ``calibration`` stylised-fact guard rails, and ``sensitivity`` one-at-a-time parameter swings.
+
+Firms (a leverage cycle), a government (taxes, counter-cyclical spending, debt, a sovereign
+spread), a foreign sector (an exchange rate, pass-through, foreign-currency bank debt) and bank
+bail-outs are switched on by `config.full_scenario`; with them off the world is exactly the one
+Finding 25 used.
 
 The world's path does not depend on the households' allocation rule (households are price takers),
 so a comparison of rules on the same seed is paired by construction.

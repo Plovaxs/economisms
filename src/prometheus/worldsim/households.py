@@ -62,6 +62,13 @@ def simulate_households(
     participant = rank >= params.participation_rank
     exposure = np.where(rank < 0.5, 2.0, 0.5)
     uniforms = rng.random((n_months, n_households))
+    consumption_rate: float | np.ndarray = params.consumption_rate
+    premium = np.zeros(n_households)
+    if params.heterogeneous:
+        consumption_rate = np.clip(
+            params.consumption_rate + params.saving_rank_slope * (0.5 - rank), 0.5, 1.0
+        )
+        premium = params.top_return_premium * np.clip((rank - 0.9) / 0.1, 0.0, 1.0)
 
     gini_path = np.zeros(n_months)
     top10 = np.zeros(n_months)
@@ -77,10 +84,10 @@ def simulate_households(
             jobless = uniforms[t] < path.unemployment[t] / 100.0 * exposure
             earned = np.where(jobless, params.unemployment_benefit * income, income)
             spend = np.minimum(
-                params.consumption_rate * earned + params.wealth_consumption * wealth,
+                consumption_rate * earned + params.wealth_consumption * wealth,
                 earned + 0.05 * wealth,
             )
-            growth = np.where(participant, portfolio_return, returns[t, 3])
+            growth = np.where(participant, portfolio_return + premium, returns[t, 3])
             wealth = np.clip(wealth * (1.0 + growth) + earned - spend, 0.0, None)
             income = income * (1.0 + path.inflation[t] / 1200.0)
         gini_path[t] = gini(wealth)

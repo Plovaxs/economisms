@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **WORLDSIM extensions (Finding 26).** Firms, a government, a foreign sector and bank bail-outs, plus a learned
+  early-warning model, stylised-fact guard rails and a one-at-a-time sensitivity table. In the stressed world
+  recapitalisation ended every bank failure at a cost of 17% of GDP, a counter-cyclical spending rule moved the worst
+  output gap more than any rescue, and the learned warning model did not beat the hand-made one. With the extensions
+  off the world is unchanged (pinned by tests).
 - **WORLDSIM, a volatile integrated economy (Finding 25).** New `prometheus.worldsim`: regimes, macro variables and a
   Taylor-rule policy rate, four asset returns that change character in a crisis, households with a fat-tailed wealth
   distribution, leveraged banks with interbank contagion and fire sales, five allocation rules and an early-warning

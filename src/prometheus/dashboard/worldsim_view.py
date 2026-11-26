@@ -17,11 +17,31 @@ from prometheus.dashboard.html import escape, page, table
 from prometheus.dashboard.provenance import synthetic_badge
 from prometheus.worldsim import monitor
 from prometheus.worldsim.allocation import RULES
-from prometheus.worldsim.config import REGIMES, SCENARIOS, scenario
+from prometheus.worldsim.config import (
+    EXTENDED_SCENARIOS,
+    REGIMES,
+    SCENARIOS,
+    WorldConfig,
+    full_scenario,
+    scenario,
+)
 from prometheus.worldsim.households import simulate_households
 from prometheus.worldsim.world import simulate_world
 
 _ALERT_NAMES = ("green", "amber", "red")
+_MODES = ("none", "liquidity", "recapitalise")
+
+
+def _config(name: str, mode: str) -> WorldConfig:
+    if mode not in _MODES:
+        raise ValueError(f"mode must be one of {_MODES}")
+    if name in EXTENDED_SCENARIOS:
+        return full_scenario(name, mode=mode)  # type: ignore[arg-type]
+    if name in SCENARIOS:
+        return scenario(name)
+    raise ValueError(f"scenario must be one of {SCENARIOS + EXTENDED_SCENARIOS}")
+
+
 _STEP = 6
 
 
@@ -30,20 +50,28 @@ def _sampled(values: np.ndarray, step: int = _STEP) -> list[float]:
 
 
 def worldsim_as_json(
-    *, name: str = "volatile", seed: int = 0, rule: str = "equal_weight"
+    *, name: str = "volatile", seed: int = 0, rule: str = "equal_weight", mode: str = "none"
 ) -> dict[str, Any]:
-    if name not in SCENARIOS:
-        raise ValueError(f"scenario must be one of {SCENARIOS}")
+    config = _config(name, mode)
     if rule not in RULES:
         raise ValueError(f"rule must be one of {RULES}")
-    config = scenario(name)
     path = simulate_world(config, seed)
     indicators = monitor.indicators(path)
     households = simulate_households(path, rule, config.households, seed)
     last = path.n_months - 1
     composite = indicators.composite[last]
+    extensions: dict[str, float] = {}
+    if config.fiscal.enabled:
+        extensions["public_debt_ratio"] = float(path.debt_ratio[last])
+        extensions["sovereign_spread"] = float(path.sovereign_spread[last])
+    if config.firms.enabled:
+        extensions["firm_leverage"] = float(path.firm_leverage[last])
+    if config.foreign.enabled:
+        extensions["fx_level_log"] = float(path.fx_level[last])
     return {
         "scenario": name,
+        "bailout_mode": config.policy.mode,
+        "extensions": extensions,
         "seed": seed,
         "rule": rule,
         "n_months": path.n_months,
@@ -69,9 +97,11 @@ def worldsim_as_json(
     }
 
 
-def render_worldsim(*, name: str = "volatile", seed: int = 0, rule: str = "equal_weight") -> str:
-    summary = worldsim_as_json(name=name, seed=seed, rule=rule)
-    config = scenario(name)
+def render_worldsim(
+    *, name: str = "volatile", seed: int = 0, rule: str = "equal_weight", mode: str = "none"
+) -> str:
+    summary = worldsim_as_json(name=name, seed=seed, rule=rule, mode=mode)
+    config = _config(name, mode)
     path = simulate_world(config, seed)
     indicators = monitor.indicators(path)
     households = simulate_households(path, rule, config.households, seed)
@@ -128,6 +158,8 @@ def render_worldsim(*, name: str = "volatile", seed: int = 0, rule: str = "equal
             f"{summary['crisis_months']} / {summary['red_alert_months']}",
         ],
         ["Contagion defaults (whole run)", str(summary["contagion_defaults"])],
+        ["Bank rescue policy", escape(str(summary["bailout_mode"]))],
+        *[[escape(k.replace("_", " ")), f"{v:.3f}"] for k, v in summary["extensions"].items()],
     ]
     body = (
         synthetic_badge() + f"<p>Scenario <code>{escape(name)}</code>, seed {seed}, "
