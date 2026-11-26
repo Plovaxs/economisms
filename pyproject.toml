@@ -1,7 +1,7 @@
 [project]
 name = "prometheus-econ"
 version = "0.5.4"
-description = "PROMETHEUS: research platform for computational economics, stochastic finance, and neural risk control. Research/simulation only -- not financial advice, not a live-trading system."
+description = "PROMETHEUS: research platform for quantitative economics, financial modeling, market forecasting, and neural risk control. Research/simulation only -- not financial advice, not a live-trading system."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

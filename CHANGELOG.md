@@ -16,6 +16,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Market forecasting (Finding 24) and wider scope.** New exploratory study of next-day S&P 500 return forecasts
+  (AR(1), momentum, ridge, small network) against the historical mean, with volatility management and forecast timing as
+  asset-management tests. No forecast beat the mean on 3,861 test days; volatility management cut the worst drawdown
+  from 53% to 35% but its Sharpe gain is not distinguishable from zero. The project description, README tagline and
+  citation keywords now name quantitative economics, financial modeling and market forecasting; `CITATION.cff` carries
+  the Zenodo DOI of the frozen protocol.
 - **The confirmatory run (Finding 23).** After the protocol was frozen (tag `protocol-v1`) and anchored on Zenodo
   (DOI 10.5281/zenodo.24557019), E1-E4 ran once each. E1 **equivalent** (policy better in 50 of 50 seeds, by about 1.1%
   CVaR, inside the 5% margin); E3 GARCH-FHS **consistent with 99% coverage** but not shown more accurate than the

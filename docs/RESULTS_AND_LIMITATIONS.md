@@ -980,6 +980,40 @@ analysis was written and run by the same author who froze it, which the Zenodo a
 make independent. The second prospective analysis (750 further trading days for E3, further months for E2) is still
 ahead.
 
+## Finding 24 (PR-222): none of four return forecasts beat the historical mean on the S&P 500 test years, and three were worse; volatility management cut drawdown by a third but its Sharpe gain is not distinguishable from zero
+
+The repository forecast volatility, tail risk and inflation, but never the market's return. `orchestration.market_forecast_study`
+asks the plain question on 95 years of real daily S&P 500 returns (committed snapshot to 2023-05-03; train before 2000,
+validation 2000-2007, test 2008 onward, 3,861 days). Four questions and the decision rule were written before the run
+(M-A..M-D in the module's docstring). It is **exploratory**: the history was read before and the confirmatory protocol's
+data and seeds are not touched. Output: `docs/numerics/market_forecast_study.json`.
+
+| Forecast of the next daily return | out-of-sample R² vs the expanding mean | squared-error gain, 98.75% interval | direction hit rate (always-up: 54.0%) |
+| --- | --- | --- | --- |
+| AR(1) | -0.0054 | wholly below zero | 52.3%, wholly below |
+| 12-month momentum | -0.0003 | contains zero | 53.8%, contains zero |
+| ridge on nine past-return features | -0.0050 | wholly below zero | 52.6%, wholly below |
+| small neural network (5 seeds) | -0.0057 | wholly below zero | 50.9%, wholly below |
+
+- **M-A and M-B (can a model forecast the day?): not supported.** No forecast beat the historical mean, three were
+  significantly worse, and none called direction better than "always up". Momentum is indistinguishable from the mean.
+  This is the efficient-market reading, on data where the network had about 18,000 training days.
+- **M-D (does going long only on positive forecasts earn more?): not supported.** Buy-and-hold had Sharpe 0.43
+  (8.9% a year, 20.8% volatility, 53% worst drawdown); AR(1), ridge and the network timing rules had Sharpe -0.05, 0.05
+  and -0.08, each significantly worse than buy-and-hold; momentum timing was 0.47 and indistinguishable (+0.05,
+  [-0.22, 0.37]).
+- **M-C (does managing by forecast volatility help?): inconclusive.** Holding `target_vol / GJR-GARCH forecast` (capped at 1,
+  5 bp cost per unit of turnover) gave Sharpe 0.53 against 0.43 (+0.105, 95% interval [-0.06, 0.29]), volatility 14.6%
+  against 20.8%, worst drawdown 35% against 53%, and annual return 7.7% against 8.9%. The drawdown and risk reduction are
+  large; the Sharpe gain is not distinguishable from zero over one 15-year test path. Allowing leverage up to 2 did not
+  change that (+0.08, [-0.16, 0.32]).
+
+**What this does and does not say.** Forecasting the *level* of a liquid index from its own past is not where the value
+lies here; the model that forecasts volatility (GARCH) earns its place by managing risk, as Findings 15 and 17 already
+showed. Not shown: that no information forecasts returns (only past-return features were used), anything about other
+markets or horizons (daily only), or that volatility management works out of sample on new data (one path, 3,861 days).
+Cash earns zero and returns are index price returns, so the Sharpe ratios are not comparable to published ones.
+
 ## Known limitations that are not findings, just open scope
 
 

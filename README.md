@@ -1,6 +1,6 @@
 # ECONOSIM
 
-**A research platform for computational economics, stochastic finance, and neural risk control.**
+**A research platform for quantitative economics, financial modeling, market forecasting, and neural risk control.**
 
 [![Tests](https://img.shields.io/badge/tests-5%2C096%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.5.4-informational)](./CHANGELOG.md)

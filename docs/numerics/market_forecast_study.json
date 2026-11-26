@@ -1,0 +1,198 @@
+{
+  "study": "market_forecast_study (PR-222)",
+  "data": {
+    "n_returns": 23948,
+    "first_date": "1928-01-03",
+    "last_date": "2023-05-03",
+    "n_train": 17825,
+    "n_validation": 2010,
+    "n_test": 3861,
+    "test_start": "2008-01-01"
+  },
+  "ridge_penalty_selected_on_validation": 10000.0,
+  "buy_and_hold": {
+    "sharpe": 0.42584015263056607,
+    "annual_return": 0.08858137447444968,
+    "annual_volatility": 0.20801555214380565,
+    "max_drawdown": -0.5325119453927645,
+    "mean_weight": 1.0
+  },
+  "forecast_accuracy": {
+    "ar1": {
+      "oos_r2_vs_historical_mean": -0.00542038702760661,
+      "squared_error_gain": {
+        "estimate": -9.352076101872175e-07,
+        "low": -2.215968878942795e-06,
+        "high": -2.6898881272456634e-07,
+        "confidence": 0.9875
+      },
+      "squared_error_verdict": "CONTRADICTED",
+      "hit_rate": 0.5229215229215229,
+      "hit_rate_always_up": 0.54001554001554,
+      "hit_rate_gain": {
+        "estimate": -0.017094017094017096,
+        "low": -0.029785029785029785,
+        "high": -0.005048886298886264,
+        "confidence": 0.9875
+      },
+      "hit_rate_verdict": "CONTRADICTED"
+    },
+    "momentum_12m": {
+      "oos_r2_vs_historical_mean": -0.0002564984974877671,
+      "squared_error_gain": {
+        "estimate": -4.4255021944054707e-08,
+        "low": -1.996413839115103e-07,
+        "high": 1.2797498223970704e-07,
+        "confidence": 0.9875
+      },
+      "squared_error_verdict": "INCONCLUSIVE",
+      "hit_rate": 0.537943537943538,
+      "hit_rate_always_up": 0.54001554001554,
+      "hit_rate_gain": {
+        "estimate": -0.002072002072002072,
+        "low": -0.012563131313131325,
+        "high": 0.008288008288008289,
+        "confidence": 0.9875
+      },
+      "hit_rate_verdict": "INCONCLUSIVE"
+    },
+    "ridge": {
+      "oos_r2_vs_historical_mean": -0.005011525927452354,
+      "squared_error_gain": {
+        "estimate": -8.646646747056445e-07,
+        "low": -2.349645330268714e-06,
+        "high": -7.460915953626802e-08,
+        "confidence": 0.9875
+      },
+      "squared_error_verdict": "CONTRADICTED",
+      "hit_rate": 0.5262885262885263,
+      "hit_rate_always_up": 0.54001554001554,
+      "hit_rate_gain": {
+        "estimate": -0.013727013727013727,
+        "low": -0.025772144522144533,
+        "high": -0.000777000777000777,
+        "confidence": 0.9875
+      },
+      "hit_rate_verdict": "CONTRADICTED"
+    },
+    "mlp": {
+      "oos_r2_vs_historical_mean": -0.005717607865606489,
+      "squared_error_gain": {
+        "estimate": -9.86488669673973e-07,
+        "low": -1.9853681899271028e-06,
+        "high": -3.567406258890664e-08,
+        "confidence": 0.9875
+      },
+      "squared_error_verdict": "CONTRADICTED",
+      "hit_rate": 0.508935508935509,
+      "hit_rate_always_up": 0.54001554001554,
+      "hit_rate_gain": {
+        "estimate": -0.03108003108003108,
+        "low": -0.05400317275317276,
+        "high": -0.010874773374773303,
+        "confidence": 0.9875
+      },
+      "hit_rate_verdict": "CONTRADICTED"
+    }
+  },
+  "volatility_managed": {
+    "cap_1": {
+      "sharpe": 0.5303930027775229,
+      "annual_return": 0.07744754201666086,
+      "annual_volatility": 0.14601916241558485,
+      "max_drawdown": -0.3536569200951234,
+      "mean_weight": 0.9119069663559499,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": 0.10455285014695681,
+        "low": -0.06227771143665506,
+        "high": 0.28647926358033055,
+        "confidence": 0.95
+      },
+      "verdict": "INCONCLUSIVE"
+    },
+    "cap_2": {
+      "sharpe": 0.5056595879487249,
+      "annual_return": 0.0928054910438502,
+      "annual_volatility": 0.1835335337362592,
+      "max_drawdown": -0.3616996115135077,
+      "mean_weight": 1.3128063740341591,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": 0.07981943531815883,
+        "low": -0.15722955129848923,
+        "high": 0.3204576188879897,
+        "confidence": 0.95
+      },
+      "verdict": "INCONCLUSIVE"
+    }
+  },
+  "return_forecast_timing": {
+    "ar1": {
+      "sharpe": -0.052274538010304836,
+      "annual_return": -0.00897355725391863,
+      "annual_volatility": 0.17166210540492352,
+      "max_drawdown": -0.6394659881604139,
+      "mean_weight": 0.8821548821548821,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": -0.4781146906408709,
+        "low": -0.7548903202064222,
+        "high": -0.20114481418530858,
+        "confidence": 0.9875
+      },
+      "verdict": "CONTRADICTED"
+    },
+    "momentum_12m": {
+      "sharpe": 0.47293197953764904,
+      "annual_return": 0.08355723522834037,
+      "annual_volatility": 0.176679181877335,
+      "max_drawdown": -0.3392496000609727,
+      "mean_weight": 0.941983941983942,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": 0.04709182690708297,
+        "low": -0.2219367132485285,
+        "high": 0.3646999186747211,
+        "confidence": 0.9875
+      },
+      "verdict": "INCONCLUSIVE"
+    },
+    "ridge": {
+      "sharpe": 0.05231432426976476,
+      "annual_return": 0.009161733670387818,
+      "annual_volatility": 0.17512858663994774,
+      "max_drawdown": -0.5027084374267637,
+      "mean_weight": 0.8790468790468791,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": -0.3735258283608013,
+        "low": -0.6726946051523733,
+        "high": -0.018638411497473167,
+        "confidence": 0.9875
+      },
+      "verdict": "CONTRADICTED"
+    },
+    "mlp": {
+      "sharpe": -0.08118851552447745,
+      "annual_return": -0.013265563405600832,
+      "annual_volatility": 0.16339211672864506,
+      "max_drawdown": -0.47881633153897496,
+      "mean_weight": 0.6858326858326859,
+      "sharpe_difference_vs_buy_and_hold": {
+        "estimate": -0.5070286681550435,
+        "low": -0.8608002098368338,
+        "high": -0.14723582031242227,
+        "confidence": 0.9875
+      },
+      "verdict": "CONTRADICTED"
+    }
+  },
+  "hypotheses": {
+    "M-A_any_forecast_beats_historical_mean": "INCONCLUSIVE",
+    "M-B_any_forecast_beats_always_up_on_direction": "INCONCLUSIVE",
+    "M-C_volatility_management_beats_buy_and_hold": "INCONCLUSIVE",
+    "M-D_any_forecast_timing_beats_buy_and_hold": "INCONCLUSIVE"
+  },
+  "caveats": [
+    "Exploratory, not confirmatory: the history was read before, and the confirmatory protocol's data and seeds are untouched by this study.",
+    "Excess returns are not used: cash earns zero and the market return is the price return of the index, so Sharpe ratios are not comparable to published ones.",
+    "Costs are a flat 5 bp per unit of turnover; no taxes, borrowing or slippage.",
+    "Four models and four questions were tried; the bootstrap intervals for the four-model questions are Bonferroni-adjusted but the reading of the table is not."
+  ]
+}

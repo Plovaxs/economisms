@@ -1,10 +1,14 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata. It is research software with no independent review: cite the version you ran, and read docs/RESULTS_AND_LIMITATIONS.md before relying on any number."
-title: "ECONOSIM (PROMETHEUS-X): a research platform for computational economics, stochastic finance, and neural risk control"
+title: "ECONOSIM (PROMETHEUS-X): a research platform for quantitative economics, financial modeling, market forecasting, and neural risk control"
 type: software
 version: 0.5.4
 date-released: 2026-11-24
 license: MIT
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24557019
+    description: "Zenodo archive of the frozen confirmatory protocol (tag protocol-v1)"
 repository-code: "https://github.com/Plovaxs/economisms"
 url: "https://github.com/Plovaxs/economisms"
 authors:
@@ -16,6 +20,9 @@ abstract: >-
   publishes its negative and null results. Research and simulation only: not financial advice and not a
   live-trading system.
 keywords:
+  - quantitative economics
+  - financial modeling
+  - market forecasting
   - computational economics
   - stochastic finance
   - neural SDE
