@@ -1,0 +1,118 @@
+{
+  "endpoint": "E3",
+  "primary_alpha": 0.99,
+  "n_days": 893,
+  "first_day": "2023-05-04",
+  "last_day": "2026-11-23",
+  "coverage": {
+    "alpha_0.99": {
+      "garch_fhs": {
+        "n_days": 893.0,
+        "n_exceedances": 11.0,
+        "expected_exceedances": 8.930000000000009,
+        "exceedance_rate": 0.012318029115341545,
+        "kupiec_p": 0.5016775513098957,
+        "christoffersen_independence_p": 0.12065157723008212,
+        "conditional_coverage_p": 0.23928164177225472,
+        "mean_var_pct": 2.33239167622617,
+        "pinball_loss_bp": 3.5598600855924127,
+        "nominal_rate": 0.010000000000000009,
+        "rate_interval": [
+          0.005218501224132336,
+          0.02430283644100792
+        ],
+        "rate_interval_confidence": 0.9833333333333333,
+        "conditional_coverage_test_level": 0.01666666666666672,
+        "consistent_with_coverage": true
+      },
+      "historical_250": {
+        "n_days": 893.0,
+        "n_exceedances": 15.0,
+        "expected_exceedances": 8.930000000000009,
+        "exceedance_rate": 0.0167973124300112,
+        "kupiec_p": 0.06284042341318519,
+        "christoffersen_independence_p": 0.0012177093034491573,
+        "conditional_coverage_p": 0.0009471692683122533,
+        "mean_var_pct": 2.3694689151501316,
+        "pinball_loss_bp": 4.2360673361913594,
+        "nominal_rate": 0.010000000000000009,
+        "rate_interval": [
+          0.00822265070850945,
+          0.03016741869027801
+        ],
+        "rate_interval_confidence": 0.9833333333333333,
+        "conditional_coverage_test_level": 0.01666666666666672,
+        "consistent_with_coverage": false
+      }
+    },
+    "alpha_0.975": {
+      "garch_fhs": {
+        "n_days": 893.0,
+        "n_exceedances": 23.0,
+        "expected_exceedances": 22.32500000000002,
+        "exceedance_rate": 0.025755879059350503,
+        "kupiec_p": 0.8855181893805942,
+        "christoffersen_independence_p": 0.6198191230873602,
+        "conditional_coverage_p": 0.875092482127978,
+        "mean_var_pct": 1.8013350530462064,
+        "pinball_loss_bp": 6.801237115885888,
+        "nominal_rate": 0.025000000000000022,
+        "rate_interval": [
+          0.014750301619193766,
+          0.04141523512084735
+        ],
+        "rate_interval_confidence": 0.9833333333333333,
+        "conditional_coverage_test_level": 0.01666666666666672,
+        "consistent_with_coverage": true
+      },
+      "historical_250": {
+        "n_days": 893.0,
+        "n_exceedances": 27.0,
+        "expected_exceedances": 22.32500000000002,
+        "exceedance_rate": 0.030235162374020158,
+        "kupiec_p": 0.33172478524715304,
+        "christoffersen_independence_p": 0.050731411749651525,
+        "conditional_coverage_p": 0.09258429845005114,
+        "mean_var_pct": 1.8556868268326348,
+        "pinball_loss_bp": 7.398610213185615,
+        "nominal_rate": 0.025000000000000022,
+        "rate_interval": [
+          0.01818326419604532,
+          0.04687955862314605
+        ],
+        "rate_interval_confidence": 0.9833333333333333,
+        "conditional_coverage_test_level": 0.01666666666666672,
+        "consistent_with_coverage": true
+      }
+    }
+  },
+  "pinball_difference": {
+    "alpha_0.99": {
+      "statistic": "mean pinball loss (historical_250 minus garch_fhs), basis points; positive favours GARCH-FHS",
+      "margin_bp": 0.2,
+      "interval": {
+        "estimate": 0.6762072505989462,
+        "low": -0.31338215489274546,
+        "high": 1.522592105554121,
+        "confidence": 0.9833333333333333,
+        "n": 893,
+        "method": "moving-block bootstrap, block 22, 10000 resamples, seed 1"
+      },
+      "outcome": "inconclusive"
+    },
+    "alpha_0.975": {
+      "statistic": "mean pinball loss (historical_250 minus garch_fhs), basis points; positive favours GARCH-FHS",
+      "margin_bp": 0.4,
+      "interval": {
+        "estimate": 0.5973730972997277,
+        "low": -0.353844843318958,
+        "high": 1.4195029227172766,
+        "confidence": 0.9833333333333333,
+        "n": 893,
+        "method": "moving-block bootstrap, block 22, 10000 resamples, seed 1"
+      },
+      "outcome": "inconclusive"
+    }
+  },
+  "primary_reading": true
+}

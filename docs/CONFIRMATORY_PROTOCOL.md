@@ -299,6 +299,16 @@ How the recipe hashes are made: the canonical-JSON SHA-256 (`experiments.manifes
 `e1_hedging.frozen_recipe()` (the `rl_hedge` configuration without its seed, plus `policy_structure`, `hidden_size`,
 `initial_log_std`) and of `asdict(e4_shocks.FROZEN_RECIPE)`. A test pins the first; changing a frozen field changes it.
 
+## Confirmatory results (run 2026-11-26 after the anchor)
+
+Run once each, on the frozen code, with the arguments listed under "The analysis code"; raw outputs are in
+[confirmatory/results/](./confirmatory/results/) and the reading is Finding 23 in
+[RESULTS_AND_LIMITATIONS.md](./RESULTS_AND_LIMITATIONS.md). E1: **equivalent** (`theta` +0.0107, 98.33% interval
+[0.0098, 0.0116], inside the +-0.0488 margin; the policy was better in 50 of 50 seeds). E3: GARCH-FHS **consistent
+with 99% coverage** (11 exceedances, 8.9 expected); the pinball differences are **inconclusive**. E2: **better**
+(+0.118 pp [0.040, 0.243]; 30 months, 13 excluded for the missing 2025-10 level). E4: the neural SDE degraded **more**
+than the baseline in all three events (estimation only). No rule was changed after seeing these numbers.
+
 ## Deviation log
 
 | Date | What changed | Why | Effect on the result |

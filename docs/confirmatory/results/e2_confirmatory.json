@@ -1,0 +1,257 @@
+{
+  "endpoint": "E2",
+  "statistic": "theta = mean(|e_persistence| - |e_base_effect|) in percentage points of year-over-year inflation; positive favours the base-effect rule",
+  "n_months": 30,
+  "n_months_in_window": 43,
+  "excluded_months": [
+    "2025-10-31",
+    "2025-11-30",
+    "2025-12-31",
+    "2026-01-31",
+    "2026-02-28",
+    "2026-03-31",
+    "2026-04-30",
+    "2026-05-31",
+    "2026-06-30",
+    "2026-07-31",
+    "2026-08-31",
+    "2026-09-30",
+    "2026-10-31"
+  ],
+  "excluded_because": "a target month is excluded when the index level it needs is missing",
+  "first_month": "2023-04-30",
+  "last_month": "2025-09-30",
+  "mae_persistence": 0.2316370906907935,
+  "mae_base_effect": 0.11397888827895535,
+  "margin": 0.03,
+  "interval": {
+    "estimate": 0.11765820241183815,
+    "low": 0.03958398663082234,
+    "high": 0.2426944479244677,
+    "confidence": 0.9833333333333333,
+    "n": 30,
+    "method": "moving-block bootstrap, block 3, 10000 resamples, seed 1"
+  },
+  "outcome": "better",
+  "sensitivity": {
+    "6": {
+      "estimate": 0.11765820241183815,
+      "low": 0.037533499691130956,
+      "high": 0.2025899665408442,
+      "confidence": 0.9833333333333333,
+      "n": 30,
+      "method": "moving-block bootstrap, block 6, 10000 resamples, seed 1"
+    },
+    "12": {
+      "estimate": 0.11765820241183815,
+      "low": 0.04086982701955325,
+      "high": 0.18081726002464013,
+      "confidence": 0.9833333333333333,
+      "n": 30,
+      "method": "moving-block bootstrap, block 12, 10000 resamples, seed 1"
+    }
+  },
+  "per_month": [
+    {
+      "month": "2023-04-30",
+      "yoy": 4.950079879124369,
+      "persistence": 4.917719362889961,
+      "base_effect": 5.015189737021797
+    },
+    {
+      "month": "2023-05-31",
+      "yoy": 4.131851231385042,
+      "persistence": 4.950079879124369,
+      "base_effect": 4.384101953757358
+    },
+    {
+      "month": "2023-06-30",
+      "yoy": 3.070617072997095,
+      "persistence": 4.131851231385042,
+      "base_effect": 3.188204724816557
+    },
+    {
+      "month": "2023-07-31",
+      "yoy": 3.287749268428297,
+      "persistence": 3.070617072997095,
+      "base_effect": 3.3463094048042707
+    },
+    {
+      "month": "2023-08-31",
+      "yoy": 3.722504803505289,
+      "persistence": 3.287749268428297,
+      "base_effect": 3.502126753940682
+    },
+    {
+      "month": "2023-09-30",
+      "yoy": 3.687206638119256,
+      "persistence": 3.722504803505289,
+      "base_effect": 3.5994988092310276
+    },
+    {
+      "month": "2023-10-31",
+      "yoy": 3.2512659098611785,
+      "persistence": 3.687206638119256,
+      "base_effect": 3.422057648566512
+    },
+    {
+      "month": "2023-11-30",
+      "yoy": 3.1333462745911866,
+      "persistence": 3.2512659098611785,
+      "base_effect": 3.2571244860084336
+    },
+    {
+      "month": "2023-12-31",
+      "yoy": 3.3159099427102934,
+      "persistence": 3.1333462745911866,
+      "base_effect": 3.3830498339403103
+    },
+    {
+      "month": "2024-01-31",
+      "yoy": 3.0883429864855705,
+      "persistence": 3.3159099427102934,
+      "base_effect": 3.0496349986676163
+    },
+    {
+      "month": "2024-02-29",
+      "yoy": 3.157074141648697,
+      "persistence": 3.0883429864855705,
+      "base_effect": 2.996905433554886
+    },
+    {
+      "month": "2024-03-31",
+      "yoy": 3.4868349120836584,
+      "persistence": 3.157074141648697,
+      "base_effect": 3.2975602707832063
+    },
+    {
+      "month": "2024-04-30",
+      "yoy": 3.3607951262196734,
+      "persistence": 3.4868349120836584,
+      "base_effect": 3.4319907603634014
+    },
+    {
+      "month": "2024-05-31",
+      "yoy": 3.244278584003113,
+      "persistence": 3.3607951262196734,
+      "base_effect": 3.478895985778352
+    },
+    {
+      "month": "2024-06-30",
+      "yoy": 2.9702579486470926,
+      "persistence": 3.244278584003113,
+      "base_effect": 3.2878836433628766
+    },
+    {
+      "month": "2024-07-31",
+      "yoy": 2.9414757935583014,
+      "persistence": 2.9702579486470926,
+      "base_effect": 3.0202274848037503
+    },
+    {
+      "month": "2024-08-31",
+      "yoy": 2.607144490692037,
+      "persistence": 2.9414757935583014,
+      "base_effect": 2.69400003050424
+    },
+    {
+      "month": "2024-09-30",
+      "yoy": 2.4264830315416708,
+      "persistence": 2.607144490692037,
+      "base_effect": 2.4279900966771795
+    },
+    {
+      "month": "2024-10-31",
+      "yoy": 2.578844053871343,
+      "persistence": 2.4264830315416708,
+      "base_effect": 2.491326048759035
+    },
+    {
+      "month": "2024-11-30",
+      "yoy": 2.719472461284833,
+      "persistence": 2.578844053871343,
+      "base_effect": 2.6460299249174257
+    },
+    {
+      "month": "2024-12-31",
+      "yoy": 2.870690967509981,
+      "persistence": 2.719472461284833,
+      "base_effect": 2.751759220815364
+    },
+    {
+      "month": "2025-01-31",
+      "yoy": 2.9909783078999608,
+      "persistence": 2.870690967509981,
+      "base_effect": 2.7950638471679445
+    },
+    {
+      "month": "2025-02-28",
+      "yoy": 2.8015834477613355,
+      "persistence": 2.9909783078999608,
+      "base_effect": 2.8230130493316796
+    },
+    {
+      "month": "2025-03-31",
+      "yoy": 2.381981462805549,
+      "persistence": 2.8015834477613355,
+      "base_effect": 2.5840705471011693
+    },
+    {
+      "month": "2025-04-30",
+      "yoy": 2.32538823025783,
+      "persistence": 2.381981462805549,
+      "base_effect": 2.360914767255151
+    },
+    {
+      "month": "2025-05-31",
+      "yoy": 2.3772651073680873,
+      "persistence": 2.32538823025783,
+      "base_effect": 2.471920015040574
+    },
+    {
+      "month": "2025-06-30",
+      "yoy": 2.680453865910226,
+      "persistence": 2.3772651073680873,
+      "base_effect": 2.6209088026990957
+    },
+    {
+      "month": "2025-07-31",
+      "yoy": 2.742618052167134,
+      "persistence": 2.680453865910226,
+      "base_effect": 2.734801436963674
+    },
+    {
+      "month": "2025-08-31",
+      "yoy": 2.9385917430316155,
+      "persistence": 2.742618052167134,
+      "base_effect": 2.8129448024792225
+    },
+    {
+      "month": "2025-09-30",
+      "yoy": 3.0225715847133294,
+      "persistence": 2.9385917430316155,
+      "base_effect": 2.9677288870645135
+    }
+  ],
+  "sensitivity_imputed": {
+    "note": "each isolated missing level replaced by the geometric mean of its neighbours; a sensitivity analysis, never decisive",
+    "n_months": 43,
+    "excluded_months": [],
+    "interval": {
+      "estimate": 0.09787180998922945,
+      "low": 0.03330688416770233,
+      "high": 0.19009753915682576,
+      "confidence": 0.9833333333333333,
+      "n": 43,
+      "method": "moving-block bootstrap, block 3, 10000 resamples, seed 1"
+    },
+    "outcome": "better"
+  },
+  "vintage_check": {
+    "n_overlap_months": 15,
+    "first_overlap_month": "2022-01-31",
+    "last_overlap_month": "2023-03-31",
+    "max_relative_difference": 0.0009673215037268183,
+    "mean_relative_difference": 0.0004676224843856801
+  }
+}

@@ -937,6 +937,49 @@ H-C (beats the plain tuned policy) SUPPORTED (+0.0332, [0.0239, 0.0425]). Its sp
   digits can differ from the confirmatory run.
 - The seeds are exploratory, not a test of E1. The frozen E1 run uses seeds 10000-10049, none read here.
 
+## Finding 23 (PR-221): the confirmatory run, once, on frozen code and untouched data: E1 equivalent, E3 consistent with coverage, E2 better, E4 worse than the baseline in every event
+
+The protocol ([CONFIRMATORY_PROTOCOL.md](./CONFIRMATORY_PROTOCOL.md)) was frozen on 2026-11-26 (tag `protocol-v1`, commit
+`15add42`) and anchored on Zenodo, DOI [10.5281/zenodo.24557019](https://doi.org/10.5281/zenodo.24557019), before any of
+the reserved seeds or the locked post-snapshot data were read. The four commands then ran once each, with the arguments
+the protocol lists, and nothing was changed afterwards. Raw outputs: `docs/confirmatory/results/`. No endpoint was
+re-run, re-tuned or dropped. The Bonferroni family is the three primary endpoints (0.05/3, intervals at 98.33%).
+
+| Endpoint | Result | Reading under the pre-written rules |
+| --- | --- | --- |
+| **E1** deep hedging, seeds 10000-10049 | `theta` = +0.0107, [0.0098, 0.0116]; policy better in 50 of 50 seeds; median CVaR ratio 0.989 | **equivalent**: the whole interval lies inside the margin (+-0.0488) |
+| **E3** GARCH-FHS VaR, 893 days from 2023-05-04 | 99%: 11 exceedances against 8.9 expected, Kupiec p = 0.50, conditional coverage p = 0.24, rate interval [0.52%, 2.43%] | **consistent with coverage**; 250-day historical simulation is not (15 exceedances, independence p = 0.001) |
+| **E3** pinball difference (historical minus GARCH-FHS) | 99%: +0.68 bp [-0.31, 1.52]; 97.5%: +0.60 bp [-0.35, 1.42] | **inconclusive** at both levels |
+| **E2** inflation, 30 months | base-effect rule MAE 0.114 pp against 0.232 pp for persistence; `theta` = +0.118 pp [0.040, 0.243] | **better** (margin 0.03 pp); blocks 6 and 12 agree; with the 13 missing months imputed (n = 43): +0.098 [0.033, 0.190], also better |
+| **E4** neural SDE under shocks, seeds 20000-20009 | median advantage over the GBM: 2001 -0.40, 2008 -1.19, COVID -12.70 | **worse than the baseline in all three events** (neural degraded less in 0, 0 and 2 of 10 seeds) |
+
+**What each result supports.**
+- **E1.** The structured policy beats the static baseline in every seed, but by 1.1% of CVaR, and the protocol asked for
+  more than 5% before calling it better. The honest statement is the one made before the run: a policy given the delta
+  and the freedom to trade it is *statistically indistinguishable in practice* from the baseline, not better. The
+  in-sample paths agree (49 of 50 seeds), so this is not a held-out artefact. The sign agrees with the validation seeds
+  of Finding 22 (+0.0109); it is not a fresh surprise.
+- **E3.** The coverage claim survives data the model never saw, over 893 trading days (2023-05-04 to 2026-11-23). With about 9 expected exceedances the test cannot tell a 1.5% rate from 1%
+  (power note: 11%), so "consistent" means "not rejected", not "calibrated". It does not show GARCH-FHS is more
+  accurate than the simple benchmark: the pinball intervals contain zero.
+- **E2.** The base-effect rule's advantage re-appears in a window the earlier analysis had not seen
+  (2023-04 to 2025-09), at about half the persistence rule's error. Thirteen months from 2025-10 are excluded because
+  the October 2025 index level was never published; the imputed sensitivity analysis agrees. The vintage check against
+  the committed series over 15 overlapping months differs by at most 0.097%. The label for this window is
+  "re-used (estimation)", as the protocol says, so it is a replication of direction on a new stretch, not a clean
+  confirmation: the rule was designed on earlier data and is not independent of it.
+- **E4.** Not a confirmation of "more robust under shocks": the tuned recipe's neural SDE degrades more than a
+  constant-parameter GBM in 2001 and 2008 in every seed, and in 8 of 10 seeds for COVID (2 seeds are better, up to
+  +6.6, and the spread is large). This matches the exploratory tuned run (0, 0, 1 of 10). Three events, estimation
+  only, never pooled.
+
+**Not shown.** Nothing here changes the live-trading gate (NO-GO). E1's margin, E3's data source (chosen by the
+assistant on the maintainer's instruction to use Kaggle, one Yahoo-derived series) and the choice of which recipe to
+freeze were all decided before the run; any of them can be questioned. No independent replication exists, and the
+analysis was written and run by the same author who froze it, which the Zenodo anchor makes checkable but does not
+make independent. The second prospective analysis (750 further trading days for E3, further months for E2) is still
+ahead.
+
 ## Known limitations that are not findings, just open scope
 
 

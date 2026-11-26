@@ -16,6 +16,11 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **The confirmatory run (Finding 23).** After the protocol was frozen (tag `protocol-v1`) and anchored on Zenodo
+  (DOI 10.5281/zenodo.24557019), E1-E4 ran once each. E1 **equivalent** (policy better in 50 of 50 seeds, by about 1.1%
+  CVaR, inside the 5% margin); E3 GARCH-FHS **consistent with 99% coverage** but not shown more accurate than the
+  historical benchmark; E2 base-effect rule **better** than persistence on the 30 usable months; E4 neural SDE **worse**
+  than the baseline under all three shocks. The reserved seeds and locked data are now used. Gate unchanged: NO-GO.
 - **Hedging policy given the option's delta (Finding 22).** At the maintainer's request, a new policy structure
   (`delta_rebalance`: it sees the Black-Scholes delta and chooses the fraction of the gap to close) was selected on
   seeds 5000-5007 and validated on 6000-6015. It beat the static baseline in all 16 validation seeds, by about 1.1% of

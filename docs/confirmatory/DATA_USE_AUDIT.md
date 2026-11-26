@@ -82,3 +82,10 @@ anchor.
 
 The power note (`power_note.json`, from the old data only) adds a fourth: under the protocol's own 0.8 rule
 only E1 can support a verdict; E2 and E3 are estimation-only unless the maintainer changes the plan.
+
+## After the freeze (2026-11-26)
+
+The reserved seeds 10000-10049 (E1) and 20000-20009 (E4), the locked S&P 500 file (E3) and the locked CPI file (E2)
+were read for the first time by `python -m prometheus.confirmatory e1`, `e3`, `e2` and `e4`, once each, after the
+protocol was anchored. They are now **used**: they cannot be called untouched again, and no further run on them is
+confirmatory. The outputs are in `docs/confirmatory/results/` (see Finding 23).
