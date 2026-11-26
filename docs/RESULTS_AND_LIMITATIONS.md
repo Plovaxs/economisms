@@ -1185,6 +1185,105 @@ Those were choices about the scenarios, made after seeing a run, and the C-C and
 deposit insurance has no premiums or fund; one tax rate with a progressivity exponent; no housing, no sovereign
 rating or market access beyond a spread, no central-bank balance sheet.
 
+## Finding 28 (PR-226..228): estimating the simulated economy's parameters from real data instead of choosing them: the first attempt did worse than the chosen parameters out of sample, a revision that tied the output gap to real GDP did not, and the claim that connecting the sectors makes shocks travel survived both
+
+Findings 25 to 27 used parameters chosen to look plausible. This finding replaces the ones that real data can speak to
+and asks whether that helps. Data (all in `data_cache/`, Kaggle sources already used elsewhere): S&P 500 monthly price
+returns 1928-2023; monthly US unemployment, CPI inflation, the federal funds rate and bank credit 1960-2023; quarterly
+real GDP growth 1954-2016. Method (`worldsim.real_calibration`, `orchestration.worldsim_calibration_study`):
+
+1. **Direct estimates.** A three-state Gaussian hidden Markov model of monthly equity returns gives the regime
+   transition matrix and each regime's mean and volatility of equity returns (the mean in the worst regime is reduced by
+   the model's own entry jump divided by the expected spell, so the jump is not counted twice); sample means give the
+   inflation target, the neutral real rate and the natural unemployment rate; Okun's coefficient is estimated as
+   described below.
+2. **Indirect inference** for the macro block (nine parameters: persistence of output and inflation, the Phillips
+   slope, inflation volatility, the Taylor rule's two coefficients and smoothing, and a scale on the size and on the
+   shift of the output shocks). Twelve statistics of the real data (the unemployment gap's volatility, persistence and
+   skew, the monthly change in unemployment, the volatility and persistence of inflation and of the policy rate, the
+   coefficients of a Taylor-rule and a Phillips-curve regression) are matched by simulation, each weighted by the
+   standard error of the real value from a 200-replication block bootstrap; Nelder-Mead from three starts.
+3. **Bank lending**: the two loan-growth parameters against bank-credit growth.
+
+Bond and real-asset returns, bank balance sheets and loss rates, the firm, fiscal, foreign and household blocks have
+no data here and keep their chosen values (`design.not_calibrated` in the result files).
+
+**Pre-written hypotheses (written into the script before the first run).** **K-A**: on the held-out months 2000-2023
+(estimation used 1960-1999 only) the calibrated world is closer to the data than the chosen `volatile` world, in the
+sum of squared standardised gaps over 19 statistics (SUPPORTED if the 95% interval of the paired difference over real
+bootstraps is above zero). **K-B**: of seven statistics no stage targeted, at least five of the calibrated world's values
+lie inside the real 95% interval (SUPPORTED; at most two is CONTRADICTED). **K-C**: in the calibrated connected world the
+share of shock-by-outcome cells with an interval excluding zero exceeds that of the same world with the links off by
+at least 0.20.
+
+### First run (output gap not anchored): K-A CONTRADICTED
+
+| Hypothesis | Result |
+| --- | --- |
+| **K-A** held-out distance, chosen 478.5, calibrated 1,267.2 | **CONTRADICTED**: the calibrated world was farther by 789 [725, 954]; closer on 6 of 19 statistics |
+| **K-B** untargeted statistics | **INCONCLUSIVE**: 4 of 7 inside |
+| **K-C** connected 78% of cells (60 of 77) against 36% (28) with the links off | SUPPORTED |
+
+The diagnosis: nothing in the data fixed the **size of the model's output gap**. Okun's coefficient came from a
+regression of the quarterly change in unemployment on annualised GDP growth, which is attenuated (0.24, against the
+textbook 0.4 to 0.5), so the unemployment statistics could be matched with an output gap several times too large: in
+the first calibrated world, over paths as long as the sample, the output gap has a standard deviation of 4.3 points and an
+average minimum of -19.3 (the chosen world: 0.9 and -3.7). One parameter ended at its bound, the credit statistics were not matched
+(simulated credit growth -28% a year against +7%), and a robustness run at the estimation length (770 months, not the
+240 of every scenario) made public debt run away in three of forty paths of the links-off world and failed (a mistake in
+the script, fixed; both runs now use 240 months). The first run's result is kept as it was
+(`docs/numerics/worldsim_calibration_study.json`).
+
+### Revision 2 (written after reading the first run, before the second): anchor the output gap
+
+The real output gap is the Hodrick-Prescott cycle (smoothing 1600) of cumulated quarterly real GDP growth; Okun's
+coefficient is the slope of the unemployment gap on it (0.37 on 1954-1999, 0.40 on 1954-2016), and the standard
+deviation of the gap (1.62 and 1.53 points) becomes a thirteenth targeted statistic. The hypotheses were asked again
+with the same rules (K-A2, K-B2, K-C2) with one more, **K-S**: the calibrated world's output gap has a standard deviation
+between 1 and 4 points in both the plain and the connected world, no path fails numerically, and no macro parameter
+sits at a bound.
+
+| Hypothesis | Result (`docs/numerics/worldsim_calibration_study_v2.json`) |
+| --- | --- |
+| **K-A2** held-out distance, chosen 485.2, calibrated 382.6 | **INCONCLUSIVE**: calibrated closer by 103 but the interval is [-17, 133]; closer on only 7 of 20 statistics |
+| **K-B2** untargeted statistics | **SUPPORTED**: 6 of 7 inside (volatility clustering, recession depth, the tail of the unemployment gap, equity/unemployment co-movement, rate-change volatility, inflation skew; the worst month, -22% against -17%, is outside). The chosen world has 5 of 7 |
+| **K-C2** connected 74% of cells (57 of 77) against 27% (21) with the links off; the chosen world 75% against 26% | **SUPPORTED** (the calibrated world's worst output gap: connected minus plain +0.11 [-0.28, +0.49]) |
+| **K-S** output gap sd 2.0 (plain) and 2.1 (connected) at 240 months; 2.2 and 2.8 at the sample length; no failed paths; no parameter at a bound | **SUPPORTED** |
+
+**What the numbers say.**
+- The estimated parameters (the shipped `calibrated` scenarios, `worldsim.calibrated`) are an inflation target of
+  3.8% and a neutral real rate of 1.1% (full sample), Okun 0.40, a natural unemployment rate of 5.95%, a Taylor rule
+  with inflation coefficient 1.3 and output coefficient 0.41, strong interest-rate smoothing (0.95), persistent inflation (0.98),
+  an output persistence of 0.85, and regimes of 95/97/92% persistence. In the in-sample fit the thirteen
+  statistics are matched with a distance of 19.3; the informal over-identification statistic (4 degrees of freedom,
+  5% critical value 9.5) therefore says the fit is not exact.
+- **Out of sample the calibrated world is not clearly better.** Its point distance is smaller, but 212 of the 383 come from
+  the three credit statistics, which no calibration matched (in the full-sample fit simulated credit growth is 0.2%
+  a year against 7.1%: the model's capital-constrained banks stop lending, a block that was not estimated), and the monetary
+  statistics move between 1960-1999 (Volcker, high rates) and 2000-2023 (zero lower bound). **Exploratory, after the
+  fact, not a result of the pre-written test:** without the three credit statistics the distance is 171 against
+  392 for the chosen world; without credit and the six monetary statistics it is 42.5 against 35.9, no better.
+- **Three parameters are identified by the data and six are not.** Moving a parameter 20% either way raises the
+  distance by more than 3.84 (a 5% chi-square) only for the persistence of output, the persistence of inflation and the
+  rate smoothing; the Phillips slope, inflation volatility, the Taylor coefficients and the two shock scales are
+  flat. One of three optimiser starts failed outright.
+- **The finding of Finding 27 survives calibration.** With the links on, a clear majority of shock-by-outcome cells
+  respond in a world built from data (74%) as in the chosen one (75%), and about a quarter do with them off
+  (27% and 26%). That is a statement about the simulator's wiring, which calibration of the macro block does not change; it
+  says nothing about the real economy.
+
+**Not shown:** that the calibrated world is a good model of the US economy. The regimes are the model's own: the
+hidden Markov model's middle state, which the data puts in 69% of months, is called "slowdown" and is the ordinary
+state; the model's crisis state has about 10% of months against 12% of NBER recession months, and the two are not the same
+thing. Standard errors of the targeted statistics ignore simulation noise (18 paths) and the over-identification
+statistic (19.3 against a 5% critical value of 9.5 for 4 degrees of freedom) is informal; the unemployment-gap
+kurtosis in 2020 dominates several real statistics. The held-out period is one 23-year history, with a different
+monetary regime from the estimation sample. Credit growth is the model's weakest link to data.
+
+**New tools.** `/dashboard/transmission` (and the desktop "Shock transmission" explorer) draw where a shock enters and which
+feedback loops carry it, measured on paired seeds with and without each loop; `calibrated`, `calibrated_full` and
+`calibrated_connected` are selectable everywhere a WORLDSIM scenario is.
+
 ## Known limitations that are not findings, just open scope
 
 

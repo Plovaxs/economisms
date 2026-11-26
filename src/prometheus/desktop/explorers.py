@@ -28,6 +28,43 @@ SEED_MAX = 2**32 - 1
 MAX_MARKET_PATH_CELLS = 2_000_000
 MAX_HEDGE_CELLS = 500_000
 HISTOGRAM_BINS = 40
+# Restated (not imported: this module must stay light) and pinned by a test to `worldsim`.
+TRANSMISSION_SCENARIOS = (
+    "calm",
+    "volatile",
+    "stressed",
+    "volatile_full",
+    "stressed_full",
+    "volatile_connected",
+    "stressed_connected",
+    "sovereign_stress",
+    "rising_inequality",
+    "calibrated",
+    "calibrated_full",
+    "calibrated_connected",
+)
+TRANSMISSION_SHOCKS = (
+    "equity_crash",
+    "rate_hike",
+    "fx_crash",
+    "bank_loss",
+    "sovereign_default",
+    "supply_shock",
+    "demand_shock",
+)
+TRANSMISSION_OUTCOMES = (
+    "output_gap",
+    "inflation",
+    "unemployment",
+    "policy_rate",
+    "equity_return",
+    "failed_banks",
+    "public_debt",
+    "exchange_rate",
+    "consumption",
+    "gini",
+    "top10_share",
+)
 MAX_SERIES_POINTS = 2_000
 
 
@@ -85,6 +122,12 @@ def _option_type() -> FieldSpec:
         kind="choice",
         default="call",
         choices=("call", "put"),
+    )
+
+
+def _choice(key: str, label: str, default: str, choices: tuple[str, ...]) -> FieldSpec:
+    return FieldSpec(
+        key=key, path=(key,), label=label, kind="choice", default=default, choices=choices
     )
 
 
@@ -173,6 +216,19 @@ EXPLORERS: tuple[Explorer, ...] = (
             _seed(),
             _number("n", "Observations", 250, 10, 100_000, integer=True),
             _number("alpha", "Confidence level", 0.95, 0.5, 0.9999),
+        ),
+    ),
+    Explorer(
+        "worldsim_transmission",
+        "Shock transmission",
+        "WORLDSIM, a simulated economy: where a one-off shock enters and which feedback loops "
+        "carry it to the other sectors, measured on paired seeds with and without each loop.",
+        (
+            _choice("scenario", "Scenario", "stressed_connected", TRANSMISSION_SCENARIOS),
+            _choice("shock", "Shock", "equity_crash", TRANSMISSION_SHOCKS),
+            _number("size", "Size (0 = the shock's usual size)", 0.0, 0.0, 10.0),
+            _choice("outcome", "Outcome to attribute", "output_gap", TRANSMISSION_OUTCOMES),
+            _number("seeds", "Paired seeds", 6, 3, 24, integer=True),
         ),
     ),
     Explorer(
@@ -324,6 +380,67 @@ def _compute_portfolio_risk(params: Mapping[str, Any]) -> dict[str, Any]:
     return summary
 
 
+def _compute_worldsim_transmission(params: Mapping[str, Any]) -> dict[str, Any]:
+    from prometheus.dashboard.transmission_view import transmission_as_json
+    from prometheus.worldsim.transmission import SECTOR_LABEL
+
+    focus = params["outcome"]
+    size = params["size"] if params["size"] > 0.0 else None
+    result = transmission_as_json(
+        name=params["scenario"], shock=params["shock"], size=size, seeds=params["seeds"]
+    )
+    payload: dict[str, Any] = {
+        "scenario": result["scenario"],
+        "shock": result["shock"],
+        "enters_at": SECTOR_LABEL[result["origin"]],
+        "paired_seeds": result["seeds"],
+        "synthetic": True,
+    }
+    if result["unavailable"]:
+        payload["note"] = f"Nothing to show: {result['unavailable']}."
+        return payload
+    response = result["response"]
+    paths = response["paths"]
+    payload["response_macro"] = {
+        "x_label": "Months from the shock",
+        "x": response["months"],
+        "Output gap": paths["output_gap"],
+        "Inflation": paths["inflation"],
+        "Unemployment": paths["unemployment"],
+        "Policy rate": paths["policy_rate"],
+    }
+    payload["response_markets"] = {
+        "x_label": "Months from the shock",
+        "x": response["months"],
+        "Equity return (%)": paths["equity_return"],
+        "Exchange rate (%)": paths["exchange_rate"],
+        "Public debt (% of GDP)": paths["public_debt"],
+    }
+    payload["outcomes"] = [
+        {
+            "outcome": name,
+            "response": cell["estimate"],
+            "low": cell["low"],
+            "high": cell["high"],
+            "significant": "yes" if cell["excludes_zero"] else "no",
+        }
+        for name, cell in response["outcomes"].items()
+    ]
+    payload["links"] = [
+        {
+            "link": row["label"],
+            "direction": f"{SECTOR_LABEL[row['source']]} to {SECTOR_LABEL[row['target']]}",
+            "carried": row["outcomes"][focus]["estimate"],
+            "low": row["outcomes"][focus]["low"],
+            "high": row["outcomes"][focus]["high"],
+            "significant": "yes" if row["outcomes"][focus]["excludes_zero"] else "no",
+        }
+        for row in result["channels"].values()
+    ]
+    payload["attributed_outcome"] = focus
+    return payload
+
+
 def _compute_experiments(_: Mapping[str, Any]) -> dict[str, Any]:
     from prometheus.dashboard.experiment_comparison import experiment_comparison_as_json
 
@@ -354,6 +471,7 @@ _COMPUTE: dict[str, Callable[[Mapping[str, Any]], dict[str, Any]]] = {
     "pricing": _compute_pricing,
     "hedge_actions": _compute_hedge_actions,
     "portfolio_risk": _compute_portfolio_risk,
+    "worldsim_transmission": _compute_worldsim_transmission,
     "experiments": _compute_experiments,
     "validation_issues": _compute_validation_issues,
 }

@@ -183,3 +183,14 @@ def test_network_concentration_is_zero_for_a_bank_with_no_exposure() -> None:
     result = network_concentration(liabilities)
     assert result.debtor_concentration == pytest.approx([0.0, 0.0, 0.0])
     assert result.creditor_concentration == pytest.approx([0.0, 0.0, 0.0])
+
+
+def test_a_clearing_failure_survives_pickling_so_it_cannot_break_a_process_pool() -> None:
+    import pickle
+
+    from prometheus.titan.contagion import ClearingNotConvergedError
+
+    payload = pickle.dumps(ClearingNotConvergedError(7, 0.25))
+    error = pickle.loads(payload)  # noqa: S301 - our own bytes, made one line above
+    assert isinstance(error, ClearingNotConvergedError)
+    assert error.iterations == 7 and error.residual == 0.25

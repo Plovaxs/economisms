@@ -16,6 +16,15 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **WORLDSIM estimated from real data (Finding 28).** The parameters that data can speak to (equity regimes from a
+  hidden Markov model of the S&P 500, Okun's coefficient from real GDP, the macro block by indirect inference, bank
+  lending) are estimated on 1960-1999 and tested on 2000-2023. The first attempt did worse out of sample than the
+  chosen parameters (its output gap was several times too large); a revision that ties the gap to real GDP was
+  inconclusive on distance, supported on six of seven untargeted statistics, and left Finding 27's result (74% of
+  shock-by-outcome cells respond with the links on, 27% off) intact. The final estimates ship as the `calibrated`
+  scenarios; six of nine macro parameters are not identified by the data.
+- **A shock transmission map.** A web page (`/dashboard/transmission`) and a desktop explorer show where a shock enters
+  the simulated economy and which feedback loops carry it, measured by switching each loop off in turn.
 - **The connected economy (Finding 27).** Households, banks, the state and the foreign sector now feed back on one
   another: consumption drives output, bank failures cost the state through deposit insurance and the rich through
   uninsured deposits, banks hold the state's bonds so a sovereign default hits them, taxes and transfers come from the

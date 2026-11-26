@@ -183,7 +183,7 @@ refused if it is a symlink, someone else's, or readable by others. One window pe
   interpreter by absolute path, so moving or deleting the environment breaks it; run the command
   again to repair it. `--uninstall-launcher` removes only the files it wrote.
 - **Self-test:** `econosim desktop --check` runs everything but the window -- every runner's form, the
-  seven explorers in child processes, one real job through the isolated worker, the findings, the
+  eight explorers in child processes, one real job through the isolated worker, the findings, the
   health report, Qt and the display -- in a throwaway directory, in about ten seconds.
 - **Limits:** one job at a time, up to 30 minutes of wall clock each (a constant, because the queue
   stores the policy it was created with and refuses to open under another). The thread pools are

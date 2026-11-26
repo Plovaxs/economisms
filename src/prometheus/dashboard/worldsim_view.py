@@ -17,6 +17,7 @@ from prometheus.dashboard.html import escape, page, table
 from prometheus.dashboard.provenance import synthetic_badge
 from prometheus.worldsim import monitor
 from prometheus.worldsim.allocation import RULES
+from prometheus.worldsim.calibrated import CALIBRATED_SCENARIOS, calibrated_scenario
 from prometheus.worldsim.config import (
     CONNECTED_SCENARIOS,
     EXTENDED_SCENARIOS,
@@ -37,6 +38,8 @@ _MODES = ("none", "liquidity", "recapitalise")
 def _config(name: str, mode: str) -> WorldConfig:
     if mode not in _MODES:
         raise ValueError(f"mode must be one of {_MODES}")
+    if name in CALIBRATED_SCENARIOS:
+        return calibrated_scenario(name, mode=mode)  # type: ignore[arg-type]
     if name in CONNECTED_SCENARIOS:
         return connected_scenario(name, mode=mode)  # type: ignore[arg-type]
     if name in EXTENDED_SCENARIOS:
@@ -44,7 +47,8 @@ def _config(name: str, mode: str) -> WorldConfig:
     if name in SCENARIOS:
         return scenario(name)
     raise ValueError(
-        f"scenario must be one of {SCENARIOS + EXTENDED_SCENARIOS + CONNECTED_SCENARIOS}"
+        "scenario must be one of "
+        f"{SCENARIOS + EXTENDED_SCENARIOS + CONNECTED_SCENARIOS + CALIBRATED_SCENARIOS}"
     )
 
 

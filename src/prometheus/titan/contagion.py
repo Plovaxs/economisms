@@ -38,6 +38,7 @@ bank's outgoing (debtor) and incoming (creditor) interbank exposures.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -56,6 +57,10 @@ class ClearingNotConvergedError(ContagionError):
         )
         self.iterations = iterations
         self.residual = residual
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        # so the error survives a trip through a process pool instead of breaking it
+        return (type(self), (self.iterations, self.residual))
 
 
 def _validate_network(

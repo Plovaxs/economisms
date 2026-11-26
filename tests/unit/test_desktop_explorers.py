@@ -61,7 +61,7 @@ def child_processes() -> list[int]:
 
 
 def test_the_registry_is_complete_and_consistent() -> None:
-    assert len(NAMES) == len(set(NAMES)) == 7
+    assert len(NAMES) == len(set(NAMES)) == 8
     for entry in EXPLORERS:
         keys = [spec.key for spec in entry.fields]
         assert len(keys) == len(set(keys)), entry.name
@@ -490,3 +490,43 @@ def test_the_childs_cpu_limit_is_a_backstop_not_the_wall_limit() -> None:
     ).stdout.split()
     assert int(soft_cpu) == compute_child.CPU_BACKSTOP_FLOOR_SECONDS and soft_core == "0"
     assert compute_child.CPU_BACKSTOP_FACTOR >= 4
+
+
+# ------------------------------------------------------------------ WORLDSIM shock transmission
+
+
+def test_the_transmission_choices_are_the_worldsim_packages_own() -> None:
+    from prometheus.worldsim.calibrated import CALIBRATED_SCENARIOS
+    from prometheus.worldsim.config import (
+        CONNECTED_SCENARIOS,
+        EXTENDED_SCENARIOS,
+        SCENARIOS,
+        SHOCK_KINDS,
+    )
+    from prometheus.worldsim.impulse import OUTCOMES
+
+    assert explorers.TRANSMISSION_SCENARIOS == (
+        SCENARIOS + EXTENDED_SCENARIOS + CONNECTED_SCENARIOS + CALIBRATED_SCENARIOS
+    )
+    assert explorers.TRANSMISSION_SHOCKS == SHOCK_KINDS
+    assert explorers.TRANSMISSION_OUTCOMES == OUTCOMES
+
+
+def test_the_transmission_explorer_returns_charts_and_link_tables() -> None:
+    payload = compute("worldsim_transmission", params_for("worldsim_transmission", seeds=3))
+    assert payload["enters_at"] == "Markets" and payload["synthetic"] is True
+    view = analyze_payload(payload, kind="worldsim_transmission", title="Shock transmission")
+    assert {"Response macro", "Response markets"} <= {c.title for c in view.charts}
+    assert {"Outcomes", "Links"} <= {t.title for t in view.tables}
+    links = {row["link"]: row for row in payload["links"]}
+    assert links["Household demand"]["significant"] == "yes"
+
+
+def test_a_transmission_shock_the_scenario_cannot_carry_says_so() -> None:
+    payload = compute(
+        "worldsim_transmission",
+        params_for(
+            "worldsim_transmission", scenario="volatile", shock="sovereign_default", seeds=3
+        ),
+    )
+    assert "Nothing to show" in payload["note"] and "links" not in payload

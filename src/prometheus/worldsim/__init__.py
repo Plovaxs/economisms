@@ -35,6 +35,11 @@ the state, banks hold its bonds, the state can default, and firm distress raises
 ``impulse`` measures how a one-off shock to one sector travels to all the others, and
 ``inequality`` holds the wealth-concentration measures.
 
+`calibrated` holds the parameters that real data could estimate (equity regimes, Okun's coefficient,
+the macro block, bank-lending growth), estimated in `real_calibration` and fixed in `calibrated`
+(Finding 28); everything the data could not speak to keeps its chosen value. `transmission` maps
+where a shock enters and which feedback loops carry it.
+
 The world's path does not depend on the households' allocation rule (households are price takers),
 so a comparison of rules on the same seed is paired by construction.
 """

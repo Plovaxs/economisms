@@ -1,0 +1,1063 @@
+{
+  "design": {
+    "train": "1960-01..1999-12 (equity from 1928-01)",
+    "test": "2000-01..2023-01",
+    "full": "1960-01..2023-01 (equity from 1928-01)",
+    "simulation_paths": 18,
+    "evaluation_paths": 40,
+    "bootstrap": {
+      "block_months": 24,
+      "replications": 200
+    },
+    "output_gap_anchor": false,
+    "not_calibrated": [
+      "bond and real-asset returns and correlations",
+      "bank balance sheets, loss rates and capital rules",
+      "firm, fiscal, foreign-sector and household-wealth blocks",
+      "rate_sensitivity and credit_crunch_drag (output channels)"
+    ]
+  },
+  "chosen_configuration": {
+    "transition": [
+      [
+        0.975,
+        0.02,
+        0.005
+      ],
+      [
+        0.08,
+        0.89,
+        0.03
+      ],
+      [
+        0.1,
+        0.15,
+        0.75
+      ]
+    ],
+    "equity_mu": [
+      0.008,
+      0.002,
+      -0.025
+    ],
+    "equity_sigma": [
+      0.035,
+      0.05,
+      0.09
+    ],
+    "macro": {
+      "output_persistence": 0.9,
+      "inflation_persistence": 0.85,
+      "phillips_slope": 0.12,
+      "inflation_vol": 0.25,
+      "taylor_phi_pi": 1.5,
+      "taylor_phi_y": 0.5,
+      "rate_smoothing": 0.8,
+      "regime_output_vol": [
+        0.25,
+        0.35,
+        0.6
+      ],
+      "regime_output_shift": [
+        0.0,
+        -0.1,
+        -0.8
+      ],
+      "inflation_target": 2.0,
+      "neutral_real_rate": 1.0
+    },
+    "households": {
+      "okun": 0.5,
+      "base_unemployment": 4.5
+    },
+    "banks": {
+      "loan_growth_base": 0.0015,
+      "loan_growth_slope": 0.002
+    }
+  },
+  "train_fit": {
+    "months": 468,
+    "real_moments": {
+      "ugap_sd": 0.7145334495609624,
+      "ugap_ar1": 0.969702278948796,
+      "ugap_skew": 0.718358417696541,
+      "dunemployment_sd": 0.18123185433160527,
+      "infl_sd": 3.073951011683288,
+      "infl_ar1": 0.994179060114725,
+      "ff_sd": 3.3990327518418177,
+      "ff_ar1": 0.9344367659144357,
+      "taylor_rho": 0.8532487681708947,
+      "taylor_inflation": 0.10103566845696088,
+      "taylor_ugap": -0.2218174286894174,
+      "phillips_ugap": -0.18999266456442923,
+      "eq_mean_ann": 0.09389212493781005,
+      "eq_vol_ann": 0.14631937565634773,
+      "eq_skew": -0.3760621956178519,
+      "eq_exkurt": 2.1985961787852073,
+      "eq_abs_acf1": 0.04974349579553777,
+      "eq_worst_month": -0.21763041614888423,
+      "ugap_p95": 1.3382872452597059,
+      "ugap_exkurt": 0.7965939969387121,
+      "eq12_ugap_corr": 0.27890375738434775,
+      "ff_change_sd": 1.2312152687359113,
+      "infl_skew": 1.272273305052879,
+      "credit_mean": 7.906337396495177,
+      "credit_sd": 2.776488675177185,
+      "credit_corr_ugap": -0.5753372348339238
+    },
+    "moment_se": {
+      "ugap_sd": 0.08953945596359904,
+      "ugap_ar1": 0.005978448908088682,
+      "ugap_skew": 0.2648469899836617,
+      "dunemployment_sd": 0.012805447451166392,
+      "infl_sd": 0.5247795474904207,
+      "infl_ar1": 0.0027107734829508534,
+      "ff_sd": 0.5832921291244796,
+      "ff_ar1": 0.028680891766659947,
+      "taylor_rho": 0.059836803931440356,
+      "taylor_inflation": 0.043088721911795046,
+      "taylor_ugap": 0.19001489871270008,
+      "phillips_ugap": 0.03692751823183184,
+      "eq_mean_ann": 0.020741965426770544,
+      "eq_vol_ann": 0.009372209147658513,
+      "eq_skew": 0.29373276776203566,
+      "eq_exkurt": 1.0293820084412446,
+      "eq_abs_acf1": 0.0725737508849012,
+      "eq_worst_month": 0.043475628556709035,
+      "ugap_p95": 0.3389052510245755,
+      "ugap_exkurt": 0.8079147242567007,
+      "eq12_ugap_corr": 0.08009443545223949,
+      "ff_change_sd": 0.17346466490294982,
+      "infl_skew": 0.37025846651067024,
+      "credit_mean": 0.6174261489510724,
+      "credit_sd": 0.3265365473794954,
+      "credit_corr_ugap": 0.11994617690930319
+    },
+    "bootstrap_replications": 200,
+    "hmm": {
+      "mean": [
+        0.010504146639749962,
+        0.009087409008118288,
+        -0.01206889252381859
+      ],
+      "sigma": [
+        0.022503554850299645,
+        0.041284859273852906,
+        0.12183236679600762
+      ],
+      "transition": [
+        [
+          0.9532575054616035,
+          0.04674249453839647,
+          1.3436929457408275e-31
+        ],
+        [
+          0.007629023907910206,
+          0.9825347382753942,
+          0.009836237816695589
+        ],
+        [
+          1.48877244925357e-31,
+          0.06189609339577366,
+          0.9381039066042263
+        ]
+      ],
+      "share": [
+        0.12304402743417049,
+        0.7570031947201736,
+        0.11995277784565683
+      ],
+      "log_likelihood": 1431.3552207949717,
+      "converged": true
+    },
+    "direct": {
+      "okun": 0.23865854895299546,
+      "okun_raw": 0.23865854895299546,
+      "base_unemployment": 6.010625000000001,
+      "inflation_target": 4.495522568037709,
+      "neutral_real_rate": 2.2524774319622916
+    },
+    "anchor": false,
+    "macro_names": [
+      "ugap_sd",
+      "ugap_ar1",
+      "ugap_skew",
+      "dunemployment_sd",
+      "infl_sd",
+      "infl_ar1",
+      "ff_sd",
+      "ff_ar1",
+      "taylor_rho",
+      "taylor_inflation",
+      "taylor_ugap",
+      "phillips_ugap"
+    ],
+    "macro_fits": [
+      {
+        "start": "chosen",
+        "distance": 11.058018961656245,
+        "evaluations": 600,
+        "values": {
+          "output_persistence": 0.9535468685798444,
+          "inflation_persistence": 0.5009738468774614,
+          "phillips_slope": 0.2314724179125587,
+          "inflation_vol": 0.5285977788852487,
+          "taylor_phi_pi": 2.227556698852837,
+          "taylor_phi_y": 0.007180574314936915,
+          "rate_smoothing": 0.5037346764210093,
+          "output_vol_scale": 1.66820819292917,
+          "output_shift_scale": 2.385515259533457
+        }
+      },
+      {
+        "start": "perturbed_1",
+        "distance": 1000000000.0,
+        "evaluations": 73,
+        "values": {
+          "output_persistence": 0.9221326028935812,
+          "inflation_persistence": 0.9307690038944116,
+          "phillips_slope": 0.20817991765818714,
+          "inflation_vol": 0.16120656863894584,
+          "taylor_phi_pi": 1.3855797077351242,
+          "taylor_phi_y": 0.3101416905079669,
+          "rate_smoothing": 0.8334999098252314,
+          "output_vol_scale": 0.9751073890637458,
+          "output_shift_scale": 1.4481313697539264
+        }
+      },
+      {
+        "start": "perturbed_2",
+        "distance": 24.288454965059245,
+        "evaluations": 514,
+        "values": {
+          "output_persistence": 0.9554878885002787,
+          "inflation_persistence": 0.9454738204783897,
+          "phillips_slope": 0.028920074131613783,
+          "inflation_vol": 0.2741313454273034,
+          "taylor_phi_pi": 0.9849816727509075,
+          "taylor_phi_y": 0.003129092435436584,
+          "rate_smoothing": 0.8994974835831158,
+          "output_vol_scale": 1.5879202677427673,
+          "output_shift_scale": 2.0026294559929223
+        }
+      }
+    ],
+    "macro_values": {
+      "output_persistence": 0.9535468685798444,
+      "inflation_persistence": 0.5009738468774614,
+      "phillips_slope": 0.2314724179125587,
+      "inflation_vol": 0.5285977788852487,
+      "taylor_phi_pi": 2.227556698852837,
+      "taylor_phi_y": 0.007180574314936915,
+      "rate_smoothing": 0.5037346764210093,
+      "output_vol_scale": 1.66820819292917,
+      "output_shift_scale": 2.385515259533457
+    },
+    "macro_distance": 11.058018961656245,
+    "credit_values": {
+      "loan_growth_base": 0.0016447262121772862,
+      "loan_growth_slope": 0.0017076940099002963
+    },
+    "credit_distance": 1041.8287466265463,
+    "configuration": {
+      "transition": [
+        [
+          0.9532575054616035,
+          0.04674249453839647,
+          1.3436929457408275e-31
+        ],
+        [
+          0.007629023907910206,
+          0.9825347382753942,
+          0.009836237816695589
+        ],
+        [
+          1.48877244925357e-31,
+          0.06189609339577366,
+          0.9381039066042263
+        ]
+      ],
+      "equity_mu": [
+        0.010504146639749962,
+        0.009087409008118288,
+        -0.007117205052156692
+      ],
+      "equity_sigma": [
+        0.022503554850299645,
+        0.041284859273852906,
+        0.12183236679600762
+      ],
+      "macro": {
+        "output_persistence": 0.9535468685798444,
+        "inflation_persistence": 0.5009738468774614,
+        "phillips_slope": 0.2314724179125587,
+        "inflation_vol": 0.5285977788852487,
+        "taylor_phi_pi": 2.227556698852837,
+        "taylor_phi_y": 0.007180574314936915,
+        "rate_smoothing": 0.5037346764210093,
+        "regime_output_vol": [
+          0.4170520482322925,
+          0.5838728675252095,
+          1.000924915757502
+        ],
+        "regime_output_shift": [
+          0.0,
+          -0.23855152595334572,
+          -1.9084122076267658
+        ],
+        "inflation_target": 4.495522568037709,
+        "neutral_real_rate": 2.2524774319622916
+      },
+      "households": {
+        "okun": 0.23865854895299546,
+        "base_unemployment": 6.010625000000001
+      },
+      "banks": {
+        "loan_growth_base": 0.0016447262121772862,
+        "loan_growth_slope": 0.0017076940099002963
+      }
+    }
+  },
+  "out_of_sample": {
+    "test_months": 265,
+    "moments": {
+      "ugap_sd": {
+        "real": 1.2949373551684513,
+        "real_se": 0.35584330889964494,
+        "chosen": 0.363923260787457,
+        "calibrated": 0.6260155157697105,
+        "z_chosen": -2.6163597041066167,
+        "z_calibrated": -1.8798213221072269
+      },
+      "ugap_ar1": {
+        "real": 0.8589588756584963,
+        "real_se": 0.07677173752050252,
+        "chosen": 0.893902027026375,
+        "calibrated": 0.9439716517122669,
+        "z_chosen": 0.45515644814664874,
+        "z_calibrated": 1.1073446921931043
+      },
+      "ugap_skew": {
+        "real": 3.178234368802466,
+        "real_se": 1.4458861614146625,
+        "chosen": 0.5838289805762666,
+        "calibrated": 0.3955586314640442,
+        "z_chosen": -1.794335859531168,
+        "z_calibrated": -1.924546905280453
+      },
+      "dunemployment_sd": {
+        "real": 0.6906365568695195,
+        "real_se": 0.35555022302648615,
+        "chosen": 0.15867414697225118,
+        "calibrated": 0.1755447329685627,
+        "z_chosen": -1.4961667169525041,
+        "z_calibrated": -1.4487174822066862
+      },
+      "infl_sd": {
+        "real": 1.8123991638222658,
+        "real_se": 0.33189303550912563,
+        "chosen": 0.6371286791925378,
+        "calibrated": 2.6421760948974176,
+        "z_chosen": -3.5411122225775458,
+        "z_calibrated": 2.5001336041965136
+      },
+      "infl_ar1": {
+        "real": 0.9672628718578868,
+        "real_se": 0.019639526749619496,
+        "chosen": 0.9903803244995716,
+        "calibrated": 0.9946089294450898,
+        "z_chosen": 1.177088070216999,
+        "z_calibrated": 1.3923990091936813
+      },
+      "ff_sd": {
+        "real": 1.6474872650065755,
+        "real_se": 0.3366418761814855,
+        "chosen": 1.3486549478203114,
+        "calibrated": 2.299064918753136,
+        "z_chosen": -0.8876861089770126,
+        "z_calibrated": 1.9355216918862796
+      },
+      "ff_ar1": {
+        "real": 0.9874724463458863,
+        "real_se": 0.007588999476447537,
+        "chosen": 0.9842578286427258,
+        "calibrated": 0.9353085832596951,
+        "z_chosen": -0.42358913228773004,
+        "z_calibrated": -6.873615322821107
+      },
+      "taylor_rho": {
+        "real": 0.9751214978132493,
+        "real_se": 0.0232074969084048,
+        "chosen": 1.0289999981213724,
+        "calibrated": 0.8485485329944599,
+        "z_chosen": 2.3215989436848985,
+        "z_calibrated": -5.453968832500411
+      },
+      "taylor_inflation": {
+        "real": 0.03128234523301299,
+        "real_se": 0.022011744466491647,
+        "chosen": -0.22286985209176002,
+        "calibrated": 0.07786431731866715,
+        "z_chosen": -11.546208784663452,
+        "z_calibrated": 2.1162326391970265
+      },
+      "taylor_ugap": {
+        "real": 0.009219390472986578,
+        "real_se": 0.02346452869502341,
+        "chosen": -0.3133805513022028,
+        "calibrated": -0.5173718859534187,
+        "z_chosen": -13.748409182563707,
+        "z_calibrated": -22.442013784751193
+      },
+      "phillips_ugap": {
+        "real": 0.03484791763705372,
+        "real_se": 0.029746979581754346,
+        "chosen": -0.12078661771270963,
+        "calibrated": -0.17625733770523255,
+        "z_chosen": -5.231944134765992,
+        "z_calibrated": -7.096695473303452
+      },
+      "eq_mean_ann": {
+        "real": 0.06318351100106784,
+        "real_se": 0.032783344217319856,
+        "chosen": 0.06779142054730203,
+        "calibrated": 0.0866170224013462,
+        "z_chosen": 0.1405564214464665,
+        "z_calibrated": 0.7147992970130892
+      },
+      "eq_vol_ann": {
+        "real": 0.1539618350468821,
+        "real_se": 0.015508096469272823,
+        "chosen": 0.14000569433853025,
+        "calibrated": 0.18048135658911238,
+        "z_chosen": -0.8999260957657855,
+        "z_calibrated": 1.7100436275190247
+      },
+      "eq_skew": {
+        "real": -0.5479084438025887,
+        "real_se": 0.20466420901553423,
+        "chosen": -0.3247181377998973,
+        "calibrated": -0.35129349643353447,
+        "z_chosen": 1.0905194761520374,
+        "z_calibrated": 0.9606708877668542
+      },
+      "eq_exkurt": {
+        "real": 0.8731941078193888,
+        "real_se": 0.6422367462736873,
+        "chosen": 1.4287835863502267,
+        "calibrated": 3.6962293991509414,
+        "z_chosen": 0.8650851601911845,
+        "z_calibrated": 4.3956302838650165
+      },
+      "credit_mean": {
+        "real": 6.078079547962567,
+        "real_se": 0.8824778693451488,
+        "chosen": -2.115560748648412,
+        "calibrated": -13.308810495318511,
+        "z_chosen": -9.284811077122137,
+        "z_calibrated": -21.96869827190942
+      },
+      "credit_sd": {
+        "real": 3.3465292192765683,
+        "real_se": 0.4890983789825855,
+        "chosen": 2.1546024566491164,
+        "calibrated": 8.299346629325674,
+        "z_chosen": -2.4369877592047606,
+        "z_calibrated": 10.126423686686257
+      },
+      "credit_corr_ugap": {
+        "real": -0.19986700607731533,
+        "real_se": 0.2796494150213293,
+        "chosen": -0.48821731813016916,
+        "calibrated": -0.37332077306013767,
+        "z_chosen": -1.0311135892448082,
+        "z_calibrated": -0.6202543530069345
+      },
+      "eq_abs_acf1": {
+        "real": 0.24924371249722949,
+        "real_se": 0.06570987349402625,
+        "chosen": 0.06624295582395649,
+        "calibrated": 0.20285333957190263,
+        "z_chosen": -2.784981113833825,
+        "z_calibrated": -0.7059878593366071
+      },
+      "eq_worst_month": {
+        "real": -0.1694245237674199,
+        "real_se": 0.02425477706137201,
+        "chosen": -0.15171568090946597,
+        "calibrated": -0.22199441111095516,
+        "z_chosen": 0.7301177336384144,
+        "z_calibrated": -2.167403444299544
+      },
+      "ugap_p95": {
+        "real": 1.7677849413501059,
+        "real_se": 0.8479348334083543,
+        "chosen": 0.6483621761007262,
+        "calibrated": 1.1206087529270765,
+        "z_chosen": -1.3201754676709694,
+        "z_calibrated": -0.7632381203419176
+      },
+      "ugap_exkurt": {
+        "real": 17.928620988440517,
+        "real_se": 9.566495774023908,
+        "chosen": 1.3104584280448415,
+        "calibrated": 0.9679565923692774,
+        "z_chosen": -1.7371211938983233,
+        "z_calibrated": -1.772923419056418
+      },
+      "eq12_ugap_corr": {
+        "real": 0.0620340941527357,
+        "real_se": 0.10882219735283352,
+        "chosen": -0.15849594582572038,
+        "calibrated": -0.19358246324663458,
+        "z_chosen": -2.0265170649277824,
+        "z_calibrated": -2.348937658101006
+      },
+      "ff_change_sd": {
+        "real": 0.26158009336992566,
+        "real_se": 0.04740792574273289,
+        "chosen": 0.23324564869064607,
+        "calibrated": 0.8063661837134802,
+        "z_chosen": -0.5976731577129367,
+        "z_calibrated": 11.491455949790511
+      },
+      "infl_skew": {
+        "real": 1.2351529733229396,
+        "real_se": 0.7863561309029916,
+        "chosen": -0.3556864200701967,
+        "calibrated": -0.8416150742029125,
+        "z_chosen": -2.023052063657642,
+        "z_calibrated": -2.641001914922504
+      }
+    },
+    "distance_chosen": 478.47689088713827,
+    "distance_calibrated": 1267.208681731593,
+    "distance_difference": {
+      "estimate": -788.7317908444547,
+      "low": -954.0839778404219,
+      "high": -724.5491469082989
+    },
+    "K-A": "CONTRADICTED",
+    "untargeted": {
+      "eq_abs_acf1": {
+        "real": 0.24924371249722949,
+        "interval_low": 0.08913612631882795,
+        "interval_high": 0.34335195266576696,
+        "calibrated": 0.20285333957190263,
+        "chosen": 0.06624295582395649,
+        "calibrated_inside": true,
+        "chosen_inside": false
+      },
+      "eq_worst_month": {
+        "real": -0.1694245237674199,
+        "interval_low": -0.1694245237674199,
+        "interval_high": -0.10956813266989505,
+        "calibrated": -0.22199441111095516,
+        "chosen": -0.15171568090946597,
+        "calibrated_inside": false,
+        "chosen_inside": true
+      },
+      "ugap_p95": {
+        "real": 1.7677849413501059,
+        "interval_low": 0.7402242701068591,
+        "interval_high": 5.149873667153342,
+        "calibrated": 1.1206087529270765,
+        "chosen": 0.6483621761007262,
+        "calibrated_inside": true,
+        "chosen_inside": false
+      },
+      "ugap_exkurt": {
+        "real": 17.928620988440517,
+        "interval_low": -0.9489223546653018,
+        "interval_high": 31.777790091767134,
+        "calibrated": 0.9679565923692774,
+        "chosen": 1.3104584280448415,
+        "calibrated_inside": true,
+        "chosen_inside": true
+      },
+      "eq12_ugap_corr": {
+        "real": 0.0620340941527357,
+        "interval_low": -0.2022298101234995,
+        "interval_high": 0.2248069147446091,
+        "calibrated": -0.19358246324663458,
+        "chosen": -0.15849594582572038,
+        "calibrated_inside": true,
+        "chosen_inside": true
+      },
+      "ff_change_sd": {
+        "real": 0.26158009336992566,
+        "interval_low": 0.13967919892362396,
+        "interval_high": 0.33020998103045657,
+        "calibrated": 0.8063661837134802,
+        "chosen": 0.23324564869064607,
+        "calibrated_inside": false,
+        "chosen_inside": true
+      },
+      "infl_skew": {
+        "real": 1.2351529733229396,
+        "interval_low": -0.7355307889604156,
+        "interval_high": 2.0862800270954183,
+        "calibrated": -0.8416150742029125,
+        "chosen": -0.3556864200701967,
+        "calibrated_inside": false,
+        "chosen_inside": true
+      }
+    },
+    "untargeted_inside": 4,
+    "K-B": "INCONCLUSIVE",
+    "moments_closer": 6,
+    "moments_total": 19
+  },
+  "full_fit": {
+    "months": 745,
+    "real_moments": {
+      "ugap_sd": 0.9642542275200413,
+      "ugap_ar1": 0.8989153898648945,
+      "ugap_skew": 2.9481348057137335,
+      "dunemployment_sd": 0.43647601343182396,
+      "infl_sd": 2.8504006779936724,
+      "infl_ar1": 0.9909445686681528,
+      "ff_sd": 3.854287281246209,
+      "ff_ar1": 0.9668745844950636,
+      "taylor_rho": 0.9338679363462729,
+      "taylor_inflation": 0.058537414048470016,
+      "taylor_ugap": -0.04945182950158052,
+      "phillips_ugap": -0.04195167225182672,
+      "eq_mean_ann": 0.07995602498089795,
+      "eq_vol_ann": 0.1495750944285093,
+      "eq_skew": -0.426394556383802,
+      "eq_exkurt": 1.6070127718201705,
+      "eq_abs_acf1": 0.11729239257322019,
+      "eq_worst_month": -0.21763041614888423,
+      "ugap_p95": 1.579189708038674,
+      "ugap_exkurt": 22.037449440482526,
+      "eq12_ugap_corr": 0.1490470140282102,
+      "ff_change_sd": 0.9921387146179393,
+      "infl_skew": 1.481378778133524,
+      "credit_mean": 7.103448178697415,
+      "credit_sd": 3.1684246594128935,
+      "credit_corr_ugap": -0.322877164409283
+    },
+    "moment_se": {
+      "ugap_sd": 0.18746041127903493,
+      "ugap_ar1": 0.05180087070561901,
+      "ugap_skew": 1.2957546433787757,
+      "dunemployment_sd": 0.19200087692266404,
+      "infl_sd": 0.4740570780060699,
+      "infl_ar1": 0.004141922020644905,
+      "ff_sd": 0.4872348875202033,
+      "ff_ar1": 0.010849001095715523,
+      "taylor_rho": 0.02385000669559329,
+      "taylor_inflation": 0.030984428943286967,
+      "taylor_ugap": 0.046067269706457345,
+      "phillips_ugap": 0.03977173476397834,
+      "eq_mean_ann": 0.017370492764627862,
+      "eq_vol_ann": 0.008431217647965792,
+      "eq_skew": 0.19082058542316516,
+      "eq_exkurt": 0.7007554234867118,
+      "eq_abs_acf1": 0.046292043088677404,
+      "eq_worst_month": 0.029988343356580308,
+      "ugap_p95": 0.3008753600153019,
+      "ugap_exkurt": 11.316614201843677,
+      "eq12_ugap_corr": 0.06796501013749605,
+      "ff_change_sd": 0.1497195127176952,
+      "infl_skew": 0.3522611659864576,
+      "credit_mean": 0.5746328062340426,
+      "credit_sd": 0.31939253254313993,
+      "credit_corr_ugap": 0.16627868307002228
+    },
+    "bootstrap_replications": 200,
+    "hmm": {
+      "mean": [
+        0.011013768005837168,
+        0.007794475968048628,
+        -0.01476361892053724
+      ],
+      "sigma": [
+        0.02290207108253116,
+        0.04367223129927632,
+        0.11938827097043216
+      ],
+      "transition": [
+        [
+          0.9510886526531375,
+          0.048911347346862526,
+          4.720222450975485e-19
+        ],
+        [
+          0.015316821137025826,
+          0.9728451527987058,
+          0.011838026064268278
+        ],
+        [
+          4.501750430538554e-25,
+          0.0800135094822985,
+          0.9199864905177015
+        ]
+      ],
+      "share": [
+        0.21442747917059268,
+        0.6857434783752479,
+        0.09982904245415879
+      ],
+      "log_likelihood": 1920.9031924447218,
+      "converged": true
+    },
+    "direct": {
+      "okun": 0.23865854895299546,
+      "okun_raw": 0.23865854895299546,
+      "base_unemployment": 5.95231175693527,
+      "inflation_target": 3.763502048781289,
+      "neutral_real_rate": 1.1235521123811942
+    },
+    "anchor": false,
+    "macro_names": [
+      "ugap_sd",
+      "ugap_ar1",
+      "ugap_skew",
+      "dunemployment_sd",
+      "infl_sd",
+      "infl_ar1",
+      "ff_sd",
+      "ff_ar1",
+      "taylor_rho",
+      "taylor_inflation",
+      "taylor_ugap",
+      "phillips_ugap"
+    ],
+    "macro_fits": [
+      {
+        "start": "chosen",
+        "distance": 56.237109539320244,
+        "evaluations": 316,
+        "values": {
+          "output_persistence": 0.9794965630389834,
+          "inflation_persistence": 0.7214436465047008,
+          "phillips_slope": 0.10056827063628256,
+          "inflation_vol": 0.25807422035491934,
+          "taylor_phi_pi": 1.2744264112016965,
+          "taylor_phi_y": 0.4126952141444177,
+          "rate_smoothing": 0.9499993033866981,
+          "output_vol_scale": 1.0292848805554988,
+          "output_shift_scale": 1.007342091852331
+        }
+      },
+      {
+        "start": "perturbed_1",
+        "distance": 1000000000.0,
+        "evaluations": 65,
+        "values": {
+          "output_persistence": 0.9020310503748392,
+          "inflation_persistence": 0.9307690038944116,
+          "phillips_slope": 0.20817991765818714,
+          "inflation_vol": 0.16120656863894584,
+          "taylor_phi_pi": 1.3855797077351242,
+          "taylor_phi_y": 0.3101416905079669,
+          "rate_smoothing": 0.8334999098252314,
+          "output_vol_scale": 0.9751073890637458,
+          "output_shift_scale": 1.4481313697539264
+        }
+      },
+      {
+        "start": "perturbed_2",
+        "distance": 19.01225130840613,
+        "evaluations": 600,
+        "values": {
+          "output_persistence": 0.9087567080335535,
+          "inflation_persistence": 0.9885044182998071,
+          "phillips_slope": 0.0029792567299360127,
+          "inflation_vol": 0.47160037822379963,
+          "taylor_phi_pi": 0.8272802636137497,
+          "taylor_phi_y": 0.016586748886658148,
+          "rate_smoothing": 0.8871156446722477,
+          "output_vol_scale": 3.94967474134598,
+          "output_shift_scale": 1.6751489457154256
+        }
+      }
+    ],
+    "macro_values": {
+      "output_persistence": 0.9087567080335535,
+      "inflation_persistence": 0.9885044182998071,
+      "phillips_slope": 0.0029792567299360127,
+      "inflation_vol": 0.47160037822379963,
+      "taylor_phi_pi": 0.8272802636137497,
+      "taylor_phi_y": 0.016586748886658148,
+      "rate_smoothing": 0.8871156446722477,
+      "output_vol_scale": 3.94967474134598,
+      "output_shift_scale": 1.6751489457154256
+    },
+    "macro_distance": 19.01225130840613,
+    "credit_values": {
+      "loan_growth_base": 0.0024979168797911004,
+      "loan_growth_slope": 0.0
+    },
+    "credit_distance": 1056.3963128338212,
+    "configuration": {
+      "transition": [
+        [
+          0.9510886526531375,
+          0.048911347346862526,
+          4.720222450975485e-19
+        ],
+        [
+          0.015316821137025826,
+          0.9728451527987058,
+          0.011838026064268278
+        ],
+        [
+          4.501750430538554e-25,
+          0.0800135094822985,
+          0.9199864905177015
+        ]
+      ],
+      "equity_mu": [
+        0.011013768005837168,
+        0.007794475968048628,
+        -0.008362538161953363
+      ],
+      "equity_sigma": [
+        0.02290207108253116,
+        0.04367223129927632,
+        0.11938827097043216
+      ],
+      "macro": {
+        "output_persistence": 0.9087567080335535,
+        "inflation_persistence": 0.9885044182998071,
+        "phillips_slope": 0.0029792567299360127,
+        "inflation_vol": 0.47160037822379963,
+        "taylor_phi_pi": 0.8272802636137497,
+        "taylor_phi_y": 0.016586748886658148,
+        "rate_smoothing": 0.8871156446722477,
+        "regime_output_vol": [
+          0.987418685336495,
+          1.382386159471093,
+          2.369804844807588
+        ],
+        "regime_output_shift": [
+          0.0,
+          -0.16751489457154256,
+          -1.3401191565723405
+        ],
+        "inflation_target": 3.763502048781289,
+        "neutral_real_rate": 1.1235521123811942
+      },
+      "households": {
+        "okun": 0.23865854895299546,
+        "base_unemployment": 5.95231175693527
+      },
+      "banks": {
+        "loan_growth_base": 0.0024979168797911004,
+        "loan_growth_slope": 0.0
+      }
+    }
+  },
+  "identification": {
+    "output_persistence": {
+      "value": 0.9087567080335535,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 16.04328256216729,
+      "increase_at_plus_20pct": 2017.0403644839496,
+      "identified": true
+    },
+    "inflation_persistence": {
+      "value": 0.9885044182998071,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 79.85107649755759,
+      "increase_at_plus_20pct": 6.599089188184308,
+      "identified": true
+    },
+    "phillips_slope": {
+      "value": 0.0029792567299360127,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 0.0357889240566891,
+      "increase_at_plus_20pct": 0.12446193833926245,
+      "identified": false
+    },
+    "inflation_vol": {
+      "value": 0.47160037822379963,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 4.995018984723131,
+      "increase_at_plus_20pct": 1.7895502591623362,
+      "identified": false
+    },
+    "taylor_phi_pi": {
+      "value": 0.8272802636137497,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 0.5070472016889696,
+      "increase_at_plus_20pct": 0.2957462768875416,
+      "identified": false
+    },
+    "taylor_phi_y": {
+      "value": 0.016586748886658148,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 0.013775628697953124,
+      "increase_at_plus_20pct": -0.012157775917621905,
+      "identified": false
+    },
+    "rate_smoothing": {
+      "value": 0.8871156446722477,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 43.133063786910895,
+      "increase_at_plus_20pct": 17.646350944445746,
+      "identified": true
+    },
+    "output_vol_scale": {
+      "value": 3.94967474134598,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 1.671198323451602,
+      "increase_at_plus_20pct": -0.0802850209106083,
+      "identified": false
+    },
+    "output_shift_scale": {
+      "value": 1.6751489457154256,
+      "distance_at_estimate": 19.01225130840613,
+      "increase_at_minus_20pct": 0.7103268448062856,
+      "increase_at_plus_20pct": -0.39061602408967033,
+      "identified": false
+    }
+  },
+  "full_fit_months": 745,
+  "full_fit_simulated_moments": {
+    "ugap_sd": 0.7236800466029865,
+    "ugap_ar1": 0.8757072406186012,
+    "ugap_skew": 0.4244353567154483,
+    "dunemployment_sd": 0.355773920980872,
+    "infl_sd": 2.823595330856313,
+    "infl_ar1": 0.9985529800954371,
+    "ff_sd": 3.7148360662017383,
+    "ff_ar1": 0.9986338750582119,
+    "taylor_rho": 0.9563514973734648,
+    "taylor_inflation": 0.06323901790351608,
+    "taylor_ugap": -0.03309055711146237,
+    "phillips_ugap": -0.022869913722750622,
+    "eq_mean_ann": 0.07570099453397877,
+    "eq_vol_ann": 0.18724184126642726,
+    "eq_skew": -0.4831520914736392,
+    "eq_exkurt": 4.815651325905279,
+    "eq_abs_acf1": 0.2433108908259071,
+    "eq_worst_month": -0.29576025115453464,
+    "ugap_p95": 1.2307995238206053,
+    "ugap_exkurt": 0.9889921227058966,
+    "eq12_ugap_corr": -0.16004508584115112,
+    "ff_change_sd": 0.1818331073373866,
+    "infl_skew": 0.08910506830808188,
+    "credit_mean": -28.38614266970506,
+    "credit_sd": 9.761353255207855,
+    "credit_corr_ugap": -0.3099696417651882,
+    "ygap_sd": 3.0120661101959345
+  },
+  "regime_shares": {
+    "nber_recession_share": 0.11677852348993288,
+    "model_slowdown_share": 0.6767230169050714,
+    "model_crisis_share": 0.09232769830949285,
+    "hmm_state_share": [
+      0.21442747917059268,
+      0.6857434783752479,
+      0.09982904245415879
+    ]
+  },
+  "world_sanity": {
+    "chosen": {
+      "plain": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 0.9171065493180356,
+        "output_gap_min_mean": -3.7368265106405643,
+        "output_gap_min_worst": -7.628880392070031,
+        "max_debt_ratio_median": 0.8,
+        "max_debt_ratio_worst": 0.8
+      },
+      "connected": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 0.9398900876666495,
+        "output_gap_min_mean": -3.3157016324066433,
+        "output_gap_min_worst": -6.497270608041661,
+        "max_debt_ratio_median": 1.0048616098901118,
+        "max_debt_ratio_worst": 1.6665416659998042
+      }
+    },
+    "calibrated": {
+      "plain": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 4.256534990122818,
+        "output_gap_min_mean": -19.309185276932787,
+        "output_gap_min_worst": -26.96152972064571,
+        "max_debt_ratio_median": 0.8,
+        "max_debt_ratio_worst": 0.8
+      },
+      "connected": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 5.297581039593499,
+        "output_gap_min_mean": -24.433212755875537,
+        "output_gap_min_worst": -37.89511080879041,
+        "max_debt_ratio_median": 2.030000667467161,
+        "max_debt_ratio_worst": 2.4030418398213165
+      }
+    }
+  },
+  "world_sanity_240_months": {
+    "plain": {
+      "paths": 20,
+      "failed_paths": 0,
+      "failures": [],
+      "output_gap_sd": 3.945473631033219,
+      "output_gap_min_mean": -13.827663667504115,
+      "output_gap_min_worst": -26.279776355278738,
+      "max_debt_ratio_median": 0.8,
+      "max_debt_ratio_worst": 0.8
+    },
+    "connected": {
+      "paths": 20,
+      "failed_paths": 0,
+      "failures": [],
+      "output_gap_sd": 4.2962859395857445,
+      "output_gap_min_mean": -14.679043644088093,
+      "output_gap_min_worst": -31.269866876921252,
+      "max_debt_ratio_median": 1.7438702433764088,
+      "max_debt_ratio_worst": 2.1382087192966868
+    }
+  },
+  "K-S": "CONTRADICTED",
+  "robustness": {
+    "calibrated": {
+      "connected_share_excluding_zero": 0.7792207792207793,
+      "plain_share_excluding_zero": 0.36363636363636365,
+      "connected_cells": 60,
+      "plain_cells": 28,
+      "cells": 77,
+      "worst_output_gap_connected_minus_plain": {
+        "estimate": -0.4037198242928527,
+        "low": -1.276538000657754,
+        "high": 0.46909835207204864,
+        "confidence": 0.95,
+        "n": 40,
+        "method": "t interval over independent seeds"
+      },
+      "K-C": "SUPPORTED"
+    },
+    "chosen": {
+      "connected_share_excluding_zero": 0.7532467532467533,
+      "plain_share_excluding_zero": 0.2597402597402597,
+      "connected_cells": 58,
+      "plain_cells": 20,
+      "cells": 77,
+      "worst_output_gap_connected_minus_plain": {
+        "estimate": 0.0011727956739611023,
+        "low": -0.3448763601175962,
+        "high": 0.34722195146551843,
+        "confidence": 0.95,
+        "n": 40,
+        "method": "t interval over independent seeds"
+      },
+      "K-C": "SUPPORTED"
+    }
+  },
+  "seconds": 61.44390034675598
+}

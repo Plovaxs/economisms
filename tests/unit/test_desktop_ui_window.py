@@ -409,7 +409,7 @@ def test_moving_to_another_explorer_while_one_computes_does_not_show_the_wrong_r
         lambda: window.explorers.result.view is not None and not window.explorers.busy(),
     )
     assert window.explorers.result.view.title == "Hedge ratios"  # type: ignore[union-attr]
-    assert window.explorers.names()[0] == "economy" and len(window.explorers.names()) == 7
+    assert window.explorers.names()[0] == "economy" and len(window.explorers.names()) == 8
 
 
 def test_an_explorer_calculation_can_be_cancelled(window: MainWindow) -> None:

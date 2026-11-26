@@ -2,7 +2,7 @@
 
 It exercises the real thing end to end in a throwaway state directory (the user's own results are
 never touched): every runner's form against its default recipe, the state-directory rules, the
-seven explorers in their child processes, one small real job through the isolated worker with its
+eight explorers in their child processes, one small real job through the isolated worker with its
 result read back through hash verification, the findings document, the health report, and whether
 Qt is installed. It exists for three readers: a person who wants to know "is this install
 healthy?", CI (a smoke test of everything that does not need a display), and `doctor`'s habit of

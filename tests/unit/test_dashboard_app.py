@@ -279,3 +279,20 @@ def test_worldsim_view_is_reachable_requires_auth_and_rejects_unknown_scenarios(
     assert status == 401
     status, _ = request(app, "/dashboard/worldsim", ALICE, "scenario=nope")
     assert status == 400
+
+
+def test_transmission_view_is_reachable_requires_auth_and_validates_inputs(app) -> None:
+    status, body = request(
+        app, "/dashboard/transmission", ALICE, "scenario=stressed_connected&seeds=3"
+    )
+    assert status == 200
+    assert "SYNTHETIC" in body and "What each link carries" in body
+    status, body = request(
+        app, "/dashboard/transmission", ALICE, "scenario=stressed_connected&seeds=3&format=json"
+    )
+    assert status == 200 and '"origin"' in body and '"channels"' in body
+    status, _ = request(app, "/dashboard/transmission", None)
+    assert status == 401
+    for query in ("scenario=nope", "shock=meteor", "seeds=2", "seeds=99", "size=abc", "size=99"):
+        status, _ = request(app, "/dashboard/transmission", ALICE, query)
+        assert status == 400, query

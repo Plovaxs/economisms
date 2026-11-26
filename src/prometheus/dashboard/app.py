@@ -53,6 +53,7 @@ from prometheus.dashboard.params import (
     token_param,
     wants_json,
 )
+from prometheus.dashboard.transmission_view import render_transmission, transmission_as_json
 from prometheus.dashboard.views import (
     balance_sheets_as_json,
     economy_explorer_as_json,
@@ -112,6 +113,10 @@ _INDEX_LINKS: tuple[tuple[str, str], ...] = (
         "/dashboard/worldsim",
         "WORLDSIM: a volatile simulated economy with households, assets, banks and monitoring",
     ),
+    (
+        "/dashboard/transmission",
+        "WORLDSIM shock transmission map: where a shock enters and which links carry it",
+    ),
 )
 
 
@@ -157,6 +162,7 @@ _VOLATILITY = FloatRange(0.001, 5.0)
 _RATE = FloatRange(-0.5, 1.0)
 _DRIFT = FloatRange(-1.0, 1.0)
 _ALPHA = FloatRange(0.5, 0.9999)
+_SHOCK_SIZE = FloatRange(-1.0, 10.0)
 _MAX_MARKET_PATH_CELLS = 2_000_000
 _MAX_HEDGE_CELLS = 500_000
 
@@ -494,6 +500,39 @@ class DashboardService:
                     200,
                     render_worldsim(
                         name=world_name, seed=world_seed, rule=world_rule, mode=world_mode
+                    ),
+                    _HTML_CONTENT_TYPE,
+                )
+            except ValueError as exc:
+                raise DashboardHTTPError(400, str(exc)) from exc
+
+        if path == "/dashboard/transmission":
+            tm_name = token_param(query, "scenario", "stressed_connected")
+            tm_shock = token_param(query, "shock", "equity_crash")
+            tm_focus = token_param(query, "outcome", "output_gap")
+            tm_mode = token_param(query, "mode", "none")
+            tm_seeds = int_param(query, "seeds", 6, lo=3, hi=24)
+            tm_size = float_param(query, "size", -1.0, _SHOCK_SIZE)
+            tm_size_arg = None if tm_size < 0.0 else tm_size
+            try:
+                if want_json:
+                    tm_payload = transmission_as_json(
+                        name=tm_name,
+                        shock=tm_shock,
+                        size=tm_size_arg,
+                        seeds=tm_seeds,
+                        mode=tm_mode,
+                    )
+                    return 200, _json_body(tm_payload), _JSON_CONTENT_TYPE
+                return (
+                    200,
+                    render_transmission(
+                        name=tm_name,
+                        shock=tm_shock,
+                        size=tm_size_arg,
+                        focus=tm_focus,
+                        seeds=tm_seeds,
+                        mode=tm_mode,
                     ),
                     _HTML_CONTENT_TYPE,
                 )
