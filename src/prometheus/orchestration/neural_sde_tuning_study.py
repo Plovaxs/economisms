@@ -240,7 +240,9 @@ def run_study(
     )
 
     def averaged(recipe: Recipe, which: int) -> np.ndarray:
-        return np.mean([check[("check", s, recipe)][which] for s in check_seeds], axis=0)
+        per_seed = [check[("check", s, recipe)][which] for s in check_seeds]
+        mean: np.ndarray = np.mean(per_seed, axis=0)
+        return mean
 
     neural_default, neural_chosen = averaged(DEFAULT, 0), averaged(chosen, 0)
     gbm = averaged(chosen, 1)
