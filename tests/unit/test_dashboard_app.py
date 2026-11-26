@@ -269,3 +269,13 @@ def test_inflationcast_export_embeds_a_real_run_hash(app) -> None:
     status, body = request(app, "/dashboard/export", ALICE, "view=inflationcast")
     assert status == 200
     assert "run_hash" in body or "run hash" in body.lower()
+
+
+def test_worldsim_view_is_reachable_requires_auth_and_rejects_unknown_scenarios(app) -> None:
+    status, body = request(app, "/dashboard/worldsim", ALICE, "scenario=stressed&seed=2")
+    assert status == 200
+    assert "SYNTHETIC" in body and "Economic monitoring" in body
+    status, _ = request(app, "/dashboard/worldsim", None)
+    assert status == 401
+    status, _ = request(app, "/dashboard/worldsim", ALICE, "scenario=nope")
+    assert status == 400

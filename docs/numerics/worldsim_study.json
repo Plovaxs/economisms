@@ -1,0 +1,340 @@
+{
+  "study": "worldsim_study (PR-223)",
+  "n_seeds": 200,
+  "n_months": 240,
+  "scenarios": {
+    "calm": {
+      "stylised_facts": {
+        "equity_volatility_annual": 0.13979322871330457,
+        "equity_excess_kurtosis": 2.053877700071478,
+        "equity_bond_correlation_outside_crisis": 0.0517361856543126,
+        "equity_bond_correlation_in_crisis": -0.301220448222143,
+        "mean_crisis_share": 0.0164375,
+        "mean_failed_banks": 0.05,
+        "share_of_runs_with_a_bank_failure": 0.005,
+        "mean_min_output_gap": -2.1422646473582616,
+        "mean_peak_unemployment": 5.57113232367913
+      },
+      "alerts": {
+        "crisis_onsets": 155,
+        "onsets_with_prior_alert": 4,
+        "amber_or_red_share_of_months": 0.006299019607843137,
+        "red_share_of_months": 0.0006617647058823529
+      },
+      "rules": {
+        "equal_weight": {
+          "median_cagr": 0.04334468459126117,
+          "median_max_drawdown": -0.1569360253973408,
+          "p5_max_drawdown": -0.2958661853200261,
+          "mean_gini_end": 0.7262090696669908,
+          "mean_top10_end": 0.6317293834643805,
+          "mean_bottom50_end": 0.07254401455074203
+        },
+        "sixty_forty": {
+          "median_cagr": 0.05955515775049225,
+          "median_max_drawdown": -0.20117740175269216,
+          "p5_max_drawdown": -0.360740351814209,
+          "mean_gini_end": 0.7440731498520623,
+          "mean_top10_end": 0.6463540890282714,
+          "mean_bottom50_end": 0.061822418240118145
+        },
+        "risk_parity": {
+          "median_cagr": 0.04592565671408633,
+          "median_max_drawdown": -0.1785588419983451,
+          "p5_max_drawdown": -0.2794711821350216,
+          "mean_gini_end": 0.7307991363657034,
+          "mean_top10_end": 0.6355119620996952,
+          "mean_bottom50_end": 0.06982983789782775
+        },
+        "min_variance": {
+          "median_cagr": 0.04311284623189804,
+          "median_max_drawdown": -0.17174659663461506,
+          "p5_max_drawdown": -0.2535448738902368,
+          "mean_gini_end": 0.7286066167111673,
+          "mean_top10_end": 0.6338074996903296,
+          "mean_bottom50_end": 0.07118990723057078
+        },
+        "vol_target": {
+          "median_cagr": 0.05801710669693305,
+          "median_max_drawdown": -0.19913390955221466,
+          "p5_max_drawdown": -0.3486799414879266,
+          "mean_gini_end": 0.7430284999650288,
+          "mean_top10_end": 0.6453268509966221,
+          "mean_bottom50_end": 0.06236543701830323
+        }
+      },
+      "auc_crisis_within_6_months": {
+        "estimate": 0.5623371293145009,
+        "low": 0.5225478592005913,
+        "high": 0.6001453312005798,
+        "confidence": 0.95
+      }
+    },
+    "volatile": {
+      "stylised_facts": {
+        "equity_volatility_annual": 0.14951807727289868,
+        "equity_excess_kurtosis": 3.6230471524935464,
+        "equity_bond_correlation_outside_crisis": 0.05235684906198507,
+        "equity_bond_correlation_in_crisis": -0.3694063214310451,
+        "mean_crisis_share": 0.03933333333333333,
+        "mean_failed_banks": 0.085,
+        "share_of_runs_with_a_bank_failure": 0.01,
+        "mean_min_output_gap": -3.9363879801416455,
+        "mean_peak_unemployment": 6.468193990070822
+      },
+      "alerts": {
+        "crisis_onsets": 395,
+        "onsets_with_prior_alert": 17,
+        "amber_or_red_share_of_months": 0.011691176470588236,
+        "red_share_of_months": 0.0011274509803921569
+      },
+      "rules": {
+        "equal_weight": {
+          "median_cagr": 0.03625567511806527,
+          "median_max_drawdown": -0.1838530148041268,
+          "p5_max_drawdown": -0.38984263248436984,
+          "mean_gini_end": 0.7213231662988882,
+          "mean_top10_end": 0.6274848827025103,
+          "mean_bottom50_end": 0.07529708015482667
+        },
+        "sixty_forty": {
+          "median_cagr": 0.05083797087777653,
+          "median_max_drawdown": -0.23496953821619299,
+          "p5_max_drawdown": -0.46456498137841495,
+          "mean_gini_end": 0.7385571803659857,
+          "mean_top10_end": 0.641609821980261,
+          "mean_bottom50_end": 0.06498958855181666
+        },
+        "risk_parity": {
+          "median_cagr": 0.04097991586009275,
+          "median_max_drawdown": -0.18480749709715527,
+          "p5_max_drawdown": -0.3091204443958159,
+          "mean_gini_end": 0.72895035103831,
+          "mean_top10_end": 0.633832423828396,
+          "mean_bottom50_end": 0.0708404783360002
+        },
+        "min_variance": {
+          "median_cagr": 0.042538107598214525,
+          "median_max_drawdown": -0.17009596491800333,
+          "p5_max_drawdown": -0.25489426272215987,
+          "mean_gini_end": 0.7314906470975037,
+          "mean_top10_end": 0.635985300292661,
+          "mean_bottom50_end": 0.06938331515241504
+        },
+        "vol_target": {
+          "median_cagr": 0.049574239223926675,
+          "median_max_drawdown": -0.22403574775898588,
+          "p5_max_drawdown": -0.407262584202226,
+          "mean_gini_end": 0.7376061675664352,
+          "mean_top10_end": 0.6406579344674692,
+          "mean_bottom50_end": 0.06548071548483815
+        }
+      },
+      "auc_crisis_within_6_months": {
+        "estimate": 0.5649267733221514,
+        "low": 0.5349093741950108,
+        "high": 0.5906092084606712,
+        "confidence": 0.95
+      }
+    },
+    "stressed": {
+      "stylised_facts": {
+        "equity_volatility_annual": 0.16919868444951688,
+        "equity_excess_kurtosis": 4.21851511884632,
+        "equity_bond_correlation_outside_crisis": 0.054734821066705894,
+        "equity_bond_correlation_in_crisis": -0.34842109407874494,
+        "mean_crisis_share": 0.0911875,
+        "mean_failed_banks": 4.215,
+        "share_of_runs_with_a_bank_failure": 0.435,
+        "mean_min_output_gap": -9.108753644076572,
+        "mean_peak_unemployment": 9.054376822038284
+      },
+      "alerts": {
+        "crisis_onsets": 913,
+        "onsets_with_prior_alert": 67,
+        "amber_or_red_share_of_months": 0.030465686274509803,
+        "red_share_of_months": 0.002352941176470588
+      },
+      "rules": {
+        "equal_weight": {
+          "median_cagr": 0.018592619969343915,
+          "median_max_drawdown": -0.26251263578773565,
+          "p5_max_drawdown": -0.5074905498767243,
+          "mean_gini_end": 0.7171926903084322,
+          "mean_top10_end": 0.6242965336372963,
+          "mean_bottom50_end": 0.07774542768070569
+        },
+        "sixty_forty": {
+          "median_cagr": 0.031114153304931835,
+          "median_max_drawdown": -0.32993379721087457,
+          "p5_max_drawdown": -0.6119576259609277,
+          "mean_gini_end": 0.731072227706174,
+          "mean_top10_end": 0.6352679394306289,
+          "mean_bottom50_end": 0.06923514612203668
+        },
+        "risk_parity": {
+          "median_cagr": 0.031024975295506074,
+          "median_max_drawdown": -0.2223573938391537,
+          "p5_max_drawdown": -0.35708376094086064,
+          "mean_gini_end": 0.7339103740433864,
+          "mean_top10_end": 0.6378750642689102,
+          "mean_bottom50_end": 0.06780523623813682
+        },
+        "min_variance": {
+          "median_cagr": 0.0404431811079391,
+          "median_max_drawdown": -0.15693833038674115,
+          "p5_max_drawdown": -0.26036370119467955,
+          "mean_gini_end": 0.745414652415493,
+          "mean_top10_end": 0.6472264842642607,
+          "mean_bottom50_end": 0.06091209860102497
+        },
+        "vol_target": {
+          "median_cagr": 0.029425606942840687,
+          "median_max_drawdown": -0.29402556164611493,
+          "p5_max_drawdown": -0.5449489261422878,
+          "mean_gini_end": 0.7317646743468306,
+          "mean_top10_end": 0.6358891566889372,
+          "mean_bottom50_end": 0.06887891805021334
+        }
+      },
+      "auc_crisis_within_6_months": {
+        "estimate": 0.5745023243377082,
+        "low": 0.5548346410016369,
+        "high": 0.5938944993225916,
+        "confidence": 0.95
+      }
+    }
+  },
+  "hypotheses": {
+    "W-A_some_rule_has_shallower_drawdown_than_equal_weight_volatile": {
+      "verdict": "SUPPORTED",
+      "by_rule": {
+        "sixty_forty": {
+          "drawdown_gain_vs_equal_weight": {
+            "estimate": -0.0555371021141711,
+            "low": -0.06311376767077681,
+            "high": -0.0479604365575654,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "median_drawdown": -0.23496953821619299,
+          "median_cagr": 0.05083797087777653,
+          "cagr_difference_vs_equal_weight": {
+            "estimate": 0.014974291348260253,
+            "low": 0.012849455971795628,
+            "high": 0.017099126724724877,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "verdict": "CONTRADICTED"
+        },
+        "risk_parity": {
+          "drawdown_gain_vs_equal_weight": {
+            "estimate": 0.005879647284105648,
+            "low": -0.002859481421922665,
+            "high": 0.014618775990133961,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "median_drawdown": -0.18480749709715527,
+          "median_cagr": 0.04097991586009275,
+          "cagr_difference_vs_equal_weight": {
+            "estimate": 0.005553960663834161,
+            "low": 0.004620312487093736,
+            "high": 0.006487608840574587,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "verdict": "INCONCLUSIVE"
+        },
+        "min_variance": {
+          "drawdown_gain_vs_equal_weight": {
+            "estimate": 0.02526847104532527,
+            "low": 0.00897007733017445,
+            "high": 0.04156686476047609,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "median_drawdown": -0.17009596491800333,
+          "median_cagr": 0.042538107598214525,
+          "cagr_difference_vs_equal_weight": {
+            "estimate": 0.006997627350124451,
+            "low": 0.004598782659870284,
+            "high": 0.009396472040378618,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "verdict": "SUPPORTED"
+        },
+        "vol_target": {
+          "drawdown_gain_vs_equal_weight": {
+            "estimate": -0.03845967417440792,
+            "low": -0.04605894956388282,
+            "high": -0.03086039878493302,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "median_drawdown": -0.22403574775898588,
+          "median_cagr": 0.049574239223926675,
+          "cagr_difference_vs_equal_weight": {
+            "estimate": 0.014001792961972993,
+            "low": 0.011969155618405197,
+            "high": 0.01603443030554079,
+            "confidence": 0.9875,
+            "n": 200,
+            "method": "t interval over independent seeds"
+          },
+          "verdict": "CONTRADICTED"
+        },
+        "equal_weight": {
+          "median_drawdown": -0.1838530148041268,
+          "median_cagr": 0.03625567511806527
+        }
+      }
+    },
+    "W-B_crises_concentrate_wealth_stressed_minus_calm_top10_share": {
+      "interval": {
+        "estimate": -0.0074328498270841425,
+        "low": -0.017677730098136203,
+        "high": 0.0028120304439679163,
+        "confidence": 0.95
+      },
+      "verdict": "INCONCLUSIVE"
+    },
+    "W-C_fire_sales_amplify_bank_failures_stressed": {
+      "mean_failed_banks_with_feedback": 4.215,
+      "mean_failed_banks_without_feedback": 3.01,
+      "difference_interval": {
+        "estimate": 1.205,
+        "low": 0.7820861188313541,
+        "high": 1.627913881168646,
+        "confidence": 0.95,
+        "n": 200,
+        "method": "t interval over independent seeds"
+      },
+      "verdict": "SUPPORTED"
+    },
+    "W-D_warning_composite_has_information_volatile": {
+      "auc": {
+        "estimate": 0.5649267733221514,
+        "low": 0.5349093741950108,
+        "high": 0.5906092084606712,
+        "confidence": 0.95
+      },
+      "verdict": "SUPPORTED"
+    }
+  },
+  "caveats": [
+    "A simulation with chosen, not estimated, parameters: results describe the simulator.",
+    "Households are price takers; one rule applies to every participating household.",
+    "The crisis regime is an exogenous Markov chain; the warning composite can detect its precursors (slowdown, volatility, stressed banks) but not cause or avert a crisis.",
+    "No taxes, fiscal policy, firms' balance sheets, foreign sector or bank bail-outs."
+  ]
+}

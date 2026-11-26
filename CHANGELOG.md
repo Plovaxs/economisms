@@ -16,6 +16,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **WORLDSIM, a volatile integrated economy (Finding 25).** New `prometheus.worldsim`: regimes, macro variables and a
+  Taylor-rule policy rate, four asset returns that change character in a crisis, households with a fat-tailed wealth
+  distribution, leveraged banks with interbank contagion and fire sales, five allocation rules and an early-warning
+  monitor, plus a live page at `/dashboard/worldsim`. Parameters are chosen, not estimated. In 200 seeds per scenario
+  only minimum variance had shallower drawdowns than equal weight, fire sales added about 40% more bank failures in the
+  stressed scenario, and the warning composite barely warned (AUC 0.565).
 - **Market forecasting (Finding 24) and wider scope.** New exploratory study of next-day S&P 500 return forecasts
   (AR(1), momentum, ridge, small network) against the historical mean, with volatility management and forecast timing as
   asset-management tests. No forecast beat the mean on 3,861 test days; volatility management cut the worst drawdown

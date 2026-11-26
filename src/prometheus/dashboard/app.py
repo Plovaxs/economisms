@@ -67,6 +67,7 @@ from prometheus.dashboard.views import (
     render_portfolio_risk,
     render_pricing_diagnostics,
 )
+from prometheus.dashboard.worldsim_view import render_worldsim, worldsim_as_json
 from prometheus.evidence.model_inventory import UnauthorizedModelUsageError, authorize_model_usage
 from prometheus.evidence.model_registry import ModelRegistryEntry
 from prometheus.evidence.validation_issue_tracker import REAL_FINDINGS
@@ -106,6 +107,10 @@ _INDEX_LINKS: tuple[tuple[str, str], ...] = (
     (
         "/dashboard/inflationcast",
         "INFLATIONCAST: CPI nowcasting -- classical vs. deep learning vs. hybrid quantum (FP-07)",
+    ),
+    (
+        "/dashboard/worldsim",
+        "WORLDSIM: a volatile simulated economy with households, assets, banks and monitoring",
     ),
 )
 
@@ -473,6 +478,24 @@ class DashboardService:
                 payload = inflationcast_as_json(**inflationcast_kwargs)
                 return 200, _json_body(payload), _JSON_CONTENT_TYPE
             return 200, render_inflationcast(**inflationcast_kwargs), _HTML_CONTENT_TYPE
+
+        if path == "/dashboard/worldsim":
+            world_name = token_param(query, "scenario", "volatile")
+            world_rule = token_param(query, "rule", "equal_weight")
+            world_seed = int_param(query, "seed", 0, lo=SEED_RANGE[0], hi=SEED_RANGE[1])
+            try:
+                if want_json:
+                    world_payload = worldsim_as_json(
+                        name=world_name, seed=world_seed, rule=world_rule
+                    )
+                    return 200, _json_body(world_payload), _JSON_CONTENT_TYPE
+                return (
+                    200,
+                    render_worldsim(name=world_name, seed=world_seed, rule=world_rule),
+                    _HTML_CONTENT_TYPE,
+                )
+            except ValueError as exc:
+                raise DashboardHTTPError(400, str(exc)) from exc
 
         if path == "/dashboard/validation-issues":
             if want_json:

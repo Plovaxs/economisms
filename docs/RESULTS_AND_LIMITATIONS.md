@@ -1014,6 +1014,53 @@ showed. Not shown: that no information forecasts returns (only past-return featu
 markets or horizons (daily only), or that volatility management works out of sample on new data (one path, 3,861 days).
 Cash earns zero and returns are index price returns, so the Sharpe ratios are not comparable to published ones.
 
+## Finding 25 (PR-223): in a volatile simulated economy, minimum variance was the only allocation rule with shallower drawdowns, fire sales added about 40% more bank failures, and the early-warning composite barely warned
+
+WORLDSIM (`prometheus.worldsim`) joins an economy (three regimes, output gap, inflation, a Taylor-rule policy
+rate), four asset returns whose volatility and correlations change with the regime, 1,000 households with a
+fat-tailed wealth distribution, ten leveraged banks linked by interbank loans (the repository's Eisenberg-Noe
+clearing) whose fire sales feed back into equity prices, five allocation rules and an early-warning monitor.
+**Its parameters are chosen to look like a plausible economy, not estimated; every statement below is about
+the simulator.** Four questions and their rules were written before the final run
+(`orchestration.worldsim_study`); 200 seeds of 240 months per scenario; output `docs/numerics/worldsim_study.json`.
+A live page is at `/dashboard/worldsim`.
+
+**Does it look like a volatile economy? (stylised facts, `volatile`)** Equity volatility 15.0% a year, excess
+kurtosis 3.6, equity-bond correlation 0.05 outside crises and -0.37 in them, crises 3.9% of months, output gap
+down to -3.9% at its worst on average, unemployment peaking at 6.5%. `stressed`: crises 9.1% of months, output gap
+-9.1%, unemployment 9.1%, bank failures in 43.5% of runs (4.2 banks on average, when one goes several follow);
+`volatile`: a bank fails in 1% of runs; `calm`: 0.5%.
+
+| Question | Result |
+| --- | --- |
+| **W-A** shallower drawdown than equal weight (`volatile`, 98.75% intervals) | **minimum variance SUPPORTED**: +2.5 points of drawdown [0.9, 4.2] and +0.7 points of annual return. Risk parity inconclusive (+0.6 [-0.3, 1.5]). 60/40 and the volatility target were **worse** (-5.6 and -3.8 points) but earned +1.5 and +1.4 points a year more |
+| **W-B** crises concentrate wealth (top-decile share, `stressed` minus `calm`) | **INCONCLUSIVE**: -0.7 points [-1.8, +0.3] |
+| **W-C** fire sales amplify bank failures (`stressed`, with against without the price impact) | **SUPPORTED**: 4.2 against 3.0 failed banks, +1.2 [0.8, 1.6] |
+| **W-D** the warning composite has information (`volatile`, AUC for "a crisis begins within 6 months") | **SUPPORTED but weak**: AUC 0.565 [0.535, 0.591] |
+
+- **W-A is about risk level as much as rule.** Median drawdowns were -18.4% (equal weight), -23.5% (60/40), -18.5% (risk
+  parity), -17.0% (minimum variance), -22.4% (volatility target); median annual returns 3.6%, 5.1%, 4.1%, 4.3%, 5.0%.
+  Equal weight holds 25% cash, so the rules that hold more equity earn more and fall further. In `stressed`, minimum
+  variance's median drawdown was -15.7% against -26.3% for equal weight, with the highest median return (4.0% against 1.9%).
+- **W-D in plain words:** the composite fired amber or red in 1.2% of months and preceded only 17 of 395 crisis onsets
+  (4%) in `volatile` (67 of 913, 7%, in `stressed`). The crisis is an exogenous random switch, so the best any monitor can
+  do is read its precursors (slowdown, volatility, stressed banks); it reads them poorly at these thresholds.
+- **W-B:** this model does not show crises raising the top share; wealthy households hold the risky assets and lose in
+  crashes, the poor lose jobs but hold little. The Gini falls in every scenario (0.81 at the start, about 0.72 at the end)
+  because the model has no force that concentrates wealth over time; real inequality has risen, so this is a model
+  limitation, not a finding about the economy.
+
+**How this was built, in order, because it matters.** A smoke run found that the first bank initialisation scaled
+deposits with a random factor and left some banks insolvent on day one (one at -3.8% capital); a full study run made
+before that was fixed gave bank results that were artefacts of it (for example, 58.5% of `stressed` runs with a bank failure) and was
+discarded. After the fix, bank leverage (84% deposits, 86% in `stressed`, a 5% capital trigger) was set by looking at a few
+smoke runs so that `volatile` has rare and `stressed` has frequent banking crises; that is a choice about the scenarios,
+not an estimate, and the W-C and W-D magnitudes depend on it. The hypotheses and rules were written before the final run.
+
+**Not shown:** anything about the real economy; firms' balance sheets, fiscal policy, a foreign sector, bail-outs and
+taxes are absent; households are price takers and every participant holds the same portfolio; bank loan losses depend on the
+output gap only. The gate decision is unchanged (NO-GO).
+
 ## Known limitations that are not findings, just open scope
 
 
