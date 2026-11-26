@@ -1,9 +1,11 @@
-# Confirmatory protocol (FROZEN 2026-11-26, external anchor pending)
+# Confirmatory protocol (FROZEN 2026-11-26, anchored on Zenodo)
 
-**Status: frozen locally, not yet anchored.** The freeze record at the end is filled in except for the external
-anchor, and the commit it names is tagged `protocol-v1`. Until the tag is anchored somewhere the maintainer cannot
-edit (OSF or a DOI-issuing archive), this must **not** be cited as "pre-registered": a tag made by the same person who
-runs the analysis proves little on its own. The analysis commands refuse to run while the anchor field says `none`.
+**Status: frozen and externally anchored.** The tag `protocol-v1` (commit `15add42`) was archived by Zenodo as a
+GitHub release on 2026-11-26 and registered with the DOI
+[10.5281/zenodo.24557019](https://doi.org/10.5281/zenodo.24557019) (DataCite registration time
+2026-11-26T10:26:47Z; the record is a supplement to `tree/protocol-v1`). The anchor proves the protocol text and the
+freeze record existed in this form at that time; it is not independent review, and the maintainer who froze it also
+runs the analysis. The anchor row below was filled in by a later commit, which is not part of the archived snapshot.
 The analysis code is described under "The analysis code"; the data-use audit is
 [confirmatory/DATA_USE_AUDIT.md](./confirmatory/DATA_USE_AUDIT.md) and the power note is
 [confirmatory/power_note.json](./confirmatory/power_note.json).
@@ -291,7 +293,7 @@ A test also caught a real defect while this was written: a month written as `202
 | Post-snapshot CPI data, SHA-256 | 236a14d4b6ac86d721feb9533e324ab2a411ec8dfcee0edbf15da4de13874951 |
 | Multiplicity family | all three primary endpoints, Bonferroni 0.05/3 (the code's default) |
 | `reproduce` at the freeze commit | 16 of 16 numbers match (`confirmatory/reproduce_at_freeze.json`) |
-| External anchor (registry or DOI) | none |
+| External anchor (registry or DOI) | Zenodo, https://doi.org/10.5281/zenodo.24557019 (release `protocol-v1`, archived 2026-11-26) |
 
 How the recipe hashes are made: the canonical-JSON SHA-256 (`experiments.manifest.compute_result_hash`) of
 `e1_hedging.frozen_recipe()` (the `rl_hedge` configuration without its seed, plus `policy_structure`, `hidden_size`,
