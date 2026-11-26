@@ -322,7 +322,7 @@ def _sd_with_error(series: np.ndarray, seed: int, replications: int = 200) -> tu
         float(np.std(series[block_bootstrap_indices(series.size, GDP_BLOCK, rng)]))
         for _ in range(replications)
     ]
-    return float(np.std(series)), float(max(np.std(values, ddof=1), 1e-9))
+    return float(np.std(series)), max(float(np.std(values, ddof=1)), 1e-9)
 
 
 def estimate(

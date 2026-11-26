@@ -442,7 +442,7 @@ def bootstrap_moments(
 
 def standard_errors(replicates: list[dict[str, float]], names: tuple[str, ...]) -> dict[str, float]:
     return {
-        name: float(max(np.std([row[name] for row in replicates], ddof=1), 1e-9)) for name in names
+        name: max(float(np.std([row[name] for row in replicates], ddof=1)), 1e-9) for name in names
     }
 
 
