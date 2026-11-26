@@ -1,11 +1,12 @@
-# Confirmatory protocol (DRAFT, not frozen)
+# Confirmatory protocol (FROZEN 2026-11-26, external anchor pending)
 
-**Status: draft.** Nothing below binds the project, and nothing here may be cited as "pre-registered", until the
-freeze checklist at the end is complete: the open items filled in, a commit tagged, and that tag anchored somewhere
-the maintainer cannot edit. Until then this is a plan. The analysis code now exists and is described under "The
-analysis code"; the data-use audit is [confirmatory/DATA_USE_AUDIT.md](./confirmatory/DATA_USE_AUDIT.md) and the
-power note is [confirmatory/power_note.json](./confirmatory/power_note.json). The plan around them does not yet
-bind anyone.
+**Status: frozen locally, not yet anchored.** The freeze record at the end is filled in except for the external
+anchor, and the commit it names is tagged `protocol-v1`. Until the tag is anchored somewhere the maintainer cannot
+edit (OSF or a DOI-issuing archive), this must **not** be cited as "pre-registered": a tag made by the same person who
+runs the analysis proves little on its own. The analysis commands refuse to run while the anchor field says `none`.
+The analysis code is described under "The analysis code"; the data-use audit is
+[confirmatory/DATA_USE_AUDIT.md](./confirmatory/DATA_USE_AUDIT.md) and the power note is
+[confirmatory/power_note.json](./confirmatory/power_note.json).
 
 **Why it exists.** [FINAL_PROJECT_HYPOTHESES.md](./FINAL_PROJECT_HYPOTHESES.md) is a *retrospective* freeze: the five
 hypotheses were tested before that document existed, so every verdict in
@@ -282,10 +283,19 @@ A test also caught a real defect while this was written: a month written as `202
 
 | Field | Value |
 | --- | --- |
-| Freeze date | not frozen |
-| Freeze commit | not frozen |
-| Recipe hash, `rl_hedge` | not frozen |
+| Freeze date | 2026-11-26 |
+| Freeze commit | 17ba7d062845ea657de6df4e15b8af0d4a7b310f |
+| Recipe hash, `rl_hedge` | 13656c91316c85e1f1c2679705ffbb3638f2a6eb5021fb0960e2f7e59f9c5514 |
+| Recipe hash, neural SDE (E4) | 93eda5e374102822f40a9fbeb61dce166b6075ebd2710a63c9352cc4e82e0526 |
+| Post-snapshot S&P 500 data, SHA-256 | 4e127f47df90401079e58a5cd926c031654f8720cc119c3e9055ecd5a0c33107 |
+| Post-snapshot CPI data, SHA-256 | 236a14d4b6ac86d721feb9533e324ab2a411ec8dfcee0edbf15da4de13874951 |
+| Multiplicity family | all three primary endpoints, Bonferroni 0.05/3 (the code's default) |
+| `reproduce` at the freeze commit | 16 of 16 numbers match (`confirmatory/reproduce_at_freeze.json`) |
 | External anchor (registry or DOI) | none |
+
+How the recipe hashes are made: the canonical-JSON SHA-256 (`experiments.manifest.compute_result_hash`) of
+`e1_hedging.frozen_recipe()` (the `rl_hedge` configuration without its seed, plus `policy_structure`, `hidden_size`,
+`initial_log_std`) and of `asdict(e4_shocks.FROZEN_RECIPE)`. A test pins the first; changing a frozen field changes it.
 
 ## Deviation log
 

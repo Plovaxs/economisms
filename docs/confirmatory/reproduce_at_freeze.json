@@ -1,0 +1,219 @@
+{
+  "E1_finding_8": {
+    "in_sample_ratio_by_epochs": {
+      "400": [
+        1.095,
+        1.098,
+        1.076,
+        1.134,
+        1.191,
+        1.097,
+        1.13,
+        1.409
+      ],
+      "800": [
+        1.118,
+        1.058,
+        1.06,
+        1.041,
+        1.112,
+        1.085,
+        1.19,
+        1.053
+      ]
+    },
+    "seeds_beating_baseline_in_sample": {
+      "400": 0,
+      "800": 0
+    },
+    "held_out_ratio_by_epochs": {
+      "400": [
+        1.044,
+        1.057,
+        1.031,
+        1.054,
+        1.045,
+        1.036,
+        1.112,
+        1.198
+      ],
+      "800": [
+        1.111,
+        1.076,
+        1.086,
+        1.002,
+        1.094,
+        1.103,
+        1.135,
+        1.059
+      ]
+    },
+    "seeds_beating_baseline_held_out": {
+      "400": 0,
+      "800": 0
+    },
+    "note": "the held-out ratio is the new endpoint's statistic and has no documented value; it is exploratory here because these seeds are old",
+    "checks": [
+      {
+        "check": "in-sample ratio range over both budgets, rounded to 2 decimals",
+        "measured": [
+          1.04,
+          1.41
+        ],
+        "documented": [
+          1.04,
+          1.41
+        ],
+        "match": true
+      },
+      {
+        "check": "seeds beating the baseline (in-sample), at each budget",
+        "measured": {
+          "400": 0,
+          "800": 0
+        },
+        "documented": 0,
+        "match": true
+      }
+    ]
+  },
+  "E2_finding_18": {
+    "measured": {
+      "n_months": 277,
+      "mae_persistence": 0.326,
+      "mae_base_effect": 0.226,
+      "difference_rule_minus_persistence": -0.1,
+      "interval_95": [
+        -0.136,
+        -0.068
+      ]
+    },
+    "checks": [
+      {
+        "check": "n_months",
+        "measured": 277,
+        "documented": 277,
+        "match": true
+      },
+      {
+        "check": "mae_persistence",
+        "measured": 0.326,
+        "documented": 0.326,
+        "match": true
+      },
+      {
+        "check": "mae_base_effect",
+        "measured": 0.226,
+        "documented": 0.226,
+        "match": true
+      },
+      {
+        "check": "difference_rule_minus_persistence",
+        "measured": -0.1,
+        "documented": -0.1,
+        "match": true
+      },
+      {
+        "check": "interval_95",
+        "measured": [
+          -0.136,
+          -0.068
+        ],
+        "documented": [
+          -0.136,
+          -0.068
+        ],
+        "match": true
+      }
+    ]
+  },
+  "E3_finding_15": {
+    "measured": {
+      "n_test_days": 3235,
+      "garch_fhs": {
+        "0.99": {
+          "exceedances": 48,
+          "pinball_bp": 3.92
+        },
+        "0.975": {
+          "pinball_bp": 8.22
+        }
+      },
+      "historical_250": {
+        "0.99": {
+          "exceedances": 56,
+          "pinball_bp": 5.63
+        },
+        "0.975": {
+          "pinball_bp": 10.4
+        }
+      }
+    },
+    "checks": [
+      {
+        "check": "n_test_days",
+        "measured": 3235,
+        "documented": 3235,
+        "match": true
+      },
+      {
+        "check": "garch_fhs 0.99 exceedances",
+        "measured": 48,
+        "documented": 48,
+        "match": true
+      },
+      {
+        "check": "garch_fhs 0.99 pinball_bp",
+        "measured": 3.92,
+        "documented": 3.92,
+        "match": true
+      },
+      {
+        "check": "garch_fhs 0.975 pinball_bp",
+        "measured": 8.22,
+        "documented": 8.22,
+        "match": true
+      },
+      {
+        "check": "historical_250 0.99 exceedances",
+        "measured": 56,
+        "documented": 56,
+        "match": true
+      },
+      {
+        "check": "historical_250 0.99 pinball_bp",
+        "measured": 5.63,
+        "documented": 5.63,
+        "match": true
+      },
+      {
+        "check": "historical_250 0.975 pinball_bp",
+        "measured": 10.4,
+        "documented": 10.4,
+        "match": true
+      }
+    ]
+  },
+  "E4_finding_5": {
+    "measured": {
+      "neural_degradation": 6.99,
+      "baseline_degradation": 26.45
+    },
+    "checks": [
+      {
+        "check": "neural_degradation",
+        "measured": 6.99,
+        "documented": 6.99,
+        "match": true
+      },
+      {
+        "check": "baseline_degradation",
+        "measured": 26.45,
+        "documented": 26.45,
+        "match": true
+      }
+    ]
+  },
+  "all_checks_match": true,
+  "n_checks": 16
+}
