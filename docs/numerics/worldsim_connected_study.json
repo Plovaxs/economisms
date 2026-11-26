@@ -1,0 +1,1822 @@
+{
+  "study": "worldsim_connected_study (PR-225)",
+  "n_seeds": 200,
+  "arms": {
+    "stressed_connected/none": {
+      "mean_failed_banks": 6.905,
+      "share_of_runs_with_failure": 0.715,
+      "share_of_runs_with_sovereign_default": 0.515,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -9.802639544282622,
+      "mean_peak_unemployment": 12.310030048426453,
+      "mean_debt_end": 1.3434863543017572,
+      "mean_deposit_insurance_cost_gdp": 0.03791371314713514,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7595498538735681,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.6600550760076699
+    },
+    "stressed_connected/recapitalise": {
+      "mean_failed_banks": 0.0,
+      "share_of_runs_with_failure": 0.0,
+      "share_of_runs_with_sovereign_default": 0.345,
+      "share_of_defaults_before_any_bank_failure": 1.0,
+      "mean_min_output_gap": -8.064018472396548,
+      "mean_peak_unemployment": 10.90448887863787,
+      "mean_debt_end": 1.2815148400233607,
+      "mean_deposit_insurance_cost_gdp": 0.0,
+      "mean_injection_gdp": 0.17336832756539208,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7550400456043159,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.655702765144336
+    },
+    "stressed_full (unconnected)": {
+      "mean_failed_banks": 7.035,
+      "share_of_runs_with_failure": 0.735,
+      "share_of_runs_with_sovereign_default": 0.0,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -9.311339395214977,
+      "mean_peak_unemployment": 9.155669697607488,
+      "mean_debt_end": 1.5027017113688665,
+      "mean_deposit_insurance_cost_gdp": 0.0,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.0,
+      "mean_gini_end": 0.0,
+      "mean_top10_share_start": 0.0,
+      "mean_top10_share_end": 0.0
+    },
+    "sovereign_stress": {
+      "mean_failed_banks": 2.245,
+      "share_of_runs_with_failure": 0.235,
+      "share_of_runs_with_sovereign_default": 0.24,
+      "share_of_defaults_before_any_bank_failure": 0.08333333333333333,
+      "mean_min_output_gap": -5.57374936623298,
+      "mean_peak_unemployment": 8.889121498073273,
+      "mean_debt_end": 1.3167028435963044,
+      "mean_deposit_insurance_cost_gdp": 0.00958902768432164,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7735385155097145,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.6724307387190064
+    },
+    "sovereign_stress, banks hold no government bonds": {
+      "mean_failed_banks": 2.15,
+      "share_of_runs_with_failure": 0.225,
+      "share_of_runs_with_sovereign_default": 0.24,
+      "share_of_defaults_before_any_bank_failure": 0.10416666666666667,
+      "mean_min_output_gap": -5.544972735378305,
+      "mean_peak_unemployment": 8.864137558936942,
+      "mean_debt_end": 1.3166202761897918,
+      "mean_deposit_insurance_cost_gdp": 0.009583108329971425,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7735558506362991,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.6724422248738469
+    },
+    "rising_inequality": {
+      "mean_failed_banks": 0.835,
+      "share_of_runs_with_failure": 0.085,
+      "share_of_runs_with_sovereign_default": 0.05,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -3.8998995149715454,
+      "mean_peak_unemployment": 7.464624638600099,
+      "mean_debt_end": 0.9536763738985187,
+      "mean_deposit_insurance_cost_gdp": 0.004147559397619822,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.8464117033542249,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.7911137455277032
+    },
+    "rising_inequality, progressive and wealth taxes": {
+      "mean_failed_banks": 1.07,
+      "share_of_runs_with_failure": 0.11,
+      "share_of_runs_with_sovereign_default": 0.0,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -4.302401628460859,
+      "mean_peak_unemployment": 8.023358987071415,
+      "mean_debt_end": -0.5362167753068676,
+      "mean_deposit_insurance_cost_gdp": 0.0046349254484932545,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.834908643814544,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.7740613004832507
+    },
+    "stressed_connected, leaning against leverage": {
+      "mean_failed_banks": 7.055,
+      "share_of_runs_with_failure": 0.73,
+      "share_of_runs_with_sovereign_default": 0.565,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -10.064594043083883,
+      "mean_peak_unemployment": 12.504751622043234,
+      "mean_debt_end": 1.389311583860362,
+      "mean_deposit_insurance_cost_gdp": 0.038176962213413504,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7589699135802974,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.6600037235625804
+    },
+    "stressed_connected, deposits fully insured": {
+      "mean_failed_banks": 6.905,
+      "share_of_runs_with_failure": 0.715,
+      "share_of_runs_with_sovereign_default": 0.525,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -9.8601931103228,
+      "mean_peak_unemployment": 12.32347281488816,
+      "mean_debt_end": 1.34432806496441,
+      "mean_deposit_insurance_cost_gdp": 0.04739475391035146,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7598495087943357,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.6604418053413847
+    },
+    "stressed_connected, no consumption link": {
+      "mean_failed_banks": 6.32,
+      "share_of_runs_with_failure": 0.655,
+      "share_of_runs_with_sovereign_default": 0.515,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -9.289944903955616,
+      "mean_peak_unemployment": 11.903293540354634,
+      "mean_debt_end": 1.3073485829371716,
+      "mean_deposit_insurance_cost_gdp": 0.0353694297648745,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7590007938499735,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.658968838396131
+    },
+    "volatile_connected": {
+      "mean_failed_banks": 0.725,
+      "share_of_runs_with_failure": 0.075,
+      "share_of_runs_with_sovereign_default": 0.045,
+      "share_of_defaults_before_any_bank_failure": 0.0,
+      "mean_min_output_gap": -3.6846189807270364,
+      "mean_peak_unemployment": 7.198218954443953,
+      "mean_debt_end": 1.0368430048303623,
+      "mean_deposit_insurance_cost_gdp": 0.003807983686506973,
+      "mean_injection_gdp": 0.0,
+      "mean_gini_start": 0.8173777466985639,
+      "mean_gini_end": 0.7672779372212131,
+      "mean_top10_share_start": 0.7267520225075996,
+      "mean_top10_share_end": 0.667574814538695
+    }
+  },
+  "hypotheses": {
+    "C-A_recapitalisation_ends_with_lower_public_debt_counting_failure_costs": {
+      "estimate": 0.06197151427839653,
+      "low": 0.030745575165682795,
+      "high": 0.09319745339111027,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-B_connecting_the_sectors_worsens_the_worst_output_gap": {
+      "estimate": 0.4913001490676443,
+      "low": 0.147617469549493,
+      "high": 0.8349828285857956,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-C_banks_holding_government_bonds_raise_failures_under_sovereign_stress": {
+      "estimate": 0.095,
+      "low": -0.037317945193211716,
+      "high": 0.22731794519321172,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "INCONCLUSIVE"
+    },
+    "C-D_inequality_forces_raise_the_gini": {
+      "estimate": 0.029033956655660956,
+      "low": 0.027637756579938798,
+      "high": 0.030430156731383114,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-E_progressive_and_wealth_taxes_lower_the_top_decile_share": {
+      "estimate": 0.017052445044452587,
+      "low": 0.016790039382091747,
+      "high": 0.017314850706813427,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-F_leaning_against_leverage_lowers_bank_failures": {
+      "estimate": -0.15,
+      "low": -0.2633492577589037,
+      "high": -0.03665074224109627,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "CONTRADICTED"
+    },
+    "C-G_full_insurance_leaves_the_rich_with_a_larger_share": {
+      "estimate": 0.000386729333714807,
+      "low": 0.00031857272119694096,
+      "high": 0.0004548859462326731,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-H_the_consumption_link_worsens_the_worst_output_gap": {
+      "estimate": 0.5126946403270055,
+      "low": 0.21021322640278584,
+      "high": 0.8151760542512252,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    }
+  },
+  "secondary": {
+    "C-B_failed_banks_connected_minus_unconnected": {
+      "estimate": -0.13,
+      "low": -0.4036817743132346,
+      "high": 0.1436817743132346,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "INCONCLUSIVE"
+    },
+    "C-D_top10_share_end_minus_start": {
+      "estimate": 0.06436172302010351,
+      "low": 0.06255846290827127,
+      "high": 0.06616498313193575,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "SUPPORTED"
+    },
+    "C-E_cost_worst_output_gap_taxed_minus_untaxed": {
+      "estimate": -0.4025021134893144,
+      "low": -0.4995169762189126,
+      "high": -0.3054872507597162,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "CONTRADICTED"
+    },
+    "C-A_failure_costs_in_gdp_none_minus_recapitalise": {
+      "estimate": -0.13545461441825693,
+      "low": -0.15657069743165986,
+      "high": -0.11433853140485402,
+      "confidence": 0.95,
+      "n": 200,
+      "method": "t interval over independent seeds",
+      "verdict": "CONTRADICTED"
+    }
+  },
+  "impulse_responses": {
+    "connected": {
+      "shock_month": 100,
+      "window_months": 24,
+      "sizes": {
+        "equity_crash": 0.3,
+        "rate_hike": 2.0,
+        "fx_crash": 0.15,
+        "bank_loss": 0.08,
+        "sovereign_default": 0.0,
+        "supply_shock": 2.0,
+        "demand_shock": 0.05
+      },
+      "matrix": {
+        "equity_crash": {
+          "output_gap": {
+            "estimate": -0.4771299513336144,
+            "low": -0.5501853340574482,
+            "high": -0.40407456860978064,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": -0.2793429228949383,
+            "low": -0.3196231749410929,
+            "high": -0.2390626708487837,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.2821231341015594,
+            "low": 0.2166637311499401,
+            "high": 0.34758253705317876,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": -0.5306420488844722,
+            "low": -0.5916244357633466,
+            "high": -0.46965966200559783,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -0.30323689817551747,
+            "low": -0.3095174558009265,
+            "high": -0.29695634055010844,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "failed_banks": {
+            "estimate": 0.25,
+            "low": -0.12032695834187096,
+            "high": 0.6203269583418709,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.006005382918295884,
+            "low": 0.0012529470160050635,
+            "high": 0.010757818820586705,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": 0.005306420488844722,
+            "low": 0.004696596620055979,
+            "high": 0.005916244357633465,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": -0.015724531624640818,
+            "low": -0.016850194570372398,
+            "high": -0.014598868678909239,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": -0.003867074299958384,
+            "low": -0.00417417190158594,
+            "high": -0.0035599766983308275,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "top10_share": {
+            "estimate": -0.0027331890398781737,
+            "low": -0.0029470010471437484,
+            "high": -0.002519377032612599,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          }
+        },
+        "rate_hike": {
+          "output_gap": {
+            "estimate": -0.09563475617513086,
+            "low": -0.1010938059545062,
+            "high": -0.0901757063957555,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": -0.08014781385202098,
+            "low": -0.08470467294082476,
+            "high": -0.0755909547632172,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.050821952797188825,
+            "low": 0.04406950511874728,
+            "high": 0.05757440047563037,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": 0.16349242983708184,
+            "low": 0.1515104396024312,
+            "high": 0.17547442007173247,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": 5.588331213299917e-05,
+            "low": -0.00029842700462488834,
+            "high": 0.00041019362889088674,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.03333333333333333,
+            "low": -0.03336651260294223,
+            "high": 0.10003317926960889,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.006090666639063717,
+            "low": 0.005695858796060292,
+            "high": 0.006485474482067141,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": -0.0016349242983708097,
+            "low": -0.0017547442007173125,
+            "high": -0.0015151043960243069,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": -0.0011702685564977191,
+            "low": -0.0012404114895451664,
+            "high": -0.0011001256234502719,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": -6.667144338728208e-05,
+            "low": -7.418079794374104e-05,
+            "high": -5.916208883082311e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "top10_share": {
+            "estimate": -4.171712264426919e-05,
+            "low": -4.651616715412558e-05,
+            "high": -3.69180781344128e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          }
+        },
+        "fx_crash": {
+          "output_gap": {
+            "estimate": -0.17005686142353146,
+            "low": -0.23444179230315576,
+            "high": -0.10567193054390718,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": 0.22531136066640248,
+            "low": 0.18974777850968505,
+            "high": 0.2608749428231199,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.09780239858741209,
+            "low": 0.0478834679384812,
+            "high": 0.14772132923634299,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": 0.5141546047867737,
+            "low": 0.4520626793038942,
+            "high": 0.5762465302696531,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -0.04764928128981298,
+            "low": -0.05502682570840056,
+            "high": -0.0402717368712254,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "failed_banks": {
+            "estimate": 0.23333333333333334,
+            "low": -0.10754558595384245,
+            "high": 0.5742122526205091,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.009336166352193715,
+            "low": 0.006246716880190455,
+            "high": 0.012425615824196976,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": 0.14485845395213223,
+            "low": 0.14423753469730344,
+            "high": 0.14547937320696103,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": 0.0011366076013072225,
+            "low": 0.0006357359371468264,
+            "high": 0.0016374792654676187,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": -0.0008276975881841472,
+            "low": -0.0009803556556246726,
+            "high": -0.0006750395207436217,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "top10_share": {
+            "estimate": -0.0005996544987312854,
+            "low": -0.0007028479233443415,
+            "high": -0.0004964610741182293,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          }
+        },
+        "bank_loss": {
+          "output_gap": {
+            "estimate": -0.07873058079851389,
+            "low": -0.1638635310031354,
+            "high": 0.006402369406107597,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": -0.04401203595988178,
+            "low": -0.09175382078664673,
+            "high": 0.0037297488668831605,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "unemployment": {
+            "estimate": 0.06035089041134311,
+            "low": -0.004689684644840479,
+            "high": 0.1253914654675267,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": -0.03631151608404299,
+            "low": -0.09634525083268347,
+            "high": 0.023722218664597484,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "equity_return": {
+            "estimate": -0.005213486466433876,
+            "low": -0.013772589974286029,
+            "high": 0.003345617041418277,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.25,
+            "low": -0.12032695834187096,
+            "high": 0.6203269583418709,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.0030889868056860966,
+            "low": -0.0008164071924051945,
+            "high": 0.006994380803777388,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.00036311516084042703,
+            "low": -0.00023722218664597638,
+            "high": 0.0009634525083268304,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "consumption": {
+            "estimate": -0.0005578722709385624,
+            "low": -0.001174632626161581,
+            "high": 5.888808428445604e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": -5.973015533631276e-05,
+            "low": -0.0001968882144829029,
+            "high": 7.742790381027735e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": -4.302562124422667e-05,
+            "low": -0.00013405059503539268,
+            "high": 4.799935254693935e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          }
+        },
+        "sovereign_default": {
+          "output_gap": {
+            "estimate": -2.2527911402789695,
+            "low": -2.6805039200390164,
+            "high": -1.825078360518923,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": -0.9840485995034551,
+            "low": -1.2071214328634126,
+            "high": -0.7609757661434977,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 1.4650955217516899,
+            "low": 1.1452162326171784,
+            "high": 1.7849748108862014,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": -1.1937615928553271,
+            "low": -1.3508354617023453,
+            "high": -1.036687724008309,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -0.051180899994549015,
+            "low": -0.060656529381069954,
+            "high": -0.041705270608028075,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "failed_banks": {
+            "estimate": 1.15,
+            "low": 0.3600924484022284,
+            "high": 1.9399075515977713,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "public_debt": {
+            "estimate": -0.2699431163482589,
+            "low": -0.2801985905550665,
+            "high": -0.2596876421414513,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": 0.16193761592855324,
+            "low": 0.16036687724008306,
+            "high": 0.16350835461702343,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": -0.012674084267161035,
+            "low": -0.014923052815925075,
+            "high": -0.010425115718396995,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": 4.5866219767535615e-05,
+            "low": -0.00021669836866834418,
+            "high": 0.0003084308082034154,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": -0.00010644133474381941,
+            "low": -0.00027852672499322986,
+            "high": 6.564405550559103e-05,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          }
+        },
+        "supply_shock": {
+          "output_gap": {
+            "estimate": -0.22098111721691008,
+            "low": -0.25098601567016887,
+            "high": -0.19097621876365126,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": 0.38511792280681933,
+            "low": 0.36542714777128515,
+            "high": 0.4048086978423535,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.1094009159069292,
+            "low": 0.08597155026631495,
+            "high": 0.13283028154754345,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": 0.7728545540167439,
+            "low": 0.7142002118056718,
+            "high": 0.8315088962278159,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": 0.0001122155717939893,
+            "low": -0.0019304665304733795,
+            "high": 0.002154897674061358,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": -0.05,
+            "low": -0.15004976890441335,
+            "high": 0.05004976890441333,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.010638408360922754,
+            "low": 0.008511554106701588,
+            "high": 0.01276526261514392,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": -0.007728545540167443,
+            "low": -0.00831508896227816,
+            "high": -0.007142002118056726,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": 0.0050735033510002575,
+            "low": 0.004760750515530113,
+            "high": 0.005386256186470402,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": -0.0003220132025258023,
+            "low": -0.0003673500360368999,
+            "high": -0.0002766763690147047,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "top10_share": {
+            "estimate": -0.00024893387351534644,
+            "low": -0.00027924207683647405,
+            "high": -0.00021862567019421882,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          }
+        },
+        "demand_shock": {
+          "output_gap": {
+            "estimate": -0.05020606004599363,
+            "low": -0.06306248469851036,
+            "high": -0.037349635393476896,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": -0.0454420012757931,
+            "low": -0.051860269596011976,
+            "high": -0.03902373295557422,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.036353496987032496,
+            "low": 0.023234985302869125,
+            "high": 0.04947200867119587,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": -0.12081368021230383,
+            "low": -0.1303067855935324,
+            "high": -0.11132057483107528,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -0.0008238993858819633,
+            "low": -0.002155266183328867,
+            "high": 0.0005074674115649404,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.05,
+            "low": -0.05004976890441333,
+            "high": 0.15004976890441335,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": -2.880382048892997e-05,
+            "low": -0.0007647699277557397,
+            "high": 0.0007071622867778799,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.0012081368021230506,
+            "low": 0.0011132057483107638,
+            "high": 0.0013030678559353373,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": -0.0026137553055429123,
+            "low": -0.0027174522711295394,
+            "high": -0.0025100583399562853,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "gini": {
+            "estimate": -0.00018512126109292796,
+            "low": -0.00021048626643237106,
+            "high": -0.00015975625575348487,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "top10_share": {
+            "estimate": -0.00016918168740262713,
+            "low": -0.00018705924676247086,
+            "high": -0.0001513041280427834,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          }
+        }
+      },
+      "cells": 77,
+      "cells_excluding_zero": 55,
+      "share_excluding_zero": 0.7142857142857143
+    },
+    "unconnected": {
+      "shock_month": 100,
+      "window_months": 24,
+      "sizes": {
+        "equity_crash": 0.3,
+        "rate_hike": 2.0,
+        "fx_crash": 0.15,
+        "bank_loss": 0.08,
+        "sovereign_default": 0.0,
+        "supply_shock": 2.0,
+        "demand_shock": 0.05
+      },
+      "matrix": {
+        "equity_crash": {
+          "output_gap": {
+            "estimate": -0.01995804668639797,
+            "low": -0.05929652598814063,
+            "high": 0.019380432615344684,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": -0.012347948910536548,
+            "low": -0.03680015043869799,
+            "high": 0.012104252617624897,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "unemployment": {
+            "estimate": 0.009979023343198978,
+            "low": -0.009690216307672356,
+            "high": 0.029648262994070314,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "equity_return": {
+            "estimate": -0.29956246457460056,
+            "low": -0.3005758891934768,
+            "high": -0.29854903995572435,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "failed_banks": {
+            "estimate": 0.16666666666666666,
+            "low": -0.16683256301471103,
+            "high": 0.5001658963480443,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.0005176276701278348,
+            "low": -0.0005039272389161177,
+            "high": 0.0015391825791717874,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "rate_hike": {
+          "output_gap": {
+            "estimate": -0.10091835328087186,
+            "low": -0.10814464964641314,
+            "high": -0.09369205691533057,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": -0.07767204422517245,
+            "low": -0.08287632617237,
+            "high": -0.0724677622779749,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.050459176640435956,
+            "low": 0.04684602845766531,
+            "high": 0.0540723248232066,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": 0.17584818164775867,
+            "low": 0.1619633745318299,
+            "high": 0.18973298876368744,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -1.7919011067141048e-05,
+            "low": -0.0005561801934733366,
+            "high": 0.0005203421713390545,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.005189502871847956,
+            "low": 0.004822575466023519,
+            "high": 0.005556430277672393,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": -0.0017584818164775888,
+            "low": -0.0018973298876368758,
+            "high": -0.0016196337453183017,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "fx_crash": {
+          "output_gap": {
+            "estimate": -0.008966764094864682,
+            "low": -0.04324597922911514,
+            "high": 0.02531245103938578,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": 0.3247501305547013,
+            "low": 0.3032270485548108,
+            "high": 0.3462732125545918,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.004483382047432283,
+            "low": -0.012656225519692964,
+            "high": 0.021622989614557532,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": 0.7109651019497588,
+            "low": 0.6560253943918172,
+            "high": 0.7659048095077005,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": -0.04292541299007171,
+            "low": -0.0439120219183122,
+            "high": -0.04193880406183122,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "failed_banks": {
+            "estimate": 0.15,
+            "low": -0.15014930671323992,
+            "high": 0.45014930671323994,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.005614047087600054,
+            "low": 0.004200581074829561,
+            "high": 0.007027513100370548,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": 0.14289034898050235,
+            "low": 0.14234095190492294,
+            "high": 0.14343974605608176,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "bank_loss": {
+          "output_gap": {
+            "estimate": -0.04652684246682074,
+            "low": -0.1004319163850367,
+            "high": 0.007378231451395226,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": -0.028298743426806397,
+            "low": -0.061241183835035296,
+            "high": 0.0046436969814225015,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "unemployment": {
+            "estimate": 0.023263421233410377,
+            "low": -0.0036891157256976233,
+            "high": 0.05021595819251838,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": -0.03796784456910301,
+            "low": -0.09466494270346153,
+            "high": 0.01872925356525551,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "equity_return": {
+            "estimate": -0.0019886135052850787,
+            "low": -0.005348456174488474,
+            "high": 0.0013712291639183158,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.16666666666666666,
+            "low": -0.16683256301471103,
+            "high": 0.5001658963480443,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.0005996875319859725,
+            "low": -0.0004516377855058332,
+            "high": 0.0016510128494777784,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.0003796784456910313,
+            "low": -0.00018729253565255723,
+            "high": 0.0009466494270346198,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "sovereign_default": {
+          "output_gap": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "unemployment": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "equity_return": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "supply_shock": {
+          "output_gap": {
+            "estimate": -0.16105197491331397,
+            "low": -0.18914011444436388,
+            "high": -0.13296383538226406,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "inflation": {
+            "estimate": 0.42920078012472795,
+            "low": 0.4109037384284825,
+            "high": 0.4474978218209734,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "unemployment": {
+            "estimate": 0.08052598745665693,
+            "low": 0.06648191769113199,
+            "high": 0.09457005722218187,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "policy_rate": {
+            "estimate": 0.8872492980242782,
+            "low": 0.8235480322695198,
+            "high": 0.9509505637790366,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "equity_return": {
+            "estimate": 0.0008563047958950899,
+            "low": -0.0001129307827518049,
+            "high": 0.0018255403745419847,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.008994366191597209,
+            "low": 0.007346082183440968,
+            "high": 0.01064265019975345,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "exchange_rate": {
+            "estimate": -0.008872492980242784,
+            "low": -0.009509505637790369,
+            "high": -0.008235480322695199,
+            "confidence": 0.95,
+            "n": 60,
+            "method": "t interval over independent seeds",
+            "excludes_zero": true
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        },
+        "demand_shock": {
+          "output_gap": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "inflation": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "unemployment": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "policy_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "equity_return": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "failed_banks": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "public_debt": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "exchange_rate": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "consumption": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "gini": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          },
+          "top10_share": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "confidence": 0.95,
+            "excludes_zero": false
+          }
+        }
+      },
+      "cells": 77,
+      "cells_excluding_zero": 18,
+      "share_excluding_zero": 0.23376623376623376
+    }
+  },
+  "sensitivity_sovereign_stress_25_percent_moves": [
+    {
+      "parameter": "banks.deposit_funding",
+      "base_value": 84.0,
+      "low": {
+        "mean_failed_banks": 9.633333333333333,
+        "share_of_runs_with_failure": 0.9666666666666667,
+        "mean_min_output_gap": -11.678631278615443
+      },
+      "high": {
+        "mean_failed_banks": 1.0,
+        "share_of_runs_with_failure": 0.1,
+        "mean_min_output_gap": -5.024173851995261
+      },
+      "swing_mean_failed_banks": -8.633333333333333,
+      "swing_min_output_gap": 6.654457426620182
+    },
+    {
+      "parameter": "fiscal.initial_debt",
+      "base_value": 1.3,
+      "low": {
+        "mean_failed_banks": 1.0,
+        "share_of_runs_with_failure": 0.1,
+        "mean_min_output_gap": -4.314584021450256
+      },
+      "high": {
+        "mean_failed_banks": 8.333333333333334,
+        "share_of_runs_with_failure": 0.8333333333333334,
+        "mean_min_output_gap": -10.408069132696022
+      },
+      "swing_mean_failed_banks": 7.333333333333334,
+      "swing_min_output_gap": -6.093485111245767
+    },
+    {
+      "parameter": "banks.loss_given_default",
+      "base_value": 0.5,
+      "low": {
+        "mean_failed_banks": 1.6666666666666667,
+        "share_of_runs_with_failure": 0.16666666666666666,
+        "mean_min_output_gap": -5.530404780816872
+      },
+      "high": {
+        "mean_failed_banks": 3.466666666666667,
+        "share_of_runs_with_failure": 0.4,
+        "mean_min_output_gap": -6.294407539756305
+      },
+      "swing_mean_failed_banks": 1.8,
+      "swing_min_output_gap": -0.7640027589394327
+    },
+    {
+      "parameter": "firms.default_sensitivity",
+      "base_value": 6.0,
+      "low": {
+        "mean_failed_banks": 2.0,
+        "share_of_runs_with_failure": 0.2,
+        "mean_min_output_gap": -5.74109412255872
+      },
+      "high": {
+        "mean_failed_banks": 3.3666666666666667,
+        "share_of_runs_with_failure": 0.36666666666666664,
+        "mean_min_output_gap": -6.142672753890535
+      },
+      "swing_mean_failed_banks": 1.3666666666666667,
+      "swing_min_output_gap": -0.40157863133181504
+    },
+    {
+      "parameter": "fiscal.multiplier",
+      "base_value": 0.8,
+      "low": {
+        "mean_failed_banks": 3.3,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.741091128375059
+      },
+      "high": {
+        "mean_failed_banks": 2.2,
+        "share_of_runs_with_failure": 0.26666666666666666,
+        "mean_min_output_gap": -5.834332393804323
+      },
+      "swing_mean_failed_banks": -1.0999999999999996,
+      "swing_min_output_gap": -0.09324126542926425
+    },
+    {
+      "parameter": "links.demand_coupling",
+      "base_value": 0.1,
+      "low": {
+        "mean_failed_banks": 2.2,
+        "share_of_runs_with_failure": 0.26666666666666666,
+        "mean_min_output_gap": -5.589282652226867
+      },
+      "high": {
+        "mean_failed_banks": 3.2,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -6.157864215090611
+      },
+      "swing_mean_failed_banks": 1.0,
+      "swing_min_output_gap": -0.5685815628637441
+    },
+    {
+      "parameter": "links.firm_unemployment",
+      "base_value": 1.0,
+      "low": {
+        "mean_failed_banks": 2.7666666666666666,
+        "share_of_runs_with_failure": 0.3,
+        "mean_min_output_gap": -5.799150501840498
+      },
+      "high": {
+        "mean_failed_banks": 2.433333333333333,
+        "share_of_runs_with_failure": 0.3,
+        "mean_min_output_gap": -5.76161209515115
+      },
+      "swing_mean_failed_banks": -0.3333333333333335,
+      "swing_min_output_gap": 0.03753840668934849
+    },
+    {
+      "parameter": "links.bank_sovereign_share",
+      "base_value": 0.4,
+      "low": {
+        "mean_failed_banks": 2.6,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.904752082668011
+      },
+      "high": {
+        "mean_failed_banks": 2.933333333333333,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.949154079365785
+      },
+      "swing_mean_failed_banks": 0.33333333333333304,
+      "swing_min_output_gap": -0.04440199669777378
+    },
+    {
+      "parameter": "links.haircut",
+      "base_value": 0.3,
+      "low": {
+        "mean_failed_banks": 2.8333333333333335,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -6.103380786328221
+      },
+      "high": {
+        "mean_failed_banks": 2.933333333333333,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.9863504091015285
+      },
+      "swing_mean_failed_banks": 0.09999999999999964,
+      "swing_min_output_gap": 0.1170303772266923
+    },
+    {
+      "parameter": "links.insured_share",
+      "base_value": 0.8,
+      "low": {
+        "mean_failed_banks": 2.933333333333333,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.926950816292396
+      },
+      "high": {
+        "mean_failed_banks": 2.933333333333333,
+        "share_of_runs_with_failure": 0.3333333333333333,
+        "mean_min_output_gap": -5.923561987292855
+      },
+      "swing_mean_failed_banks": 0.0,
+      "swing_min_output_gap": 0.0033888289995411824
+    }
+  ],
+  "caveats": [
+    "A simulation with chosen, not estimated, parameters: results describe the simulator.",
+    "Households hold one fixed passive portfolio inside the world; the allocation-rule comparison of Finding 25 replays a finished world.",
+    "The crisis regime is still an exogenous random switch; sovereign default, bank failure and inequality respond to it but do not cause it.",
+    "Deposit insurance is paid from the budget at once, with no premiums, fund or resolution authority; the tax system is one rate with a progressivity exponent.",
+    "Impulse responses are means over seeds of the difference between paired worlds; a cell that excludes zero is a working channel, not a real-economy elasticity."
+  ]
+}

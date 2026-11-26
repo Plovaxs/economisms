@@ -59,6 +59,8 @@ class BankStep:
     total_loans: float
     injection: float = 0.0
     liquidity_support: float = 0.0
+    deposit_shortfall: float = 0.0
+    total_deposits: float = 0.0
 
 
 def initial_banks(params: BankParams, rng: np.random.Generator) -> BankState:
@@ -100,6 +102,9 @@ def step_banks(
     fx_debt_share: float = 0.0,
     growth_boost: float = 0.0,
     policy: PolicyParams | None = None,
+    extra_loss: float = 0.0,
+    securities_haircut: float = 0.0,
+    loan_recovery: float | None = None,
 ) -> BankStep:
     already_failed = state.failed.copy()
     if fx_depreciation != 0.0 and fx_debt_share > 0.0:
@@ -117,6 +122,10 @@ def step_banks(
         params.securities_equity_share * equity_return
         + (1.0 - params.securities_equity_share) * bond_return
     )
+    loss = loss + state.loans * extra_loss
+    if securities_haircut > 0.0:
+        state.securities = state.securities * (1.0 - securities_haircut)
+    deposits_before = float(state.deposits.sum())
     state.loans = state.loans - loss
     state.cash = state.cash + income
     state.securities = state.securities * (1.0 + security_return)
@@ -150,6 +159,11 @@ def step_banks(
     defaulted = np.asarray(clearing.defaulted, dtype=bool) | insolvent
     contagion = defaulted & (full_payment_equity >= 0.0) & ~already_failed
     state.failed = already_failed | defaulted
+    shortfall = 0.0
+    if loan_recovery is not None:
+        newly = state.failed & ~already_failed
+        realizable = loan_recovery * state.loans + state.securities + state.cash + clearing.received
+        shortfall = float(np.maximum(state.deposits - realizable, 0.0)[newly].sum())
 
     wanted = np.where(
         constrained & ~state.failed, params.fire_sale_fraction * state.securities, 0.0
@@ -176,4 +190,6 @@ def step_banks(
         total_loans=float(np.where(state.failed, 0.0, state.loans).sum()),
         injection=injection,
         liquidity_support=float(supported.sum()),
+        deposit_shortfall=shortfall,
+        total_deposits=deposits_before,
     )

@@ -95,6 +95,8 @@ class HouseholdParams:
     heterogeneous: bool = False
     saving_rank_slope: float = 0.12
     top_return_premium: float = 0.0004
+    top_income_growth: float = 0.0
+    deposit_wealth_share: float = 0.15
     base_unemployment: float = 4.5
     okun: float = 0.5
 
@@ -160,6 +162,67 @@ class PolicyParams:
     moral_hazard: float = 0.02
 
 
+SHOCK_KINDS = (
+    "equity_crash",
+    "rate_hike",
+    "fx_crash",
+    "bank_loss",
+    "sovereign_default",
+    "supply_shock",
+    "demand_shock",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class Shock:
+    """An exogenous one-off event at `month`, for impulse responses (it uses no random numbers)."""
+
+    month: int
+    kind: str
+    size: float = 0.0
+
+    def __post_init__(self) -> None:
+        if self.kind not in SHOCK_KINDS:
+            raise ValueError(f"unknown shock {self.kind!r}; choose from {SHOCK_KINDS}")
+        if self.month < 1:
+            raise ValueError("a shock needs month >= 1")
+
+
+@dataclass(frozen=True, slots=True)
+class LinkParams:
+    """The feedback loops that make the sectors one system (all off unless `enabled`).
+
+    Households become part of the world: their consumption drives output, bank failures hit their
+    uninsured deposits, and their taxes and transfers move the government's budget. Depositors are
+    insured and the state pays the insurance. Banks hold the government's bonds, so a sovereign
+    default hits them. Firm distress raises unemployment, and the central bank can lean against
+    firm leverage.
+    """
+
+    enabled: bool = False
+    demand_coupling: float = 0.1
+    market_portfolio: tuple[float, float, float, float] = (0.4, 0.3, 0.1, 0.2)
+    firm_unemployment: float = 1.0
+    deposit_insurance: bool = True
+    insured_share: float = 0.8
+    loan_recovery: float = 0.6
+    top_depositor_share: float = 0.2
+    bank_sovereign_share: float = 0.4
+    sovereign_default: bool = True
+    default_threshold: float = 1.5
+    hazard_slope: float = 0.2
+    haircut: float = 0.3
+    exclusion_months: int = 24
+    default_fx_jump: float = 0.15
+    default_output_shock: float = -1.5
+    default_spread_jump: float = 3.0
+    spread_decay: float = 0.97
+    financial_stability_phi: float = 0.0
+    tax_progressivity: float = 0.0
+    wealth_tax_rate: float = 0.0
+    wealth_tax_threshold: float = 5.0
+
+
 @dataclass(frozen=True, slots=True)
 class WorldConfig:
     name: str = "volatile"
@@ -177,6 +240,7 @@ class WorldConfig:
     fiscal: FiscalParams = field(default_factory=FiscalParams)
     foreign: ForeignParams = field(default_factory=ForeignParams)
     policy: PolicyParams = field(default_factory=PolicyParams)
+    links: LinkParams = field(default_factory=LinkParams)
 
     def __post_init__(self) -> None:
         if self.n_months < 24:
@@ -247,3 +311,56 @@ def full_scenario(name: str, *, mode: BailoutMode = "none") -> WorldConfig:
     if name not in EXTENDED_SCENARIOS:
         raise ValueError(f"unknown extended scenario {name!r}; choose from {EXTENDED_SCENARIOS}")
     return extended(scenario(name.removesuffix("_full")), mode=mode)
+
+
+CONNECTED_SCENARIOS = (
+    "volatile_connected",
+    "stressed_connected",
+    "sovereign_stress",
+    "rising_inequality",
+)
+
+
+def connected(config: WorldConfig, *, mode: BailoutMode = "none") -> WorldConfig:
+    """`config` fully extended (see `extended`) with the `LinkParams` feedback loops switched on."""
+    base = extended(config, mode=mode)
+    return replace(
+        base,
+        name=config.name + "_connected",
+        links=replace(base.links, enabled=True),
+    )
+
+
+def connected_scenario(name: str, *, mode: BailoutMode = "none") -> WorldConfig:
+    """Fully interconnected worlds.
+
+    `volatile_connected` and `stressed_connected` are the v1 scenarios with every sector and loop
+    on.
+    `sovereign_stress` starts with public debt at 130% of GDP in an ordinary volatile economy, so
+    the doom loop between the state and its banks is in play. `rising_inequality` adds forces that
+    concentrate income and wealth (faster income growth and higher returns at the top) to a
+    volatile economy.
+    """
+    if name == "volatile_connected":
+        return connected(scenario("volatile"), mode=mode)
+    if name == "stressed_connected":
+        return connected(scenario("stressed"), mode=mode)
+    if name == "sovereign_stress":
+        base = connected(scenario("volatile"), mode=mode)
+        return replace(
+            base,
+            name="sovereign_stress",
+            fiscal=replace(base.fiscal, initial_debt=1.30),
+        )
+    if name == "rising_inequality":
+        base = connected(scenario("volatile"), mode=mode)
+        return replace(
+            base,
+            name="rising_inequality",
+            households=replace(
+                base.households,
+                top_income_growth=8.0,
+                top_return_premium=0.004,
+            ),
+        )
+    raise ValueError(f"unknown connected scenario {name!r}; choose from {CONNECTED_SCENARIOS}")

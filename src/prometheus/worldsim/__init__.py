@@ -28,6 +28,13 @@ spread), a foreign sector (an exchange rate, pass-through, foreign-currency bank
 bail-outs are switched on by `config.full_scenario`; with them off the world is exactly the one
 Finding 25 used.
 
+`config.connected_scenario` goes one step further and closes the loops (see `LinkParams`):
+``households_block`` puts the households inside the world (consumption moves output, taxes and
+transfers move the budget, uninsured deposits are lost in a bank failure), deposits are insured by
+the state, banks hold its bonds, the state can default, and firm distress raises unemployment.
+``impulse`` measures how a one-off shock to one sector travels to all the others, and
+``inequality`` holds the wealth-concentration measures.
+
 The world's path does not depend on the households' allocation rule (households are price takers),
 so a comparison of rules on the same seed is paired by construction.
 """

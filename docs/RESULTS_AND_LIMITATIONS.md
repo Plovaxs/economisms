@@ -1125,6 +1125,66 @@ chosen, not estimated. Everything in the table comes from the one final run.
 **Not shown:** anything about real economies. No sovereign default, deposit insurance, central-bank balance sheet,
 bank resolution, trade partners or housing; every number depends on chosen parameters.
 
+## Finding 27 (PR-225): closing the loops between households, banks, the state and the rest: the connected economy transmits shocks the unconnected one absorbs, a sovereign default is mostly a consequence of a banking crisis, and leaning against leverage backfired
+
+Finding 26's sectors talked one way. In the **connected** world (`config.connected_scenario`,
+`LinkParams`) they feed back on each other. Households (1,000, one fixed passive portfolio) are inside the world:
+their consumption drives next month's output gap (the gap in the spending-to-income ratio, so growth does not
+create a boom), their taxes (a flat rate with a progressivity exponent, and an optional wealth tax) and transfers
+are the government's revenue and part of its spending, and an uninsured deposit loss in a bank failure falls on
+the wealthiest fifth. **Deposit insurance** is paid by the state at once (80% of the depositor shortfall, using a
+60% loan recovery). Banks hold the government's bonds (40% of their securities), so a **sovereign default**
+(a hazard above 150% debt, a 30% haircut, a 24-month exclusion, a currency jump, a spread jump, an output shock)
+hits them. Firm distress raises unemployment, and the central bank can **lean** against firm leverage. Inequality
+forces (faster income growth and a higher return premium at the top) make a `rising_inequality` scenario. With the
+links off the Finding 26 world is unchanged (eight pins in a test). Eight questions with predictions were written
+before the final run (`orchestration.worldsim_connected_study`), 200 seeds, paired on the same draws;
+`docs/numerics/worldsim_connected_study.json`.
+
+| Question (prediction) | Result |
+| --- | --- |
+| **C-A** counting failure costs, recapitalisation ends with lower public debt than doing nothing (yes) | SUPPORTED, 0.062 of GDP lower [0.031, 0.093]. Direct outlays go the other way: the injection costs 17.3% of GDP, deposit insurance without it 3.8%. Recapitalising also cuts sovereign defaults from 51.5% to 34.5% of runs |
+| **C-B** connecting the sectors worsens the worst output gap (yes) | SUPPORTED, 0.49 points worse [0.15, 0.84]; failed banks not different (-0.13 [-0.40, +0.14]) |
+| **C-C** banks' holdings of government bonds raise failures under sovereign stress (yes) | **INCONCLUSIVE**: +0.10 banks [-0.04, +0.23] (2.25 against 2.15). Only 8% of defaults came before any bank failure: the state's trouble mostly follows the banks' |
+| **C-D** the inequality forces raise the Gini (yes) | SUPPORTED, +0.029 [0.028, 0.030] (0.817 to 0.846); the top-decile share rises 6.4 points (0.73 to 0.79) |
+| **C-E** progressive and wealth taxes lower the top-decile share (yes) | SUPPORTED, -1.7 points [1.7, 1.7], Gini 0.835 against 0.846; but the worst output gap is 0.40 points deeper and the state ends in surplus (debt -0.54: the proceeds are not spent) |
+| **C-F** leaning against firm leverage lowers bank failures (yes) | **CONTRADICTED**: +0.15 failed banks [0.04, 0.26] and a worse worst gap (-10.07 against -9.80) |
+| **C-G** full deposit insurance leaves the rich a larger share (yes) | SUPPORTED but trivial: +0.04 points [0.03, 0.05] |
+| **C-H** the consumption link worsens the worst output gap (yes) | SUPPORTED, 0.51 points [0.21, 0.82]; 6.9 against 6.3 failed banks |
+
+**Interconnection, measured.** The shock-by-outcome matrix (seven one-off shocks, eleven outcomes over 24 months,
+60 paired seeds, `worldsim.impulse`): **55 of 77 cells (71%) have intervals that exclude zero in the connected
+world, 18 of 77 (23%) in the unconnected one.** A 30% equity crash lowers output by 0.48 points, raises
+unemployment by 0.28 points, cuts consumption and moves the public debt in the connected world; in the
+unconnected world only equity returns move. A sovereign default lowers output by 2.3 points, raises unemployment
+by 1.5 points and fails 1.2 more banks, and cuts the debt ratio by 0.27 (the haircut). An 8% loan loss to every bank
+produced no significant response: bank capital absorbs it.
+
+**What to take from it.**
+- **Most of the amplification comes from the feedback through households and from bank leverage**, not from the
+  sovereign. Sensitivity (`sovereign_stress`, 25% moves, mean failed banks): bank equity at the start -8.6 banks
+  (more equity, fewer failures), initial public debt +7.3, loss given default +1.8, firm default sensitivity +1.4,
+  the fiscal multiplier -1.1, the consumption link +1.0; banks' holdings of government bonds +0.3, the haircut
+  +0.1 and the insured share 0.0.
+- **Leaning against leverage backfired in this model** because a higher rate in a leveraged boom deepens the
+  bust it was meant to soften; the result depends on the lean coefficient (0.1) and the weak link from the rate to
+  leverage, and is not a statement about macroprudential policy.
+- **Taxing the top lowers its share but the model keeps the money**: the state runs surplus and does not spend it,
+  and demand from the rich falls, so the output cost is probably overstated and the debt effect is not a result.
+- **Inequality rises only because forces were added**, the Gini by 3 points over 20 years and the top decile's share by 6.
+
+**How it was built, in order.** The first version of the demand link used consumption growth, which cancelled a
+one-month shock; the second used its level, which made the inequality scenario boom because top wealth grows; the
+final one uses the spending-to-income ratio. Two scenarios were changed after a first full run: the first
+`rising_inequality` had weaker forces and the Gini fell (-0.008, CONTRADICTED), so the forces were strengthened and the
+question rerun on the new scenario; the first `sovereign_stress` started from a stressed economy where 97% of runs had
+bank failures anyway, so the channel could not be seen, and it now starts from the volatile economy with 130% debt.
+Those were choices about the scenarios, made after seeing a run, and the C-C and C-D results depend on them.
+
+**Not shown:** anything about real economies. Parameters are chosen; the crisis is still an exogenous random switch;
+deposit insurance has no premiums or fund; one tax rate with a progressivity exponent; no housing, no sovereign
+rating or market access beyond a spread, no central-bank balance sheet.
+
 ## Known limitations that are not findings, just open scope
 
 

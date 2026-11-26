@@ -18,10 +18,12 @@ from prometheus.dashboard.provenance import synthetic_badge
 from prometheus.worldsim import monitor
 from prometheus.worldsim.allocation import RULES
 from prometheus.worldsim.config import (
+    CONNECTED_SCENARIOS,
     EXTENDED_SCENARIOS,
     REGIMES,
     SCENARIOS,
     WorldConfig,
+    connected_scenario,
     full_scenario,
     scenario,
 )
@@ -35,11 +37,15 @@ _MODES = ("none", "liquidity", "recapitalise")
 def _config(name: str, mode: str) -> WorldConfig:
     if mode not in _MODES:
         raise ValueError(f"mode must be one of {_MODES}")
+    if name in CONNECTED_SCENARIOS:
+        return connected_scenario(name, mode=mode)  # type: ignore[arg-type]
     if name in EXTENDED_SCENARIOS:
         return full_scenario(name, mode=mode)  # type: ignore[arg-type]
     if name in SCENARIOS:
         return scenario(name)
-    raise ValueError(f"scenario must be one of {SCENARIOS + EXTENDED_SCENARIOS}")
+    raise ValueError(
+        f"scenario must be one of {SCENARIOS + EXTENDED_SCENARIOS + CONNECTED_SCENARIOS}"
+    )
 
 
 _STEP = 6
@@ -68,6 +74,12 @@ def worldsim_as_json(
         extensions["firm_leverage"] = float(path.firm_leverage[last])
     if config.foreign.enabled:
         extensions["fx_level_log"] = float(path.fx_level[last])
+    if config.links.enabled:
+        extensions["sovereign_defaults"] = float(path.sovereign_default.sum())
+        extensions["deposit_insurance_cost_gdp"] = float(
+            path.deposit_insurance_cost.sum() / config.fiscal.gdp_scale
+        )
+        extensions["top10_share"] = float(path.top10_share[last])
     return {
         "scenario": name,
         "bailout_mode": config.policy.mode,

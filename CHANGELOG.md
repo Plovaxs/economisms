@@ -16,6 +16,13 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **The connected economy (Finding 27).** Households, banks, the state and the foreign sector now feed back on one
+  another: consumption drives output, bank failures cost the state through deposit insurance and the rich through
+  uninsured deposits, banks hold the state's bonds so a sovereign default hits them, taxes and transfers come from the
+  households' own incomes, and rising-inequality forces can be switched on. A shock-by-outcome matrix shows 71% of
+  channels working in the connected world against 23% in the unconnected one; leaning against leverage backfired and a
+  sovereign default mostly followed, rather than preceded, a banking crisis. With the links off the Finding 26 world
+  is unchanged (pinned).
 - **WORLDSIM extensions (Finding 26).** Firms, a government, a foreign sector and bank bail-outs, plus a learned
   early-warning model, stylised-fact guard rails and a one-at-a-time sensitivity table. In the stressed world
   recapitalisation ended every bank failure at a cost of 17% of GDP, a counter-cyclical spending rule moved the worst

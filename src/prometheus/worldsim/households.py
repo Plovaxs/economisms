@@ -13,6 +13,7 @@ import numpy as np
 
 from prometheus.worldsim.allocation import weights_for
 from prometheus.worldsim.config import HouseholdParams
+from prometheus.worldsim.inequality import gini, shares
 from prometheus.worldsim.world import WorldPath
 
 
@@ -26,25 +27,6 @@ class HouseholdResult:
     portfolio_value: np.ndarray  # one unit invested in the rule at month 0, no savings
     final_real_wealth_participants: float
     final_real_wealth_others: float
-
-
-def gini(values: np.ndarray) -> float:
-    sorted_values = np.sort(np.clip(values, 0.0, None))
-    n = sorted_values.size
-    total = float(sorted_values.sum())
-    if total <= 0.0:
-        return 0.0
-    index = np.arange(1, n + 1)
-    return float((2.0 * np.sum(index * sorted_values)) / (n * total) - (n + 1.0) / n)
-
-
-def _shares(values: np.ndarray) -> tuple[float, float]:
-    ordered = np.sort(np.clip(values, 0.0, None))
-    total = float(ordered.sum())
-    if total <= 0.0:
-        return 0.0, 0.0
-    n = ordered.size
-    return float(ordered[int(0.9 * n) :].sum() / total), float(ordered[: n // 2].sum() / total)
 
 
 def simulate_households(
@@ -91,7 +73,7 @@ def simulate_households(
             wealth = np.clip(wealth * (1.0 + growth) + earned - spend, 0.0, None)
             income = income * (1.0 + path.inflation[t] / 1200.0)
         gini_path[t] = gini(wealth)
-        top10[t], bottom50[t] = _shares(wealth)
+        top10[t], bottom50[t] = shares(wealth)
         mean_real[t] = float(wealth.mean() / path.price_level[t])
     real = wealth / path.price_level[-1]
     return HouseholdResult(
