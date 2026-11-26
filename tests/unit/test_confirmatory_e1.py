@@ -11,7 +11,6 @@ reproduction of Finding 8 on its eight seeds takes minutes and is run by
 from __future__ import annotations
 
 import math
-from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -139,23 +138,67 @@ class _Stop(Exception):
     pass
 
 
-def test_the_frozen_recipe_is_the_tuned_one_and_the_legacy_recipe_stays_reproducible(
+def test_the_frozen_recipe_is_the_delta_rebalance_one_and_the_legacy_recipe_stays_reproducible(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from prometheus.confirmatory import e1_hedging
 
-    seen: list[RlHedgeRunConfig] = []
+    trained: list[tuple[RlHedgeRunConfig, dict[str, object]]] = []
+    legacy_runs: list[RlHedgeRunConfig] = []
 
-    def capture(config: RlHedgeRunConfig) -> None:
-        seen.append(config)
+    def capture_train(config: RlHedgeRunConfig, **kwargs: object) -> None:
+        trained.append((config, kwargs))
         raise _Stop
 
-    monkeypatch.setattr(e1_hedging, "run_rl_hedge", capture)
-    for kwargs in ({}, {"n_epochs": 400, "learning_rate": e1_hedging.LEGACY_LEARNING_RATE}):
-        with pytest.raises(_Stop):
-            e1_hedging.evaluate_seed(5, **kwargs)  # type: ignore[arg-type]
-    tuned, legacy = seen
-    assert (tuned.learning_rate, tuned.n_epochs) == (0.003, 2000)
-    assert (legacy.learning_rate, legacy.n_epochs) == (0.01, 400)
+    def capture_run(config: RlHedgeRunConfig) -> None:
+        legacy_runs.append(config)
+        raise _Stop
+
+    monkeypatch.setattr(e1_hedging, "train_policy", capture_train)
+    monkeypatch.setattr(e1_hedging, "run_rl_hedge", capture_run)
+    with pytest.raises(_Stop):
+        e1_hedging.evaluate_seed(5)
+    with pytest.raises(_Stop):
+        e1_hedging.evaluate_seed(5, **e1_hedging.LEGACY_KWARGS)
+    [(frozen_config, frozen_kwargs)] = trained
+    [legacy] = legacy_runs
+    assert (frozen_config.learning_rate, frozen_config.n_epochs) == (0.003, 400)
+    assert frozen_kwargs == {
+        "hidden_size": 16,
+        "initial_log_std": -1.0,
+        "structure": "delta_rebalance",
+    }
     assert legacy == RlHedgeRunConfig(seed=5)  # the runner's own defaults are the legacy recipe
-    assert replace(tuned, learning_rate=0.01, n_epochs=400) == legacy
+    assert e1_hedging.LEGACY_KWARGS["structure"] == "plain"
+
+
+def test_the_tuning_study_and_the_frozen_pipeline_compute_the_same_number() -> None:
+    """The structured recipe the study selected is scored by E1's own code, to the last digit."""
+    from prometheus.confirmatory import e1_hedging
+    from prometheus.orchestration import hedging_tuning_study as study
+
+    recipe = study.Recipe(0.003, 4, 16, -1.0, "delta_rebalance")
+    theta = study.evaluate_recipe(5000, recipe, n_eval_paths=400)
+    result = e1_hedging.evaluate_seed(
+        5000,
+        n_epochs=4,
+        learning_rate=0.003,
+        structure="delta_rebalance",
+        initial_log_std=-1.0,
+        n_eval_paths=400,
+    )
+    assert theta == pytest.approx(-math.log(result.ratio), rel=1e-12, abs=1e-12)
+
+
+def test_the_frozen_recipe_is_pinned_so_a_change_after_the_freeze_is_noticed() -> None:
+    """The recorded recipe hash: editing a frozen field changes it, and this test with it."""
+    from prometheus.confirmatory import e1_hedging
+
+    recipe = e1_hedging.frozen_recipe()
+    assert "seed" not in recipe
+    assert recipe["policy_structure"] == "delta_rebalance"
+    assert (recipe["learning_rate"], recipe["n_epochs"]) == (0.003, 400)
+    assert (recipe["hidden_size"], recipe["initial_log_std"]) == (16, -1.0)
+    assert e1_hedging.frozen_recipe_hash() == (
+        "13656c91316c85e1f1c2679705ffbb3638f2a6eb5021fb0960e2f7e59f9c5514"
+    )

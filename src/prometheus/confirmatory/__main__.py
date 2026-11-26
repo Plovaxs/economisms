@@ -82,7 +82,7 @@ def reproduce_e1(
     """Finding 8 on its eight seeds at both budgets, with the new held-out statistic beside it."""
     runs = {
         e: [
-            e1_hedging.evaluate_seed(s, n_epochs=e, learning_rate=e1_hedging.LEGACY_LEARNING_RATE)
+            e1_hedging.evaluate_seed(s, **{**e1_hedging.LEGACY_KWARGS, "n_epochs": e})
             for s in seeds
         ]
         for e in epochs
@@ -271,14 +271,7 @@ def power_report(*, include_e1: bool = True, meta_path: Path | None = None) -> d
         "interval_confidence": confidence,
     }
     if include_e1:
-        results = [
-            e1_hedging.evaluate_seed(
-                s,
-                n_epochs=e1_hedging.LEGACY_N_EPOCHS,
-                learning_rate=e1_hedging.LEGACY_LEARNING_RATE,
-            )
-            for s in FINDING_8_SEEDS
-        ]
+        results = [e1_hedging.evaluate_seed(s, **e1_hedging.LEGACY_KWARGS) for s in FINDING_8_SEEDS]
         theta = -np.log([r.ratio for r in results])
         sd = float(np.std(theta, ddof=1))
         rows = power.power_e1(

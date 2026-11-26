@@ -1,0 +1,26 @@
+{
+  "source": "Kaggle dataset paveljurke/s-and-p-500-gspc-historical-data, file sap500.csv (Yahoo Finance ^GSPC history)",
+  "source_url": "https://www.kaggle.com/datasets/paveljurke/s-and-p-500-gspc-historical-data",
+  "dataset_version": "816",
+  "dataset_modified_utc": "2026-11-25T09:42:19Z",
+  "downloaded_utc": "2026-11-26",
+  "license": "CC0: Public Domain (as stated on the dataset page)",
+  "raw_file_sha256": "e292bc691da57f59807d99f2fe1f711610bf60e200baadae65476d76b80cee58",
+  "raw_file_bytes": 2267480,
+  "csv_sha256": "4e127f47df90401079e58a5cd926c031654f8720cc119c3e9055ecd5a0c33107",
+  "slice": "all rows of the raw file dated after 2023-05-03, columns Date and Close only, written as date,close",
+  "first_date": "2023-05-04",
+  "last_date": "2026-11-23",
+  "n_rows": 893,
+  "checked_before_locking": [
+    "raw file sorted, no duplicate dates, no missing or non-positive closes",
+    "23,949 days overlap the committed series (data_cache/kaggle_sp500_spliced_daily_close.csv) and none of its days is absent; identical before 2020, at most 0.13% apart since 2020-11 (two days above 0.1%: 2021-08-11, 2022-05-05, in the part of the committed series that continues with Investing.com closes)",
+    "no closing value after 2023-05-03 was printed or read by a person or by code other than the slicing script"
+  ],
+  "selection_note": "The dataset was found by a Kaggle search (sorted by last update) and chosen by the assistant on its page metadata and file list alone, at the maintainer's instruction to take the data from Kaggle. The maintainer did not name it.",
+  "moving_target_note": "The dataset is updated daily; this file is the one downloaded on the date above and its digest is what the protocol records. The analysis scores exactly these rows and no later ones.",
+  "columns": {
+    "date": "YYYY-MM-DD trading day",
+    "close": "index close, as published"
+  }
+}

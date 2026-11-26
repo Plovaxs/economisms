@@ -43,6 +43,29 @@ hidden 16 or 64, initial log std 0, on the same selection seeds and 16 NEW valid
   H-C  Is round 2's winner better than round 1's winner on the new validation seeds?
 
 Round 1's result is not hidden by this: it is committed as it came out.
+
+Round 3 (PR-220): a different STRUCTURE, not a different recipe. Tuning closed about half of the
+gap to the static baseline and no more (rounds 1 and 2). One reason a plain policy loses is that
+it is not told the option's delta and must rediscover it, while the baseline is handed it. The
+`delta_rebalance` structure (see `hedging.rl_agent.PolicyStructure`) gives the policy the Black-
+Scholes delta and the gap to it, and lets it choose only the fraction of that gap to close. The
+question, the data and the decision rules were written before any structured policy was trained:
+
+  H-A  vs the legacy default recipe (paired by seed), as before.
+  H-B  vs the static baseline: is theta above zero?
+  H-C  vs the plain policy with the ADOPTED tuned recipe (round 1's winner): paired, SUPPORTED if
+       the interval of the difference lies above zero.
+
+Twelve structured recipes (learning rate 0.003, 0.01, 0.03 x 400 or 1000 epochs x initial log std
+0 or -1; 16 hidden units) are ranked on 8 NEW selection seeds (5000-5007) and the winner is judged
+on 16 NEW validation seeds (6000-6015); no seed was used by any earlier round, and the reserved
+ones are refused.
+
+What the structure does and does not change. The policy now uses the same information as the
+baseline (the delta, computed from the true volatility), so the comparison is fairer in what each
+sees; but the claim shrinks from "a policy rediscovers hedging" to "a policy that is given the
+delta learns when to trade it", and a structure that contains the baseline cannot do much worse
+than it. If it is adopted, E1 tests THAT claim, and the protocol says so.
 """
 
 from __future__ import annotations
@@ -68,7 +91,7 @@ from prometheus.confirmatory.e1_hedging import (
 )
 from prometheus.confirmatory.intervals import t_interval
 from prometheus.hedging.baseline import apply_no_trade_band, black_scholes_delta_hedge_ratios
-from prometheus.hedging.rl_agent import train_reinforce_hedge_policy
+from prometheus.hedging.rl_agent import PolicyStructure, train_reinforce_hedge_policy
 from prometheus.hedging.simulate import simulate_self_financing_hedge
 from prometheus.orchestration.rl_hedge_run import RlHedgeRunConfig
 from prometheus.stochastica.gbm import simulate_gbm_paths
@@ -89,13 +112,15 @@ class Recipe:
     n_epochs: int
     hidden_size: int
     initial_log_std: float
+    structure: PolicyStructure = "plain"
 
     @property
     def name(self) -> str:
-        return (
+        base = (
             f"lr{self.learning_rate:g}/ep{self.n_epochs}/h{self.hidden_size}"
             f"/std{self.initial_log_std:g}"
         )
+        return base if self.structure == "plain" else f"{base}/{self.structure}"
 
 
 DEFAULT = Recipe(0.01, 400, 16, 0.0)
@@ -103,6 +128,16 @@ DEFAULT = Recipe(0.01, 400, 16, 0.0)
 
 ROUND1_WINNER = Recipe(0.003, 2000, 16, 0.0)
 ROUND2_VALIDATION_SEEDS = tuple(range(4000, 4016))
+ROUND3_SELECTION_SEEDS = tuple(range(5000, 5008))
+ROUND3_VALIDATION_SEEDS = tuple(range(6000, 6016))
+
+
+def round3_grid() -> list[Recipe]:
+    """Twelve `delta_rebalance` recipes, 16 hidden units."""
+    return [
+        Recipe(lr, ep, 16, std, "delta_rebalance")
+        for lr, ep, std in itertools.product((0.003, 0.01, 0.03), (400, 1000), (0.0, -1.0))
+    ]
 
 
 def round2_grid() -> list[Recipe]:
@@ -196,6 +231,8 @@ def evaluate_recipe(
         reward_objective=config.reward_objective,
         hidden_size=recipe.hidden_size,
         initial_log_std=recipe.initial_log_std,
+        structure=recipe.structure,
+        delta_ratios=delta,
     )
     held_out = evaluation_paths(config, n_eval_paths)
     static = tail_cvar(static_hedge_loss(config, held_out), config.cvar_alpha)
@@ -340,13 +377,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument("--workers", type=int, default=min(16, os.cpu_count() or 1))
-    parser.add_argument("--round", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--round", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     if args.workers < 1:
         parser.error("--workers must be a positive integer")
     if args.round == 1:
         report = run_study(workers=args.workers)
+    elif args.round == 3:
+        report = run_study(
+            selection_seeds=ROUND3_SELECTION_SEEDS,
+            validation_seeds=ROUND3_VALIDATION_SEEDS,
+            grid=round3_grid(),
+            workers=args.workers,
+            prior_winner=ROUND1_WINNER,
+        )
     else:
         report = run_study(
             validation_seeds=ROUND2_VALIDATION_SEEDS,

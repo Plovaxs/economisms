@@ -44,3 +44,31 @@ def test_no_source_file_refers_to_the_locked_data_directory() -> None:
         if "confirmatory_data" in path.read_text(encoding="utf-8")
     ]
     assert offenders == []
+
+
+SP500 = ROOT / "confirmatory_data" / "sp500_gspc_kaggle_2026-11-26.csv"
+SP500_META = SP500.with_suffix(".meta.json")
+
+
+def test_the_locked_sp500_file_matches_its_sidecar_and_the_digest_is_recorded_everywhere() -> None:
+    meta = json.loads(SP500_META.read_text(encoding="utf-8"))
+    assert hashlib.sha256(SP500.read_bytes()).hexdigest() == meta["csv_sha256"]
+    protocol = (ROOT / "docs" / "CONFIRMATORY_PROTOCOL.md").read_text(encoding="utf-8")
+    readme = (ROOT / "confirmatory_data" / "README.md").read_text(encoding="utf-8")
+    assert meta["csv_sha256"] in protocol and meta["csv_sha256"] in readme
+
+
+def test_the_locked_sp500_file_starts_the_day_after_the_snapshot_and_is_in_order() -> None:
+    """Only the date column is read; no closing value is converted to a number."""
+    meta = json.loads(SP500_META.read_text(encoding="utf-8"))
+    rows = [line.split(",") for line in SP500.read_text(encoding="utf-8").splitlines()]
+    assert rows[0] == ["date", "close"]
+    dates = [row[0] for row in rows[1:]]
+    assert (dates[0], dates[-1], len(dates)) == (
+        meta["first_date"],
+        meta["last_date"],
+        meta["n_rows"],
+    )
+    assert dates[0] > "2023-05-03"  # the committed series ends 2023-05-03: no overlap
+    assert dates == sorted(set(dates))
+    assert all(row[1] != "" for row in rows[1:])

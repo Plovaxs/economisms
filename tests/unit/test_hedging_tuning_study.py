@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from prometheus.confirmatory.e1_hedging import evaluate_seed
+from prometheus.confirmatory.e1_hedging import LEGACY_KWARGS, evaluate_seed
 from prometheus.hedging.rl_agent import HedgeRLPolicyNet
 from prometheus.orchestration import hedging_tuning_study as study
 
@@ -65,7 +65,7 @@ def test_the_default_recipe_reproduces_the_e1_endpoint_exactly() -> None:
     """The study's training and scoring are E1's: same ratio, to the last digit, on a short run."""
     short = study.Recipe(0.01, 6, 16, 0.0)
     theta = study.evaluate_recipe(1000, short, n_eval_paths=500)
-    e1 = evaluate_seed(1000, n_epochs=6, learning_rate=0.01, n_eval_paths=500)
+    e1 = evaluate_seed(1000, **{**LEGACY_KWARGS, "n_epochs": 6}, n_eval_paths=500)
     assert theta == pytest.approx(-math.log(e1.ratio), rel=1e-12, abs=1e-12)
 
 
@@ -140,3 +140,43 @@ def test_round_two_extends_the_grid_toward_smaller_steps_and_longer_training() -
     new = set(study.ROUND2_VALIDATION_SEEDS)
     assert not new & set(study.VALIDATION_SEEDS) and not new & set(study.SELECTION_SEEDS)
     study.refuse_reserved(list(new))
+
+
+def test_round_three_is_twelve_structured_recipes_on_seeds_no_earlier_round_used() -> None:
+    grid = study.round3_grid()
+    assert len(grid) == len(set(grid)) == 12
+    assert {r.structure for r in grid} == {"delta_rebalance"}
+    assert all(r.name.endswith("/delta_rebalance") for r in grid)
+    new = {*study.ROUND3_SELECTION_SEEDS, *study.ROUND3_VALIDATION_SEEDS}
+    older = {*study.SELECTION_SEEDS, *study.VALIDATION_SEEDS, *study.ROUND2_VALIDATION_SEEDS}
+    assert not new & older
+    assert not set(study.ROUND3_SELECTION_SEEDS) & set(study.ROUND3_VALIDATION_SEEDS)
+    study.refuse_reserved(sorted(new))
+
+
+def test_a_plain_recipe_keeps_the_name_the_committed_reports_use() -> None:
+    assert study.Recipe(0.003, 2000, 16, 0.0).name == "lr0.003/ep2000/h16/std0"
+
+
+COMMITTED_ROUND3 = (
+    Path(__file__).resolve().parents[2] / "docs" / "numerics" / "hedging_tuning_round3.json"
+)
+
+
+@pytest.mark.skipif(not COMMITTED_ROUND3.exists(), reason="committed round 3 output is absent")
+def test_the_committed_round_three_report_is_consistent_with_its_own_rule() -> None:
+    report = json.loads(COMMITTED_ROUND3.read_text())
+    ranked = [g["mean_theta"] for g in report["grid"]]
+    assert len(ranked) == 12 and ranked == sorted(ranked, reverse=True)
+    assert report["grid"][0]["recipe"] == report["config"]["selected_name"]
+    assert report["config"]["selection_seeds"] == list(study.ROUND3_SELECTION_SEEDS)
+    assert report["config"]["validation_seeds"] == list(study.ROUND3_VALIDATION_SEEDS)
+    for key in ("selected_theta_interval", "paired_difference_interval"):
+        interval = report["validation"][key]
+        assert interval["low"] <= interval["estimate"] <= interval["high"]
+    verdicts = {name: row["verdict"] for name, row in report["hypotheses"].items()}
+    assert set(verdicts) == {
+        "H-A_selected_beats_default",
+        "H-B_selected_beats_static_baseline",
+        "H-C_selected_beats_round1_winner",
+    }

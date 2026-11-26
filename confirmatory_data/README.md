@@ -8,9 +8,10 @@ differ).
 | File | What | Digest (SHA-256 of the CSV) |
 | --- | --- | --- |
 | `cpi_sa_bls_2026-11-24.csv` | CPI-U all items, seasonally adjusted, BLS series `CUSR0000SA0`, 2022-01 to 2026-10, no value published for 2025-10 | `236a14d4b6ac86d721feb9533e324ab2a411ec8dfcee0edbf15da4de13874951` |
+| `sp500_gspc_kaggle_2026-11-26.csv` | S&P 500 (`^GSPC`) daily closes, 893 trading days from 2023-05-04 to 2026-11-23 (Kaggle `paveljurke/s-and-p-500-gspc-historical-data`, a Yahoo Finance history, downloaded 2026-11-26) | `4e127f47df90401079e58a5cd926c031654f8720cc119c3e9055ecd5a0c33107` |
 
 **No code in this repository has parsed the values** (`tests/unit/test_confirmatory_lock.py` checks the digest,
-the month labels and that nothing in `src/` refers to this directory). The protocol's freeze guard stops the
+the month or date labels and that nothing in `src/` refers to this directory). The protocol's freeze guard stops the
 analysis commands from reading it before the freeze. See `docs/confirmatory/DATA_USE_AUDIT.md` for why the
 window it covers is partly *re-used* data, and for the three values the assistant saw by accident.
 

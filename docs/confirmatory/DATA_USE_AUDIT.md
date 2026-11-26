@@ -52,15 +52,19 @@ choice, and they fall inside the window that is now labelled re-used, but they w
 | `data_cache/kaggle_term_spread_monthly.csv` | 2024-05 | monthly |
 | `data_cache/treasury_yield_spread_monthly.csv` | 2023-12 | monthly |
 
-No **daily** return after 2023-05-03 is in the repository, and the daily exceedance counts E3 scores cannot
-be derived from monthly factor returns, so **the daily data is untouched**. The monthly market factor, though,
-shows the broad path of the market through 2026-09, so the volatility regime of the window is not unknown to
-the code's authors. That is a named weakness, not a defence.
+A daily S&P 500 file after 2023-05-03 is now in the repository, locked and unread:
+`confirmatory_data/sp500_gspc_kaggle_2026-11-26.csv` (digest in the protocol). The slicing script that wrote it read the
+closing values to copy them; nothing printed them, and `tests/unit/test_confirmatory_lock.py` reads only its dates.
+The daily exceedance counts E3 scores cannot be derived from monthly factor returns, so **the daily data is
+untouched**. The monthly market factor, though, shows the broad path of the market through 2026-09, so the volatility
+regime of the window is not unknown to the code's authors. That is a named weakness, not a defence.
 
-**No source for the new daily closes is chosen.** From the environment where the code was written, Yahoo
-Finance answers 401, FRED is unreachable and Stooq serves a JavaScript challenge; Kaggle needs a token that
-the maintainer must supply. The maintainer chooses a source, downloads the file and records its SHA-256 in
-the protocol; the analysis code verifies it.
+**Where the new daily closes came from.** From the environment where the code was written, Yahoo Finance answers
+401, FRED is unreachable and Stooq serves a JavaScript challenge, so the file was taken from Kaggle with a token the
+maintainer pasted in the chat for that purpose (never written to disk). The assistant searched Kaggle by last update,
+chose `paveljurke/s-and-p-500-gspc-historical-data` from its page metadata and file list, and recorded the SHA-256 in
+the protocol; the analysis code verifies it. The maintainer did not name the dataset and may replace it before the
+anchor.
 
 ## What each frozen model has already read
 

@@ -16,6 +16,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Hedging policy given the option's delta (Finding 22).** At the maintainer's request, a new policy structure
+  (`delta_rebalance`: it sees the Black-Scholes delta and chooses the fraction of the gap to close) was selected on
+  seeds 5000-5007 and validated on 6000-6015. It beat the static baseline in all 16 validation seeds, by about 1.1% of
+  CVaR (the plain tuned policy was 2.3% above), which the protocol's 5% margin calls "equivalent". E1 now freezes this
+  recipe and says in the protocol that it tests a smaller claim than before; the legacy and plain recipes stay for
+  Findings 8 and 21. The freeze record is still empty.
 - **Deep hedging and neural SDE recipes tuned before the freeze (Finding 21).** With the maintainer's permission. The
   hedging policy (36 recipes, then a corner-of-grid round, validated on 32 fresh seeds) went from a held-out CVaR about
   8% above the static baseline's to about 2-4% above: better than before, still not better than the baseline, so E1

@@ -252,3 +252,63 @@ def test_real_comparison_against_the_static_baseline_on_the_same_paths() -> None
     assert np.isfinite(rl_cvar)
     # Real, measured, honestly-reported comparison -- not asserted to win.
     assert rl_cvar > baseline_cvar
+
+
+def _structured_inputs() -> tuple[np.ndarray, np.ndarray]:
+    from prometheus.hedging.baseline import black_scholes_delta_hedge_ratios
+
+    paths = np.array(simulate_gbm_paths(100.0, 0.05, 0.2, 1.0, 10, 200, np.random.default_rng(0)))
+    delta = black_scholes_delta_hedge_ratios(paths, 0.1, 100.0, 1.0, 0.03, 0.2, "call")
+    return paths, delta
+
+
+def test_the_delta_rebalance_structure_needs_the_delta_and_the_plain_one_ignores_it() -> None:
+    from prometheus.hedging.rl_agent import HedgeRLPolicyNet, hedge_ratios_from_policy
+
+    paths, delta = _structured_inputs()
+    structured = HedgeRLPolicyNet(structure="delta_rebalance")
+    assert structured.encoder[0].in_features == 5
+    with pytest.raises(ValueError, match="delta"):
+        hedge_ratios_from_policy(structured, paths)
+    plain = HedgeRLPolicyNet()
+    assert plain.encoder[0].in_features == 3
+    np.testing.assert_array_equal(
+        hedge_ratios_from_policy(plain, paths), hedge_ratios_from_policy(plain, paths, delta)
+    )
+    with pytest.raises(ValueError, match="structure"):
+        HedgeRLPolicyNet(structure="nonsense")  # type: ignore[arg-type]
+
+
+def test_a_delta_rebalance_ratio_stays_between_the_holding_and_the_delta() -> None:
+    from prometheus.hedging.rl_agent import HedgeRLPolicyNet, hedge_ratios_from_policy
+
+    paths, delta = _structured_inputs()
+    ratios = hedge_ratios_from_policy(HedgeRLPolicyNet(structure="delta_rebalance"), paths, delta)
+    assert ratios.shape == delta.shape
+    assert np.all(ratios >= 0.0) and np.all(ratios <= 1.0)
+    held = np.concatenate([np.zeros((ratios.shape[0], 1)), ratios[:, :-1]], axis=1)
+    low, high = np.minimum(held, delta), np.maximum(held, delta)
+    assert np.all(ratios >= low - 1e-6) and np.all(ratios <= high + 1e-6)
+
+
+def test_the_delta_rebalance_policy_trains_and_is_deterministic() -> None:
+    paths, delta = _structured_inputs()
+    kwargs = dict(
+        dt=0.1,
+        strike=100.0,
+        option_type="call",
+        risk_free_rate=0.03,
+        cost_rate=0.001,
+        initial_premium=5.0,
+        static_baseline_cvar=1.0,
+        seed=3,
+        n_epochs=3,
+        structure="delta_rebalance",
+        delta_ratios=delta,
+    )
+    first = train_reinforce_hedge_policy(paths, **kwargs)  # type: ignore[arg-type]
+    again = train_reinforce_hedge_policy(paths, **kwargs)  # type: ignore[arg-type]
+    assert first.final_cvar == again.final_cvar
+    assert first.policy.structure == "delta_rebalance"
+    with pytest.raises(ValueError, match="delta"):
+        train_reinforce_hedge_policy(paths, **{**kwargs, "delta_ratios": None})  # type: ignore[arg-type]

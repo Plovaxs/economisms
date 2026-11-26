@@ -49,11 +49,19 @@ Every claim made from this protocol carries exactly one label.
 
 - **Question.** Does the REINFORCE hedging policy beat the delta / no-trade-band baseline on conditional value at
   risk (95%) of terminal hedging loss, on the same paths?
-- **Frozen.** The `rl_hedge` runner at the freeze commit with the **tuned recipe** (learning rate 0.003, 2,000
-  epochs; every other field at the runner's default), one training run per seed on that seed's 2,000 simulated paths;
-  its recipe hash goes in the freeze record. The runner's own defaults (0.01, 400 epochs) are the *legacy* recipe
-  behind Finding 8, kept so that finding stays reproducible. The tuned recipe was chosen on seeds 1000-1007, 3000-3015
-  and 4000-4015 (never a reserved seed), see Finding 21 and `docs/numerics/hedging_tuning*.json`.
+- **Frozen.** The **`delta_rebalance` policy** at the freeze commit (`e1_hedging.FROZEN_*`: learning rate 0.003, 400
+  epochs, 16 units, initial exploration log-std -1; every other field at the `rl_hedge` runner's default), one training
+  run per seed on that seed's 2,000 simulated paths; its recipe hash goes in the freeze record. Unlike the plain
+  policy, it is given the Black-Scholes delta (computed from the true volatility, exactly as the baseline's is) and
+  the gap to it, and chooses only the *fraction* of that gap to close, so its hedge ratio stays in [0, 1] by
+  construction. It was chosen on seeds 5000-5007 and judged on seeds 6000-6015 (never a reserved seed), see Finding 22
+  and `docs/numerics/hedging_tuning_round3.json`. Two older recipes stay in the code so earlier findings stay
+  reproducible: the runner's defaults (0.01, 400 epochs, plain policy; Finding 8) and the plain policy's tuned recipe
+  (0.003, 2,000 epochs; Finding 21), which was the frozen recipe in an earlier draft of this file.
+- **What E1 now asks.** Not "does a policy rediscover hedging" but "does a policy that is *given* the delta learn when
+  to trade it better than a fixed no-trade band". That is a smaller claim: the baseline's rule lives inside the
+  policy's family (`g = 0` or `g = 1`), so the policy cannot do much worse than it, and a result near zero is the
+  expected one. Disclosed here so a reader does not mistake the structure's help for the learner's discovery.
 - **Seeds.** 50 fresh seeds, `10000`-`10049`, none used by any earlier run in this repository. The analysis code
   refuses to run them until the freeze record below is complete.
 - **Statistic.** Scored on **held-out** paths, which Finding 8 did not do: 20,000 fresh paths per seed from a generator
@@ -70,12 +78,15 @@ Every claim made from this protocol carries exactly one label.
   behave like the old ones.
 - **Context (exploratory).** The held-out ratios on the eight old seeds were seen while the code was written, after
   `δ` was proposed; they are in "The analysis code" below and are not evidence for this endpoint.
-- **What tuning did to the planning numbers (exploratory).** With the tuned recipe, 32 exploratory seeds gave a mean
-  `θ` of -0.030 (the policy's CVaR about 3% above the baseline's) and a spread of 0.021, against -0.077 and 0.051 for
-  the legacy recipe. If the 50 new seeds behave like those, the interval will sit inside the margin (`±ln 1.05`) and E1
-  will report **"equivalent"**, not "better": the policy comes within 5% of the baseline, it does not beat it. The
-  legacy recipe would most likely have reported "worse". That change in the likely label comes from tuning, and the
-  margin `δ` was proposed before it; both are disclosed here so a reader can discount the word "equivalent".
+- **What tuning and the new structure did to the planning numbers (exploratory).** With the plain policy's tuned
+  recipe, 32 exploratory seeds gave a mean `θ` of -0.030 and a spread of 0.021 (legacy: -0.077 and 0.051). With the
+  frozen `delta_rebalance` recipe, 16 validation seeds gave a mean `θ` of **+0.0109** (the policy's CVaR 1.1% *below*
+  the baseline's; all 16 seeds above zero) and a spread of **0.0033**. If the 50 new seeds behave like those, the
+  interval will lie above zero *and* inside the margin (`±ln 1.05` = ±0.0488), and rule 5 checks "equivalent" first:
+  **E1 will report "equivalent", not "better"**, with the interval printed beside it showing that it excludes zero.
+  The margin was fixed before any of this and is not changed; it means a CVaR improvement of about 1% is, by this
+  protocol, "no difference that matters". A reader may reasonably call that too strict or too lenient; it is
+  disclosed so the word can be discounted either way.
 
 ### E2. Inflation nowcast: base-effect rule against persistence (Finding 18). Label: re-used (2023-04 to 2026-10); prospective after
 
@@ -117,11 +128,15 @@ Every claim made from this protocol carries exactly one label.
   exactly as in Finding 15; the filter conditions on returns up to the previous day. The code reproduces the study's
   own forecaster and a test compares the two number for number, so nothing is refitted on the scored days.
 - **Data.** Daily S&P 500 closes **after** the last day in the committed snapshot
-  (`data_cache/kaggle_sp500_spliced_daily_close.csv`, last day 2023-05-03): the first untouched day is 2023-05-04. A
-  new `date,close` CSV is hashed against a SHA-256 stated in advance and may not overlap the committed series.
-  **No source is chosen**: Yahoo, FRED and Stooq are not reachable from the environment that wrote the code and
-  Kaggle needs the maintainer's token, so the maintainer downloads the file and records its checksum. No daily
-  return after 2023-05-03 is in the repository (monthly factor returns to 2026-09 are, see the audit).
+  (`data_cache/kaggle_sp500_spliced_daily_close.csv`, last day 2023-05-03): the first untouched day is 2023-05-04. The
+  file is locked in `confirmatory_data/sp500_gspc_kaggle_2026-11-26.csv`: 893 trading days, 2023-05-04 to 2026-11-23,
+  columns `date,close`, SHA-256 `4e127f47df90401079e58a5cd926c031654f8720cc119c3e9055ecd5a0c33107`. Source: Kaggle `paveljurke/s-and-p-500-gspc-historical-data`
+  (a Yahoo Finance `^GSPC` history, CC0), downloaded 2026-11-26; the sidecar `.meta.json` records the raw file's
+  digest and the checks run before locking. The dataset was found by a Kaggle search and chosen by the assistant from
+  its page metadata and file list, at the maintainer's instruction to take the data from Kaggle; the maintainer did not
+  name it. The dataset is updated daily, so the analysis scores exactly these rows and no later ones. No closing value
+  after 2023-05-03 was printed or read by a person or by code other than the slicing script (monthly factor returns to
+  2026-09 are in the repository, see the audit).
 - **Primary claim (99% VaR).** "Consistent with coverage" only if the exact binomial interval for the exceedance rate
   contains 1% *and* the conditional-coverage test does not reject at the Bonferroni level `0.05/3`. With about 9
   expected exceedances over roughly 900 days, failing to reject is weak evidence, and the report prints the interval
@@ -228,12 +243,12 @@ A test also caught a real defect while this was written: a month written as `202
 | Power note per endpoint (an endpoint with power below 0.8 is declared estimation-only up front) | **done**: E1 adequate; E2 and E3 estimation-only (`confirmatory/power_note.json`) |
 | Data-use audit: which windows each frozen model has already read | **done by the assistant** (`confirmatory/DATA_USE_AUDIT.md`); it changed E2's label; the maintainer accepted it on 25 November 2026 without an independent check |
 | Source and SHA-256 of the post-snapshot CPI data | **done**: BLS `CUSR0000SA0`, locked in `confirmatory_data/`, digest above (a one-month gap, 2025-10) |
-| Source and SHA-256 of the post-snapshot S&P 500 data | **not chosen**: only the maintainer can (Kaggle token or another download) |
-| Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **open**; if the maintainer does not choose, the code's default (all three, Bonferroni `0.05/3`) applies and is recorded in the freeze record |
-| Maintainer decides which training recipes E1 and E4 freeze: the tuned ones now in the code (`e1_hedging.FROZEN_*`, `e4_shocks.FROZEN_RECIPE`) or the legacy ones. For E4 the tuned recipe made the shock result worse (see E4), which is reported as a finding, not a reason to change recipe; switching back would be one line | **decided, not yet frozen:** the maintainer delegated the choice and the tuned recipes were kept for both, on the rule that a recipe is not chosen by how it scores on the shock windows (which had already been seen once, estimation only). The freeze record itself is still empty |
+| Source and SHA-256 of the post-snapshot S&P 500 data | **done**: Kaggle `paveljurke/s-and-p-500-gspc-historical-data`, locked in `confirmatory_data/`, digest above (`4e127f47df90401079e58a5cd926c031654f8720cc119c3e9055ecd5a0c33107`); source chosen by the assistant on the maintainer's instruction to use Kaggle, which the maintainer can replace before the anchor |
+| Decide the family: with E2 and E3 estimation-only, keep all three in the Bonferroni family (the code's default, conservative) or give only E1 a verdict and 95% intervals | **decided by default**: the maintainer did not choose, so the code's default (all three, Bonferroni `0.05/3`) applies and is recorded in the freeze record |
+| Maintainer decides which training recipes E1 and E4 freeze | **decided, not yet frozen:** E4 keeps the tuned recipe (the maintainer delegated the choice; a recipe is not chosen by how it scores on the shock windows, which had been seen once, estimation only). E1 now freezes the `delta_rebalance` policy (PR-220, Finding 22), which the maintainer asked for ("a model with a new structure, then freeze"). The freeze record itself is still empty |
 | Maintainer confirms every margin `δ`, block length, seed, sample size and date above | **confirmed on 25 November 2026**, accepting the proposals as written (the maintainer did not change any, and did not independently re-derive them); changing one after the freeze is a deviation |
 | E4 event list and audit, or E4 dropped | **designed and approved 25 Nov 2026** (code, tests, exploratory dry run on seeds 0-9); the frozen run on seeds 20000-20009 waits for the freeze |
-| A collector that records each new CPI and price on release day, for the prospective extension | not built |
+| A collector that records each new CPI and price on release day, for the prospective extension | not built; needed only for the extensions, which start after the freeze, not for the first analyses |
 
 ## Disclosures made before the freeze
 
@@ -242,6 +257,10 @@ A test also caught a real defect while this was written: a month written as `202
   The E4 event windows were scored afterwards, once per recipe, as an estimation-only report and selected nothing. No
   reserved seed (10000-10049, 20000-20009) and no data after 2023-05-03 was read. The recipe hash recorded at the
   freeze will be the tuned one, and the old power numbers for E1 (spread 0.051) describe the legacy recipe.
+- After that, with the maintainer's request, E1's policy was given a new **structure** (PR-220, Finding 22): it sees
+  the Black-Scholes delta and chooses the fraction of the gap to close. Selected on seeds 5000-5007 and judged on
+  6000-6015; no reserved seed and no data after 2023-05-03 was read. This changes what E1 tests (see E1), and the
+  planning numbers above (spread 0.0033, mean `θ` +0.0109) describe it, not the plain policy.
 
 - The assistant saw three seasonally adjusted CPI values (2026-08, 2026-09, 2026-10) when it printed the start of
   a BLS response to check that the API was reachable. They are inside the window labelled re-used.

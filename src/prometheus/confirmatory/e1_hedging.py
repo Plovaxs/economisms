@@ -1,10 +1,11 @@
 """E1: does the REINFORCE hedging policy beat the static delta / no-trade-band baseline? (H5)
 
-The frozen pipeline is `orchestration.rl_hedge_run.run_rl_hedge` with the TUNED recipe below
-(`FROZEN_LEARNING_RATE`, `FROZEN_N_EPOCHS`) and every other field at its default: one training run
-per seed on that seed's 2,000 simulated GBM paths. The recipe was chosen on exploratory seeds
-(`orchestration.hedging_tuning_study`, PR-218); the runner's own defaults (0.01, 400 epochs) are the
-LEGACY recipe, kept so Finding 8 stays reproducible. The statistic is new,
+The frozen pipeline (PR-220) trains the `delta_rebalance` policy (`FROZEN_*` below): the policy
+sees the Black-Scholes delta and the gap to it and chooses the fraction of that gap to close, one
+training run per seed on that seed's 2,000 simulated GBM paths. The recipe was chosen on exploratory
+seeds (`orchestration.hedging_tuning_study --round 3`). Two older recipes stay reproducible: the
+runner's own defaults (0.01, 400 epochs, plain policy; `LEGACY_KWARGS`, Finding 8) and the plain
+policy's tuned recipe (0.003, 2,000 epochs; Finding 21). The statistic is new,
 and it differs from Finding 8's on purpose:
 
 - Finding 8 compares the trained policy's CVaR with the baseline's on the SAME paths the policy was
@@ -32,18 +33,38 @@ from typing import Any
 import numpy as np
 
 from prometheus.confirmatory.intervals import classify_effect, t_interval
+from prometheus.experiments.manifest import compute_result_hash
 from prometheus.hedging.baseline import apply_no_trade_band, black_scholes_delta_hedge_ratios
-from prometheus.hedging.rl_agent import HedgeRLPolicyNet, hedge_ratios_from_policy
+from prometheus.hedging.rl_agent import (
+    HedgeRLPolicyNet,
+    PolicyStructure,
+    TrainedReinforceHedge,
+    hedge_ratios_from_policy,
+    train_reinforce_hedge_policy,
+)
 from prometheus.hedging.simulate import simulate_self_financing_hedge
 from prometheus.orchestration.rl_hedge_run import RlHedgeRunConfig, run_rl_hedge
 from prometheus.stochastica.gbm import simulate_gbm_paths
 
 MARGIN = math.log(1.05)
+FROZEN_STRUCTURE: PolicyStructure = "delta_rebalance"
 FROZEN_LEARNING_RATE = 0.003
-FROZEN_N_EPOCHS = 2000
+FROZEN_N_EPOCHS = 400
+FROZEN_HIDDEN_SIZE = 16
+FROZEN_INITIAL_LOG_STD = -1.0
+"""The recipe E1 freezes (PR-220): the `delta_rebalance` policy (it sees the Black-Scholes delta
+and chooses the fraction of the gap to close), selected by `orchestration.hedging_tuning_study
+--round 3` on selection seeds 5000-5007 and judged on validation seeds 6000-6015."""
 LEGACY_LEARNING_RATE = 0.01
 LEGACY_N_EPOCHS = 400
 """The runner's default learning rate, which produced Finding 8 (with 400 or 800 epochs)."""
+LEGACY_KWARGS: dict[str, Any] = {
+    "learning_rate": LEGACY_LEARNING_RATE,
+    "n_epochs": LEGACY_N_EPOCHS,
+    "structure": "plain",
+    "initial_log_std": 0.0,
+}
+"""`evaluate_seed(seed, **LEGACY_KWARGS)` is Finding 8's recipe: a plain policy, runner defaults."""
 N_EVAL_PATHS = 20_000
 EVAL_STREAM = 1
 """Second element of the evaluation generator's seed `[seed, EVAL_STREAM]`: training uses
@@ -122,7 +143,20 @@ def policy_hedge_loss(
 ) -> np.ndarray:
     """Terminal loss of a trained policy acting deterministically (its mean action)."""
     dt = config.maturity / config.n_steps
-    ratios = hedge_ratios_from_policy(policy, paths)
+    delta = (
+        black_scholes_delta_hedge_ratios(
+            paths,
+            dt,
+            config.strike,
+            config.maturity,
+            config.risk_free_rate,
+            config.sigma,
+            config.option_type,
+        )
+        if policy.structure == "delta_rebalance"
+        else None
+    )
+    ratios = hedge_ratios_from_policy(policy, paths, delta)
     simulated = simulate_self_financing_hedge(
         paths,
         dt,
@@ -136,16 +170,86 @@ def policy_hedge_loss(
     return np.asarray(simulated.terminal_loss, dtype=np.float64)
 
 
+def train_policy(
+    config: RlHedgeRunConfig,
+    *,
+    hidden_size: int,
+    initial_log_std: float,
+    structure: PolicyStructure,
+) -> tuple[TrainedReinforceHedge, float]:
+    """Train one policy on the seed's own training paths exactly as `run_rl_hedge` does, but with a
+    chosen network width, initial exploration and structure. Returns it and the baseline's CVaR on
+    those training paths."""
+    paths = simulate_paths(config, config.n_paths, np.random.default_rng(config.seed))
+    dt = config.maturity / config.n_steps
+    baseline = tail_cvar(static_hedge_loss(config, paths), config.cvar_alpha)
+    delta = black_scholes_delta_hedge_ratios(
+        paths,
+        dt,
+        config.strike,
+        config.maturity,
+        config.risk_free_rate,
+        config.sigma,
+        config.option_type,
+    )
+    trained = train_reinforce_hedge_policy(
+        paths,
+        dt,
+        config.strike,
+        config.option_type,
+        config.risk_free_rate,
+        config.cost_rate,
+        config.initial_premium,
+        static_baseline_cvar=baseline,
+        seed=config.seed,
+        n_epochs=config.n_epochs,
+        cvar_alpha=config.cvar_alpha,
+        learning_rate=config.learning_rate,
+        reward_objective=config.reward_objective,
+        hidden_size=hidden_size,
+        initial_log_std=initial_log_std,
+        structure=structure,
+        delta_ratios=delta,
+    )
+    return trained, baseline
+
+
+def frozen_recipe() -> dict[str, Any]:
+    """The complete frozen recipe as one dictionary: the `rl_hedge` runner's configuration with the
+    frozen fields, plus the three policy fields the runner does not carry. Its canonical-JSON
+    SHA-256 (`frozen_recipe_hash`) is what the protocol's freeze record names."""
+    config = replace(
+        RlHedgeRunConfig(seed=0),
+        n_epochs=FROZEN_N_EPOCHS,
+        learning_rate=FROZEN_LEARNING_RATE,
+    )
+    recipe = asdict(config)
+    del recipe["seed"]  # one run per seed: the seed is not part of the recipe
+    recipe.update(
+        policy_structure=FROZEN_STRUCTURE,
+        hidden_size=FROZEN_HIDDEN_SIZE,
+        initial_log_std=FROZEN_INITIAL_LOG_STD,
+    )
+    return recipe
+
+
+def frozen_recipe_hash() -> str:
+    return compute_result_hash(frozen_recipe())
+
+
 def evaluate_seed(
     seed: int,
     *,
     n_epochs: int | None = None,
     learning_rate: float | None = None,
+    structure: PolicyStructure | None = None,
+    initial_log_std: float | None = None,
     n_paths: int | None = None,
     n_eval_paths: int = N_EVAL_PATHS,
 ) -> SeedResult:
-    """Train once with the frozen (tuned) recipe, overridable only to reproduce Finding 8 (legacy
-    learning rate, 400 or 800 epochs) and for fast tests, and score on held-out paths."""
+    """Train once with the frozen recipe, overridable only to reproduce Finding 8
+    (`**LEGACY_KWARGS`, optionally with 800 epochs) and for fast tests, and score on held-out
+    paths."""
     config = replace(
         RlHedgeRunConfig(seed=seed),
         n_epochs=FROZEN_N_EPOCHS if n_epochs is None else n_epochs,
@@ -153,17 +257,29 @@ def evaluate_seed(
     )
     if n_paths is not None:
         config = replace(config, n_paths=n_paths)
-    run = run_rl_hedge(config)
+    structure = FROZEN_STRUCTURE if structure is None else structure
+    initial_log_std = FROZEN_INITIAL_LOG_STD if initial_log_std is None else initial_log_std
+    if structure == "plain" and initial_log_std == 0.0:
+        # The runner's own chain, so Finding 8 stays reproducible through the original code path.
+        run = run_rl_hedge(config)
+        trained, baseline = run.trained, run.static_baseline_cvar
+    else:
+        trained, baseline = train_policy(
+            config,
+            hidden_size=FROZEN_HIDDEN_SIZE,
+            initial_log_std=initial_log_std,
+            structure=structure,
+        )
     paths = evaluation_paths(config, n_eval_paths)
     static = tail_cvar(static_hedge_loss(config, paths), config.cvar_alpha)
-    policy = tail_cvar(policy_hedge_loss(config, run.trained.policy, paths), config.cvar_alpha)
+    policy = tail_cvar(policy_hedge_loss(config, trained.policy, paths), config.cvar_alpha)
     return SeedResult(
         seed=seed,
         n_epochs=config.n_epochs,
         static_cvar=static,
         policy_cvar=policy,
         ratio=policy / static,
-        in_sample_ratio=run.trained.final_cvar / run.static_baseline_cvar,
+        in_sample_ratio=trained.final_cvar / baseline,
     )
 
 

@@ -78,6 +78,14 @@ from prometheus.hedging.simulate import simulate_self_financing_hedge
 from prometheus.volterra.instruments import OptionType
 
 RewardObjective = Literal["mean_loss", "cvar"]
+PolicyStructure = Literal["plain", "delta_rebalance"]
+"""`plain`: the policy sees (time, spot, holdings) and outputs the hedge ratio itself, so it must
+rediscover the option's delta. `delta_rebalance` (PR-220): the policy also sees the Black-Scholes
+delta and the gap to it, and outputs only the FRACTION `g` of that gap to close,
+`ratio = holdings + g * (delta - holdings)` with `g = sigmoid(raw)`. Doing nothing (`g = 0`) and a
+full rebalance to the delta (`g = 1`) are both inside the family, which is also where the static
+no-trade-band baseline lives, and the ratio stays in [0, 1] by construction (a convex combination
+of two numbers in [0, 1])."""
 
 
 class StaticBaselineNotPassedError(ValueError):
@@ -102,9 +110,18 @@ class HedgeRLPolicyNet(nn.Module):
     policy never collapses to a literal Dirac delta (which would make
     its own log-prob gradient undefined)."""
 
-    def __init__(self, hidden_size: int = 16, initial_log_std: float = 0.0) -> None:
+    def __init__(
+        self,
+        hidden_size: int = 16,
+        initial_log_std: float = 0.0,
+        structure: PolicyStructure = "plain",
+    ) -> None:
         super().__init__()
-        self.encoder = nn.Sequential(nn.Linear(3, hidden_size), nn.Tanh())
+        if structure not in ("plain", "delta_rebalance"):
+            raise ValueError("structure must be 'plain' or 'delta_rebalance'")
+        self.structure: PolicyStructure = structure
+        n_inputs = 3 if structure == "plain" else 5
+        self.encoder = nn.Sequential(nn.Linear(n_inputs, hidden_size), nn.Tanh())
         self.mu_head = nn.Linear(hidden_size, 1)
         self.log_std = nn.Parameter(torch.full((1,), float(initial_log_std)))
 
@@ -129,11 +146,39 @@ def _n_parameters(net: nn.Module) -> int:
 
 
 def _observations(
-    price_paths: torch.Tensor, holdings: torch.Tensor, step: int, n_steps: int
+    price_paths: torch.Tensor,
+    holdings: torch.Tensor,
+    step: int,
+    n_steps: int,
+    delta: torch.Tensor | None = None,
 ) -> torch.Tensor:
     time_to_maturity_scaled = torch.full_like(price_paths[:, step], (n_steps - step) / n_steps)
     spot_scaled = price_paths[:, step] / price_paths[:, 0]
-    return torch.stack([time_to_maturity_scaled, spot_scaled, holdings], dim=-1)
+    features = [time_to_maturity_scaled, spot_scaled, holdings]
+    if delta is not None:
+        features += [delta, delta - holdings]
+    return torch.stack(features, dim=-1)
+
+
+def _ratio(
+    raw_action: torch.Tensor, holdings: torch.Tensor, delta: torch.Tensor | None
+) -> torch.Tensor:
+    """The hedge ratio an action means: the sigmoid of it (plain), or the fraction of the gap to
+    the Black-Scholes delta to close (delta_rebalance)."""
+    fraction_or_ratio = torch.sigmoid(raw_action)
+    if delta is None:
+        return fraction_or_ratio
+    return holdings + fraction_or_ratio * (delta - holdings)
+
+
+def _delta_tensor(
+    delta_ratios: np.ndarray | None, structure: PolicyStructure
+) -> torch.Tensor | None:
+    if structure == "plain":
+        return None
+    if delta_ratios is None:
+        raise ValueError("the delta_rebalance structure needs the Black-Scholes delta ratios")
+    return torch.tensor(delta_ratios, dtype=torch.float32)
 
 
 def train_reinforce_hedge_policy(
@@ -153,6 +198,8 @@ def train_reinforce_hedge_policy(
     reward_objective: RewardObjective = "mean_loss",
     hidden_size: int = 16,
     initial_log_std: float = 0.0,
+    structure: PolicyStructure = "plain",
+    delta_ratios: np.ndarray | None = None,
 ) -> TrainedReinforceHedge:
     if not math.isfinite(static_baseline_cvar):
         raise StaticBaselineNotPassedError(
@@ -165,7 +212,10 @@ def train_reinforce_hedge_policy(
         raise ValueError("reward_objective must be 'mean_loss' or 'cvar'")
 
     torch.manual_seed(seed)
-    policy = HedgeRLPolicyNet(hidden_size=hidden_size, initial_log_std=initial_log_std)
+    policy = HedgeRLPolicyNet(
+        hidden_size=hidden_size, initial_log_std=initial_log_std, structure=structure
+    )
+    delta_all = _delta_tensor(delta_ratios, structure)
     optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
 
     paths_t = torch.tensor(price_paths, dtype=torch.float32)
@@ -179,7 +229,8 @@ def train_reinforce_hedge_policy(
         log_probs = torch.zeros(n_paths)
         ratios = np.empty((n_paths, n_steps))
         for step in range(n_steps):
-            obs = _observations(paths_t, holdings, step, n_steps)
+            delta_t = None if delta_all is None else delta_all[:, step]
+            obs = _observations(paths_t, holdings, step, n_steps, delta_t)
             mu, std = policy(obs)
             dist = torch.distributions.Normal(mu, std)
             # REINFORCE requires the action to be a CONSTANT w.r.t. policy
@@ -193,7 +244,7 @@ def train_reinforce_hedge_policy(
             # from ever learning any state-dependent behavior.
             raw_action = dist.sample()  # type: ignore[no-untyped-call]
             log_probs = log_probs + dist.log_prob(raw_action)  # type: ignore[no-untyped-call]
-            ratio = torch.sigmoid(raw_action)
+            ratio = _ratio(raw_action, holdings, delta_t)
             ratios[:, step] = ratio.detach().numpy()
             holdings = ratio.detach()
 
@@ -252,7 +303,9 @@ def train_reinforce_hedge_policy(
 
 
 def hedge_ratios_from_policy(
-    policy: HedgeRLPolicyNet, price_paths: np.ndarray
+    policy: HedgeRLPolicyNet,
+    price_paths: np.ndarray,
+    delta_ratios: np.ndarray | None = None,
 ) -> np.ndarray:
     """Deterministic evaluation rollout: uses the policy's MEAN action
     (mu, sigmoid-squashed), not a sampled one -- evaluation should be
@@ -263,11 +316,13 @@ def hedge_ratios_from_policy(
     n_steps = n_plus_1 - 1
     ratios = np.empty((n_paths, n_steps))
     holdings = torch.zeros(n_paths)
+    delta_all = _delta_tensor(delta_ratios, policy.structure)
     with torch.no_grad():
         for step in range(n_steps):
-            obs = _observations(paths_t, holdings, step, n_steps)
+            delta_t = None if delta_all is None else delta_all[:, step]
+            obs = _observations(paths_t, holdings, step, n_steps, delta_t)
             mu, _ = policy(obs)
-            ratio = torch.sigmoid(mu)
+            ratio = _ratio(mu, holdings, delta_t)
             ratios[:, step] = ratio.numpy()
             holdings = ratio
     return ratios
@@ -296,10 +351,16 @@ def multi_seed_stability_report(
     cvars = []
     for seed in seeds:
         trained = train_reinforce_hedge_policy(
-            price_paths, dt, strike, option_type, risk_free_rate, cost_rate, initial_premium,
-            static_baseline_cvar=static_baseline_cvar, seed=seed, n_epochs=n_epochs,
+            price_paths,
+            dt,
+            strike,
+            option_type,
+            risk_free_rate,
+            cost_rate,
+            initial_premium,
+            static_baseline_cvar=static_baseline_cvar,
+            seed=seed,
+            n_epochs=n_epochs,
         )
         cvars.append(trained.final_cvar)
-    return StabilityReport(
-        seeds=seeds, final_cvars=tuple(cvars), cvar_std=float(np.std(cvars))
-    )
+    return StabilityReport(seeds=seeds, final_cvars=tuple(cvars), cvar_std=float(np.std(cvars)))

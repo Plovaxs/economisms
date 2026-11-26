@@ -895,6 +895,48 @@ rate; its seeds are exploratory, not a test of E1. The neural-SDE check has 47 m
 recipes were compared in each study; the margins, the corner-of-the-grid caveat and the post-hoc tie-break are
 stated above. Nothing here changes the NO-GO decision.
 
+## Finding 22 (PR-220): giving the hedging policy the option's delta made it beat the static baseline in every validation seed, by about 1% of CVaR, which the protocol's own margin calls "equivalent"
+
+Tuning the plain policy (Finding 21) closed about half of its gap to the static delta / no-trade-band baseline and
+no more. One reason a plain policy loses is that it is not told the option's delta and must rediscover it, while the
+baseline is handed it. At the maintainer's request a new **structure** was tried before the freeze
+(`hedging.rl_agent.PolicyStructure = "delta_rebalance"`): the policy also sees the Black-Scholes delta and the gap to
+it and outputs only the fraction of that gap to close, `ratio = holding + g * (delta - holding)`, `g = sigmoid(action)`.
+Doing nothing and a full rebalance are both inside the family; so is the baseline's band rule. The ratio stays in
+[0, 1] by construction. Three questions and their decision rules were written in the module's docstring before any
+structured policy was trained (`orchestration.hedging_tuning_study`, round 3).
+
+**Selection.** Twelve recipes (learning rate 0.003, 0.01, 0.03; 400 or 1,000 epochs; initial exploration log-std 0 or
+-1; 16 units) on eight new seeds (5000-5007). The winner, learning rate 0.003, 400 epochs, log-std -1, led the
+runner-up by 0.0008 in `theta`: the top ten recipes all sit between 0.0079 and 0.0120, so the choice among them is
+mostly luck and the claim rests on the validation seeds. Only the two largest-step recipes failed to help (0.0009,
+-0.0139).
+
+**Validation (16 new seeds, 6000-6015, which selected nothing).** `theta = -log(CVaR95 policy / CVaR95 static)` on
+20,000 held-out paths per seed, 95% t intervals:
+
+| Policy | mean `theta` | interval | seeds above zero | CVaR vs baseline |
+| --- | --- | --- | --- | --- |
+| legacy plain (0.01, 400 epochs) | -0.0739 | [-0.1045, -0.0434] | 0 of 16 | +7.7% |
+| plain, tuned (0.003, 2,000 epochs) | -0.0222 | [-0.0319, -0.0125] | 2 of 16 | +2.3% |
+| **`delta_rebalance`** | **+0.0109** | **[0.0092, 0.0127]** | **16 of 16** | **-1.1%** |
+
+H-A (beats the legacy default) SUPPORTED (+0.0849, [0.0540, 0.1158]); H-B (beats the static baseline) SUPPORTED;
+H-C (beats the plain tuned policy) SUPPORTED (+0.0332, [0.0239, 0.0425]). Its spread over seeds is 0.0033, against
+0.0182 for the plain tuned policy.
+
+**What this means, and what it does not.**
+- The policy now beats the baseline, consistently, but by about 1% of CVaR. The confirmatory protocol's margin is 5%,
+  so E1 is expected to report **"equivalent"** (rule 5 checks it first), with an interval that excludes zero. The
+  margin was fixed earlier and was not moved.
+- The gain is a statement about the structure, not about learning to hedge from nothing: the policy is handed the
+  true-volatility delta that the baseline uses, and a family that contains the baseline cannot do much worse than it.
+  The claim shrinks from "a policy rediscovers hedging" to "a policy given the delta learns when to trade it".
+- One option, one geometric Brownian motion, one cost rate; the volatility is the true one. Real markets give neither
+  the volatility nor a stationary law. Selection used eight seeds; training ran single-threaded in workers, so the last
+  digits can differ from the confirmatory run.
+- The seeds are exploratory, not a test of E1. The frozen E1 run uses seeds 10000-10049, none read here.
+
 ## Known limitations that are not findings, just open scope
 
 
