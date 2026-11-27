@@ -42,7 +42,8 @@ and a web app, both showing live computed output rather than mock-ups.
 
 |  |  |
 |---|---|
-| **Findings** | 29 numbered findings, the negative ones as prominent as the positive ones |
+| **Findings** | 34 numbered findings, the negative ones as prominent as the positive ones |
+| **Model zoo** | 106 requested models: 28 written, 6 already here, 72 not built with their reasons; 52 hypotheses judged, 33 supported, 13 inconclusive, 6 contradicted |
 | **Labs** | 16 runnable studies: forecasting, models and solvers, simulations, hedging studies |
 | **Explorers** | 8 live views: economy, market paths, option pricing, hedge ratios, portfolio risk, shock transmission, experiment comparison, validation issues |
 | **Data** | 29 committed data snapshots, each verified against a SHA-256 manifest every time it is read |
@@ -58,7 +59,7 @@ The web demo shows responses recorded from the real backend at default settings 
 
 ### Desktop application
 
-Six pages in the sidebar: **Overview**, **Labs**, **Explorers**, **Findings**, **History**, **System**.
+Seven pages in the sidebar: **Overview**, **Labs**, **Explorers**, **Findings**, **Atlas**, **History**, **System**.
 Dark by default; it follows your desktop's light or dark setting live, or you can pick one.
 
 <table>
@@ -72,7 +73,11 @@ Dark by default; it follows your desktop's light or dark setting live, or you ca
 </tr>
 <tr>
 <td width="50%"><img src="./docs/images/desktop/explorers-pricing.png" alt="Desktop Explorers page showing option value against payoff"><br><sub><b>Explorers, option pricing.</b> Closed-form Black–Scholes price and Greeks, with value and payoff across spot prices.</sub></td>
-<td width="50%"><img src="./docs/images/desktop/findings.png" alt="Desktop Findings page with a searchable list of 29 findings"><br><sub><b>Findings.</b> All 29 findings from <code>docs/RESULTS_AND_LIMITATIONS.md</code>, searchable, shown as written, including the ones where the more complex model lost.</sub></td>
+<td width="50%"><img src="./docs/images/desktop/findings.png" alt="Desktop Findings page with a searchable list of 34 findings"><br><sub><b>Findings.</b> All 34 findings from <code>docs/RESULTS_AND_LIMITATIONS.md</code>, searchable, shown as written, including the ones where the more complex model lost.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="./docs/images/desktop/atlas.png" alt="Desktop Atlas page: the model web with the Fourier Neural Operator selected"><br><sub><b>Atlas.</b> The model zoo as a web: models on the outer ring by family, the baselines they were judged against inside, two pipelines in the middle. Every line is an edge of a graph validated against the code and the recorded studies. Select a model for its baselines, its recorded verdicts and the finding.</sub></td>
+<td width="50%"><img src="./docs/images/desktop/atlas-light.png" alt="Desktop Atlas page in the light theme"><br><sub><b>Atlas, light theme.</b> The same page; shapes, not colour alone, say which model is which.</sub></td>
 </tr>
 <tr>
 <td width="50%"><img src="./docs/images/desktop/history.png" alt="Desktop History page listing jobs"><br><sub><b>History.</b> Every job that has run here. Results are verified against their hash each time they are opened; the queue's hash-chained audit log can be recomputed.</sub></td>
@@ -88,7 +93,7 @@ Dark by default; it follows your desktop's light or dark setting live, or you ca
 
 <table>
 <tr>
-<td width="18%" valign="top"><img src="./docs/images/web/sidebar.png" alt="The web app's sidebar: eleven dashboard views and seven deep-learning labs"><br><sub><b>Sidebar.</b> Eleven dashboard views, then the seven deep-learning labs.</sub></td>
+<td width="18%" valign="top"><img src="./docs/images/web/sidebar.png" alt="The web app's sidebar: eleven dashboard views and seven deep-learning labs"><br><sub><b>Sidebar.</b> Eleven dashboard views, the seven deep-learning labs, then the model-zoo Atlas.</sub></td>
 <td valign="top"><img src="./docs/images/web/overview.png" alt="Web app overview page with the demo banner"><br><sub><b>Overview.</b> The demo edition says, in a banner on every page, that its numbers are recorded real responses at default settings. Eleven views and seven engines.</sub></td>
 </tr>
 </table>
@@ -112,6 +117,14 @@ result with its verdict. In this demo recording the more complex model does not 
 <tr>
 <td width="50%"><img src="./docs/images/web/lab-rl-hedge.png" alt="RL hedging lab: CVaR of the static baseline versus the RL policy"><br><sub><b>RL hedging.</b> A REINFORCE policy against a static delta-hedge baseline, judged on CVaR (lower is better): 8.476 static against 9.278 for RL. Verdict: static better.</sub></td>
 <td width="50%"></td>
+</tr>
+</table>
+
+**Model zoo.** The Atlas, the same web as the desktop page, read from a file the Python registry exports (a test fails if it goes stale), so it needs no backend.
+
+<table>
+<tr>
+<td><img src="./docs/images/web/atlas.png" alt="Web Atlas page: the model web, the selected model's card and the counts"><br><sub><b>Atlas.</b> 106 models were requested; 28 are written in the zoo, 6 were already here, 72 are deliberately not built (a collapsed list gives each reason). The card shows what the selected model was judged against and its recorded verdicts.</sub></td>
 </tr>
 </table>
 
@@ -159,7 +172,7 @@ confounds directly, not by re-running until a result looked good.
 | **H5** | Does a REINFORCE hedging agent beat a well-specified static baseline? | **Rejected.** Still loses after fixing a real reward/metric mismatch and training 10–20x longer (gap narrowed ~2.5x → ~1.04–1.41x, still a loss). |
 
 <details>
-<summary><b>Two checks run after the freeze, and the newest findings (27 to 29)</b></summary>
+<summary><b>Two checks run after the freeze, and the newest findings (27 to 34)</b></summary>
 
 <br>
 
@@ -185,10 +198,15 @@ The latest findings concern the simulated economy (`worldsim`) and how far it ca
   and loan losses is easy, matching their behaviour is not, and a second attempt that changed the model's
   structure did worse. With the extensions switched on, the estimated banks all fail in most 20-year
   paths, which is a caveat on Findings 27 and 28.
+- **Findings 30 to 34, the model zoo** (see [Model zoo](#model-zoo)): small neural operators, continuous-
+  dynamics models and mesh-free PDE solvers; seven deep forecasters; deep equilibrium nets, a differentiable
+  portfolio layer, a graph network, double ML, DeepIV and DeepSurv; quantum algorithms on an ideal simulator and
+  tensor trains; and two pipelines in which one model feeds the next. 52 hypotheses, written before each run,
+  judged against exact answers or classical methods.
 
 </details>
 
-See [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md) (29 numbered findings, each with
+See [docs/RESULTS_AND_LIMITATIONS.md](./docs/RESULTS_AND_LIMITATIONS.md) (34 numbered findings, each with
 its own re-runnable test) and [docs/RESEARCH_CONTRIBUTIONS.md](./docs/RESEARCH_CONTRIBUTIONS.md) for the
 full account behind every line above, or [docs/FINAL_PAPER.md](./docs/FINAL_PAPER.md) for all of it
 assembled into one linear final-project paper, limitations and null/negative experiments included by name.
@@ -205,7 +223,7 @@ a specification alone, and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **5,352 passed, 16 skipped** (5,368 tests; the count in the green CI run of commit `f6af3d3`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **5,352 passed, 16 skipped** (5,368 tests; the count in the green CI run of commit `f6af3d3`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **35 / 35** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | ledger entries through PR-231, each independently verified |
 
@@ -332,14 +350,15 @@ econosim desktop --screenshots docs/shots    # render every page to PNG with no 
 - **Explorers** are the dashboard's views (economy, market paths with the 5th/50th/95th percentile fan,
   option pricing and Greeks, hedge ratios, portfolio VaR/ES, shock transmission, experiment comparison,
   validation issues), each computed in a child process with the same parameter bounds as the web views.
-- **Findings** shows `docs/RESULTS_AND_LIMITATIONS.md` as it is written (parsed, not copied): all 29
-  findings, the negative ones exactly as prominent as the positive ones.
+- **Findings** shows `docs/RESULTS_AND_LIMITATIONS.md` as it is written (parsed, not copied): all 34
+  findings, the negative ones exactly as prominent as the positive ones. **Atlas** shows the model zoo
+  as a web (see [Model zoo](#model-zoo)).
 - **History** lists every job, reopens a result, loads its settings back into the lab, exports it and
   recomputes the queue's hash-chained audit log. **System** states the NO-GO gate decision, the preflight
   checks, the 29 verified data files and where your work is kept (`$ECONOSIM_HOME`, else
   `~/.local/share/econosim`, created `0700`).
 - **Menu bar and settings.** *File*: open the folder where your work is kept, Quit (Ctrl+Q). *View*: the
-  pages (Ctrl+1 to Ctrl+6) and the colour theme: `system` follows your desktop's light/dark setting
+  pages (Ctrl+1 to Ctrl+7) and the colour theme: `system` follows your desktop's light/dark setting
   live, or choose dark or light. *Help*: About, which states the version, the gate decision and the
   disclaimer. Anything uncaught is written to `errors.log` in the state directory (a program started from
   a menu has no terminal), and the status bar says so.
@@ -391,6 +410,43 @@ python -m prometheus.dashboard serve --demo   # only the research dashboard (or:
 
 None of this changes the project's NO-GO gate for live trading.
 
+## Model zoo
+
+`prometheus.modelzoo` collects small, from-scratch reference implementations of the model families a
+quantitative-economics programme is asked about, each judged against something with a known answer. It is
+**not** a replication of any cited paper at that paper's scale. A registry says what became of every model
+in the request (106 of them): **28 written here**, **6 already in this repository**, **72 deliberately not
+built**, each with its reason (the theorem provers need Lean and a language model; the many-electron
+wavefunctions need chemistry software; several need data this project does not hold). A graph links them and
+every edge is checked against the code and the records by `econosim modelzoo validate`.
+
+| Family | Written | Judged against | What was found (Findings 30 to 34) |
+|---|---|---|---|
+| Operators and dynamics | FNO, DeepONet, Neural ODE and CDE, HNN, SympNet | closed-form Black-Scholes, exact flows | structure kept what it promised (energy drift 0.0009 against 0.022 for the plain Neural ODE); a plain MLP matched the FNO |
+| Mesh-free PDE solvers | DGM (European and American put), Deep Ritz, Deep Kolmogorov | closed form, binomial tree, finite differences, Monte Carlo | DGM within 1% and 4%; finite differences beat Deep Ritz; Monte Carlo beat Deep Kolmogorov |
+| Forecasting | N-BEATS, N-HiTS, PatchTST, DeepAR, TFT-lite, S4D, Mamba-style SSM | Finding 18's ridge and base-effect rule on 277 test months | none distinguishable from the ridge; DeepAR's 80% interval covered 66% |
+| Macro, portfolio, causal | deep equilibrium nets, a differentiable QP layer, a graph network, double ML, DeepIV, DeepSurv | exact growth policy, value-function iteration, Leontief inverse, OLS, linear Cox | the equilibrium net matched the exact policy; decision-focused learning matched predict-then-optimise; DeepIV lost to OLS on the metric used |
+| Quantum and tensor | amplitude estimation, QAOA, VQE, a quantum reservoir, tensor trains | Monte Carlo, exact diagonalisation, an echo-state network | amplitude estimation beat Monte Carlo until 1% noise per call; a kinked payoff is not low-rank |
+| Pipelines | operator surrogate to hedge to tail risk; simulated banks to quantum estimation to tail risk | `titan.risk_metrics` | both chains end at the number the classical tool gives (the surrogate hedge is 2.5 times noisier than the exact one) |
+
+```mermaid
+flowchart LR
+    fno["Fourier Neural Operator"] ==> hedge["Delta hedge"] ==> titan["Tail risk (titan)"]
+    banks["Simulated banks"] ==> qae["Amplitude estimation"] ==> titan
+```
+
+```bash
+econosim modelzoo coverage      # what became of each requested model
+econosim modelzoo validate      # check the registry against the code and the records
+econosim modelzoo neighbours fno
+```
+
+The quantum part runs on a state-vector simulator written for this purpose: no hardware, and the
+amplitude-estimation advantage is measured in calls to the state preparation on a noiseless machine. The
+simulated inputs (production networks, causal and survival data, stock paths, the banking system) say
+nothing about any real economy. Every hypothesis was written and committed before its run, and a test
+recomputes each stored verdict from the numbers beside it.
+
 ## Architecture
 
 ```mermaid
@@ -432,6 +488,9 @@ src/prometheus/
   econosim/        household/firm/bank/government agents, Economy wiring, point-in-time
                    macro data, macro time engine, central bank, market clearing,
                    step-hooks orchestration, data quality monitoring
+  modelzoo/        small reference implementations of operators, dynamics, mesh-free solvers, deep forecasters,
+                   macro, portfolio, causal and quantum models, the registry and graph that link them, and
+                   the pipelines in which one feeds the next (Findings 30 to 34)
   worldsim/        a reduced-form simulated world joining economy, asset markets, households and
                    banks; estimated against real data (Findings 27 to 29)
   stochastica/     GBM, Heston, Merton jump-diffusion, regime-switching, historical calibration
@@ -494,6 +553,7 @@ econosim desktop                    # the native desktop application (needs the 
 econosim desktop --check            # headless self-test of the desktop application's engine
 econosim doctor                     # preflight: deps match uv.lock, data manifest, credentials mode
 econosim data check                 # verify data_cache/ against its manifest
+econosim modelzoo coverage         # the model registry: what became of each requested model
 econosim recovery keygen --output recovery.key
 econosim --version
 ```

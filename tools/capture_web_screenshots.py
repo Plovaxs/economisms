@@ -43,15 +43,16 @@ PAGES: tuple[tuple[str, str, bool], ...] = (
     ("lab-pde-solver", "/lab/pde-solver", True),
     ("lab-marl", "/lab/marl", True),
     ("lab-rl-hedge", "/lab/rl-hedge", True),
+    ("atlas", "/atlas", False),
 )
 
 WIDTH = 1440
 MIN_HEIGHT = 900
-# the lowest element of the page's main column, so a short page is not photographed with a void
+# the bottom of the main column's wrapper (not of every descendant: the closed <details> of a page
+# still has laid-out children far below), so a short page is not photographed with a void
 CONTENT_BOTTOM = (
-    "const m=document.querySelector('main')||document.body; let b=0;"
-    "m.querySelectorAll('*').forEach(e=>{b=Math.max(b,e.getBoundingClientRect().bottom+window.scrollY)});"
-    "return b;"
+    "const w=document.querySelector('main > div')||document.querySelector('main')||document.body;"
+    "return w.getBoundingClientRect().bottom+window.scrollY;"
 )
 PRESS_RUN = (
     "const b=[...document.querySelectorAll('button')].find(x=>/^Run/.test(x.textContent.trim()));"

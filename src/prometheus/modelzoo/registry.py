@@ -1,20 +1,19 @@
-# ruff: noqa: E501 - a data table: one registry row per model, reasons and tasks kept on one line
 """The model registry: every model the project was asked about, and what became of it.
 
 Each entry has one of three statuses, and none is a hope:
 
 * `implemented`: written in this package, with tests; `benchmarked` says whether a recorded study
   compares it with a baseline (`hypotheses` names the tests in `docs/numerics/modelzoo_*.json`).
-* `existing`: already in this repository before the model zoo (the PINN and deep BSDE solvers, the neural
-  SDE, deep hedging, the hybrid quantum layers, the classical pricers and so on).
+* `existing`: already in this repository before the model zoo (the PINN and deep BSDE solvers, the
+  neural SDE, deep hedging, the hybrid quantum layers, the classical pricers and so on).
 * `not_built`: deliberately not built, with the reason.
 
-`role = "baseline"` marks the classical method or exact answer a model was judged against. `source`
-says which section of the lists the request came from (A1 to A7: the physical, chemical, symbolic and
-quantum list; B1 to B6: the finance and macro list).
+`role = "baseline"` marks the classical method or exact answer a model was judged against.
+`source` says which section of the lists the request came from (A1 to A7: the physical, chemical,
+symbolic and quantum list; B1 to B6: the finance and macro list).
 
-`graph.validate` checks the registry against the repository: every module imports and has its symbol,
-every hypothesis and finding named exists, every dataset is committed or marked simulated.
+`graph.validate` checks the registry against the repository: every module imports and has its
+symbol, every hypothesis and finding named exists, every dataset is committed or marked simulated.
 """
 
 from __future__ import annotations
@@ -141,11 +140,17 @@ MACRO = "kaggle_us_macro_extended_monthly.csv"
 _LEAN = (
     "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here"
 )
-_CHEM = "many-electron wavefunctions need variational Monte Carlo and chemistry software, outside an economics project"
-_SCALE = "needs compute and training at a scale (large language model or deep reinforcement learning) this project does not have"
+_CHEM = (
+    "many-electron wavefunctions need variational Monte Carlo and chemistry software, "
+    "outside an economics project"
+)
+_SCALE = (
+    "needs compute and training at a scale (large language model or deep reinforcement "
+    "learning) this project does not have"
+)
 
 ENTRIES: tuple[Entry, ...] = (
-    # ---- baselines: the exact answers and classical methods the models are judged against ----------
+    # ---- baselines: the exact answers and classical methods the models are judged against ----
     _base(
         "black_scholes_closed_form",
         "Black-Scholes closed form",
@@ -340,7 +345,7 @@ ENTRIES: tuple[Entry, ...] = (
         "monte_carlo_amplitude",
         "classical estimate of an expectation",
     ),
-    # ---- operators and continuous dynamics (A1, B2) ------------------------------------------------
+    # ---- operators and continuous dynamics (A1, B2) ----
     _exist(
         "pinn",
         "PINN",
@@ -359,7 +364,11 @@ ENTRIES: tuple[Entry, ...] = (
         "pde",
         "A1",
         "Jagtap et al. 2020",
-        "domain decomposition for irregular geometry; the project's PDEs are one-dimensional or a basket",
+        (
+            "domain decomposition for irregular geometry; the "
+            "project's PDEs are one-dimensional or "
+            "a basket"
+        ),
     ),
     _impl(
         "fno",
@@ -396,7 +405,11 @@ ENTRIES: tuple[Entry, ...] = (
         "operators",
         "A1",
         "Li et al. 2020",
-        "needs unstructured meshes; there is no mesh data (the graph network of `networks` is a related but different model)",
+        (
+            "needs unstructured meshes; there is no mesh data "
+            "(the graph network of `networks` is a "
+            "related but different model)"
+        ),
     ),
     _nb(
         "wno_lno",
@@ -404,7 +417,11 @@ ENTRIES: tuple[Entry, ...] = (
         "operators",
         "A1",
         "Tripura and Chakraborty 2023",
-        "wavelet and Laplace operator learners target transient, localised phenomena the smooth pricing operator does not have",
+        (
+            "wavelet and Laplace operator learners target "
+            "transient, localised phenomena the smooth "
+            "pricing operator does not have"
+        ),
     ),
     _impl(
         "neural_ode",
@@ -551,7 +568,7 @@ ENTRIES: tuple[Entry, ...] = (
         "Yang et al. 2020",
         "adversarial training for stochastic PDEs; no stochastic-PDE task is posed here",
     ),
-    # ---- chemistry, symbolic mathematics, theorem proving (A2 to A4) --------------------------------
+    # ---- chemistry, symbolic mathematics, theorem proving (A2 to A4) ----
     _nb("ferminet", "FermiNet", "chemistry", "A2", "Pfau et al. 2020", _CHEM),
     _nb("paulinet", "PauliNet", "chemistry", "A2", "Hermann et al. 2020", _CHEM),
     _nb("psiformer", "Psiformer", "chemistry", "A2", "von Glehn et al. 2023", _CHEM),
@@ -561,7 +578,10 @@ ENTRIES: tuple[Entry, ...] = (
         "chemistry",
         "A2",
         "Carleo and Troyer 2017",
-        "variational Monte Carlo on spin models would be possible, but no many-body problem is posed here",
+        (
+            "variational Monte Carlo on spin models would be possible, but no many-body problem is "
+            "posed here"
+        ),
     ),
     _nb("deepqmc", "DeepQMC", "chemistry", "A2", "Hermann et al. 2023", _CHEM),
     _nb(
@@ -625,7 +645,7 @@ ENTRIES: tuple[Entry, ...] = (
     _nb("holist", "HOList / DeepHOL", "theorem proving", "A4", "Bansal et al. 2019", _LEAN),
     _nb("minerva", "Minerva", "theorem proving", "A4", "Lewkowycz et al. 2022", _LEAN),
     _nb("llemma", "Llemma", "theorem proving", "A4", "Azerbayev et al. 2024", _LEAN),
-    # ---- combinatorial optimisation and portfolio decisions (A5, B5) --------------------------------
+    # ---- combinatorial optimisation and portfolio decisions (A5, B5) ----
     _nb(
         "pointer_net",
         "Pointer Network",
@@ -717,7 +737,10 @@ ENTRIES: tuple[Entry, ...] = (
         "banking",
         "B5",
         "",
-        "the simulated banks (Finding 27) have an interbank network but no neural model is built on it",
+        (
+            "the simulated banks (Finding 27) have an interbank network but no neural model is "
+            "built on it"
+        ),
     ),
     _nb(
         "rgcn_fraud",
@@ -757,7 +780,7 @@ ENTRIES: tuple[Entry, ...] = (
         "Xu et al. 2019",
         "synthetic stress scenarios would need a held-out scenario set to be judged against",
     ),
-    # ---- quantum deep learning (A6, B6) ------------------------------------------------------------
+    # ---- quantum deep learning (A6, B6) ----
     _exist(
         "vqc_qnn",
         "VQC / QNN (hybrid)",
@@ -891,7 +914,7 @@ ENTRIES: tuple[Entry, ...] = (
         data=("simulated:lognormal option", "simulated:calibrated_banks losses"),
         finding=33,
     ),
-    # ---- tensor networks (A7, B6) ------------------------------------------------------------------
+    # ---- tensor networks (A7, B6) ----
     _impl(
         "tensor_train",
         "Tensor train / MPS",
@@ -919,7 +942,7 @@ ENTRIES: tuple[Entry, ...] = (
         "mera", "MERA", "tensor", "A7", "Vidal 2007", "scale-invariant structure is not posed here"
     ),
     _nb("ttn", "Tree tensor network", "tensor", "A7", "Shi et al. 2006", "not built"),
-    # ---- finance and macro (B1 to B4) --------------------------------------------------------------
+    # ---- finance and macro (B1 to B4) ----
     _exist(
         "deep_hedging",
         "Deep Hedging",
@@ -938,7 +961,10 @@ ENTRIES: tuple[Entry, ...] = (
         "pde",
         "B1",
         "Beck et al. 2021",
-        "nonlinear parabolic PDEs and American options by splitting; the DGM variational inequality covers the American put",
+        (
+            "nonlinear parabolic PDEs and American options by splitting; the DGM variational "
+            "inequality covers the American put"
+        ),
     ),
     _nb(
         "latent_sde_jump",
@@ -987,7 +1013,10 @@ ENTRIES: tuple[Entry, ...] = (
         "networks",
         "B2",
         "Lam et al. 2023",
-        "mesh simulators for weather and structures; the shock graph network is a different, smaller model",
+        (
+            "mesh simulators for weather and structures; the shock graph network is a different, "
+            "smaller model"
+        ),
     ),
     _nb(
         "augmented_node",
@@ -1025,7 +1054,10 @@ ENTRIES: tuple[Entry, ...] = (
         "macro",
         "B3",
         "Han, Yang and E 2021",
-        "heterogeneous agents with an aggregate distribution need a Krusell-Smith environment that is not built",
+        (
+            "heterogeneous agents with an aggregate distribution need a Krusell-Smith environment "
+            "that is not built"
+        ),
     ),
     _exist(
         "ai_economist",
@@ -1035,7 +1067,10 @@ ENTRIES: tuple[Entry, ...] = (
         "JointTrainingResult",
         "B3",
         "Zheng et al. 2022",
-        "PPO household and firm policies over the ledger economy; the policy-rate agent is in `policylab`; a learned two-level social planner is not built",
+        (
+            "PPO household and firm policies over the ledger economy; the policy-rate agent is in "
+            "`policylab`; a learned two-level social planner is not built"
+        ),
     ),
     _impl(
         "shock_gnn",
@@ -1246,6 +1281,9 @@ PIPELINES: tuple[Pipeline, ...] = (
         f"{MZ}.pipelines",
         "quantum_expected_shortfall",
         34,
-        "annual loss rates of the calibrated_banks world, shortfall as an amplitude, checked against titan",
+        (
+            "annual loss rates of the calibrated_banks world, shortfall as an amplitude, checked "
+            "against titan"
+        ),
     ),
 )

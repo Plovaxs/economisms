@@ -686,6 +686,7 @@ def test_the_screenshot_command_renders_every_page_for_real(qapp: Any, tmp_path:
         "explorers-market-paths",
         "explorers-pricing",
         "findings",
+        "atlas",
         "history",
         "system",
     ]

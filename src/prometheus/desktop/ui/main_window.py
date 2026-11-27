@@ -45,6 +45,7 @@ from prometheus.desktop.findings import FindingsDocument
 from prometheus.desktop.runner import WorkerLoop
 from prometheus.desktop.session import JobSummary, LocalSession
 from prometheus.desktop.ui import theme
+from prometheus.desktop.ui.pages.atlas import AtlasPage
 from prometheus.desktop.ui.pages.base import PageBase
 from prometheus.desktop.ui.pages.explorers import ExplorersPage
 from prometheus.desktop.ui.pages.findings import FindingsPage
@@ -60,6 +61,7 @@ PAGES = (
     ("labs", "Labs"),
     ("explorers", "Explorers"),
     ("findings", "Findings"),
+    ("atlas", "Atlas"),
     ("history", "History"),
     ("system", "System"),
 )
@@ -113,6 +115,7 @@ class MainWindow(QMainWindow):
         self.labs = LabsPage(session)
         self.explorers = ExplorersPage()
         self.findings = FindingsPage(findings_document)
+        self.atlas = AtlasPage()
         self.history = HistoryPage(session)
         self.system = SystemPage(session, state_dir)
         for key, page in (
@@ -120,6 +123,7 @@ class MainWindow(QMainWindow):
             ("labs", self.labs),
             ("explorers", self.explorers),
             ("findings", self.findings),
+            ("atlas", self.atlas),
             ("history", self.history),
             ("system", self.system),
         ):

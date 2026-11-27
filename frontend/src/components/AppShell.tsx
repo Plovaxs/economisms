@@ -31,6 +31,8 @@ const LAB_LINKS = [
   { to: "/lab/rl-hedge", label: "RL hedging" },
 ];
 
+const ZOO_LINKS = [{ to: "/atlas", label: "Atlas" }];
+
 function NavSection({
   title,
   links,
@@ -80,6 +82,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="flex flex-col gap-6">
           <NavSection title="Dashboard" links={DASHBOARD_LINKS} />
           <NavSection title="Deep Learning Lab" links={LAB_LINKS} />
+          <NavSection title="Model zoo" links={ZOO_LINKS} />
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto px-8 py-8">

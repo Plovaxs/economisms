@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { TokenGate } from "./auth/TokenGate";
 import { AppShell } from "./components/AppShell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Atlas } from "./pages/Atlas";
 import { AuditTrail } from "./pages/AuditTrail";
 import { BalanceSheets } from "./pages/BalanceSheets";
 import { EconomyExplorer } from "./pages/EconomyExplorer";
@@ -38,6 +39,7 @@ function AppRoutes() {
         <Route path="/audit-trail" element={<AuditTrail />} />
         <Route path="/validation-issues" element={<ValidationIssues />} />
         <Route path="/model-usage" element={<ModelUsage />} />
+        <Route path="/atlas" element={<Atlas />} />
         <Route path="/lab/qmacro" element={<QMacroLab />} />
         <Route path="/lab/recessionnet" element={<RecessionNetLab />} />
         <Route path="/lab/inflationcast" element={<InflationcastLab />} />

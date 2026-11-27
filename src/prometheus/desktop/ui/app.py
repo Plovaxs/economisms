@@ -218,6 +218,9 @@ def screenshots(out_dir: Path, *, theme: str = "system") -> int:
             if window.findings.document.available:
                 window.findings.select("finding:18")
             shot("findings")
+            window.show_page("atlas")
+            window.atlas.select("fno")
+            shot("atlas")
             window.show_page("history")
             shot("history")
             window.show_page("system")
