@@ -9,6 +9,7 @@
     "assets": "total assets, USD thousands",
     "loans": "total loans and leases, USD thousands (gross of the allowance)",
     "securities": "securities, USD thousands",
+    "equity_securities": "equity securities not held for trading, USD thousands; blank where the FDIC reports none (it reports none from 2022)",
     "cash_and_balances": "cash and balances due from banks, USD thousands",
     "deposits": "total deposits, USD thousands",
     "equity": "total equity capital, USD thousands; reported from 1984",

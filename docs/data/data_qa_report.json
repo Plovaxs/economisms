@@ -18,6 +18,7 @@
           "detail": {
             "blank_cells_by_column": {
               "equity": 50,
+              "equity_securities": 17,
               "noncurrent_loans": 50
             }
           },
@@ -29,6 +30,10 @@
         "no_outlier_in_first_difference": {
           "detail": {
             "by_column": {
+              "equity_securities": {
+                "largest_robust_z": 13.0,
+                "points_over_threshold": 1
+              },
               "net_charge_offs": {
                 "largest_robust_z": 131.2,
                 "points_over_threshold": 13

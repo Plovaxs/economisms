@@ -2,12 +2,12 @@
   "algorithm": "sha256",
   "files": {
     "fdic_bank_annual.csv": {
-      "bytes": 11372,
-      "sha256": "1a1e645b742657fdd80254853a88ea390fbb285afaf579e73e367c6fa6e4c47a"
+      "bytes": 12002,
+      "sha256": "bb2de72e9be5b12378956dbd335f76d625127544602338d8593270111a71c741"
     },
     "fdic_bank_annual.meta.json": {
-      "bytes": 1552,
-      "sha256": "b27bc48b3a513f8a5dac5afbb2243d5c95394238bd4935d78ecd0b80bd2b63b1"
+      "bytes": 1697,
+      "sha256": "655059f7cada5d4c12efd35dff350efcbc20ff14041a69d0876e6f38ec4db5b9"
     },
     "fdic_bank_failures_annual.csv": {
       "bytes": 3032,

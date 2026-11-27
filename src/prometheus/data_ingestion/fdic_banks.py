@@ -59,6 +59,7 @@ ANNUAL_FIELDS: dict[str, str] = {
     "assets": "ASSET",
     "loans": "LNLS",
     "securities": "SC",
+    "equity_securities": "SCEQ",
     "cash_and_balances": "CHBAL",
     "deposits": "DEP",
     "equity": "EQ",
@@ -236,6 +237,10 @@ def _annual_meta(rows: Sequence[Mapping[str, Any]], downloaded_at: str) -> dict[
             "assets": "total assets, USD thousands",
             "loans": "total loans and leases, USD thousands (gross of the allowance)",
             "securities": "securities, USD thousands",
+            "equity_securities": (
+                "equity securities not held for trading, USD thousands; blank where the FDIC "
+                "reports none (it reports none from 2022)"
+            ),
             "cash_and_balances": "cash and balances due from banks, USD thousands",
             "deposits": "total deposits, USD thousands",
             "equity": f"total equity capital, USD thousands; reported from {first_equity}",

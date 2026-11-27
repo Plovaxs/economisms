@@ -147,7 +147,7 @@ def step_banks(
     dividends = np.zeros_like(profit)
     if params.payout_ratio > 0.0:
         ratio_now = state.equity / np.maximum(state.assets, 1e-9)
-        payers = operating & (ratio_now >= params.capital_trigger)
+        payers = operating & (ratio_now >= max(params.capital_trigger, params.dividend_threshold))
         dividends = np.where(
             payers,
             np.minimum(params.payout_ratio * np.maximum(profit, 0.0), np.maximum(state.cash, 0.0)),
@@ -173,9 +173,12 @@ def step_banks(
         0.0,
         params.loan_growth_base + growth_boost + params.loan_growth_slope * output_gap,
     )
-    new_loans = state.loans * np.clip(growth, -0.01, 0.01)
+    rate = np.clip(growth, -0.01, 0.01)
+    new_loans = state.loans * rate
+    new_securities = params.securities_growth_share * state.securities * rate
     state.loans = state.loans + new_loans
-    state.deposits = state.deposits + new_loans
+    state.securities = state.securities + new_securities
+    state.deposits = state.deposits + new_loans + new_securities
 
     external_raw = state.loans + state.securities + state.cash - state.deposits
     clearing = eisenberg_noe_clearing(state.liabilities, np.maximum(external_raw, 0.0))

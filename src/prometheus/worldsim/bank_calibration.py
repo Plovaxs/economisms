@@ -75,6 +75,15 @@ BANK_PARAMETERS: tuple[tuple[str, float, float], ...] = (
     ("loan_growth_base", -0.002, 0.01),
     ("loan_growth_slope", 0.0, 0.02),
 )
+BANK_PARAMETERS_V2: tuple[tuple[str, float, float], ...] = (
+    ("net_interest_margin", 0.0005, 0.0060),
+    ("base_default_rate", 0.0001, 0.0060),
+    ("default_sensitivity", 0.0, 1.0),
+    ("payout_ratio", 0.05, 1.0),
+    ("dividend_threshold", 0.05, 0.20),
+    ("loan_growth_base", -0.002, 0.01),
+    ("loan_growth_slope", 0.0, 0.02),
+)
 ANNUAL_COLUMNS: tuple[str, ...] = (
     "roa",
     "eq",
@@ -258,7 +267,7 @@ def bank_distance(
 
 def apply_bank(config: WorldConfig, values: Mapping[str, float]) -> WorldConfig:
     """`config` with the estimated bank parameters (names as in `BANK_PARAMETERS`)."""
-    allowed = {name for name, _, _ in BANK_PARAMETERS}
+    allowed = {name for name, _, _ in BANK_PARAMETERS_V2}
     unknown = set(values) - allowed
     if unknown:
         raise ValueError(f"unknown bank parameters {sorted(unknown)}")
@@ -287,27 +296,45 @@ def balance_sheet_shares(
                 raise ValueError(f"{column} is not reported for {y}")
             shares.append(value / assets)
         out[name] = float(np.mean(shares))
+    # equity securities as a share of SECURITIES, over the years the FDIC reports them
+    equity_shares = [
+        float(bank[y]["equity_securities"] or 0.0) / float(bank[y]["securities"] or 1.0)
+        for y in years
+        if bank[y].get("equity_securities")
+    ]
+    if equity_shares:
+        out["equity_securities_of_securities"] = float(np.mean(equity_shares))
     return out
 
 
-def apply_balance_sheet(config: WorldConfig, shares: Mapping[str, float]) -> WorldConfig:
+def apply_balance_sheet(
+    config: WorldConfig, shares: Mapping[str, float], *, revision: int = 1
+) -> WorldConfig:
     """Set the opening balance sheet from real shares of assets.
 
     The simulator's banks hold loans, securities, cash and interbank claims (10 per 100 of assets,
     which no aggregate statistic can identify, so it keeps its chosen value). The real loans,
     securities and cash shares are rescaled to fill the other 90, in their real proportions;
-    deposits are funded at the real share of assets. Equity is what is left."""
+    deposits are funded at the real share of assets. Equity is what is left.
+
+    From revision 2 the securities' equity share is also set from the data and the balance sheet
+    grows in proportion (`securities_growth_share` 1), because the first revision's loans-to-assets
+    ratio drifted to 76% against 58% in the data."""
     banks = config.banks
     interbank_claims = banks.interbank_borrowed  # claims and borrowing are symmetric in the network
     room = 100.0 - interbank_claims
     total = shares["loans"] + shares["securities"] + shares["cash"]
-    return replace(
-        config,
-        banks=replace(
-            banks,
-            loans=room * shares["loans"] / total,
-            securities=room * shares["securities"] / total,
-            cash=room * shares["cash"] / total,
-            deposit_funding=100.0 * shares["deposits"],
-        ),
+    new = replace(
+        banks,
+        loans=room * shares["loans"] / total,
+        securities=room * shares["securities"] / total,
+        cash=room * shares["cash"] / total,
+        deposit_funding=100.0 * shares["deposits"],
     )
+    if revision >= 2:
+        new = replace(
+            new,
+            securities_equity_share=shares["equity_securities_of_securities"],
+            securities_growth_share=1.0,
+        )
+    return replace(config, banks=new)

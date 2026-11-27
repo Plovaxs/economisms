@@ -79,6 +79,13 @@ class BankParams:
     loan_growth_slope: float = 0.002
     capital_trigger: float = 0.05
     fire_sale_fraction: float = 0.10
+    dividend_threshold: float = 0.0
+    """A bank pays dividends only while its equity ratio is at least this (and at least the capital
+    trigger); below it, profit is retained to rebuild capital. The default 0 means the trigger."""
+    securities_growth_share: float = 0.0
+    """When a bank's loans grow, its securities grow by this multiple of the same rate (1 keeps
+    the balance sheet's composition; the default 0 leaves securities as they were); deposits
+    fund both."""
     payout_ratio: float = 0.0
     """Share of a month's positive profit paid out as dividends by a bank above its capital
     trigger (paid from cash, never more than the cash it has). The default 0 keeps every earlier
