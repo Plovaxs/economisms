@@ -60,6 +60,12 @@ def _recovery_main(argv: list[str] | None) -> int:
     return main(argv)
 
 
+def _modelzoo_main(argv: list[str] | None) -> int:
+    from prometheus.modelzoo.__main__ import main
+
+    return main(argv)
+
+
 def _service_main(argv: list[str] | None) -> int:
     from prometheus.service.__main__ import main
 
@@ -94,6 +100,10 @@ _SUBCOMMANDS: dict[str, tuple[str, _Main]] = {
     "jobs": (
         "Trusted-operator CLI for durable local research jobs.",
         _jobs_main,
+    ),
+    "modelzoo": (
+        "The model registry and its graph: coverage, validation, recorded verdicts, neighbours.",
+        _modelzoo_main,
     ),
     "recovery": (
         "Local encrypted snapshots: keygen, create, verify, restore. Needs the 'recovery' extra.",

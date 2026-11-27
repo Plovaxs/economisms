@@ -1,0 +1,3111 @@
+{
+  "nodes": [
+    {
+      "id": "black_scholes_closed_form",
+      "label": "Black-Scholes closed form",
+      "kind": "baseline",
+      "family": "derivatives",
+      "status": "existing",
+      "source": "",
+      "task": "exact European price",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "crank_nicolson",
+      "label": "Crank-Nicolson grid solver",
+      "kind": "baseline",
+      "family": "pde",
+      "status": "existing",
+      "source": "",
+      "task": "finite-difference Black-Scholes PDE",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "binomial_american",
+      "label": "Binomial tree (American)",
+      "kind": "baseline",
+      "family": "derivatives",
+      "status": "existing",
+      "source": "",
+      "task": "American option by backward induction",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "monte_carlo_vanilla",
+      "label": "Monte Carlo (vanilla)",
+      "kind": "baseline",
+      "family": "derivatives",
+      "status": "existing",
+      "source": "",
+      "task": "plain Monte Carlo price",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "delta_hedge",
+      "label": "Delta hedge (exact delta)",
+      "kind": "baseline",
+      "family": "hedging",
+      "status": "existing",
+      "source": "",
+      "task": "classical hedge ratios",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "titan_risk_metrics",
+      "label": "Historical VaR and Expected Shortfall",
+      "kind": "baseline",
+      "family": "risk",
+      "status": "existing",
+      "source": "",
+      "task": "tail risk of a loss sample",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "worldsim_banks",
+      "label": "Simulated banking system (calibrated_banks)",
+      "kind": "baseline",
+      "family": "simulation",
+      "status": "existing",
+      "source": "",
+      "task": "bank loan losses estimated from FDIC data (Finding 29)",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "rk4_exact_flow",
+      "label": "Fine-step Runge-Kutta flow",
+      "kind": "baseline",
+      "family": "dynamics",
+      "status": "implemented",
+      "source": "",
+      "task": "the true trajectory of a conservative system",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "mlp_operator",
+      "label": "Dense MLP on the payoff vector",
+      "kind": "baseline",
+      "family": "operators",
+      "status": "implemented",
+      "source": "",
+      "task": "fixed-grid operator baseline",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "fd_poisson",
+      "label": "Five-point finite differences",
+      "kind": "baseline",
+      "family": "pde",
+      "status": "implemented",
+      "source": "",
+      "task": "classical Poisson solve",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "value_function_iteration",
+      "label": "Value-function iteration",
+      "kind": "baseline",
+      "family": "macro",
+      "status": "implemented",
+      "source": "",
+      "task": "classical solution of the growth model",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "exact_growth_policy",
+      "label": "Closed-form growth-model policy",
+      "kind": "baseline",
+      "family": "macro",
+      "status": "implemented",
+      "source": "",
+      "task": "exact savings rate of the log-utility economy",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "ridge_ar",
+      "label": "Ridge on the last 12 growth rates",
+      "kind": "baseline",
+      "family": "forecasting",
+      "status": "existing",
+      "source": "",
+      "task": "Finding 18's learned model",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "base_effect_rule",
+      "label": "Base-effect rule (12-month mean growth)",
+      "kind": "baseline",
+      "family": "forecasting",
+      "status": "existing",
+      "source": "",
+      "task": "Finding 18's best rule",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "mlp_mom",
+      "label": "Small MLP on 12 lags",
+      "kind": "baseline",
+      "family": "forecasting",
+      "status": "existing",
+      "source": "",
+      "task": "Finding 18's neural model",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "min_variance",
+      "label": "Minimum-variance long-only portfolio",
+      "kind": "baseline",
+      "family": "portfolio",
+      "status": "implemented",
+      "source": "",
+      "task": "no return forecast at all",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "leontief_inverse",
+      "label": "Leontief inverse",
+      "kind": "baseline",
+      "family": "networks",
+      "status": "implemented",
+      "source": "",
+      "task": "exact input-output propagation",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "ols_2sls",
+      "label": "OLS and two-stage least squares",
+      "kind": "baseline",
+      "family": "causal",
+      "status": "implemented",
+      "source": "",
+      "task": "classical effect estimators",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "linear_cox",
+      "label": "Linear Cox model",
+      "kind": "baseline",
+      "family": "survival",
+      "status": "implemented",
+      "source": "",
+      "task": "proportional hazards with a linear log-risk",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "exact_diagonalisation",
+      "label": "Exact diagonalisation",
+      "kind": "baseline",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "",
+      "task": "exact ground energy of the Ising chain",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "echo_state_network",
+      "label": "Echo-state network",
+      "kind": "baseline",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "",
+      "task": "classical reservoir baseline",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "autoregression",
+      "label": "Linear autoregression",
+      "kind": "baseline",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "",
+      "task": "AR(5) baseline",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "monte_carlo_amplitude",
+      "label": "Monte Carlo amplitude",
+      "kind": "baseline",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "",
+      "task": "classical estimate of an expectation",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "pinn",
+      "label": "PINN",
+      "kind": "model",
+      "family": "pde",
+      "status": "existing",
+      "source": "A1 B2",
+      "task": "Black-Scholes PDE in the loss",
+      "reference": "Raissi et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "cpinn_xpinn",
+      "label": "cPINN / XPINN",
+      "kind": "not_built",
+      "family": "pde",
+      "status": "not_built",
+      "source": "A1",
+      "task": "domain decomposition for irregular geometry; the project's PDEs are one-dimensional or a basket",
+      "reference": "Jagtap et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "fno",
+      "label": "Fourier Neural Operator",
+      "kind": "model",
+      "family": "operators",
+      "status": "implemented",
+      "source": "A1 B2",
+      "task": "payoff curve to price curve",
+      "reference": "Li et al. 2021",
+      "benchmarked": true
+    },
+    {
+      "id": "deeponet",
+      "label": "DeepONet",
+      "kind": "model",
+      "family": "operators",
+      "status": "implemented",
+      "source": "A1 B2",
+      "task": "branch-trunk operator learning",
+      "reference": "Lu et al. 2021",
+      "benchmarked": true
+    },
+    {
+      "id": "gno_mno",
+      "label": "GNO / MNO",
+      "kind": "not_built",
+      "family": "operators",
+      "status": "not_built",
+      "source": "A1",
+      "task": "needs unstructured meshes; there is no mesh data (the graph network of `networks` is a related but different model)",
+      "reference": "Li et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "wno_lno",
+      "label": "WNO / LNO",
+      "kind": "not_built",
+      "family": "operators",
+      "status": "not_built",
+      "source": "A1",
+      "task": "wavelet and Laplace operator learners target transient, localised phenomena the smooth pricing operator does not have",
+      "reference": "Tripura and Chakraborty 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "neural_ode",
+      "label": "Neural ODE",
+      "kind": "model",
+      "family": "dynamics",
+      "status": "implemented",
+      "source": "A1 B2",
+      "task": "learned vector field, RK4 rollout",
+      "reference": "Chen et al. 2018",
+      "benchmarked": true
+    },
+    {
+      "id": "neural_sde",
+      "label": "Neural SDE",
+      "kind": "model",
+      "family": "dynamics",
+      "status": "existing",
+      "source": "A1 B1",
+      "task": "drift and diffusion networks trained on macro data",
+      "reference": "Li et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "neural_cde",
+      "label": "Neural CDE",
+      "kind": "model",
+      "family": "dynamics",
+      "status": "implemented",
+      "source": "A1",
+      "task": "controlled differential equation on an interpolated path",
+      "reference": "Kidger et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "dgm",
+      "label": "Deep Galerkin Method",
+      "kind": "model",
+      "family": "pde",
+      "status": "implemented",
+      "source": "A1 B1",
+      "task": "European and American put",
+      "reference": "Sirignano and Spiliopoulos 2018",
+      "benchmarked": true
+    },
+    {
+      "id": "deep_ritz",
+      "label": "Deep Ritz",
+      "kind": "model",
+      "family": "pde",
+      "status": "implemented",
+      "source": "A1",
+      "task": "energy minimisation for 2-D Poisson",
+      "reference": "E and Yu 2018",
+      "benchmarked": true
+    },
+    {
+      "id": "deep_bsde",
+      "label": "Deep BSDE",
+      "kind": "model",
+      "family": "pde",
+      "status": "existing",
+      "source": "A1 B1",
+      "task": "high-dimensional parabolic PDEs",
+      "reference": "Han, Jentzen and E 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "deep_kolmogorov",
+      "label": "Deep Kolmogorov Method",
+      "kind": "model",
+      "family": "pde",
+      "status": "implemented",
+      "source": "B1",
+      "task": "option on the geometric mean of d assets",
+      "reference": "Beck et al. 2021",
+      "benchmarked": true
+    },
+    {
+      "id": "wan",
+      "label": "Weak Adversarial Networks",
+      "kind": "not_built",
+      "family": "pde",
+      "status": "not_built",
+      "source": "A1",
+      "task": "needs a primal-dual adversarial training setup that is not built",
+      "reference": "Zang et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "hnn",
+      "label": "Hamiltonian Neural Network",
+      "kind": "model",
+      "family": "dynamics",
+      "status": "implemented",
+      "source": "A1 B2",
+      "task": "learns H, conserves it in the continuous flow",
+      "reference": "Greydanus et al. 2019",
+      "benchmarked": true
+    },
+    {
+      "id": "lnn",
+      "label": "Lagrangian Neural Network",
+      "kind": "not_built",
+      "family": "dynamics",
+      "status": "not_built",
+      "source": "A1",
+      "task": "needs generalised coordinates; the two test systems are canonical already",
+      "reference": "Cranmer et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "sympnet",
+      "label": "Symplectic Network",
+      "kind": "model",
+      "family": "dynamics",
+      "status": "implemented",
+      "source": "A1 B2",
+      "task": "exactly symplectic one-step map",
+      "reference": "Jin et al. 2020",
+      "benchmarked": true
+    },
+    {
+      "id": "pigan",
+      "label": "Physics-Informed GAN",
+      "kind": "not_built",
+      "family": "pde",
+      "status": "not_built",
+      "source": "A1",
+      "task": "adversarial training for stochastic PDEs; no stochastic-PDE task is posed here",
+      "reference": "Yang et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "ferminet",
+      "label": "FermiNet",
+      "kind": "not_built",
+      "family": "chemistry",
+      "status": "not_built",
+      "source": "A2",
+      "task": "many-electron wavefunctions need variational Monte Carlo and chemistry software, outside an economics project",
+      "reference": "Pfau et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "paulinet",
+      "label": "PauliNet",
+      "kind": "not_built",
+      "family": "chemistry",
+      "status": "not_built",
+      "source": "A2",
+      "task": "many-electron wavefunctions need variational Monte Carlo and chemistry software, outside an economics project",
+      "reference": "Hermann et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "psiformer",
+      "label": "Psiformer",
+      "kind": "not_built",
+      "family": "chemistry",
+      "status": "not_built",
+      "source": "A2",
+      "task": "many-electron wavefunctions need variational Monte Carlo and chemistry software, outside an economics project",
+      "reference": "von Glehn et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "nqs",
+      "label": "Neural-network quantum states",
+      "kind": "not_built",
+      "family": "chemistry",
+      "status": "not_built",
+      "source": "A2",
+      "task": "variational Monte Carlo on spin models would be possible, but no many-body problem is posed here",
+      "reference": "Carleo and Troyer 2017",
+      "benchmarked": false
+    },
+    {
+      "id": "deepqmc",
+      "label": "DeepQMC",
+      "kind": "not_built",
+      "family": "chemistry",
+      "status": "not_built",
+      "source": "A2",
+      "task": "many-electron wavefunctions need variational Monte Carlo and chemistry software, outside an economics project",
+      "reference": "Hermann et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "lample_charton",
+      "label": "Symbolic Transformer",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "needs compute and training at a scale (large language model or deep reinforcement learning) this project does not have",
+      "reference": "Lample and Charton 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "funsearch",
+      "label": "FunSearch",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "needs compute and training at a scale (large language model or deep reinforcement learning) this project does not have",
+      "reference": "Romera-Paredes et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "alphatensor",
+      "label": "AlphaTensor",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "needs compute and training at a scale (large language model or deep reinforcement learning) this project does not have",
+      "reference": "Fawzi et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "alphadev",
+      "label": "AlphaDev",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "needs compute and training at a scale (large language model or deep reinforcement learning) this project does not have",
+      "reference": "Mankowitz et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "eql_feynman_pysr",
+      "label": "EQL / AI Feynman / PySR networks",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "symbolic regression is not built; none of the findings called for it",
+      "reference": "Martius and Lampert 2016",
+      "benchmarked": false
+    },
+    {
+      "id": "nalu_nmu",
+      "label": "NALU / NMU",
+      "kind": "not_built",
+      "family": "symbolic",
+      "status": "not_built",
+      "source": "A3",
+      "task": "arithmetic extrapolation layers are not needed by any task here",
+      "reference": "Trask et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "alphaproof",
+      "label": "AlphaProof",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "DeepMind 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "alphageometry",
+      "label": "AlphaGeometry",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Trinh et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "deepseek_prover",
+      "label": "DeepSeek-Prover / DeepSeek-Math",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Xin et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "qwen_math",
+      "label": "Qwen2.5-Math",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Yang et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "internlm_math",
+      "label": "InternLM-Math / StepProver",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Ying et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "gpt_f",
+      "label": "GPT-f",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Polu and Sutskever 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "lisa",
+      "label": "LISA",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Jiang et al. 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "leandojo",
+      "label": "LeanDojo / ReProver",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Yang et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "thor_magnushammer",
+      "label": "Thor / Magnushammer",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Jiang et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "tacticzero",
+      "label": "TacticZero",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Wu et al. 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "holist",
+      "label": "HOList / DeepHOL",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Bansal et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "minerva",
+      "label": "Minerva",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Lewkowycz et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "llemma",
+      "label": "Llemma",
+      "kind": "not_built",
+      "family": "theorem proving",
+      "status": "not_built",
+      "source": "A4",
+      "task": "needs Lean, Isabelle or HOL and a large pretrained language model; no such setting exists here",
+      "reference": "Azerbayev et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "pointer_net",
+      "label": "Pointer Network",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5",
+      "task": "routing problems are not posed in this project",
+      "reference": "Vinyals et al. 2015",
+      "benchmarked": false
+    },
+    {
+      "id": "attention_routing",
+      "label": "Attention Model (Kool et al.)",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5",
+      "task": "routing problems are not posed in this project",
+      "reference": "Kool et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "gnn_mip",
+      "label": "GNN for MILP (diving and branching)",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5",
+      "task": "needs a MILP solver in the loop; none here",
+      "reference": "Gasse et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "satnet",
+      "label": "SATNet",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5",
+      "task": "differentiable MAXSAT layer; no logical-constraint task here",
+      "reference": "Wang et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "optnet",
+      "label": "OptNet-style QP layer",
+      "kind": "model",
+      "family": "portfolio",
+      "status": "implemented",
+      "source": "A5 B5",
+      "task": "differentiable long-only mean-variance QP",
+      "reference": "Amos and Kolter 2017",
+      "benchmarked": true
+    },
+    {
+      "id": "diffcp_cvxpylayers",
+      "label": "DiffCP / CvxpyLayers",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5 B5",
+      "task": "general disciplined convex programs; only the long-only QP layer is built (see OptNet)",
+      "reference": "Agrawal et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "pi_gnn",
+      "label": "Physics-informed GNN for QUBO",
+      "kind": "not_built",
+      "family": "combinatorial",
+      "status": "not_built",
+      "source": "A5",
+      "task": "QAOA is built for the portfolio QUBO; a GNN solver is not",
+      "reference": "Schuetz et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "dfl",
+      "label": "Decision-focused learning",
+      "kind": "model",
+      "family": "portfolio",
+      "status": "implemented",
+      "source": "B5",
+      "task": "predictor trained through the QP layer",
+      "reference": "Wilder et al. 2019",
+      "benchmarked": true
+    },
+    {
+      "id": "dpo_alphanet",
+      "label": "Deep Portfolio Optimisation / AlphaNet",
+      "kind": "not_built",
+      "family": "portfolio",
+      "status": "not_built",
+      "source": "B5",
+      "task": "needs a cross-section of assets with features; only three factor portfolios are committed",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "systemic_risk_gnn",
+      "label": "Temporal GNN for interbank contagion",
+      "kind": "not_built",
+      "family": "banking",
+      "status": "not_built",
+      "source": "B5",
+      "task": "the simulated banks (Finding 27) have an interbank network but no neural model is built on it",
+      "reference": "",
+      "benchmarked": false
+    },
+    {
+      "id": "rgcn_fraud",
+      "label": "Relational GNN for fraud and AML",
+      "kind": "not_built",
+      "family": "banking",
+      "status": "not_built",
+      "source": "B5",
+      "task": "needs a transaction graph; none is committed",
+      "reference": "Schlichtkrull et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "deepsurv",
+      "label": "DeepSurv",
+      "kind": "model",
+      "family": "survival",
+      "status": "implemented",
+      "source": "B5",
+      "task": "neural Cox model",
+      "reference": "Katzman et al. 2018",
+      "benchmarked": true
+    },
+    {
+      "id": "deephit",
+      "label": "DeepHit",
+      "kind": "not_built",
+      "family": "survival",
+      "status": "not_built",
+      "source": "B5",
+      "task": "discrete-time competing risks; the simulated survival task has one event",
+      "reference": "Lee et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "ctgan_findiff",
+      "label": "CTGAN / FinDiff / diffusion for synthetic data",
+      "kind": "not_built",
+      "family": "generative",
+      "status": "not_built",
+      "source": "B5",
+      "task": "synthetic stress scenarios would need a held-out scenario set to be judged against",
+      "reference": "Xu et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "vqc_qnn",
+      "label": "VQC / QNN (hybrid)",
+      "kind": "model",
+      "family": "quantum",
+      "status": "existing",
+      "source": "A6",
+      "task": "hybrid quantum layer used by RECESSIONNET and Q-MACRO",
+      "reference": "Mitarai et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "dqc",
+      "label": "Differentiable Quantum Circuits for PDEs",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6 B6",
+      "task": "Chebyshev feature-map circuits for differential equations are not built",
+      "reference": "Kyriienko et al. 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "qpinn",
+      "label": "Quantum PINN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6 B6",
+      "task": "a PDE solver on quantum circuits is not built",
+      "reference": "Trahan et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "vqe",
+      "label": "Variational Quantum Eigensolver",
+      "kind": "model",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "A6 B6",
+      "task": "6-qubit transverse-field Ising chain",
+      "reference": "Peruzzo et al. 2014",
+      "benchmarked": true
+    },
+    {
+      "id": "qaoa",
+      "label": "QAOA",
+      "kind": "model",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "A6 B6",
+      "task": "8-asset choose-4 portfolio QUBO",
+      "reference": "Farhi et al. 2014",
+      "benchmarked": true
+    },
+    {
+      "id": "vqls",
+      "label": "Variational Quantum Linear Solver",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "not built; no linear-system task is posed",
+      "reference": "Bravo-Prieto et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "qcl",
+      "label": "Quantum Circuit Learning",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "the closest built model is the existing hybrid quantum regressor of Q-MACRO",
+      "reference": "Mitarai et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "qcnn",
+      "label": "Quantum CNN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "phase recognition on quantum data; no such data here",
+      "reference": "Cong et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "qgnn",
+      "label": "Quantum GNN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "not built",
+      "reference": "Verdon et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "qrnn_qlstm",
+      "label": "Quantum RNN / LSTM",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "not built",
+      "reference": "Chen et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "qgan",
+      "label": "Quantum GAN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6 B6",
+      "task": "distribution loading is done here by exact amplitude encoding, not a trained generator",
+      "reference": "Zoufal et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "qbm",
+      "label": "Quantum Boltzmann Machine",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6 B6",
+      "task": "not built",
+      "reference": "Amin et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "cv_qnn",
+      "label": "Continuous-variable QNN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "photonic simulation is not built",
+      "reference": "Killoran et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "dqnn",
+      "label": "Dissipative QNN",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "not built",
+      "reference": "Beer et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "qrc",
+      "label": "Quantum Reservoir Computing",
+      "kind": "model",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "A6 B6",
+      "task": "5-qubit Ising reservoir on Mackey-Glass",
+      "reference": "Fujii and Nakajima 2017",
+      "benchmarked": true
+    },
+    {
+      "id": "quantum_kernel_qsvm",
+      "label": "Quantum kernel / QSVM",
+      "kind": "not_built",
+      "family": "quantum",
+      "status": "not_built",
+      "source": "A6",
+      "task": "not built",
+      "reference": "Havlicek et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "qae",
+      "label": "Quantum Amplitude Estimation (maximum likelihood)",
+      "kind": "model",
+      "family": "quantum",
+      "status": "implemented",
+      "source": "B6",
+      "task": "expected option payoff and bank-loss shortfall",
+      "reference": "Suzuki et al. 2020",
+      "benchmarked": true
+    },
+    {
+      "id": "tensor_train",
+      "label": "Tensor train / MPS",
+      "kind": "model",
+      "family": "tensor",
+      "status": "implemented",
+      "source": "A7 B6",
+      "task": "basket-payoff compression and integration",
+      "reference": "Oseledets 2011",
+      "benchmarked": true
+    },
+    {
+      "id": "peps",
+      "label": "PEPS",
+      "kind": "not_built",
+      "family": "tensor",
+      "status": "not_built",
+      "source": "A7",
+      "task": "two-dimensional lattices are not posed here",
+      "reference": "Verstraete and Cirac 2004",
+      "benchmarked": false
+    },
+    {
+      "id": "mera",
+      "label": "MERA",
+      "kind": "not_built",
+      "family": "tensor",
+      "status": "not_built",
+      "source": "A7",
+      "task": "scale-invariant structure is not posed here",
+      "reference": "Vidal 2007",
+      "benchmarked": false
+    },
+    {
+      "id": "ttn",
+      "label": "Tree tensor network",
+      "kind": "not_built",
+      "family": "tensor",
+      "status": "not_built",
+      "source": "A7",
+      "task": "not built",
+      "reference": "Shi et al. 2006",
+      "benchmarked": false
+    },
+    {
+      "id": "deep_hedging",
+      "label": "Deep Hedging",
+      "kind": "model",
+      "family": "hedging",
+      "status": "existing",
+      "source": "B1",
+      "task": "CVaR-trained hedge policy",
+      "reference": "B\u00fchler et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "deep_splitting",
+      "label": "Deep Splitting",
+      "kind": "not_built",
+      "family": "pde",
+      "status": "not_built",
+      "source": "B1",
+      "task": "nonlinear parabolic PDEs and American options by splitting; the DGM variational inequality covers the American put",
+      "reference": "Beck et al. 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "latent_sde_jump",
+      "label": "Latent SDE / Neural Jump SDE",
+      "kind": "not_built",
+      "family": "dynamics",
+      "status": "not_built",
+      "source": "B1",
+      "task": "jump dynamics are not posed; the neural SDE here has none",
+      "reference": "Li et al. 2020",
+      "benchmarked": false
+    },
+    {
+      "id": "signature_nets",
+      "label": "Signature-based neural networks",
+      "kind": "not_built",
+      "family": "dynamics",
+      "status": "not_built",
+      "source": "B1",
+      "task": "path-dependent exotic pricing by signatures is not built",
+      "reference": "Kidger et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "sfno",
+      "label": "Spherical FNO",
+      "kind": "not_built",
+      "family": "operators",
+      "status": "not_built",
+      "source": "B2",
+      "task": "global weather on the sphere; no such data",
+      "reference": "Bonev et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "afno",
+      "label": "Adaptive FNO",
+      "kind": "not_built",
+      "family": "operators",
+      "status": "not_built",
+      "source": "B2",
+      "task": "token mixing for high-resolution vision-like fields; not posed",
+      "reference": "Guibas et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "pod_deeponet",
+      "label": "POD-DeepONet",
+      "kind": "not_built",
+      "family": "operators",
+      "status": "not_built",
+      "source": "B2",
+      "task": "not built",
+      "reference": "Lu et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "causal_pinn",
+      "label": "Causal PINN",
+      "kind": "not_built",
+      "family": "pde",
+      "status": "not_built",
+      "source": "B2",
+      "task": "causal training weights for time-dependent PINNs are not built",
+      "reference": "Wang et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "graphcast_meshgraphnets",
+      "label": "GraphCast / MeshGraphNets",
+      "kind": "not_built",
+      "family": "networks",
+      "status": "not_built",
+      "source": "B2",
+      "task": "mesh simulators for weather and structures; the shock graph network is a different, smaller model",
+      "reference": "Lam et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "augmented_node",
+      "label": "Augmented Neural ODE",
+      "kind": "not_built",
+      "family": "dynamics",
+      "status": "not_built",
+      "source": "B2",
+      "task": "not built",
+      "reference": "Dupont et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "ltc_cfc",
+      "label": "Liquid time-constant / CfC networks",
+      "kind": "not_built",
+      "family": "dynamics",
+      "status": "not_built",
+      "source": "B2",
+      "task": "continuous-time control and robotics; not posed",
+      "reference": "Hasani et al. 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "deq",
+      "label": "Deep Equilibrium Net",
+      "kind": "model",
+      "family": "macro",
+      "status": "implemented",
+      "source": "B3",
+      "task": "stochastic growth model (closed-form and general)",
+      "reference": "Maliar, Maliar and Winant 2021",
+      "benchmarked": true
+    },
+    {
+      "id": "deepham",
+      "label": "DeepHAM",
+      "kind": "not_built",
+      "family": "macro",
+      "status": "not_built",
+      "source": "B3",
+      "task": "heterogeneous agents with an aggregate distribution need a Krusell-Smith environment that is not built",
+      "reference": "Han, Yang and E 2021",
+      "benchmarked": false
+    },
+    {
+      "id": "ai_economist",
+      "label": "AI Economist (two-level MARL)",
+      "kind": "model",
+      "family": "macro",
+      "status": "existing",
+      "source": "B3",
+      "task": "PPO household and firm policies over the ledger economy; the policy-rate agent is in `policylab`; a learned two-level social planner is not built",
+      "reference": "Zheng et al. 2022",
+      "benchmarked": false
+    },
+    {
+      "id": "shock_gnn",
+      "label": "Graph network for shock propagation",
+      "kind": "model",
+      "family": "networks",
+      "status": "implemented",
+      "source": "B3",
+      "task": "input-output shock propagation on simulated networks",
+      "reference": "Leontief 1936",
+      "benchmarked": true
+    },
+    {
+      "id": "double_ml",
+      "label": "Double machine learning",
+      "kind": "model",
+      "family": "causal",
+      "status": "implemented",
+      "source": "B3",
+      "task": "partially linear effect with neural nuisance models",
+      "reference": "Chernozhukov et al. 2018",
+      "benchmarked": true
+    },
+    {
+      "id": "deep_iv",
+      "label": "DeepIV",
+      "kind": "model",
+      "family": "causal",
+      "status": "implemented",
+      "source": "B3",
+      "task": "nonlinear structural curve with an instrument",
+      "reference": "Hartford et al. 2017",
+      "benchmarked": true
+    },
+    {
+      "id": "nbeats",
+      "label": "N-BEATS",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast",
+      "reference": "Oreshkin et al. 2020",
+      "benchmarked": true
+    },
+    {
+      "id": "nhits",
+      "label": "N-HiTS",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast",
+      "reference": "Challu et al. 2023",
+      "benchmarked": true
+    },
+    {
+      "id": "patchtst",
+      "label": "PatchTST",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast",
+      "reference": "Nie et al. 2023",
+      "benchmarked": true
+    },
+    {
+      "id": "deepar",
+      "label": "DeepAR",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "probabilistic CPI nowcast",
+      "reference": "Salinas et al. 2020",
+      "benchmarked": true
+    },
+    {
+      "id": "tft_lite",
+      "label": "Temporal Fusion Transformer (reduced)",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast with macro channels",
+      "reference": "Lim et al. 2021",
+      "benchmarked": true
+    },
+    {
+      "id": "s4d",
+      "label": "Diagonal state-space network (S4D)",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast",
+      "reference": "Gu et al. 2022",
+      "benchmarked": true
+    },
+    {
+      "id": "mamba_lite",
+      "label": "Selective state-space network (Mamba-style)",
+      "kind": "model",
+      "family": "forecasting",
+      "status": "implemented",
+      "source": "B4",
+      "task": "CPI nowcast",
+      "reference": "Gu and Dao 2023",
+      "benchmarked": true
+    },
+    {
+      "id": "itransformer",
+      "label": "iTransformer",
+      "kind": "not_built",
+      "family": "forecasting",
+      "status": "not_built",
+      "source": "B4",
+      "task": "cross-variate attention across many series; only one series is forecast here",
+      "reference": "Liu et al. 2024",
+      "benchmarked": false
+    },
+    {
+      "id": "deepstate",
+      "label": "DeepState",
+      "kind": "not_built",
+      "family": "forecasting",
+      "status": "not_built",
+      "source": "B4",
+      "task": "not built",
+      "reference": "Rangapuram et al. 2018",
+      "benchmarked": false
+    },
+    {
+      "id": "timesnet_timemixer",
+      "label": "TimesNet / TimeMixer",
+      "kind": "not_built",
+      "family": "forecasting",
+      "status": "not_built",
+      "source": "B4",
+      "task": "not built",
+      "reference": "Wu et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "s5",
+      "label": "S5",
+      "kind": "not_built",
+      "family": "forecasting",
+      "status": "not_built",
+      "source": "B4",
+      "task": "the diagonal S4D and the selective variant are built instead",
+      "reference": "Smith et al. 2023",
+      "benchmarked": false
+    },
+    {
+      "id": "deeplob",
+      "label": "DeepLOB / LOB-Transformers",
+      "kind": "not_built",
+      "family": "forecasting",
+      "status": "not_built",
+      "source": "B4",
+      "task": "needs limit-order-book data; none is committed",
+      "reference": "Zhang et al. 2019",
+      "benchmarked": false
+    },
+    {
+      "id": "data:simulated:Black-Scholes call portfolios",
+      "label": "Black-Scholes call portfolios",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-O1",
+      "label": "Z-O1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-O2",
+      "label": "Z-O2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-O3",
+      "label": "Z-O3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-O4",
+      "label": "Z-O4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "finding:30",
+      "label": "Finding 30",
+      "kind": "finding",
+      "family": "findings",
+      "status": "recorded"
+    },
+    {
+      "id": "data:simulated:pendulum and Goodwin cycle",
+      "label": "pendulum and Goodwin cycle",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-D1",
+      "label": "Z-D1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-D3",
+      "label": "Z-D3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-V1",
+      "label": "Z-V1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-V2",
+      "label": "Z-V2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:Poisson problem with a known solution",
+      "label": "Poisson problem with a known solution",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-V3",
+      "label": "Z-V3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:geometric-mean basket",
+      "label": "geometric-mean basket",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-V4",
+      "label": "Z-V4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "hyp:Z-D2",
+      "label": "Z-D2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:ff3_monthly_snapshot.csv",
+      "label": "ff3_monthly_snapshot.csv",
+      "kind": "dataset",
+      "family": "data",
+      "status": "committed"
+    },
+    {
+      "id": "hyp:Z-P4",
+      "label": "Z-P4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "finding:32",
+      "label": "Finding 32",
+      "kind": "finding",
+      "family": "findings",
+      "status": "recorded"
+    },
+    {
+      "id": "hyp:Z-P1",
+      "label": "Z-P1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-P2",
+      "label": "Z-P2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-P3",
+      "label": "Z-P3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "data:simulated:survival with a known risk",
+      "label": "survival with a known risk",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-S1",
+      "label": "Z-S1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-S2",
+      "label": "Z-S2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "data:simulated:Ising chain",
+      "label": "Ising chain",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-Q7",
+      "label": "Z-Q7",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-Q8",
+      "label": "Z-Q8",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-Q9",
+      "label": "Z-Q9",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "finding:33",
+      "label": "Finding 33",
+      "kind": "finding",
+      "family": "findings",
+      "status": "recorded"
+    },
+    {
+      "id": "data:simulated:portfolio QUBO",
+      "label": "portfolio QUBO",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-Q4",
+      "label": "Z-Q4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-Q5",
+      "label": "Z-Q5",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "hyp:Z-Q6",
+      "label": "Z-Q6",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:Mackey-Glass equation",
+      "label": "Mackey-Glass equation",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-Q10",
+      "label": "Z-Q10",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-Q11",
+      "label": "Z-Q11",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "data:simulated:lognormal option",
+      "label": "lognormal option",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "data:simulated:calibrated_banks losses",
+      "label": "calibrated_banks losses",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-Q1",
+      "label": "Z-Q1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-Q2",
+      "label": "Z-Q2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-Q3",
+      "label": "Z-Q3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-I4",
+      "label": "Z-I4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-I5",
+      "label": "Z-I5",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-I6",
+      "label": "Z-I6",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:basket payoff grid",
+      "label": "basket payoff grid",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-T1",
+      "label": "Z-T1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-T2",
+      "label": "Z-T2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-T3",
+      "label": "Z-T3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:growth model",
+      "label": "growth model",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-M1",
+      "label": "Z-M1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-M2",
+      "label": "Z-M2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-M3",
+      "label": "Z-M3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:input-output networks",
+      "label": "input-output networks",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-G1",
+      "label": "Z-G1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-G2",
+      "label": "Z-G2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-G3",
+      "label": "Z-G3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:partially linear model",
+      "label": "partially linear model",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-C1",
+      "label": "Z-C1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "data:simulated:instrumental-variable model",
+      "label": "instrumental-variable model",
+      "kind": "dataset",
+      "family": "data",
+      "status": "simulated"
+    },
+    {
+      "id": "hyp:Z-C2",
+      "label": "Z-C2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-C3",
+      "label": "Z-C3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "data:kaggle_cpi_index_monthly.csv",
+      "label": "kaggle_cpi_index_monthly.csv",
+      "kind": "dataset",
+      "family": "data",
+      "status": "committed"
+    },
+    {
+      "id": "data:kaggle_us_macro_extended_monthly.csv",
+      "label": "kaggle_us_macro_extended_monthly.csv",
+      "kind": "dataset",
+      "family": "data",
+      "status": "committed"
+    },
+    {
+      "id": "hyp:Z-F1",
+      "label": "Z-F1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-F2",
+      "label": "Z-F2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "finding:31",
+      "label": "Finding 31",
+      "kind": "finding",
+      "family": "findings",
+      "status": "recorded"
+    },
+    {
+      "id": "hyp:Z-F5",
+      "label": "Z-F5",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-F4",
+      "label": "Z-F4",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "hyp:Z-F3",
+      "label": "Z-F3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "hyp:Z-F6",
+      "label": "Z-F6",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "pipeline:surrogate_hedge",
+      "label": "Operator surrogate, hedge, tail risk",
+      "kind": "pipeline",
+      "family": "pipelines",
+      "status": "implemented",
+      "task": "price curve from the FNO, delta by finite differences, weekly hedge, Expected Shortfall"
+    },
+    {
+      "id": "hyp:Z-I1",
+      "label": "Z-I1",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "id": "finding:34",
+      "label": "Finding 34",
+      "kind": "finding",
+      "family": "findings",
+      "status": "recorded"
+    },
+    {
+      "id": "hyp:Z-I2",
+      "label": "Z-I2",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "hyp:Z-I3",
+      "label": "Z-I3",
+      "kind": "hypothesis",
+      "family": "tests",
+      "status": "SUPPORTED"
+    },
+    {
+      "id": "pipeline:bank_loss_risk",
+      "label": "Simulated banks, quantum amplitude estimation, tail risk",
+      "kind": "pipeline",
+      "family": "pipelines",
+      "status": "implemented",
+      "task": "annual loss rates of the calibrated_banks world, shortfall as an amplitude, checked against titan"
+    }
+  ],
+  "edges": [
+    {
+      "source": "crank_nicolson",
+      "target": "pinn",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "black_scholes_closed_form",
+      "target": "pinn",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "pinn",
+      "target": "dgm",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "mlp_operator",
+      "target": "fno",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "black_scholes_closed_form",
+      "target": "fno",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "fno",
+      "target": "deeponet",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "fno",
+      "target": "data:simulated:Black-Scholes call portfolios",
+      "kind": "uses_data"
+    },
+    {
+      "source": "fno",
+      "target": "hyp:Z-O1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "fno",
+      "target": "hyp:Z-O2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "fno",
+      "target": "hyp:Z-O3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "fno",
+      "target": "hyp:Z-O4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-O1",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-O2",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-O3",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-O4",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "mlp_operator",
+      "target": "deeponet",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "black_scholes_closed_form",
+      "target": "deeponet",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deeponet",
+      "target": "data:simulated:Black-Scholes call portfolios",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deeponet",
+      "target": "hyp:Z-O1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deeponet",
+      "target": "hyp:Z-O3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "rk4_exact_flow",
+      "target": "neural_ode",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "neural_ode",
+      "target": "data:simulated:pendulum and Goodwin cycle",
+      "kind": "uses_data"
+    },
+    {
+      "source": "neural_ode",
+      "target": "hyp:Z-D1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "neural_ode",
+      "target": "hyp:Z-D3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-D1",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-D3",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "neural_sde",
+      "target": "neural_ode",
+      "kind": "extends"
+    },
+    {
+      "source": "neural_cde",
+      "target": "neural_ode",
+      "kind": "extends"
+    },
+    {
+      "source": "black_scholes_closed_form",
+      "target": "dgm",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "binomial_american",
+      "target": "dgm",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "dgm",
+      "target": "pinn",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "dgm",
+      "target": "hyp:Z-V1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "dgm",
+      "target": "hyp:Z-V2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-V1",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-V2",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "fd_poisson",
+      "target": "deep_ritz",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deep_ritz",
+      "target": "pinn",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "deep_ritz",
+      "target": "data:simulated:Poisson problem with a known solution",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deep_ritz",
+      "target": "hyp:Z-V3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-V3",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "crank_nicolson",
+      "target": "deep_bsde",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "black_scholes_closed_form",
+      "target": "deep_bsde",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "monte_carlo_vanilla",
+      "target": "deep_kolmogorov",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deep_kolmogorov",
+      "target": "deep_bsde",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "deep_kolmogorov",
+      "target": "data:simulated:geometric-mean basket",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deep_kolmogorov",
+      "target": "hyp:Z-V4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-V4",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "neural_ode",
+      "target": "hnn",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "rk4_exact_flow",
+      "target": "hnn",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "hnn",
+      "target": "neural_ode",
+      "kind": "extends"
+    },
+    {
+      "source": "hnn",
+      "target": "data:simulated:pendulum and Goodwin cycle",
+      "kind": "uses_data"
+    },
+    {
+      "source": "hnn",
+      "target": "hyp:Z-D1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hnn",
+      "target": "hyp:Z-D3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "neural_ode",
+      "target": "sympnet",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "rk4_exact_flow",
+      "target": "sympnet",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "sympnet",
+      "target": "hnn",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "sympnet",
+      "target": "data:simulated:pendulum and Goodwin cycle",
+      "kind": "uses_data"
+    },
+    {
+      "source": "sympnet",
+      "target": "hyp:Z-D1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "sympnet",
+      "target": "hyp:Z-D2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "sympnet",
+      "target": "hyp:Z-D3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-D2",
+      "target": "finding:30",
+      "kind": "reported_in"
+    },
+    {
+      "source": "min_variance",
+      "target": "optnet",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "optnet",
+      "target": "data:ff3_monthly_snapshot.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "optnet",
+      "target": "hyp:Z-P4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-P4",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "min_variance",
+      "target": "dfl",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "dfl",
+      "target": "optnet",
+      "kind": "uses"
+    },
+    {
+      "source": "dfl",
+      "target": "data:ff3_monthly_snapshot.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "dfl",
+      "target": "hyp:Z-P1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "dfl",
+      "target": "hyp:Z-P2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "dfl",
+      "target": "hyp:Z-P3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-P1",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-P2",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-P3",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "linear_cox",
+      "target": "deepsurv",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deepsurv",
+      "target": "data:simulated:survival with a known risk",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deepsurv",
+      "target": "hyp:Z-S1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deepsurv",
+      "target": "hyp:Z-S2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-S1",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-S2",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "exact_diagonalisation",
+      "target": "vqe",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "vqe",
+      "target": "data:simulated:Ising chain",
+      "kind": "uses_data"
+    },
+    {
+      "source": "vqe",
+      "target": "hyp:Z-Q7",
+      "kind": "tested_by"
+    },
+    {
+      "source": "vqe",
+      "target": "hyp:Z-Q8",
+      "kind": "tested_by"
+    },
+    {
+      "source": "vqe",
+      "target": "hyp:Z-Q9",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-Q7",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q8",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q9",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "qaoa",
+      "target": "data:simulated:portfolio QUBO",
+      "kind": "uses_data"
+    },
+    {
+      "source": "qaoa",
+      "target": "hyp:Z-Q4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qaoa",
+      "target": "hyp:Z-Q5",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qaoa",
+      "target": "hyp:Z-Q6",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-Q4",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q5",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q6",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "echo_state_network",
+      "target": "qrc",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "autoregression",
+      "target": "qrc",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "qrc",
+      "target": "data:simulated:Mackey-Glass equation",
+      "kind": "uses_data"
+    },
+    {
+      "source": "qrc",
+      "target": "hyp:Z-Q10",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qrc",
+      "target": "hyp:Z-Q11",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-Q10",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q11",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "monte_carlo_amplitude",
+      "target": "qae",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "titan_risk_metrics",
+      "target": "qae",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "qae",
+      "target": "data:simulated:lognormal option",
+      "kind": "uses_data"
+    },
+    {
+      "source": "qae",
+      "target": "data:simulated:calibrated_banks losses",
+      "kind": "uses_data"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-Q1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-Q2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-Q3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-I4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-I5",
+      "kind": "tested_by"
+    },
+    {
+      "source": "qae",
+      "target": "hyp:Z-I6",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-Q1",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q2",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-Q3",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-I4",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-I5",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-I6",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "monte_carlo_vanilla",
+      "target": "tensor_train",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "tensor_train",
+      "target": "deep_kolmogorov",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "tensor_train",
+      "target": "data:simulated:basket payoff grid",
+      "kind": "uses_data"
+    },
+    {
+      "source": "tensor_train",
+      "target": "hyp:Z-T1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "tensor_train",
+      "target": "hyp:Z-T2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "tensor_train",
+      "target": "hyp:Z-T3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-T1",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-T2",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-T3",
+      "target": "finding:33",
+      "kind": "reported_in"
+    },
+    {
+      "source": "delta_hedge",
+      "target": "deep_hedging",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deep_hedging",
+      "target": "delta_hedge",
+      "kind": "alternative_to"
+    },
+    {
+      "source": "exact_growth_policy",
+      "target": "deq",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "value_function_iteration",
+      "target": "deq",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deq",
+      "target": "data:simulated:growth model",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deq",
+      "target": "hyp:Z-M1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deq",
+      "target": "hyp:Z-M2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deq",
+      "target": "hyp:Z-M3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-M1",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-M2",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-M3",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "leontief_inverse",
+      "target": "shock_gnn",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "shock_gnn",
+      "target": "data:simulated:input-output networks",
+      "kind": "uses_data"
+    },
+    {
+      "source": "shock_gnn",
+      "target": "hyp:Z-G1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "shock_gnn",
+      "target": "hyp:Z-G2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "shock_gnn",
+      "target": "hyp:Z-G3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-G1",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-G2",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-G3",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ols_2sls",
+      "target": "double_ml",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "double_ml",
+      "target": "data:simulated:partially linear model",
+      "kind": "uses_data"
+    },
+    {
+      "source": "double_ml",
+      "target": "hyp:Z-C1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-C1",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ols_2sls",
+      "target": "deep_iv",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deep_iv",
+      "target": "data:simulated:instrumental-variable model",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deep_iv",
+      "target": "hyp:Z-C2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deep_iv",
+      "target": "hyp:Z-C3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-C2",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-C3",
+      "target": "finding:32",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "nbeats",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mlp_mom",
+      "target": "nbeats",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "base_effect_rule",
+      "target": "nbeats",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "nbeats",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "nbeats",
+      "target": "data:kaggle_us_macro_extended_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "nbeats",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "nbeats",
+      "target": "hyp:Z-F2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-F1",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "hyp:Z-F2",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "nhits",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mlp_mom",
+      "target": "nhits",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "base_effect_rule",
+      "target": "nhits",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "nhits",
+      "target": "nbeats",
+      "kind": "extends"
+    },
+    {
+      "source": "nhits",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "nhits",
+      "target": "data:kaggle_us_macro_extended_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "nhits",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "nhits",
+      "target": "hyp:Z-F2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "nhits",
+      "target": "hyp:Z-F5",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-F5",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "patchtst",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mlp_mom",
+      "target": "patchtst",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "base_effect_rule",
+      "target": "patchtst",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "patchtst",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "patchtst",
+      "target": "data:kaggle_us_macro_extended_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "patchtst",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "patchtst",
+      "target": "hyp:Z-F2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "deepar",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "deepar",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "deepar",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "deepar",
+      "target": "hyp:Z-F4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-F4",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "tft_lite",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "tft_lite",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "tft_lite",
+      "target": "data:kaggle_us_macro_extended_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "tft_lite",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "tft_lite",
+      "target": "hyp:Z-F3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-F3",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "s4d",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mlp_mom",
+      "target": "s4d",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "s4d",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "s4d",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "s4d",
+      "target": "hyp:Z-F2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "s4d",
+      "target": "hyp:Z-F6",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-F6",
+      "target": "finding:31",
+      "kind": "reported_in"
+    },
+    {
+      "source": "ridge_ar",
+      "target": "mamba_lite",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mlp_mom",
+      "target": "mamba_lite",
+      "kind": "baseline_for"
+    },
+    {
+      "source": "mamba_lite",
+      "target": "s4d",
+      "kind": "extends"
+    },
+    {
+      "source": "mamba_lite",
+      "target": "data:kaggle_cpi_index_monthly.csv",
+      "kind": "uses_data"
+    },
+    {
+      "source": "mamba_lite",
+      "target": "hyp:Z-F1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "mamba_lite",
+      "target": "hyp:Z-F2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "mamba_lite",
+      "target": "hyp:Z-F6",
+      "kind": "tested_by"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "fno",
+      "kind": "runs"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "delta_hedge",
+      "kind": "runs"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "titan_risk_metrics",
+      "kind": "runs"
+    },
+    {
+      "source": "fno",
+      "target": "delta_hedge",
+      "kind": "feeds"
+    },
+    {
+      "source": "delta_hedge",
+      "target": "titan_risk_metrics",
+      "kind": "feeds"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "hyp:Z-I1",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I1",
+      "target": "finding:34",
+      "kind": "reported_in"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "hyp:Z-I2",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I2",
+      "target": "finding:34",
+      "kind": "reported_in"
+    },
+    {
+      "source": "pipeline:surrogate_hedge",
+      "target": "hyp:Z-I3",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I3",
+      "target": "finding:34",
+      "kind": "reported_in"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "worldsim_banks",
+      "kind": "runs"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "qae",
+      "kind": "runs"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "titan_risk_metrics",
+      "kind": "runs"
+    },
+    {
+      "source": "worldsim_banks",
+      "target": "qae",
+      "kind": "feeds"
+    },
+    {
+      "source": "qae",
+      "target": "titan_risk_metrics",
+      "kind": "feeds"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "hyp:Z-I4",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I4",
+      "target": "finding:34",
+      "kind": "reported_in"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "hyp:Z-I5",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I5",
+      "target": "finding:34",
+      "kind": "reported_in"
+    },
+    {
+      "source": "pipeline:bank_loss_risk",
+      "target": "hyp:Z-I6",
+      "kind": "tested_by"
+    },
+    {
+      "source": "hyp:Z-I6",
+      "target": "finding:34",
+      "kind": "reported_in"
+    }
+  ]
+}

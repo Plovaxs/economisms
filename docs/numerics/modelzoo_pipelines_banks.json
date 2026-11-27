@@ -1,0 +1,23 @@
+{
+  "Z-I4": "SUPPORTED",
+  "Z-I5": {
+    "high": 0.0007057201582746775,
+    "low": 0.0004280232683721833,
+    "mean": 0.0005633589236587456,
+    "seeds": 300,
+    "verdict": "SUPPORTED"
+  },
+  "Z-I6": "SUPPORTED",
+  "Z-I6_discretisation_error": 9.456945164569564e-05,
+  "alpha": 0.95,
+  "binned_expected_shortfall": 1.5007386088694958,
+  "calls": 5240,
+  "direct_expected_shortfall": 1.500880546319747,
+  "family": "banks",
+  "median_relative_gap_to_direct": 0.0019572730999122506,
+  "rmse_monte_carlo": 0.02812835043549788,
+  "rmse_quantum": 0.015094541217388095,
+  "samples": 720,
+  "value_at_risk": 1.2829063259454105,
+  "wall_seconds": 3.456159906985704
+}

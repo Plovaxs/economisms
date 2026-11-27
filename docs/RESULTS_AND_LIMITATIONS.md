@@ -1502,6 +1502,46 @@ enumeration or diagonalisation is trivial. The tensor train was built from the f
 the sampling variant (TT-cross) that makes 100-dimensional problems feasible is not implemented. Reservoir results are
 on a synthetic chaotic equation, not on economic data.
 
+## Finding 34 (PR-236): joining the model zoo into one web: a registry in which every edge is checked against the code and the records, and two pipelines in which one model feeds the next
+
+Two things hold the 34 findings' models together instead of leaving them as separate studies.
+
+**The registry** (`modelzoo.registry`, `modelzoo.graph`). Every model named in the two lists the work started from (106 of
+them, plus 23 baselines the models were judged against) has one of three statuses: **28 implemented** in `prometheus.modelzoo`
+(27 compared with a baseline in a recorded study, the Neural CDE only unit-tested), **6 already existing** in this
+repository (PINN, deep BSDE, neural SDE, deep hedging, the hybrid quantum layer, the PPO economy), and **72 not built**,
+each with its reason: the theorem provers need Lean and a language model, the many-electron wavefunctions need chemistry
+software, and several need data this project does not hold (a limit order book, a transaction graph, an unstructured
+mesh). `graph.validate` fails if a module does not import, a symbol is missing, a hypothesis has no recorded verdict, a
+finding is not in this document or a dataset is neither committed nor marked simulated; a test runs it. The graph built
+from it (about 200 nodes and 230 edges: models, baselines, datasets, hypotheses, findings, pipelines) is shown in the desktop
+application (page *Atlas*), in the web app (`/atlas`) and by `econosim modelzoo`. Its edges are facts about code and records, not
+a drawing: `baseline_for`, `extends`, `alternative_to`, `uses`, `uses_data`, `tested_by`, `reported_in`, `feeds`.
+
+**Two pipelines** (`modelzoo.pipelines`, `orchestration.modelzoo_pipeline_study`, six hypotheses written and committed before the
+run, `docs/numerics/modelzoo_pipelines_*.json`), each ending at a number a classical tool of this repository also produces.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-I1** a short call hedged weekly with the neural surrogate's delta has a hedging-error standard deviation of at most 1.5 times the exact-delta hedge's | **INCONCLUSIVE**: 2.54 times (2.43 against 0.95), between the 1.5 that supports and the 3 that contradicts |
+| **Z-I2** its 95% Expected Shortfall is at most a quarter of not hedging | **SUPPORTED**: 4.96 against 46.6, a ratio of 0.106 |
+| **Z-I3** the surrogate's delta is within 0.05 of the exact delta on average | **SUPPORTED**: 0.027 |
+| **Z-I4** the amplitude-estimation route to the simulated banks' Expected Shortfall is within 2% of `titan.risk_metrics` | **SUPPORTED**: 0.2% (1.5009 direct, 1.5007 from the 64-bin distribution) |
+| **Z-I5** at equal calls it has a lower squared error than Monte Carlo | **SUPPORTED**: RMSE 0.0151 against 0.0281 at 5,240 calls |
+| **Z-I6** binning into 64 cells costs under 1% of the shortfall | **SUPPORTED**: 0.01% |
+
+The chain works end to end, which is the claim: an operator network's price curve is good enough to hedge with and removes
+nine tenths of the tail loss, though its hedge is two and a half times noisier than the exact one, and a simulated banking
+system's loss distribution goes through quantum amplitude estimation to the same tail number titan computes directly. The
+inputs of both pipelines are SIMULATED (stock paths, a banking system the earlier findings show behaves in some ways unlike a
+real one) and the quantum machine is ideal; read nothing here as how a real hedge book or bank would behave.
+
+**Across the whole zoo** (52 hypotheses in the stored records): 33 supported, 13 inconclusive, 6 contradicted. The pattern
+is the project's usual one, with the new twist that the supported ones are mostly the claims that an *exact structure* helps
+(energy conservation, symplecticity, rank saturation, closed-form agreement) and the weakest are the claims that a more
+complex network beats a plainer one on small data (the seven forecasters against a ridge, the quantum reservoir against an
+echo-state network, decision-focused learning against predict-then-optimise).
+
 ## Known limitations that are not findings, just open scope
 
 

@@ -245,3 +245,33 @@ def test_qaoa_vqe_reservoir_and_tensor_verdicts_follow_from_their_numbers() -> N
     assert t["Z-T2"] == ("SUPPORTED" if worst <= 1e-6 else "CONTRADICTED")
     share = by_d[7]["kinked"]["parameters"] / by_d[7]["full_size"]
     assert t["Z-T3"] == ("SUPPORTED" if share <= 0.20 else "CONTRADICTED")
+
+
+# ----- tranche 5 --------------------------------------------------------------------------------
+
+
+def test_pipeline_verdicts_follow_from_their_numbers() -> None:
+    h = load("pipelines_hedge")
+    rows = h["rows"]
+    ratio = float(
+        np.median([x["risk"]["surrogate"]["std"] / x["risk"]["exact"]["std"] for x in rows])
+    )
+    tail = float(
+        np.median(
+            [
+                x["risk"]["surrogate"]["expected_shortfall"]
+                / x["risk"]["unhedged"]["expected_shortfall"]
+                for x in rows
+            ]
+        )
+    )
+    assert h["Z-I1"] == threshold_verdict(ratio, 1.5, 3.0)
+    assert h["Z-I2"] == threshold_verdict(tail, 0.25, 0.5)
+    assert h["Z-I3"] == threshold_verdict(
+        float(np.median([x["mean_abs_delta_error"] for x in rows])), 0.05, 0.10
+    )
+    b = load("pipelines_banks")
+    assert b["Z-I4"] == threshold_verdict(b["median_relative_gap_to_direct"], 0.02, 0.05)
+    assert b["Z-I5"]["verdict"] == direction_verdict(b["Z-I5"]["low"], b["Z-I5"]["high"])
+    assert b["Z-I6"] == ("SUPPORTED" if b["Z-I6_discretisation_error"] < 0.01 else "CONTRADICTED")
+    assert b["rmse_quantum"] < b["rmse_monte_carlo"]  # what Z-I5 says
