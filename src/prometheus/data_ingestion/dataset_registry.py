@@ -68,6 +68,8 @@ def infer_frequency(dates: Sequence[date]) -> str:
     if len(dates) < 3:
         return "unknown"
     median = statistics.median((b - a).days for a, b in zip(dates, dates[1:], strict=False))
+    if median >= 300:
+        return "annual"
     if median >= 25:
         return "monthly"
     if median <= 5:

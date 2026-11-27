@@ -18,6 +18,7 @@ from typing import Any
 import pytest
 
 from prometheus.data_ingestion import snapshot_integrity as integrity
+from prometheus.data_ingestion.fdic_banks import load_bank_annual, load_failures_annual
 from prometheus.data_ingestion.french_factors import load_cached_ff3_snapshot
 from prometheus.data_ingestion.kaggle_cpi_index import load_cpi_index as load_cpi_index_levels
 from prometheus.data_ingestion.kaggle_fed_policy import load_fed_policy_months
@@ -359,6 +360,8 @@ _LOADERS: list[tuple[str, Callable[[Path], Any]]] = [
     ("treasury_yield_spread_monthly.csv", load_treasury_yield_spread_observations),
     ("us_cpi_monthly.csv", load_cpi_observations),
     ("ff3_monthly_snapshot.csv", load_cached_ff3_snapshot),
+    ("fdic_bank_annual.csv", lambda p: list(load_bank_annual(p).items())),
+    ("fdic_bank_failures_annual.csv", lambda p: list(load_failures_annual(p).items())),
 ]
 
 
@@ -378,7 +381,7 @@ def test_every_snapshot_loader_loads_the_real_file_and_refuses_an_altered_one(
 ) -> None:
     loaded = loader(committed_copy / name)
     rows = loaded[0] if isinstance(loaded, tuple) else loaded  # S&P returns (dates, closes)
-    assert len(rows) > 100, "the untouched copy loads"
+    assert len(rows) > 50, "the untouched copy loads"
     original = (committed_copy / name).read_bytes()
     (committed_copy / name).write_bytes(original + b"\n")
     with pytest.raises(SnapshotIntegrityError, match="does not match"):

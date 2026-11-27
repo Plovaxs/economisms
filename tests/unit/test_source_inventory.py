@@ -58,9 +58,11 @@ def test_discovers_exactly_the_real_connectors_in_this_repository() -> None:
     (same dataset) and `kaggle_build` only imports them, so neither
     declares a source of its own; `monthly_matrix` has no `*_URL`/`*LICENSE`
     constants either (a shared helper, not a source) -- none of these is
-    picked up."""
+    picked up. PR-229 adds `fdic_banks` (the FDIC BankFind API, US Government public domain:
+    annual national bank balance sheets, charge-offs and failures)."""
     discovered = discover_data_sources(_repo_data_ingestion_root())
     assert discovered == (
+        "fdic_banks",
         "french_factors",
         "kaggle_fed_policy",
         "kaggle_macro",

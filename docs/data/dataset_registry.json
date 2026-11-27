@@ -1,6 +1,100 @@
 {
   "datasets": [
     {
+      "caveat": "includes savings institutions; field definitions changed over the decades, so statistics are used from the first year equity is reported",
+      "columns": [
+        "date",
+        "banks",
+        "assets",
+        "loans",
+        "securities",
+        "cash_and_balances",
+        "deposits",
+        "equity",
+        "net_charge_offs",
+        "net_income",
+        "interest_income",
+        "interest_expense",
+        "net_interest_income",
+        "noncurrent_loans"
+      ],
+      "downloaded_at": "2026-11-27",
+      "file": "fdic_bank_annual.csv",
+      "first_date": "1934-12-31",
+      "frequency": "annual",
+      "last_date": "2025-12-31",
+      "license": "US Government work, public domain (FDIC BankFind Suite API)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.fdic_banks (national rows, commercial banks and savings institutions added)",
+        "raw_files_sha256": null
+      },
+      "meta_file": "fdic_bank_annual.meta.json",
+      "publication_lag_days": {
+        "all": 90
+      },
+      "registry_gaps": [],
+      "rows": 92,
+      "sha256": "1a1e645b742657fdd80254853a88ea390fbb285afaf579e73e367c6fa6e4c47a",
+      "size_bytes": 11372,
+      "source": "FDIC BankFind Suite, financial summary: national annual totals",
+      "source_url": "https://api.fdic.gov/banks/summary",
+      "units_and_columns": {
+        "assets": "total assets, USD thousands",
+        "banks": "number of FDIC-insured institutions at year end",
+        "cash_and_balances": "cash and balances due from banks, USD thousands",
+        "deposits": "total deposits, USD thousands",
+        "equity": "total equity capital, USD thousands; reported from 1984",
+        "interest_expense": "total interest expense during the year, USD thousands",
+        "interest_income": "total interest income during the year, USD thousands",
+        "loans": "total loans and leases, USD thousands (gross of the allowance)",
+        "net_charge_offs": "net loan and lease charge-offs during the year, USD thousands",
+        "net_income": "net income during the year, USD thousands",
+        "net_interest_income": "net interest income during the year, USD thousands",
+        "noncurrent_loans": "noncurrent loans and leases at year end, USD thousands",
+        "securities": "securities, USD thousands"
+      },
+      "vintage": "as published on 2026-11-27; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
+      "caveat": "the 2008-2009 assistance rows include very large institutions (their assets are not losses); a failure's assets are not the loss to the insurance fund",
+      "columns": [
+        "date",
+        "failures",
+        "failed_assets",
+        "failed_deposits",
+        "assistance_transactions",
+        "assisted_assets"
+      ],
+      "downloaded_at": "2026-11-27",
+      "file": "fdic_bank_failures_annual.csv",
+      "first_date": "1934-12-31",
+      "frequency": "annual",
+      "last_date": "2025-12-31",
+      "license": "US Government work, public domain (FDIC BankFind Suite API)",
+      "lineage": {
+        "derived_by": "prometheus.data_ingestion.fdic_banks (counted per calendar year of the failure date)",
+        "raw_files_sha256": null
+      },
+      "meta_file": "fdic_bank_failures_annual.meta.json",
+      "publication_lag_days": {
+        "all": 0
+      },
+      "registry_gaps": [],
+      "rows": 92,
+      "sha256": "1070179b1521b3a9e17465c145d71202815fda7958cbae28235168d7d9df4e19",
+      "size_bytes": 3032,
+      "source": "FDIC BankFind Suite, failures and assistance transactions since 1934",
+      "source_url": "https://api.fdic.gov/banks/failures",
+      "units_and_columns": {
+        "assistance_transactions": "open-bank assistance transactions (type ASSISTANCE)",
+        "assisted_assets": "total assets of the assisted institutions, USD thousands",
+        "failed_assets": "their total assets at failure, USD thousands",
+        "failed_deposits": "their deposits at failure, USD thousands",
+        "failures": "institutions that failed in the year (resolution type FAILURE)"
+      },
+      "vintage": "as published on 2026-11-27; revised series (a later download can differ), not a real-time vintage"
+    },
+    {
       "caveat": null,
       "columns": [
         "date",

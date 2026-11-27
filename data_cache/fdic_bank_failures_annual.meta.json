@@ -1,0 +1,19 @@
+{
+  "source": "FDIC BankFind Suite, failures and assistance transactions since 1934",
+  "source_url": "https://api.fdic.gov/banks/failures",
+  "license": "US Government work, public domain (FDIC BankFind Suite API)",
+  "downloaded_at": "2026-11-27",
+  "derived_by": "prometheus.data_ingestion.fdic_banks (counted per calendar year of the failure date)",
+  "columns": {
+    "failures": "institutions that failed in the year (resolution type FAILURE)",
+    "failed_assets": "their total assets at failure, USD thousands",
+    "failed_deposits": "their deposits at failure, USD thousands",
+    "assistance_transactions": "open-bank assistance transactions (type ASSISTANCE)",
+    "assisted_assets": "total assets of the assisted institutions, USD thousands"
+  },
+  "frequency": "annual; the date is the year end",
+  "caveat": "the 2008-2009 assistance rows include very large institutions (their assets are not losses); a failure's assets are not the loss to the insurance fund",
+  "publication_lag_assumption_days": {
+    "all": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "source": "FDIC BankFind Suite, financial summary: national annual totals",
+  "source_url": "https://api.fdic.gov/banks/summary",
+  "license": "US Government work, public domain (FDIC BankFind Suite API)",
+  "downloaded_at": "2026-11-27",
+  "derived_by": "prometheus.data_ingestion.fdic_banks (national rows, commercial banks and savings institutions added)",
+  "columns": {
+    "banks": "number of FDIC-insured institutions at year end",
+    "assets": "total assets, USD thousands",
+    "loans": "total loans and leases, USD thousands (gross of the allowance)",
+    "securities": "securities, USD thousands",
+    "cash_and_balances": "cash and balances due from banks, USD thousands",
+    "deposits": "total deposits, USD thousands",
+    "equity": "total equity capital, USD thousands; reported from 1984",
+    "net_charge_offs": "net loan and lease charge-offs during the year, USD thousands",
+    "net_income": "net income during the year, USD thousands",
+    "interest_income": "total interest income during the year, USD thousands",
+    "interest_expense": "total interest expense during the year, USD thousands",
+    "net_interest_income": "net interest income during the year, USD thousands",
+    "noncurrent_loans": "noncurrent loans and leases at year end, USD thousands"
+  },
+  "frequency": "annual; the date is the year end",
+  "caveat": "includes savings institutions; field definitions changed over the decades, so statistics are used from the first year equity is reported",
+  "publication_lag_assumption_days": {
+    "all": 90
+  }
+}

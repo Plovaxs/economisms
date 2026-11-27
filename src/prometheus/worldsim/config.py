@@ -79,6 +79,10 @@ class BankParams:
     loan_growth_slope: float = 0.002
     capital_trigger: float = 0.05
     fire_sale_fraction: float = 0.10
+    payout_ratio: float = 0.0
+    """Share of a month's positive profit paid out as dividends by a bank above its capital
+    trigger (paid from cash, never more than the cash it has). The default 0 keeps every earlier
+    result: without it, retained earnings pile up and capital ratios drift to 30% and more."""
 
 
 @dataclass(frozen=True, slots=True)

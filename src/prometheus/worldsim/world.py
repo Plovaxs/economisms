@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -46,6 +46,15 @@ class WorldPath:
     sovereign_default: np.ndarray
     deposit_insurance_cost: np.ndarray
     uninsured_loss: np.ndarray
+    # Aggregates of the banking system, for comparison with real bank statistics (monthly flows
+    # and end-of-month stocks, in the simulator's units; zeros in a path built without them).
+    bank_assets: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_equity: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_loan_losses: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_net_income: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_dividends: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_failed_assets: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    bank_credit: np.ndarray = field(default_factory=lambda: np.zeros(0))
 
     @property
     def n_months(self) -> int:
@@ -110,8 +119,12 @@ def simulate_world(config: WorldConfig, seed: int, shocks: Sequence[Shock] = ())
     fire_sale = np.zeros(n)
     crunch = np.zeros(n)
     loans = np.zeros(n)
+    agg_assets, agg_equity, agg_losses, agg_income = (np.zeros(n) for _ in range(4))
+    agg_dividends, agg_failed_assets, agg_credit = (np.zeros(n) for _ in range(3))
     initial = banks.equity / np.maximum(banks.assets, 1e-9)
     ratio[0], loans[0] = initial, banks.loans.sum()
+    agg_assets[0], agg_equity[0] = banks.assets.sum(), banks.equity.sum()
+    agg_credit[0] = banks.loans.sum()
     impact = 0.0
     leverage = np.full(n, firms.initial_leverage)
     debt = np.full(n, fiscal.initial_debt)
@@ -286,6 +299,13 @@ def simulate_world(config: WorldConfig, seed: int, shocks: Sequence[Shock] = ())
             step.credit_crunch,
             step.total_loans,
         )
+        agg_assets[t], agg_equity[t] = step.total_assets, step.total_equity
+        agg_losses[t], agg_income[t], agg_dividends[t] = (
+            step.loan_losses,
+            step.net_income,
+            step.dividends,
+        )
+        agg_failed_assets[t], agg_credit[t] = step.failed_assets, step.all_loans
         impact = market.price_impact * step.fire_sale_volume / market.market_size
         injection[t], liquidity[t] = step.injection, step.liquidity_support
         cumulative_injection += step.injection
@@ -371,4 +391,11 @@ def simulate_world(config: WorldConfig, seed: int, shocks: Sequence[Shock] = ())
         sovereign_default=default_event,
         deposit_insurance_cost=insurance_cost,
         uninsured_loss=uninsured,
+        bank_assets=agg_assets,
+        bank_equity=agg_equity,
+        bank_loan_losses=agg_losses,
+        bank_net_income=agg_income,
+        bank_dividends=agg_dividends,
+        bank_failed_assets=agg_failed_assets,
+        bank_credit=agg_credit,
     )

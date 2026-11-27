@@ -1,5 +1,111 @@
 {
   "files": {
+    "fdic_bank_annual.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "detail": {
+            "blank_cells_by_column": {
+              "equity": 50,
+              "noncurrent_loans": 50
+            }
+          },
+          "status": "warn"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "net_charge_offs": {
+                "largest_robust_z": 131.2,
+                "points_over_threshold": 13
+              },
+              "net_income": {
+                "largest_robust_z": 129.9,
+                "points_over_threshold": 18
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1934-12-31",
+      "frequency": "annual",
+      "last_date": "2025-12-31",
+      "rows": 92,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": [
+        "no_blank_cells"
+      ]
+    },
+    "fdic_bank_failures_annual.csv": {
+      "checks": {
+        "all_cells_numeric": {
+          "status": "ok"
+        },
+        "dates_parse": {
+          "status": "ok"
+        },
+        "dates_strictly_increasing": {
+          "status": "ok"
+        },
+        "header_matches_declared_columns": {
+          "status": "ok"
+        },
+        "no_blank_cells": {
+          "status": "ok"
+        },
+        "no_constant_column": {
+          "status": "ok"
+        },
+        "no_outlier_in_first_difference": {
+          "detail": {
+            "by_column": {
+              "failed_assets": {
+                "largest_robust_z": 1371.7,
+                "points_over_threshold": 20
+              },
+              "failed_deposits": {
+                "largest_robust_z": 1278.9,
+                "points_over_threshold": 20
+              },
+              "failures": {
+                "largest_robust_z": 50.2,
+                "points_over_threshold": 6
+              }
+            },
+            "note": "first difference, or log difference for a series spanning more than 20x",
+            "threshold_robust_z": 12.0
+          },
+          "status": "review"
+        }
+      },
+      "first_date": "1934-12-31",
+      "frequency": "annual",
+      "last_date": "2025-12-31",
+      "rows": 92,
+      "to_review": [
+        "no_outlier_in_first_difference"
+      ],
+      "warnings": []
+    },
     "ff3_monthly_snapshot.csv": {
       "checks": {
         "all_cells_numeric": {
@@ -547,6 +653,8 @@
     }
   },
   "files_to_review": [
+    "fdic_bank_annual.csv",
+    "fdic_bank_failures_annual.csv",
     "ff3_monthly_snapshot.csv",
     "kaggle_cpi_index_monthly.csv",
     "kaggle_fed_policy_monthly.csv",
@@ -558,6 +666,7 @@
     "treasury_yield_spread_monthly.csv"
   ],
   "files_with_warnings": [
+    "fdic_bank_annual.csv",
     "kaggle_fed_policy_monthly.csv",
     "kaggle_sp500_daily_close.csv",
     "kaggle_sp500_spliced_daily_close.csv",

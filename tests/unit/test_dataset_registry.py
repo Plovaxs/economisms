@@ -47,7 +47,7 @@ def test_every_snapshot_is_registered_with_the_digest_the_manifest_records() -> 
     for entry in entries:
         assert entry["sha256"] == manifest[entry["file"]]["sha256"]
         assert entry["rows"] > 0 and entry["first_date"] <= entry["last_date"]
-        assert entry["frequency"] in {"daily", "monthly"}
+        assert entry["frequency"] in {"daily", "monthly", "annual"}
         assert entry["license"] and entry["source"] and entry["source_url"], entry["file"]
 
 
@@ -71,6 +71,7 @@ def test_the_warnings_the_qa_report_finds_in_the_real_data_are_the_ones_known_to
     report = build_qa()["files"]
     found = {name: f["warnings"] for name, f in report.items() if f["warnings"]}
     assert found == {
+        "fdic_bank_annual.csv": ["no_blank_cells"],  # equity is reported from 1984, blank before
         "kaggle_fed_policy_monthly.csv": ["no_blank_cells"],
         "kaggle_sp500_daily_close.csv": ["no_gap_over_seven_days"],
         "kaggle_sp500_spliced_daily_close.csv": ["no_gap_over_seven_days"],

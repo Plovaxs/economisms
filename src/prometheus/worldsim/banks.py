@@ -61,6 +61,17 @@ class BankStep:
     liquidity_support: float = 0.0
     deposit_shortfall: float = 0.0
     total_deposits: float = 0.0
+    loan_losses: float = 0.0  # charged off this month by the banks that were operating
+    net_income: float = (
+        0.0  # interest income less losses plus the securities' gain, before dividends
+    )
+    dividends: float = 0.0
+    total_assets: float = 0.0  # of the banks still operating at the end of the month
+    total_equity: float = 0.0
+    failed_assets: float = 0.0  # assets, at the start of the month, of the banks that failed in it
+    all_loans: float = (
+        0.0  # loans of every bank, failed or not (a failed bank's loans are taken over)
+    )
 
 
 def initial_banks(params: BankParams, rng: np.random.Generator) -> BankState:
@@ -107,6 +118,7 @@ def step_banks(
     loan_recovery: float | None = None,
 ) -> BankStep:
     already_failed = state.failed.copy()
+    assets_at_start = state.assets
     if fx_depreciation != 0.0 and fx_debt_share > 0.0:
         state.deposits = state.deposits * (1.0 + fx_debt_share * fx_depreciation)
     default_rate = np.clip(
@@ -128,7 +140,20 @@ def step_banks(
     deposits_before = float(state.deposits.sum())
     state.loans = state.loans - loss
     state.cash = state.cash + income
+    securities_before = state.securities
     state.securities = state.securities * (1.0 + security_return)
+    profit = income - loss + (state.securities - securities_before)
+    operating = ~already_failed
+    dividends = np.zeros_like(profit)
+    if params.payout_ratio > 0.0:
+        ratio_now = state.equity / np.maximum(state.assets, 1e-9)
+        payers = operating & (ratio_now >= params.capital_trigger)
+        dividends = np.where(
+            payers,
+            np.minimum(params.payout_ratio * np.maximum(profit, 0.0), np.maximum(state.cash, 0.0)),
+            0.0,
+        )
+        state.cash = state.cash - dividends
 
     injection = 0.0
     if policy is not None and policy.mode == "recapitalise":
@@ -177,6 +202,7 @@ def step_banks(
     equity = state.equity
     ratio = equity / np.maximum(state.assets, 1e-9)
     n = state.failed.size
+    alive = ~state.failed
     still_constrained = (ratio < params.capital_trigger) & ~state.failed
     return BankStep(
         equity=equity,
@@ -192,4 +218,11 @@ def step_banks(
         liquidity_support=float(supported.sum()),
         deposit_shortfall=shortfall,
         total_deposits=deposits_before,
+        loan_losses=float(loss[operating].sum()),
+        net_income=float(profit[operating].sum()),
+        dividends=float(dividends.sum()),
+        total_assets=float(state.assets[alive].sum()),
+        total_equity=float(equity[alive].sum()),
+        failed_assets=float(assets_at_start[state.failed & operating].sum()),
+        all_loans=float(state.loans.sum()),
     )
