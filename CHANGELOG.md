@@ -16,6 +16,12 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **README rebuilt around screenshots.** A banner and a hero image, a tour of every desktop page and every web page
+  (sidebar, the seven labs and the eleven dashboard views, each with a caption that states only what the picture shows),
+  an architecture diagram, a documentation index and collapsible detail. Stale claims were corrected on the way (29 findings,
+  not 18; 29 verified data files, not 24; the EXT checklist is no longer described as untouched: its mechanism half exists as
+  mock-only `trading_readiness`). New `tools/capture_web_screenshots.py` regenerates the web images; the old three
+  `docs/images/desktop-*.png` files are replaced by `docs/images/desktop/`.
 - **The simulated banks estimated from real bank data (Finding 29).** New FDIC data (`data_ingestion.fdic_banks`:
   national annual balance sheets, earnings, loan charge-offs and failures since 1934) and an estimation of the bank block
   on 1985-2003, tested on 2004-2022. Levels of earnings, capital and losses are matched (the chosen banks held twice the

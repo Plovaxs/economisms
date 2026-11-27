@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="t d">
+  <title id="t">ECONOSIM</title>
+  <desc id="d">ECONOSIM, a research platform for quantitative economics and neural finance. Research and simulation only.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17112e"/>
+      <stop offset="0.55" stop-color="#0b0d12"/>
+      <stop offset="1" stop-color="#0a2a30"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a855f7"/>
+      <stop offset="0.5" stop-color="#d946ef"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="1" r="0.6">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="320" rx="18" fill="url(#bg)"/>
+  <rect width="1280" height="320" rx="18" fill="url(#glow)"/>
+  <rect x="0.5" y="0.5" width="1279" height="319" rx="17.5" fill="none" stroke="#ffffff" stroke-opacity="0.12"/>
+
+  <!-- a small fan chart, the project's own market-paths picture, as a mark -->
+  <g transform="translate(88 62)" fill="none" stroke-linecap="round">
+    <path d="M0 98 C 40 96, 70 88, 118 70 L 118 126 C 70 112, 40 102, 0 98 Z" fill="#22d3ee" fill-opacity="0.18" stroke="none"/>
+    <path d="M0 98 C 40 92, 70 74, 118 38" stroke="#22d3ee" stroke-opacity="0.55" stroke-width="2"/>
+    <path d="M0 98 C 40 104, 70 112, 118 126" stroke="#22d3ee" stroke-opacity="0.55" stroke-width="2"/>
+    <path d="M0 98 C 40 97, 70 96, 118 94" stroke="url(#ink)" stroke-width="4"/>
+    <circle cx="118" cy="94" r="5" fill="#d946ef"/>
+  </g>
+
+  <text x="250" y="132" font-family="Inter, 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="78" font-weight="700" letter-spacing="2" fill="url(#ink)">ECONOSIM</text>
+  <text x="252" y="170" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="17" letter-spacing="6" fill="#8b90a0">PROMETHEUS-X</text>
+  <text x="252" y="214" font-family="Inter, 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="24" fill="#e6e8ef">Classical, deep-learning and hybrid-quantum models,</text>
+  <text x="252" y="246" font-family="Inter, 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="24" fill="#e6e8ef">benchmarked side by side on real data. Negative results included.</text>
+
+  <g font-family="Inter, 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="600">
+    <rect x="252" y="268" width="148" height="30" rx="15" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="326" y="288" text-anchor="middle" fill="#cfd3df">29 findings</text>
+    <rect x="412" y="268" width="148" height="30" rx="15" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="486" y="288" text-anchor="middle" fill="#cfd3df">16 labs</text>
+    <rect x="572" y="268" width="148" height="30" rx="15" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="646" y="288" text-anchor="middle" fill="#cfd3df">8 explorers</text>
+    <rect x="732" y="268" width="196" height="30" rx="15" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-opacity="0.45"/>
+    <text x="830" y="288" text-anchor="middle" fill="#fca5a5">research only · NO-GO</text>
+  </g>
+</svg>

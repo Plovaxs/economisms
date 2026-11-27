@@ -58,8 +58,10 @@ environment as everything else, **headlessly**: they set `QT_QPA_PLATFORM=offscr
 window over a real session and a real isolated worker, and need no display. CI sets
 `ECONOSIM_REQUIRE_DESKTOP_TESTS=1`, under which a Qt that cannot be imported *fails* them rather than
 skipping them. To look at what you changed, `econosim desktop --screenshots out/` renders every page to
-PNG with no display; the three images in `docs/images/` are from that command and should be regenerated
-when the look changes. Charts are drawn by `desktop/ui/charts.py` against a validated palette
+PNG with no display; the desktop images in `docs/images/desktop/` are from that command (add `--theme light`
+for the light ones) and should be regenerated when the look changes. The web images in `docs/images/web/` come from
+the demo edition photographed in a real headless Firefox by `tools/capture_web_screenshots.py` (its docstring says what
+to start first: a served demo build and `geckodriver`); `docs/images/hero.png` and `banner.svg` are composed from them. Charts are drawn by `desktop/ui/charts.py` against a validated palette
 (`desktop/ui/theme.py`): do not add a colour by eye -- run the palette validator in both modes, and keep
 the rules the module's docstring lists (thin marks, a legend for two or more series, a table view behind
 every chart, text that never wears a series colour). Anything that shows text from a result must show it
