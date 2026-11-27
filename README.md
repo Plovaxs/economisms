@@ -2,7 +2,7 @@
 
 **A research platform for quantitative economics, financial modeling, market forecasting, and neural risk control.**
 
-[![Tests](https://img.shields.io/badge/tests-5%2C313%20passing-brightgreen)](./docs/PR_LEDGER.md)
+[![Tests](https://img.shields.io/badge/tests-5%2C352%20passing-brightgreen)](./docs/PR_LEDGER.md)
 [![Version](https://img.shields.io/badge/version-0.5.4-informational)](./CHANGELOG.md)
 [![Lint & Types](https://img.shields.io/badge/ruff%20%2B%20mypy--strict-clean-brightgreen)](./CHECKLIST_STATUS.md)
 [![Blueprint coverage](https://img.shields.io/badge/blueprint%20coverage-361%2F374%20(96.5%25)-blue)](./CHECKLIST_STATUS.md)
@@ -132,7 +132,7 @@ and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **5,313 passed, 16 skipped** (5,329 tests; the count in the green CI run of commit `b1b115b`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **5,352 passed, 16 skipped** (5,368 tests; the count in the green CI run of commit `f6af3d3`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **31 / 31** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | 205, each independently verified |
 
