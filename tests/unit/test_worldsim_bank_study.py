@@ -144,3 +144,71 @@ def test_the_recorded_verdicts_follow_the_pre_written_rules() -> None:
     assert recorded["K-D5"] == verdict_c(
         robust["connected_share_excluding_zero"], robust["plain_share_excluding_zero"]
     )
+
+
+def test_the_collapse_check_reports_shares_per_world() -> None:
+    report = study.collapse_check(
+        {"calibrated_banks": study.collapse_worlds()["calibrated_banks"]}, (1, 2)
+    )
+    row = report["worlds"]["calibrated_banks"]
+    assert report["seeds"] == [1, 2] and 0.0 <= row["all_banks_failed_share"] <= 1.0
+    assert set(study.collapse_worlds()) == {
+        "calibrated",
+        "calibrated_full",
+        "calibrated_connected",
+        "calibrated_banks",
+        "calibrated_banks_full",
+        "calibrated_banks_connected",
+    }
+
+
+def test_the_second_revision_is_recorded_with_its_own_pre_written_verdicts() -> None:
+    recorded = json.loads(
+        (
+            Path(__file__).resolve().parents[2]
+            / "docs"
+            / "numerics"
+            / "worldsim_bank_study_v2.json"
+        ).read_text()
+    )
+    assert recorded["revision"] == 2
+    held = recorded["out_of_sample"]
+    gap = held["distance_difference"]
+    assert recorded["K-E1"] == study.verdict_a(gap["low"], gap["high"])
+    against_first = held["distance_difference_vs_first_revision"]
+    assert recorded["K-E2"] == study.verdict_a(against_first["low"], against_first["high"])
+    assert recorded["K-E3"] == study.verdict_d2(held["untargeted_inside"])
+    macro = recorded["macro_check"]
+    assert recorded["K-E5"] == study.verdict_d4(macro["bank_calibrated"], macro["finding28"])
+    assert recorded["K-E7"] == ("SUPPORTED" if held["structure_inside"] >= 2 else "CONTRADICTED")
+    sane = recorded["sanity"]
+    assert (recorded["K-E4"] == "SUPPORTED") == (
+        not sane["parameters_at_a_bound"]
+        and study.MIN_EQUITY <= sane["mean_equity_ratio_percent"] <= study.MAX_EQUITY
+        and sane["collapsed_share"] <= study.MAX_COLLAPSED_SHARE
+    )
+    # the first run's recorded world, not this one, is what ships
+    first = json.loads(
+        (
+            Path(__file__).resolve().parents[2] / "docs" / "numerics" / "worldsim_bank_study.json"
+        ).read_text()
+    )
+    assert held["distance_first_revision"] == pytest.approx(
+        first["out_of_sample"]["distance_bank_calibrated"], rel=1e-9
+    )
+    assert recorded["K-E2"] == "CONTRADICTED"  # the revision did worse than the first run
+
+
+def test_the_return_on_assets_decomposition_adds_up_and_is_recorded() -> None:
+    report = study.roa_decomposition(study.collapse_worlds()["calibrated_banks"], (1, 2))
+    assert report["bank_years"] > 10
+    assert report["roa_mean"] == pytest.approx(
+        report["income_mean"] - report["loss_mean"] + report["securities_gain_mean"], abs=1e-9
+    )
+    recorded = json.loads(study.DECOMPOSITION_OUTPUT.read_text())
+    for run in ("first_run", "second_run"):
+        row = recorded[run]
+        # the securities' gain, not lending, is where the volatility of bank earnings comes from
+        assert row["securities_gain_sd"] > 5 * max(row["income_sd"], row["loss_sd"])
+        assert row["securities_gain_sd"] > 0.9 * row["roa_sd"]
+    assert study.second_revision_world().banks.securities_growth_share == 1.0

@@ -16,6 +16,13 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **The simulated banks estimated from real bank data (Finding 29).** New FDIC data (`data_ingestion.fdic_banks`:
+  national annual balance sheets, earnings, loan charge-offs and failures since 1934) and an estimation of the bank block
+  on 1985-2003, tested on 2004-2022. Levels of earnings, capital and losses are matched (the chosen banks held twice the
+  real equity ratio); behaviour is not (earnings far too volatile, almost no failures, no credit contraction), and a
+  second run that changed the model's structure did worse and is recorded as such. The first run ships as the
+  `calibrated_banks` scenario (plain world only: with the extensions on, the estimated banks all fail in 88% of paths, and
+  the chosen ones in 33%, a caveat on Findings 27 and 28).
 - **WORLDSIM estimated from real data (Finding 28).** The parameters that data can speak to (equity regimes from a
   hidden Markov model of the S&P 500, Okun's coefficient from real GDP, the macro block by indirect inference, bank
   lending) are estimated on 1960-1999 and tested on 2000-2023. The first attempt did worse out of sample than the

@@ -13,7 +13,8 @@ it. Only what the data could speak to is replaced:
   shocks) by indirect inference, and the two bank-lending growth parameters.
 
 Everything else (bond and real-asset returns, bank balance sheets and loss rates, the firm, fiscal
-and foreign blocks, the households) keeps the value that was chosen, which is stated, not hidden.
+and foreign blocks, the households) keeps the value that was chosen, which is stated, not hidden;
+the `calibrated_banks` scenario adds the bank block estimated from FDIC data (Finding 29).
 The regimes are the model's own: state 1 ("slowdown") is the HMM's middle state, which the data
 puts in about two thirds of all months, so "slowdown" here is the ordinary state, not a recession.
 """
@@ -33,7 +34,7 @@ from prometheus.worldsim.config import (
     scenario,
 )
 
-CALIBRATED_SCENARIOS = ("calibrated", "calibrated_full", "calibrated_connected")
+CALIBRATED_SCENARIOS = ("calibrated", "calibrated_full", "calibrated_connected", "calibrated_banks")
 
 ESTIMATES: dict[str, Any] = {
     "transition": [
@@ -61,6 +62,24 @@ ESTIMATES: dict[str, Any] = {
     "loan_growth_base": 0.00465120697,
     "loan_growth_slope": 0.000777849887,
 }
+
+BANK_ESTIMATES: dict[str, float] = {
+    "loans": 60.762311515354355,
+    "securities": 20.91880179198835,
+    "cash": 8.318886692657301,
+    "deposit_funding": 72.96043048887132,
+    "net_interest_margin": 0.0007795010144510306,
+    "base_default_rate": 0.0011160128179361836,
+    "default_sensitivity": 0.07844668334308015,
+    "payout_ratio": 0.9496832703752298,
+    "loan_growth_base": 0.009994100324598736,
+    "loan_growth_slope": 6.122338496231321e-06,
+}
+"""The bank block of the first run of Finding 29 (`docs/numerics/worldsim_bank_study.json`, the
+final fit on the FDIC's 1985-2022 annual totals); a test pins these to the record. Three of them lie
+at or next to a bound of the search (payout, base loan growth, its slope): the data did not pin
+them, which the record and Finding 29 say. Revision 2 of that study, which changed the model's
+structure, did worse and is not used."""
 
 
 def calibrated_config() -> WorldConfig:
@@ -94,12 +113,31 @@ def calibrated_config() -> WorldConfig:
     )
 
 
+def calibrated_banks_config() -> WorldConfig:
+    """`calibrated_config` with the bank block estimated from FDIC data (Finding 29, first run):
+    the opening balance sheet, the net interest margin, the default rate and its sensitivity, a
+    dividend payout and the loan-growth parameters. Loss given default (0.5), the capital trigger,
+    the fire-sale fraction, the securities' equity share and the interbank network keep their
+    chosen values."""
+    base = calibrated_config()
+    changes: dict[str, Any] = dict(BANK_ESTIMATES)
+    return replace(base, name="calibrated_banks", banks=replace(base.banks, **changes))
+
+
 def calibrated_scenario(name: str, *, mode: BailoutMode = "none") -> WorldConfig:
     """`calibrated` (the plain world), `calibrated_full` (firms, government, foreign sector,
-    unequal households) or `calibrated_connected` (all of it with the feedback loops on)."""
+    unequal households), `calibrated_connected` (all of it with the feedback loops on) or
+    `calibrated_banks` (the plain world with the bank block estimated from FDIC data).
+
+    There is no full or connected version of `calibrated_banks` on purpose: with the extensions on,
+    firm distress multiplies the banks' default rate, and banks with real-sized capital lose every
+    bank in 88% of 20-year paths (33% with the chosen banks; see
+    `docs/numerics/worldsim_bank_collapse.json`), a world no real banking system resembles."""
     base = calibrated_config()
     if name == "calibrated":
         return base
+    if name == "calibrated_banks":
+        return calibrated_banks_config()
     if name == "calibrated_full":
         return replace(extended(base, mode=mode), name="calibrated_full")
     if name == "calibrated_connected":

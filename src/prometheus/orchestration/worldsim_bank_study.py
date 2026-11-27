@@ -146,8 +146,8 @@ from prometheus.worldsim.bank_calibration import (
     simulated_annual_moments,
     simulated_annual_table,
 )
-from prometheus.worldsim.calibrated import calibrated_config
-from prometheus.worldsim.config import WorldConfig
+from prometheus.worldsim.calibrated import calibrated_banks_config, calibrated_config
+from prometheus.worldsim.config import WorldConfig, connected, extended
 from prometheus.worldsim.real_calibration import (
     MACRO_MOMENTS,
     all_moments,
@@ -577,6 +577,99 @@ def configuration_summary(config: WorldConfig) -> dict[str, Any]:
     }
 
 
+COLLAPSE_OUTPUT = ROOT / "docs" / "numerics" / "worldsim_bank_collapse.json"
+COLLAPSE_SEEDS = tuple(range(64_000, 64_040))
+
+
+def collapse_worlds() -> dict[str, WorldConfig]:
+    """The six worlds compared: the Finding 28 worlds and the same three with the estimated banks
+    (the last two exist only here, see `worldsim.calibrated.calibrated_scenario`)."""
+    plain, banks = calibrated_config(), calibrated_banks_config()
+    return {
+        "calibrated": plain,
+        "calibrated_full": extended(plain),
+        "calibrated_connected": connected(plain),
+        "calibrated_banks": banks,
+        "calibrated_banks_full": extended(banks),
+        "calibrated_banks_connected": connected(banks),
+    }
+
+
+def collapse_check(worlds: dict[str, WorldConfig], seeds: Sequence[int]) -> dict[str, Any]:
+    """How often every bank has failed by the end of a 20-year path, per world. A world whose
+    banking system dies in most paths is not one real banks resemble, whatever its other fit."""
+    out: dict[str, Any] = {"seeds": list(seeds), "months": SCENARIO_MONTHS, "worlds": {}}
+    for name, config in worlds.items():
+        every, failed = [], []
+        for seed in seeds:
+            with np.errstate(all="ignore"):
+                path = simulate_world(config, seed)
+            every.append(bool(path.bank_failed[-1].all()))
+            failed.append(float(path.bank_failed[-1].mean()))
+        out["worlds"][name] = {
+            "all_banks_failed_share": float(np.mean(every)),
+            "mean_failed_bank_share": float(np.mean(failed)),
+        }
+    return out
+
+
+DECOMPOSITION_OUTPUT = ROOT / "docs" / "numerics" / "worldsim_bank_roa_decomposition.json"
+BANK_FIELDS = (
+    "loans",
+    "securities",
+    "cash",
+    "deposit_funding",
+    "net_interest_margin",
+    "base_default_rate",
+    "default_sensitivity",
+    "loss_given_default",
+    "payout_ratio",
+    "dividend_threshold",
+    "securities_growth_share",
+    "loan_growth_base",
+    "loan_growth_slope",
+    "securities_equity_share",
+)
+
+
+def second_revision_world() -> WorldConfig:
+    """The world of the second run, rebuilt from its record (`worldsim_bank_study_v2.json`)."""
+    recorded = json.loads(OUTPUT_V2.read_text(encoding="utf-8"))["full_fit"]["configuration"]
+    base = calibrated_config()
+    changes: dict[str, Any] = {k: float(recorded[k]) for k in BANK_FIELDS}
+    return replace(base, banks=replace(base.banks, **changes))
+
+
+def roa_decomposition(config: WorldConfig, seeds: Sequence[int]) -> dict[str, float]:
+    """Mean and standard deviation, over bank-years without a failure, of the return on assets
+    and of its three parts: interest income on loans, loan losses and the securities' gain. A
+    year with a failure is left out because a failing bank's last month would dominate the
+    spread."""
+    parts: dict[str, list[float]] = {"income": [], "loss": [], "securities_gain": [], "roa": []}
+    for seed in seeds:
+        with np.errstate(all="ignore"):
+            path = simulate_world(config, seed)
+        for year in range(18):
+            a, b = 24 + 12 * year, 24 + 12 * (year + 1)
+            assets = 0.5 * (path.bank_assets[a - 1] + path.bank_assets[b - 1])
+            if assets <= 1e-6 or path.bank_failed[b - 1].any():
+                continue
+            income = float(
+                (config.banks.net_interest_margin * path.total_loans[a - 1 : b - 1]).sum()
+            )
+            loss = float(path.bank_loan_losses[a:b].sum())
+            profit = float(path.bank_net_income[a:b].sum())
+            parts["income"].append(100.0 * income / assets)
+            parts["loss"].append(100.0 * loss / assets)
+            parts["securities_gain"].append(100.0 * (profit - income + loss) / assets)
+            parts["roa"].append(100.0 * profit / assets)
+    out: dict[str, float] = {"bank_years": float(len(parts["roa"]))}
+    for name, values in parts.items():
+        out[f"{name}_mean"] = float(np.mean(values)) if values else math.nan
+        out[f"{name}_sd"] = float(np.std(values)) if values else math.nan
+    return out
+
+
 def _not_calibrated(revision: int) -> list[str]:
     items = [
         "loss given default (only its product with the default rate is identified)",
@@ -749,7 +842,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--checkpoint-dir", type=Path, default=None)
     parser.add_argument("--skip-robustness", action="store_true")
+    parser.add_argument(
+        "--roa-decomposition",
+        action="store_true",
+        help="only write docs/numerics/worldsim_bank_roa_decomposition.json",
+    )
+    parser.add_argument(
+        "--collapse-check",
+        action="store_true",
+        help="only write docs/numerics/worldsim_bank_collapse.json (how often every bank fails)",
+    )
     args = parser.parse_args(argv)
+    if args.roa_decomposition:
+        report = {
+            "seeds": list(COLLAPSE_SEEDS),
+            "first_run": roa_decomposition(calibrated_banks_config(), COLLAPSE_SEEDS),
+            "second_run": roa_decomposition(second_revision_world(), COLLAPSE_SEEDS),
+        }
+        DECOMPOSITION_OUTPUT.write_text(json.dumps(_jsonable(report), indent=2) + "\n")
+        print(f"wrote {DECOMPOSITION_OUTPUT}", file=sys.stderr)
+        return 0
+    if args.collapse_check:
+        report = collapse_check(collapse_worlds(), COLLAPSE_SEEDS)
+        COLLAPSE_OUTPUT.write_text(json.dumps(report, indent=2) + "\n")
+        print(f"wrote {COLLAPSE_OUTPUT}", file=sys.stderr)
+        return 0
     result = run_study(
         workers=args.workers,
         fits=args.fits,

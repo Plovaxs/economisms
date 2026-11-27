@@ -1284,6 +1284,94 @@ monetary regime from the estimation sample. Credit growth is the model's weakest
 feedback loops carry it, measured on paired seeds with and without each loop; `calibrated`, `calibrated_full` and
 `calibrated_connected` are selectable everywhere a WORLDSIM scenario is.
 
+## Finding 29 (PR-229..231): estimating the simulated banks from real bank data: matching the level of bank earnings, capital and loan losses is easy, matching their behaviour is not, and a second attempt that changed the model's structure did worse
+
+Finding 28 named the bank block as the weakest link of the calibrated economy: its one credit target was the Fed's
+weekly bank credit, a series that includes securities, and it matched nothing. This finding adds the data a bank model
+is judged by and asks how far estimation gets. Data: the FDIC's own BankFind API (`data_ingestion.fdic_banks`, US
+Government work in the public domain, committed as `data_cache/fdic_bank_annual.csv` and
+`fdic_bank_failures_annual.csv` with the integrity manifest): national annual totals of all insured institutions
+since 1934 (assets, loans, securities, cash, deposits, equity from 1984, net charge-offs, net income, interest income and
+expense, the failures and assistance transactions of each year). This source is not on Kaggle (the Kaggle backbone's credit tables would need a download token this session does not
+hold); the FDIC is the primary source of such numbers.
+
+Method (`worldsim.bank_calibration`, `orchestration.worldsim_bank_study`). Annual rows are built the same way from the
+real data and from a simulated path (stocks at the year end, flows over average stocks): the return on assets, the equity
+ratio, the net charge-off rate, loan growth, the share of assets that failed and the loans-to-assets ratio. The
+estimation window is 1985-2003, the held-out window 2004-2022 (it contains 2008), the final fit uses all 38 years.
+Nine statistics are targeted (the mean and standard deviation of the return on assets, the mean equity ratio, the mean
+and standard deviation of charge-offs and their correlation with the unemployment gap, the mean and standard deviation of
+loan growth and its correlation with the gap), weighted by the standard errors of a block bootstrap of the real years;
+seven are held back as tests. The macro block of Finding 28 is not re-estimated. The simulator gained a dividend payout
+(the chosen banks retained every profit, which is why their equity ratio is double the real one) and annual aggregates;
+with their defaults every earlier result is unchanged.
+
+**What the chosen banks looked like against the data (2004-2022).** Return on assets 2.1% against 0.9%, an equity ratio
+of 22% against 10.7%, charge-offs 1.6% of loans against 0.8%, loan growth 1.7% a year against 4.4%.
+
+### First run (hypotheses K-D1 to K-D5 written into the script before the run; `docs/numerics/worldsim_bank_study.json`)
+
+Six parameters estimated (net interest margin, base default rate, its sensitivity to the output gap, the payout ratio and
+the two loan-growth parameters) and the opening balance sheet from the real shares of assets; loss given default (0.5),
+the capital trigger, the fire-sale fraction, the securities' equity share (0.4) and the interbank network keep their
+chosen values because an aggregate cannot identify them.
+
+| Hypothesis | Result |
+| --- | --- |
+| **K-D1** held-out distance on the nine targeted statistics | **SUPPORTED**, but a foregone conclusion (the script says so): 267 against 4,434 for the chosen banks, difference 4,167 [3,834, 4,400]; closer on 7 of 9 statistics |
+| **K-D2** at least five of seven untargeted statistics inside the real 95% interval | **INCONCLUSIVE**: 4 of 7 (the chosen banks: 2). Inside: the share of assets that failed, the share of years with over 1% failing, the peak charge-off rate, the worst credit growth. Outside: the worst return on assets (-2.0% against -0.07%), the volatility of the equity ratio (2.7 against 0.6), loans-to-assets (78% against 56%) |
+| **K-D3** sane world, no parameter at a bound | **CONTRADICTED**: the payout (0.95), base loan growth (0.0100) and its slope (0) sit at the edges of their search ranges; the equity ratio (7.1%) and the absence of collapsed or failed paths were fine |
+| **K-D4** the macro fit not broken (at most 1.25 times Finding 28's distance) | **INCONCLUSIVE**: 25.6 against 20.2, a ratio of 1.27 |
+| **K-D5** Finding 27 survives | **SUPPORTED**: 87% of shock-by-outcome cells (67 of 77) respond with the links on, 42% (32) with them off (the same seeds on the chosen banks: 69% and 31%) |
+
+The final fit matches the levels (return on assets 0.86% against 0.89%, equity ratio 8.0% against 9.0%, charge-offs 0.83%
+against 0.78%, loan-growth volatility 3.7 against 4.2) and misses the behaviour: the return on assets moves 1.4 against
+0.4, charge-offs move 0.15 against 0.50 and track the cycle too closely (correlation 0.74 against 0.44), loan growth is
+7.2% against 4.6%, and the credit contraction of 2009 (-7.3%) does not appear (the worst year is +2.4%). None of the six
+parameters is identified by the data on the 20% criterion of Finding 28.
+
+### Second run (revision 2, written and committed before it was run; K-E1 to K-E7; `worldsim_bank_study_v2.json`)
+
+Three changes, each prompted by the first run: the securities' equity share estimated from the FDIC's equity securities
+(1.5% of securities, not 0.4), securities growing with loans (loans stayed 50 to 62% of assets over 38 years; securities
+did not grow in the first run), and a capital threshold for dividends as a seventh estimated parameter.
+
+| Hypothesis | Result |
+| --- | --- |
+| **K-E1** closer than the chosen banks | **SUPPORTED** (792 against 4,434) |
+| **K-E2** closer than the first run | **CONTRADICTED**: 792 against 267, worse by 525 [463, 607] |
+| **K-E3** untargeted statistics | **INCONCLUSIVE**: 4 of 7 |
+| **K-E4** sane world | **CONTRADICTED**: banks end with every bank failed in 80% of paths, the equity ratio is 4.3%, three parameters at a bound |
+| **K-E5** macro fit not broken | **INCONCLUSIVE**: ratio 1.34 |
+| **K-E6** Finding 27 survives | **SUPPORTED**: 62% against 30% |
+| **K-E7** the structure was repaired (two of: return-on-assets volatility, equity-ratio volatility, loans-to-assets) | **CONTRADICTED**: only loans-to-assets (54% against 56%) is inside; earnings still move 2.1 against 0.4 |
+
+**Why earnings stay too volatile.** Decomposing the return on assets in the simulated banks (bank-years without a
+failure, 40 paths; `worldsim_bank_roa_decomposition.json`): in the first run its standard deviation is 1.73, of which the
+securities' gain is 1.73 (interest income on loans 0.05, loan losses 0.15); in the second run 3.17, of which the
+securities' gain is 3.15. It is not the equity part: cutting the equity share from 40% to 1.5% did not lower it (the same run's other changes
+raised it). The model books the
+securities' total return, the bond price moves included, as income, while its deposits carry no interest cost; in real
+banks most securities are held at cost or carried through other comprehensive income and deposits are paid for. That is a
+structural feature of the simulator no choice of parameters can offset. The second run's changes made banks thinner and
+more exposed, which is why it did worse.
+
+**An earlier finding that needs this caveat.** With the extensions switched on (firms, state, foreign sector), firm
+distress multiplies the banks' default rate. In the chosen-bank calibrated worlds every bank has failed by the end of a
+20-year path in 32.5% of 40 paths; with the estimated, real-sized capital it is 87.5% (`worldsim_bank_collapse.json`; the
+plain world: none). Finding 27's connected economy and the transmission map therefore describe a banking system that
+often dies completely, which no real one does (the FDIC's failed assets average 0.5% of assets a year). That is why the
+shipped `calibrated_banks` scenario exists only as the plain world, with no full or connected version.
+
+**Not shown, and caveats.** That the simulator's banks resemble real ones: dynamics (volatile earnings, smooth
+charge-offs, almost no failures in the plain world, no credit contraction) do not. The 2004-2022 window was not clean after
+the first run: revision 2 was chosen having seen the first run's held-out statistics, so its K-E tests are weaker than
+the first run's. Thirty-eight annual rows and three-year bootstrap blocks give wide standard errors. National totals include
+savings institutions and the failures of the 1980s. Loss given default, the capital trigger, the interbank network and the
+fire-sale rule are chosen, not estimated. A fixed point of the repository's own discipline: the first run's world, not the
+better-looking-in-places second, is what ships (`worldsim.calibrated.BANK_ESTIMATES`, pinned to the record by a test),
+with its three parameters at the edge of their ranges stated here.
+
 ## Known limitations that are not findings, just open scope
 
 

@@ -67,3 +67,44 @@ def test_every_calibrated_scenario_builds_and_simulates_without_failing() -> Non
 def test_the_dashboard_summary_accepts_calibrated_scenarios() -> None:
     summary = worldsim_as_json(name="calibrated_connected", seed=1)
     assert summary["scenario"] == "calibrated_connected" and summary["synthetic"] is True
+
+
+BANK_STUDY = Path(__file__).resolve().parents[2] / "docs" / "numerics" / "worldsim_bank_study.json"
+COLLAPSE = Path(__file__).resolve().parents[2] / "docs" / "numerics" / "worldsim_bank_collapse.json"
+
+
+def test_the_bank_constants_are_the_final_fit_of_the_first_run_of_the_bank_study() -> None:
+    from prometheus.worldsim.calibrated import BANK_ESTIMATES, calibrated_banks_config
+
+    recorded = json.loads(BANK_STUDY.read_text())["full_fit"]["configuration"]
+    banks = calibrated_banks_config().banks
+    for name, value in BANK_ESTIMATES.items():
+        assert getattr(banks, name) == pytest.approx(recorded[name], rel=1e-9), name
+        assert recorded[name] == pytest.approx(value, rel=1e-9), name
+    # what the data could not speak to keeps its chosen value
+    chosen = calibrated_config().banks
+    for name in ("loss_given_default", "capital_trigger", "fire_sale_fraction"):
+        assert getattr(banks, name) == getattr(chosen, name)
+    assert banks.securities_equity_share == chosen.securities_equity_share == 0.4
+    assert banks.dividend_threshold == 0.0 and banks.securities_growth_share == 0.0
+
+
+def test_the_banks_scenario_exists_only_as_the_plain_world() -> None:
+    assert "calibrated_banks" in CALIBRATED_SCENARIOS
+    assert not any(n.startswith("calibrated_banks_") for n in CALIBRATED_SCENARIOS)
+    config = calibrated_scenario("calibrated_banks")
+    assert config.links.enabled is False and config.fiscal.enabled is False
+    assert config.banks.payout_ratio > 0.0 and config.macro == calibrated_config().macro
+    with pytest.raises(ValueError):
+        calibrated_scenario("calibrated_banks_full")
+
+
+def test_the_recorded_collapse_check_is_why_there_is_no_full_banks_scenario() -> None:
+    worlds = json.loads(COLLAPSE.read_text())["worlds"]
+    assert worlds["calibrated_banks"]["all_banks_failed_share"] <= 0.05
+    assert worlds["calibrated_banks_full"]["all_banks_failed_share"] > 0.5
+    assert worlds["calibrated_full"]["all_banks_failed_share"] > 0.2  # Finding 28's own world too
+    assert (
+        worlds["calibrated_banks_connected"]["all_banks_failed_share"]
+        > worlds["calibrated_connected"]["all_banks_failed_share"]
+    )

@@ -178,3 +178,31 @@ def test_the_assets_of_banks_that_fail_are_recorded_in_the_month_they_fail() -> 
     assert (hit.bank_failed_assets[np.flatnonzero(hit.new_failures == 0)] == 0.0).all()
     # a failed bank's loans stay in the economy: total credit does not fall by its loans
     assert hit.bank_credit[-1] > hit.total_loans[-1]
+
+
+def test_a_dividend_threshold_makes_banks_retain_profit_below_it() -> None:
+    base = apply_bank(scenario("volatile"), {"payout_ratio": 1.0})
+    low = simulate_world(base, 8)
+    from dataclasses import replace
+
+    high_config = replace(base, banks=replace(base.banks, dividend_threshold=0.30))
+    high = simulate_world(high_config, 8)
+    early = slice(0, 60)  # later, the world that paid out everything has lost its banks
+    assert low.bank_dividends[early].sum() > high.bank_dividends[early].sum()
+    window = slice(24, 120)
+    assert (
+        high.bank_equity[window].sum() / high.bank_assets[window].sum()
+        > low.bank_equity[window].sum() / low.bank_assets[window].sum()
+    )
+
+
+def test_securities_grow_with_loans_when_asked_and_not_otherwise() -> None:
+    from dataclasses import replace
+
+    base = scenario("volatile")
+    grown = replace(base, banks=replace(base.banks, securities_growth_share=1.0))
+    a, b = simulate_world(base, 9), simulate_world(grown, 9)
+    share_a = a.total_loans[100] / a.bank_assets[100]
+    share_b = b.total_loans[100] / b.bank_assets[100]
+    assert share_b < share_a  # the loans-to-assets ratio drifts up unless securities grow too
+    assert base.banks.securities_growth_share == 0.0 and base.banks.dividend_threshold == 0.0

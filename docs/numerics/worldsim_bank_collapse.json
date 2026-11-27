@@ -1,0 +1,71 @@
+{
+  "seeds": [
+    64000,
+    64001,
+    64002,
+    64003,
+    64004,
+    64005,
+    64006,
+    64007,
+    64008,
+    64009,
+    64010,
+    64011,
+    64012,
+    64013,
+    64014,
+    64015,
+    64016,
+    64017,
+    64018,
+    64019,
+    64020,
+    64021,
+    64022,
+    64023,
+    64024,
+    64025,
+    64026,
+    64027,
+    64028,
+    64029,
+    64030,
+    64031,
+    64032,
+    64033,
+    64034,
+    64035,
+    64036,
+    64037,
+    64038,
+    64039
+  ],
+  "months": 240,
+  "worlds": {
+    "calibrated": {
+      "all_banks_failed_share": 0.0,
+      "mean_failed_bank_share": 0.01
+    },
+    "calibrated_full": {
+      "all_banks_failed_share": 0.325,
+      "mean_failed_bank_share": 0.325
+    },
+    "calibrated_connected": {
+      "all_banks_failed_share": 0.325,
+      "mean_failed_bank_share": 0.32999999999999996
+    },
+    "calibrated_banks": {
+      "all_banks_failed_share": 0.0,
+      "mean_failed_bank_share": 0.0
+    },
+    "calibrated_banks_full": {
+      "all_banks_failed_share": 0.875,
+      "mean_failed_bank_share": 0.8800000000000001
+    },
+    "calibrated_banks_connected": {
+      "all_banks_failed_share": 0.875,
+      "mean_failed_bank_share": 0.875
+    }
+  }
+}

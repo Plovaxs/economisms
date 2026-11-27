@@ -1,0 +1,681 @@
+{
+  "revision": 2,
+  "design": {
+    "data": "FDIC national annual totals (commercial banks and savings institutions)",
+    "train_years": [
+      1985,
+      2003
+    ],
+    "test_years": [
+      2004,
+      2022
+    ],
+    "full_years": [
+      1985,
+      2022
+    ],
+    "simulation_paths": 24,
+    "evaluation_paths": 60,
+    "scenario_months": 240,
+    "bootstrap": {
+      "block_years": 3,
+      "replications": 300
+    },
+    "targeted": [
+      "roa_mean",
+      "roa_sd",
+      "eq_mean",
+      "nco_mean",
+      "nco_sd",
+      "nco_corr_ugap",
+      "growth_mean",
+      "growth_sd",
+      "growth_corr_ugap"
+    ],
+    "untargeted": [
+      "failed_mean",
+      "failed_years_over_1pct",
+      "nco_max",
+      "roa_min",
+      "growth_min",
+      "eq_sd",
+      "loans_to_assets_mean"
+    ],
+    "loss_given_default_fixed_at": 0.5,
+    "macro_block": "the Finding 28 estimates, not re-estimated",
+    "not_calibrated": [
+      "loss given default (only its product with the default rate is identified)",
+      "capital trigger and fire-sale fraction",
+      "the interbank network",
+      "firm, fiscal, foreign-sector and household-wealth blocks"
+    ]
+  },
+  "finding28_banks": {
+    "loans": 60.0,
+    "securities": 25.0,
+    "cash": 5.0,
+    "interbank_borrowed": 10.0,
+    "deposit_funding": 84.0,
+    "net_interest_margin": 0.0025,
+    "base_default_rate": 0.0012,
+    "default_sensitivity": 0.35,
+    "loss_given_default": 0.5,
+    "payout_ratio": 0.0,
+    "dividend_threshold": 0.0,
+    "securities_growth_share": 0.0,
+    "loan_growth_base": 0.00465120697,
+    "loan_growth_slope": 0.000777849887,
+    "capital_trigger": 0.05,
+    "fire_sale_fraction": 0.1,
+    "securities_equity_share": 0.4
+  },
+  "train_fit": {
+    "revision": 2,
+    "years": 19,
+    "real_moments": {
+      "roa_mean": 0.8407737878858313,
+      "roa_sd": 0.4187026318689941,
+      "eq_mean": 7.409196201564998,
+      "nco_mean": 0.7344417679557422,
+      "nco_sd": 0.23577106738102283,
+      "nco_corr_ugap": 0.381353814260918,
+      "growth_mean": 4.7998331753564685,
+      "growth_sd": 4.165807434366667,
+      "growth_corr_ugap": -0.2590706459947074,
+      "failed_mean": 0.7405915549064573,
+      "failed_years_over_1pct": 0.2631578947368421,
+      "nco_max": 1.3117463745688343,
+      "roa_min": -0.05764292578888288,
+      "growth_min": -5.049538632321349,
+      "eq_sd": 1.3748211539296709,
+      "loans_to_assets_mean": 61.23494851478769
+    },
+    "moment_se": {
+      "roa_mean": 0.1573805925076043,
+      "roa_sd": 0.08082712141379027,
+      "eq_mean": 0.5024924442822872,
+      "nco_mean": 0.0852194911848391,
+      "nco_sd": 0.054854202809138476,
+      "nco_corr_ugap": 0.2656895825662205,
+      "growth_mean": 1.4891608517059256,
+      "growth_sd": 0.9264790408964747,
+      "growth_corr_ugap": 0.3043088201654167
+    },
+    "bootstrap_replications": 300,
+    "direct_shares": {
+      "loans": 0.6123494851478768,
+      "securities": 0.2000486737473104,
+      "cash": 0.06806364703939499,
+      "deposits": 0.7228469153104907,
+      "equity": 0.07409196201564998,
+      "equity_securities_of_securities": 0.02068408445323007
+    },
+    "fits": [
+      {
+        "start": "chosen",
+        "distance": 318.4057262023185,
+        "evaluations": 363,
+        "values": {
+          "net_interest_margin": 0.0008061016960331693,
+          "base_default_rate": 0.002682167102028119,
+          "default_sensitivity": 0.01141738532893503,
+          "payout_ratio": 0.9692932557934293,
+          "dividend_threshold": 0.0500000081435102,
+          "loan_growth_base": 0.009998327159835998,
+          "loan_growth_slope": 0.00087127041897783
+        }
+      },
+      {
+        "start": "perturbed_1",
+        "distance": 300.25730501901387,
+        "evaluations": 325,
+        "values": {
+          "net_interest_margin": 0.0005162393684316668,
+          "base_default_rate": 0.0024097934923280853,
+          "default_sensitivity": 0.00993962575701711,
+          "payout_ratio": 0.9987417875869601,
+          "dividend_threshold": 0.0503126529825011,
+          "loan_growth_base": 0.00945067479445713,
+          "loan_growth_slope": 0.0005668778785685851
+        }
+      },
+      {
+        "start": "perturbed_2",
+        "distance": 268.18998853058866,
+        "evaluations": 363,
+        "values": {
+          "net_interest_margin": 0.0005571493601154252,
+          "base_default_rate": 0.002209724866141049,
+          "default_sensitivity": 0.0,
+          "payout_ratio": 1.0,
+          "dividend_threshold": 0.05010703712005625,
+          "loan_growth_base": 0.01,
+          "loan_growth_slope": 5.238554817398539e-06
+        }
+      }
+    ],
+    "values": {
+      "net_interest_margin": 0.0005571493601154252,
+      "base_default_rate": 0.002209724866141049,
+      "default_sensitivity": 0.0,
+      "payout_ratio": 1.0,
+      "dividend_threshold": 0.05010703712005625,
+      "loan_growth_base": 0.01,
+      "loan_growth_slope": 5.238554817398539e-06
+    },
+    "distance": 268.18998853058866,
+    "configuration": {
+      "loans": 62.59380394679343,
+      "securities": 20.448792344997702,
+      "cash": 6.957403708208881,
+      "interbank_borrowed": 10.0,
+      "deposit_funding": 72.28469153104908,
+      "net_interest_margin": 0.0005571493601154252,
+      "base_default_rate": 0.002209724866141049,
+      "default_sensitivity": 0.0,
+      "loss_given_default": 0.5,
+      "payout_ratio": 1.0,
+      "dividend_threshold": 0.05010703712005625,
+      "securities_growth_share": 1.0,
+      "loan_growth_base": 0.01,
+      "loan_growth_slope": 5.238554817398539e-06,
+      "capital_trigger": 0.05,
+      "fire_sale_fraction": 0.1,
+      "securities_equity_share": 0.02068408445323007
+    }
+  },
+  "out_of_sample": {
+    "test_years": 19,
+    "moments": {
+      "roa_mean": {
+        "real": 0.9427344885649379,
+        "real_se": 0.12053270468594841,
+        "finding28": 2.064375979413495,
+        "bank_calibrated": 0.5630985808905192,
+        "z_finding28": 9.305702496024024,
+        "z_bank_calibrated": -3.1496506169306615,
+        "first_revision": 0.8817932523970389,
+        "z_first_revision": -0.5055991759803554
+      },
+      "roa_sd": {
+        "real": 0.37724118306220883,
+        "real_se": 0.10044661747858803,
+        "finding28": 2.6342886750819123,
+        "bank_calibrated": 2.1376177628138495,
+        "z_finding28": 22.47011943932142,
+        "z_bank_calibrated": 17.5254938786455,
+        "first_revision": 1.4212062221519859,
+        "z_first_revision": 10.393232398416169
+      },
+      "eq_mean": {
+        "real": 10.686136224088736,
+        "real_se": 0.18309929537755096,
+        "finding28": 21.969319760832416,
+        "bank_calibrated": 6.744694918953302,
+        "z_finding28": 61.623303975461745,
+        "z_bank_calibrated": -21.52625053530751,
+        "first_revision": 8.49380309333306,
+        "z_first_revision": -11.973465688303621
+      },
+      "nco_mean": {
+        "real": 0.8161513795207734,
+        "real_se": 0.23376243025994478,
+        "finding28": 1.6372742507304459,
+        "bank_calibrated": 1.173695867196931,
+        "z_finding28": 3.5126383238597425,
+        "z_bank_calibrated": 1.5295207500990073,
+        "first_revision": 0.7966717211398642,
+        "z_first_revision": -0.0833310055822392
+      },
+      "nco_sd": {
+        "real": 0.6672649575877698,
+        "real_se": 0.20934778075102115,
+        "finding28": 1.5836596678720052,
+        "bank_calibrated": 0.22658667093722643,
+        "z_finding28": 4.377379626364945,
+        "z_bank_calibrated": -2.105005771112737,
+        "first_revision": 0.18240153007495255,
+        "z_first_revision": -2.3160667181347816
+      },
+      "nco_corr_ugap": {
+        "real": 0.4532099792674096,
+        "real_se": 0.25767586752213256,
+        "finding28": 0.737717394603094,
+        "bank_calibrated": 0.02012877953537949,
+        "z_finding28": 1.104129067543538,
+        "z_bank_calibrated": -1.6807208369826538,
+        "first_revision": 0.7440084069598764,
+        "z_first_revision": 1.1285435089007285
+      },
+      "growth_mean": {
+        "real": 4.446373115531631,
+        "real_se": 1.20880179801914,
+        "finding28": 1.7245494924564488,
+        "bank_calibrated": 4.2027832184733125,
+        "z_finding28": -2.2516707267770673,
+        "z_bank_calibrated": -0.20151351318097677,
+        "first_revision": 7.873210887598484,
+        "z_first_revision": 2.8349045953459058
+      },
+      "growth_sd": {
+        "real": 4.258273591334948,
+        "real_se": 1.0379729705968646,
+        "finding28": 3.08882684016981,
+        "bank_calibrated": 4.156520454980784,
+        "z_finding28": -1.1266639732368682,
+        "z_bank_calibrated": -0.09803062241173095,
+        "first_revision": 3.734034160607424,
+        "z_first_revision": -0.5050607728504444
+      },
+      "growth_corr_ugap": {
+        "real": -0.40329505895209816,
+        "real_se": 0.16168447415838472,
+        "finding28": -0.7961645951264706,
+        "bank_calibrated": -0.16016503016032618,
+        "z_finding28": -2.4298531953632163,
+        "z_bank_calibrated": 1.5037314501428498,
+        "first_revision": -0.30940725827669835,
+        "z_first_revision": 0.5806853203692776
+      }
+    },
+    "distance_finding28": 4433.896720120826,
+    "distance_bank_calibrated": 792.3494283343422,
+    "distance_difference": {
+      "estimate": 3641.547291786484,
+      "low": 3260.0844877999757,
+      "high": 3925.5398914902585
+    },
+    "K-D1": "SUPPORTED",
+    "moments_closer": 8,
+    "moments_total": 9,
+    "untargeted": {
+      "failed_mean": {
+        "real": 0.27871696799557133,
+        "interval_low": 0.015041085891644546,
+        "interval_high": 0.778091341936037,
+        "finding28": 0.8513769920006631,
+        "bank_calibrated": 5.325323922313495,
+        "bank_calibrated_inside": false,
+        "finding28_inside": false,
+        "first_revision": 0.08419510956236015,
+        "first_revision_inside": true
+      },
+      "failed_years_over_1pct": {
+        "real": 0.10526315789473684,
+        "interval_low": 0.0,
+        "interval_high": 0.3157894736842105,
+        "finding28": 0.013888888888888888,
+        "bank_calibrated": 0.12962962962962962,
+        "bank_calibrated_inside": true,
+        "finding28_inside": true,
+        "first_revision": 0.0018518518518518517,
+        "first_revision_inside": true
+      },
+      "nco_max": {
+        "real": 2.5592535021728438,
+        "interval_low": 1.0836266823557876,
+        "interval_high": 2.5592535021728438,
+        "finding28": 6.3437336770712704,
+        "bank_calibrated": 1.3317953888055247,
+        "bank_calibrated_inside": true,
+        "finding28_inside": false,
+        "first_revision": 1.2514108845923197,
+        "first_revision_inside": true
+      },
+      "roa_min": {
+        "real": -0.07407119275242163,
+        "interval_low": -0.07407119275242163,
+        "interval_high": 0.8383165396401457,
+        "finding28": -3.928637424658736,
+        "bank_calibrated": -4.008418548896438,
+        "bank_calibrated_inside": false,
+        "finding28_inside": false,
+        "first_revision": -1.9894068722423133,
+        "first_revision_inside": false
+      },
+      "growth_min": {
+        "real": -7.317732759748652,
+        "interval_low": -7.317732759748652,
+        "interval_high": 2.5656140556177487,
+        "finding28": -6.122781129065934,
+        "bank_calibrated": 0.27985973075180726,
+        "bank_calibrated_inside": true,
+        "finding28_inside": true,
+        "first_revision": 2.4831508655168353,
+        "first_revision_inside": true
+      },
+      "eq_sd": {
+        "real": 0.6261506286815441,
+        "interval_low": 0.27112053956404053,
+        "interval_high": 0.6986928182775363,
+        "finding28": 6.359376493832335,
+        "bank_calibrated": 3.792277047012862,
+        "bank_calibrated_inside": false,
+        "finding28_inside": false,
+        "first_revision": 2.7083469424887667,
+        "first_revision_inside": false
+      },
+      "loans_to_assets_mean": {
+        "real": 55.513385805943244,
+        "interval_low": 53.54917702738811,
+        "interval_high": 57.89986196157801,
+        "finding28": 44.36322844830714,
+        "bank_calibrated": 54.42172431922899,
+        "bank_calibrated_inside": true,
+        "finding28_inside": false,
+        "first_revision": 77.70439865346216,
+        "first_revision_inside": false
+      }
+    },
+    "untargeted_inside": 4,
+    "untargeted_inside_finding28": 2,
+    "K-D2": "INCONCLUSIVE",
+    "distance_first_revision": 266.91247624432657,
+    "distance_difference_vs_first_revision": {
+      "estimate": -525.4369520900157,
+      "low": -607.3893060894487,
+      "high": -463.5736653870656
+    },
+    "K-E2": "CONTRADICTED",
+    "structure": {
+      "roa_sd": {
+        "real": 0.37724118306220883,
+        "interval_low": 0.1378674094179535,
+        "interval_high": 0.4955493079952629,
+        "bank_calibrated": 2.1376177628138495,
+        "inside": false
+      },
+      "eq_sd": {
+        "real": 0.6261506286815441,
+        "interval_low": 0.27112053956404053,
+        "interval_high": 0.6986928182775363,
+        "bank_calibrated": 3.792277047012862,
+        "inside": false
+      },
+      "loans_to_assets_mean": {
+        "real": 55.513385805943244,
+        "interval_low": 53.54917702738811,
+        "interval_high": 57.89986196157801,
+        "bank_calibrated": 54.42172431922899,
+        "inside": true
+      }
+    },
+    "structure_inside": 1,
+    "K-E7": "CONTRADICTED"
+  },
+  "full_fit": {
+    "revision": 2,
+    "years": 38,
+    "real_moments": {
+      "roa_mean": 0.8917541382253849,
+      "roa_sd": 0.40175912956253057,
+      "eq_mean": 9.047666212826869,
+      "nco_mean": 0.7752965737382579,
+      "nco_sd": 0.5020800484731739,
+      "nco_corr_ugap": 0.4379804208257246,
+      "growth_mean": 4.623103145444047,
+      "growth_sd": 4.216000033552592,
+      "growth_corr_ugap": -0.3370876105514013,
+      "failed_mean": 0.5096542614510143,
+      "failed_years_over_1pct": 0.18421052631578946,
+      "nco_max": 2.5592535021728438,
+      "roa_min": -0.07407119275242163,
+      "growth_min": -7.317732759748652,
+      "eq_sd": 1.9559352968209023,
+      "loans_to_assets_mean": 58.374167160365474
+    },
+    "moment_se": {
+      "roa_mean": 0.09842223391509841,
+      "roa_sd": 0.06146754055356345,
+      "eq_mean": 0.537293079823495,
+      "nco_mean": 0.11934180451834026,
+      "nco_sd": 0.1526909362172977,
+      "nco_corr_ugap": 0.18496553152766537,
+      "growth_mean": 0.9681956802515412,
+      "growth_sd": 0.6552452973296837,
+      "growth_corr_ugap": 0.15212086540764533
+    },
+    "bootstrap_replications": 300,
+    "direct_shares": {
+      "loans": 0.5837416716036546,
+      "securities": 0.20096629014706097,
+      "cash": 0.0799192904737678,
+      "deposits": 0.7296043048887132,
+      "equity": 0.09047666212826867,
+      "equity_securities_of_securities": 0.014519419298449028
+    },
+    "fits": [
+      {
+        "start": "chosen",
+        "distance": 1085.6991179772194,
+        "evaluations": 250,
+        "values": {
+          "net_interest_margin": 0.0005316545308567712,
+          "base_default_rate": 0.0015941329746031354,
+          "default_sensitivity": 0.42469961867426886,
+          "payout_ratio": 0.9732913825538091,
+          "dividend_threshold": 0.08726321370633389,
+          "loan_growth_base": 0.007220086217430888,
+          "loan_growth_slope": 0.0007999745423426083
+        }
+      },
+      {
+        "start": "perturbed_1",
+        "distance": 1139.1311711557946,
+        "evaluations": 257,
+        "values": {
+          "net_interest_margin": 0.0009645536182520736,
+          "base_default_rate": 0.0013323757626999395,
+          "default_sensitivity": 0.561191464832927,
+          "payout_ratio": 0.885950580759578,
+          "dividend_threshold": 0.0506658495395284,
+          "loan_growth_base": 0.009994780338442722,
+          "loan_growth_slope": 0.0037894480388564068
+        }
+      },
+      {
+        "start": "perturbed_2",
+        "distance": 498.99042965794126,
+        "evaluations": 341,
+        "values": {
+          "net_interest_margin": 0.0005,
+          "base_default_rate": 0.0029948433608128033,
+          "default_sensitivity": 0.0017724658818691486,
+          "payout_ratio": 0.9999999112098823,
+          "dividend_threshold": 0.05258259690533167,
+          "loan_growth_base": 0.009875858580982872,
+          "loan_growth_slope": 0.0008038391052401231
+        }
+      }
+    ],
+    "values": {
+      "net_interest_margin": 0.0005,
+      "base_default_rate": 0.0029948433608128033,
+      "default_sensitivity": 0.0017724658818691486,
+      "payout_ratio": 0.9999999112098823,
+      "dividend_threshold": 0.05258259690533167,
+      "loan_growth_base": 0.009875858580982872,
+      "loan_growth_slope": 0.0008038391052401231
+    },
+    "distance": 498.99042965794126,
+    "configuration": {
+      "loans": 60.762311515354355,
+      "securities": 20.91880179198835,
+      "cash": 8.318886692657301,
+      "interbank_borrowed": 10.0,
+      "deposit_funding": 72.96043048887132,
+      "net_interest_margin": 0.0005,
+      "base_default_rate": 0.0029948433608128033,
+      "default_sensitivity": 0.0017724658818691486,
+      "loss_given_default": 0.5,
+      "payout_ratio": 0.9999999112098823,
+      "dividend_threshold": 0.05258259690533167,
+      "securities_growth_share": 1.0,
+      "loan_growth_base": 0.009875858580982872,
+      "loan_growth_slope": 0.0008038391052401231,
+      "capital_trigger": 0.05,
+      "fire_sale_fraction": 0.1,
+      "securities_equity_share": 0.014519419298449028
+    }
+  },
+  "identification": {
+    "distance_at_estimate": 498.99042965794126,
+    "parameters": {
+      "net_interest_margin": {
+        "value": 0.0005,
+        "increase_at_minus_20pct": 0.0,
+        "increase_at_plus_20pct": -5.2844621670863035,
+        "identified": false
+      },
+      "base_default_rate": {
+        "value": 0.0029948433608128033,
+        "increase_at_minus_20pct": -5.262558157253977,
+        "increase_at_plus_20pct": 32.59276012414762,
+        "identified": false
+      },
+      "default_sensitivity": {
+        "value": 0.0017724658818691486,
+        "increase_at_minus_20pct": 0.28881802349013697,
+        "increase_at_plus_20pct": 0.11402104818250791,
+        "identified": false
+      },
+      "payout_ratio": {
+        "value": 0.9999999112098823,
+        "increase_at_minus_20pct": 46.796771582429415,
+        "increase_at_plus_20pct": 5.030849763443257e-06,
+        "identified": false
+      },
+      "dividend_threshold": {
+        "value": 0.05258259690533167,
+        "increase_at_minus_20pct": 0.4876091773692792,
+        "increase_at_plus_20pct": 77.01699591480485,
+        "identified": false
+      },
+      "loan_growth_base": {
+        "value": 0.009875858580982872,
+        "increase_at_minus_20pct": 64.42696955172357,
+        "increase_at_plus_20pct": 7.052446715644635,
+        "identified": true
+      },
+      "loan_growth_slope": {
+        "value": 0.0008038391052401231,
+        "increase_at_minus_20pct": 9.576953721480947,
+        "increase_at_plus_20pct": 15.334467382161506,
+        "identified": true
+      }
+    }
+  },
+  "full_fit_simulated_moments": {
+    "roa_mean": 0.38043120461930435,
+    "roa_sd": 2.1609823587721975,
+    "eq_mean": 5.864687255685618,
+    "nco_mean": 1.2162497636617065,
+    "nco_sd": 0.5968786802666067,
+    "nco_corr_ugap": 0.09155872404803184,
+    "growth_mean": 2.2241717680303115,
+    "growth_sd": 3.7657383000791578,
+    "growth_corr_ugap": -0.2566567419857097,
+    "failed_mean": 8.164683713940981,
+    "failed_years_over_1pct": 0.16296296296296295,
+    "nco_max": 1.8177331957618064,
+    "roa_min": -4.370491172019454,
+    "growth_min": -1.302624390467675,
+    "eq_sd": 3.916470279764888,
+    "loans_to_assets_mean": 40.59716156895838
+  },
+  "macro_check": {
+    "names": [
+      "ugap_sd",
+      "ugap_ar1",
+      "ugap_skew",
+      "dunemployment_sd",
+      "infl_sd",
+      "infl_ar1",
+      "ff_sd",
+      "ff_ar1",
+      "taylor_rho",
+      "taylor_inflation",
+      "taylor_ugap",
+      "phillips_ugap",
+      "ygap_sd"
+    ],
+    "finding28": 20.189002662125198,
+    "bank_calibrated": 26.987120831408713,
+    "ratio": 1.3367238235119392,
+    "K-D4": "INCONCLUSIVE"
+  },
+  "sanity": {
+    "mean_equity_ratio_percent": 4.2842671827603755,
+    "collapsed_share": 0.8,
+    "numeric": {
+      "plain": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 2.434368427383574,
+        "output_gap_min_mean": -10.166144648346913,
+        "output_gap_min_worst": -17.56096852990774,
+        "max_debt_ratio_median": 0.8,
+        "max_debt_ratio_worst": 0.8
+      },
+      "connected": {
+        "paths": 20,
+        "failed_paths": 0,
+        "failures": [],
+        "output_gap_sd": 2.693071675103104,
+        "output_gap_min_mean": -10.665295460065112,
+        "output_gap_min_worst": -20.88789877140277,
+        "max_debt_ratio_median": 1.7115510526091962,
+        "max_debt_ratio_worst": 2.221889242011686
+      }
+    },
+    "parameters_at_a_bound": [
+      "net_interest_margin",
+      "default_sensitivity",
+      "payout_ratio"
+    ],
+    "K-D3": "CONTRADICTED"
+  },
+  "robustness": {
+    "bank_calibrated": {
+      "connected_share_excluding_zero": 0.6233766233766234,
+      "plain_share_excluding_zero": 0.2987012987012987,
+      "connected_cells": 48,
+      "plain_cells": 23,
+      "cells": 77,
+      "worst_output_gap_connected_minus_plain": {
+        "estimate": -0.5768382306572637,
+        "low": -1.096531282265084,
+        "high": -0.057145179049443606,
+        "confidence": 0.95,
+        "n": 40,
+        "method": "t interval over independent seeds"
+      },
+      "K-C": "SUPPORTED"
+    },
+    "finding28": {
+      "connected_share_excluding_zero": 0.6883116883116883,
+      "plain_share_excluding_zero": 0.3116883116883117,
+      "connected_cells": 53,
+      "plain_cells": 24,
+      "cells": 77,
+      "worst_output_gap_connected_minus_plain": {
+        "estimate": -0.25722680025861544,
+        "low": -0.796713197891817,
+        "high": 0.28225959737458617,
+        "confidence": 0.95,
+        "n": 40,
+        "method": "t interval over independent seeds"
+      },
+      "K-C": "SUPPORTED"
+    }
+  },
+  "K-E1": "SUPPORTED",
+  "K-E2": "CONTRADICTED",
+  "K-E3": "INCONCLUSIVE",
+  "K-E4": "CONTRADICTED",
+  "K-E5": "INCONCLUSIVE",
+  "K-E6": "SUPPORTED",
+  "K-E7": "CONTRADICTED",
+  "seconds": 596.5246319770813
+}

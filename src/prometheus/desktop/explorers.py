@@ -42,6 +42,7 @@ TRANSMISSION_SCENARIOS = (
     "calibrated",
     "calibrated_full",
     "calibrated_connected",
+    "calibrated_banks",
 )
 TRANSMISSION_SHOCKS = (
     "equity_crash",
