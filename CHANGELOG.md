@@ -16,6 +16,7 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Model zoo (Findings 30 to 33).** New package `prometheus.modelzoo`: small from-scratch implementations of neural operators (FNO, DeepONet), continuous-dynamics models (Neural ODE and CDE, HNN, SympNet), mesh-free PDE solvers (DGM, Deep Ritz, Deep Kolmogorov), seven deep forecasters (N-BEATS, N-HiTS, PatchTST, DeepAR, TFT-lite, S4D, Mamba-style SSM), deep equilibrium nets, a differentiable QP layer with decision-focused learning, a graph network for shock propagation, double ML, DeepIV, DeepSurv, quantum algorithms on a state-vector simulator (amplitude estimation, QAOA, VQE, a quantum reservoir) and tensor trains. Each family was judged against an exact answer or a classical method with hypotheses written and committed before the run; 46 hypotheses (28 supported, 12 inconclusive, 6 contradicted) recorded in `docs/numerics/modelzoo_*.json`. Ideal simulators only for the quantum part.
 - **README rebuilt around screenshots.** A banner and a hero image, a tour of every desktop page and every web page
   (sidebar, the seven labs and the eleven dashboard views, each with a caption that states only what the picture shows),
   an architecture diagram, a documentation index and collapsible detail. Stale claims were corrected on the way (29 findings,

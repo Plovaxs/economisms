@@ -1372,6 +1372,136 @@ fire-sale rule are chosen, not estimated. A fixed point of the repository's own 
 better-looking-in-places second, is what ships (`worldsim.calibrated.BANK_ESTIMATES`, pinned to the record by a test),
 with its three parameters at the edge of their ranges stated here.
 
+## Finding 30 (PR-232): small neural operators, continuous-dynamics models and mesh-free PDE solvers against exact answers: structure conserved what it promised and the classical solver still won where it applies
+
+A new package, `prometheus.modelzoo`, collects small reference implementations of model families the project had not
+yet touched, each judged against something with a known answer. Tranche 1 (`orchestration.modelzoo_pde_study`, eleven
+hypotheses written and committed before any run, `docs/numerics/modelzoo_pde_*.json`) covers three families. Every
+model is written from scratch at laptop scale; none of it is a replication of the paper it is named after.
+
+**Operator learning** (FNO, DeepONet, an MLP) learns the Black-Scholes pricing operator, payoff curve to price curve, on
+portfolios of 1 to 3 calls (exact answer: a sum of closed-form calls), 8 seeds.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-O1** each operator at most 0.2 times the error of "price = payoff" | **INCONCLUSIVE** overall: the FNO (0.117) and MLP (0.113) pass, the DeepONet (0.215) does not |
+| **Z-O2** on 6 to 8 calls, never seen in training, the FNO beats the MLP | **INCONCLUSIVE**: 3.8% against 3.7% median error, difference [-0.0086, +0.0003] |
+| **Z-O3** in distribution the FNO beats the DeepONet | **SUPPORTED**: 2.8% against 5.5%, +0.026 [0.019, 0.032] |
+| **Z-O4** the FNO transfers to a finer grid better than the MLP | **CONTRADICTED**: the FNO's error rose (2.8% to 3.3%), the MLP's, with interpolated input and output, fell (2.9% to 2.7%) |
+
+The plain MLP, with the same data and about a tenth of the training time (1.1 s against 11.8 s), matched the FNO. The pricing operator is linear
+in the payoff, which is the easy case for a dense network.
+
+**Continuous dynamics** (Neural ODE, Hamiltonian NN, symplectic network) on a pendulum and on the Goodwin growth cycle,
+the textbook macroeconomic predator-prey model written in log coordinates where it is exactly Hamiltonian, 8 seeds,
+2,000 steps (about 30 periods).
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-D1** the HNN and the SympNet drift less in energy than the Neural ODE, on both systems | **SUPPORTED**, all four comparisons: median drift of the share of the energy range 0.0224 (Neural ODE), 0.0009 (HNN), 0.00075 (SympNet) on the pendulum; 0.0326, 0.00035, 0.0032 on the Goodwin cycle |
+| **Z-D2** the SympNet map is symplectic | **SUPPORTED**: worst \|det J - 1\| 1.8e-7 (float32) |
+| **Z-D3** structure costs accuracy: the Neural ODE has the lower state error after 500 steps | **INCONCLUSIVE**: Goodwin yes (+0.132 [0.079, 0.171]), pendulum undecided ([-0.041, 0.141]) |
+
+**Mesh-free solvers** (DGM, Deep Ritz, Deep Kolmogorov), 5 seeds, 3,000 steps.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-V1** DGM European put within 5% of the closed form | **SUPPORTED**: median error 0.96% |
+| **Z-V2** DGM American put within 10% of a 1,000-step binomial tree | **SUPPORTED**: 3.8% |
+| **Z-V3** a classical five-point finite-difference solve beats Deep Ritz on 2-D Poisson | **SUPPORTED**: 0.08% against 2.0% |
+| **Z-V4** Deep Kolmogorov beats Monte Carlo of the same path budget at d = 100 | **CONTRADICTED**: RMSE 0.0070 against 0.00022 (and 0.0042 against 0.00075 at d = 5): the geometric-mean payoff concentrates as d grows, which makes Monte Carlo *easier*, while the network's approximation error does not shrink |
+
+**Not shown.** That any of these beats a classical method at a scale where the classical method is hard (Z-V4 tested
+only an option whose Monte Carlo gets easier with dimension, and Deep Kolmogorov returns a whole price surface where
+Monte Carlo returns the 100 points asked). The pendulum's Z-D3 and the operator hypotheses on a harder, non-linear
+operator are open. One training seed per cell and small networks.
+
+## Finding 31 (PR-233): seven modern deep forecasters on 340 months of CPI: none is distinguishable from a ridge regression, and the probabilistic one is overconfident
+
+Finding 18's task and splits (nowcast year-over-year CPI inflation by forecasting next month's growth; fit 1962 to 1989,
+validate 1990-1999, test 2000-01 to 2023-01, 277 months; committed data, no network) with seven networks written from
+scratch (`modelzoo.forecasting`): N-BEATS, N-HiTS, PatchTST, DeepAR, a reduced Temporal Fusion Transformer, a diagonal
+state-space network (S4D) and its input-dependent Mamba-style variant. Five seeds each, averaged in forecast space.
+Hypotheses Z-F1 to Z-F6 were committed before the run (`orchestration.modelzoo_forecast_study`,
+`modelzoo_forecast_study.json`); the only earlier look was training on the validation split.
+
+Mean absolute YoY error on the test months: `base_mean12` 0.2259, `ridge_own` 0.2117, `mlp_own` 0.2063, N-BEATS 0.2072,
+N-HiTS 0.2112, PatchTST 0.2022, DeepAR 0.2002, TFT-lite 0.2049, S4D 0.2004, Mamba-lite 0.1983.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-F1** the validation-selected deep model (N-HiTS) beats the ridge | **INCONCLUSIVE**: -0.0005 [-0.0088, +0.0090] |
+| **Z-F2** each of five structured architectures beats the plain MLP | **INCONCLUSIVE**: every interval contains zero (Mamba-lite -0.0080 [-0.0156, +0.0005] is closest) |
+| **Z-F3** macro channels help the TFT | **INCONCLUSIVE**: +0.0025 (worse) [-0.0009, +0.0060] |
+| **Z-F4** DeepAR's 80% interval covers 70 to 90% of outcomes | **CONTRADICTED**: 66.4% (its Gaussian CRPS, 0.145, still beat the ridge's constant-variance Gaussian, 0.159) |
+| **Z-F5** the validation-selected deep model beats the base-effect rule | **SUPPORTED**: -0.0146 [-0.0271, -0.0017] (the ridge also beat it, narrowly, in Finding 18) |
+| **Z-F6** Mamba-lite (input-dependent step) beats S4D | **INCONCLUSIVE**: -0.0021 [-0.0050, +0.0005] |
+
+Nothing here separates a deep forecaster from a ridge on the last twelve months of growth. Several score slightly
+lower than the ridge (0.198 to 0.205 against 0.212) and none by more than the block-bootstrap noise. **Not shown:** how
+these architectures behave on the long, many-series datasets they were built for; the study speaks only to one short
+monthly series. The best-looking model by test error (Mamba-lite) was not the one selected on validation (N-HiTS), and
+the claims use the validation choice.
+
+## Finding 32 (PR-234): deep equilibrium nets matched a grid solver, a decision-focused portfolio matched the two-stage one, a graph network learned shock propagation, and DeepIV lost to OLS on the metric used
+
+Tranche 3 (`orchestration.modelzoo_macro_study`, fifteen hypotheses written and committed before the run,
+`modelzoo_macro_*.json`) covers five areas. The portfolio comparison uses real monthly data (the Fama-French market, size
+and value factors, 2013 to 2026, 165 months). Production networks, causal effects and survival use SIMULATED data with a
+known truth, so they test the method and say nothing about any real economy.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-M1** deep equilibrium net recovers the exact savings rate alpha*beta of the closed-form growth model (error at most 0.005) | **SUPPORTED**: 0.0001 (value-function iteration: 0.0004) |
+| **Z-M2** its Euler error is lower than value-function iteration's, closed-form economy | **SUPPORTED**: median log10 error -3.64 against -2.92 |
+| **Z-M3** the same, general economy (CRRA 2, 10% depreciation) | **SUPPORTED**: -2.58 against -2.23 |
+| **Z-P1** decision-focused learning has a higher out-of-sample Sharpe ratio than predict-then-optimise | **INCONCLUSIVE**: 0.631 against 0.638 |
+| **Z-P2** decision-focused learning beats equal weight | **INCONCLUSIVE**: 0.631 against 0.469, difference [-0.06, +0.38] |
+| **Z-P3** minimum variance beats decision-focused learning | **CONTRADICTED**: minimum variance 0.004 against 0.631 |
+| **Z-P4** the QP layer's gradient equals finite differences | **SUPPORTED**: worst difference 3.7e-9 |
+| **Z-G1** a 3-layer graph network beats the same-reach truncated Leontief series on unseen larger networks | **SUPPORTED**: 3.2% against 10.5% relative error |
+| **Z-G2** it beats the same network without the graph | **SUPPORTED**: 3.2% against 38.4% |
+| **Z-G3** its error does not grow with network size (ratio at most 2) | **SUPPORTED**: 60-sector error over 30-sector error 0.51 |
+| **Z-C1** double machine learning has a smaller error than OLS for the effect theta = 0.5 | **SUPPORTED**: 0.041 against 0.281 |
+| **Z-C2** DeepIV recovers a nonlinear structural curve better than linear two-stage least squares | **SUPPORTED**: curve RMSE 0.213 against 0.274 |
+| **Z-C3** DeepIV does so better than OLS | **CONTRADICTED**: OLS 0.169 (the curve error removes the mean, so the level bias that is OLS's usual failure does not count against it) |
+| **Z-S1** DeepSurv has a higher concordance than the linear Cox model | **SUPPORTED**: 0.738 against 0.647 (the true risk's own: 0.773) |
+| **Z-S2** DeepSurv is within 0.03 of the true risk's concordance | **INCONCLUSIVE**: median gap 0.035 |
+
+**Not shown.** That decision-focused learning helps on real data: the three factors are a poor test (one dominates the
+return), and the gap to the two-stage predictor is zero within noise. The graph network's 12-term truncated series
+(0.4% error) is better than any 3-layer network, so the network is not an improvement on iterating the matrix, only on
+a short iteration. The deep equilibrium economy is one-dimensional in capital and shocks; DeepHAM (heterogeneous agents
+with distributions) is not built.
+
+## Finding 33 (PR-235): quantum algorithms and tensor trains on ideal simulators: amplitude estimation beats Monte Carlo until noise arrives, QAOA and VQE work at toy size, the quantum reservoir is no better than a classical one, and a kinked payoff is not low-rank
+
+Tranche 4 (`orchestration.modelzoo_quantum_study`, fourteen hypotheses committed before the run,
+`modelzoo_quantum_*.json`) runs on a state-vector simulator of at most eight qubits written for this purpose. No quantum
+hardware, no noise except the one stated, and nothing said about devices.
+
+| Hypothesis | Result |
+| --- | --- |
+| **Z-Q1** ideal maximum-likelihood amplitude estimation has a log-log error slope steeper than -0.75 | **SUPPORTED**: -0.82 (Monte Carlo: -0.50, Z-Q2 **SUPPORTED**); at 10,380 state-preparation calls the RMSE is 0.00038 against 0.00275 |
+| **Z-Q3** with a 1% chance per call of scrambling the qubits (not known to the estimator) the quantum estimator is no better than Monte Carlo at the largest budget | **SUPPORTED**: 0.0062 against 0.0028, its error stopped falling after about 1,400 calls (slope -0.17) |
+| **Z-Q4** QAOA depth 3 reaches an approximation ratio of at least 0.95 | **SUPPORTED**: median 0.961 on 20 simulated 8-asset, choose-4 portfolios |
+| **Z-Q5** it puts at least 10 times the uniform probability on the optimal bitstring | **CONTRADICTED**: median 0.0097, 2.5 times 1/256 |
+| **Z-Q6** depth 3 beats depth 1 | **SUPPORTED**, by 0.007 of the ratio |
+| **Z-Q7** 4-layer VQE within 1% of the exact ground energy on a 6-qubit Ising chain | **SUPPORTED**: median relative error 3e-5 |
+| **Z-Q8**, **Z-Q9** parameter-shift gradient exact; 4 layers beat 1 | **SUPPORTED**, **SUPPORTED** |
+| **Z-Q10** a 5-qubit quantum reservoir beats an AR(5) on 10-step Mackey-Glass forecasts | **INCONCLUSIVE**: NRMSE 0.356 against 0.450, interval contains zero over 5 seeds |
+| **Z-Q11** it beats an echo-state network with the same number of features | **INCONCLUSIVE**: 0.356 against 0.374 |
+| **Z-T1** the smoothed basket payoff's tensor-train rank saturates (at most 1.5 times from d = 4 to 7) while the kinked payoff's does not (at least 2 times) | **SUPPORTED**: 21 to 23 against 36 to 143 |
+| **Z-T2** the tensor-train integral equals the full-table quadrature to 1e-6 | **SUPPORTED**: worst 3e-10 |
+| **Z-T3** the kinked payoff at d = 7 needs at most 20% of the full table's parameters | **SUPPORTED**: 6.4%, though its rank grows with dimension |
+
+**Not shown, and the main caveat.** The amplitude-estimation advantage is measured in calls to the state-preparation
+circuit on a noiseless machine; a real device pays for each call differently and loads the distribution at a cost the
+count ignores. With even 1% error per call the advantage disappears. QAOA and VQE ran at 8 and 6 qubits where exact
+enumeration or diagonalisation is trivial. The tensor train was built from the full table (so is limited to seven axes);
+the sampling variant (TT-cross) that makes 100-dimensional problems feasible is not implemented. Reservoir results are
+on a synthetic chaotic equation, not on economic data.
+
 ## Known limitations that are not findings, just open scope
 
 

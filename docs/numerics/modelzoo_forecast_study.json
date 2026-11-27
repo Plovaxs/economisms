@@ -1,0 +1,198 @@
+{
+  "Z-F1": {
+    "ci_high": 0.00898260217445444,
+    "ci_low": -0.00875246269180659,
+    "mae_difference_first_minus_second": -0.0005189260460521755,
+    "verdict": "INCONCLUSIVE"
+  },
+  "Z-F2": {
+    "detail": {
+      "mamba_lite": {
+        "ci_high": 0.0005341853237998007,
+        "ci_low": -0.015594155603288222,
+        "mae_difference_first_minus_second": -0.008040202664886401,
+        "verdict": "INCONCLUSIVE"
+      },
+      "nbeats": {
+        "ci_high": 0.0050630946948509005,
+        "ci_low": -0.0036120088514743185,
+        "mae_difference_first_minus_second": 0.0008424489901992244,
+        "verdict": "INCONCLUSIVE"
+      },
+      "nhits": {
+        "ci_high": 0.011144209631289799,
+        "ci_low": -0.001004669535788892,
+        "mae_difference_first_minus_second": 0.004897339974729739,
+        "verdict": "INCONCLUSIVE"
+      },
+      "patchtst": {
+        "ci_high": 0.0014649535177754984,
+        "ci_low": -0.011411619754985067,
+        "mae_difference_first_minus_second": -0.004137310020654925,
+        "verdict": "INCONCLUSIVE"
+      },
+      "s4d": {
+        "ci_high": 0.0029886393610054373,
+        "ci_low": -0.013667975159891991,
+        "mae_difference_first_minus_second": -0.005975363355193558,
+        "verdict": "INCONCLUSIVE"
+      }
+    },
+    "verdict": "INCONCLUSIVE"
+  },
+  "Z-F3": {
+    "ci_high": 0.006017951612454544,
+    "ci_low": -0.0009031314756274377,
+    "mae_difference_first_minus_second": 0.0024995221642465956,
+    "verdict": "INCONCLUSIVE"
+  },
+  "Z-F4": {
+    "coverage_80": 0.6642599277978339,
+    "crps_deepar_gaussian": 0.1452396941585181,
+    "crps_ridge_gaussian": 0.15860398513347818,
+    "verdict": "CONTRADICTED"
+  },
+  "Z-F5": {
+    "ci_high": -0.0016605109394995043,
+    "ci_low": -0.027113325807110192,
+    "mae_difference_first_minus_second": -0.014625020745358293,
+    "verdict": "SUPPORTED"
+  },
+  "Z-F6": {
+    "ci_high": 0.0004962212134626031,
+    "ci_low": -0.005012209084817385,
+    "mae_difference_first_minus_second": -0.002064839309692842,
+    "verdict": "INCONCLUSIVE"
+  },
+  "ridge_penalty": 10.0,
+  "scores": {
+    "base_mean12": {
+      "test_mae_yoy": 0.22585540461967613,
+      "validation_mae_mom": null
+    },
+    "deepar": {
+      "test_mae_yoy": 0.20016266238864452,
+      "validation_mae_mom": 0.11334354059703117
+    },
+    "mamba_lite": {
+      "test_mae_yoy": 0.19829284123470173,
+      "validation_mae_mom": 0.11038947815701011
+    },
+    "mlp_own": {
+      "test_mae_yoy": 0.2063330438995881,
+      "validation_mae_mom": null
+    },
+    "nbeats": {
+      "test_mae_yoy": 0.20717549288978734,
+      "validation_mae_mom": 0.10715164434804038
+    },
+    "nhits": {
+      "test_mae_yoy": 0.21123038387431783,
+      "validation_mae_mom": 0.10302867005361287
+    },
+    "patchtst": {
+      "test_mae_yoy": 0.20219573387893316,
+      "validation_mae_mom": 0.10371435097891779
+    },
+    "ridge_own": {
+      "test_mae_yoy": 0.21174930992037003,
+      "validation_mae_mom": null
+    },
+    "s4d": {
+      "test_mae_yoy": 0.20035768054439457,
+      "validation_mae_mom": 0.10988280029447155
+    },
+    "tft_lite": {
+      "test_mae_yoy": 0.2048537947823775,
+      "validation_mae_mom": 0.10645153245845565
+    },
+    "tft_lite_core": {
+      "test_mae_yoy": 0.2073533169466241,
+      "validation_mae_mom": 0.10827874508548191
+    }
+  },
+  "seeds": [
+    72000,
+    72001,
+    72002,
+    72003,
+    72004
+  ],
+  "test_months": 277,
+  "training": {
+    "deepar": {
+      "epochs_run": [
+        98,
+        91,
+        71,
+        104,
+        80
+      ]
+    },
+    "mamba_lite": {
+      "epochs_run": [
+        28,
+        125,
+        154,
+        114,
+        117
+      ]
+    },
+    "nbeats": {
+      "epochs_run": [
+        29,
+        31,
+        32,
+        31,
+        29
+      ]
+    },
+    "nhits": {
+      "epochs_run": [
+        35,
+        31,
+        37,
+        32,
+        30
+      ]
+    },
+    "patchtst": {
+      "epochs_run": [
+        56,
+        40,
+        35,
+        39,
+        41
+      ]
+    },
+    "s4d": {
+      "epochs_run": [
+        130,
+        125,
+        129,
+        26,
+        117
+      ]
+    },
+    "tft_lite": {
+      "epochs_run": [
+        26,
+        35,
+        31,
+        49,
+        56
+      ]
+    },
+    "tft_lite_core": {
+      "epochs_run": [
+        31,
+        31,
+        31,
+        41,
+        31
+      ]
+    }
+  },
+  "validation_selected": "nhits",
+  "wall_seconds": 86.34857107902644
+}

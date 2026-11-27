@@ -1,0 +1,317 @@
+{
+  "Z-Q4": "SUPPORTED",
+  "Z-Q5": "CONTRADICTED",
+  "Z-Q6": {
+    "high": 0.0085301325414122,
+    "low": 0.006033470334075283,
+    "mean": 0.007235084820780224,
+    "seeds": 20,
+    "verdict": "SUPPORTED"
+  },
+  "family": "qaoa",
+  "median_optimum_probability_depth3": 0.009680109917801927,
+  "median_ratio_depth3": 0.9610251916567527,
+  "rows": [
+    {
+      "instance": 74100,
+      "p1": {
+        "approximation_ratio": 0.9572336176086923,
+        "optimum_probability": 0.008014502268922339
+      },
+      "p2": {
+        "approximation_ratio": 0.960481157848161,
+        "optimum_probability": 0.008773045436487669
+      },
+      "p3": {
+        "approximation_ratio": 0.9675130401063503,
+        "optimum_probability": 0.010339710181590762
+      }
+    },
+    {
+      "instance": 74101,
+      "p1": {
+        "approximation_ratio": 0.9445721931245497,
+        "optimum_probability": 0.00815248164400211
+      },
+      "p2": {
+        "approximation_ratio": 0.94743578053738,
+        "optimum_probability": 0.007864729444471733
+      },
+      "p3": {
+        "approximation_ratio": 0.9497177063159719,
+        "optimum_probability": 0.009024005134545052
+      }
+    },
+    {
+      "instance": 74102,
+      "p1": {
+        "approximation_ratio": 0.9534592821385917,
+        "optimum_probability": 0.0086187673663244
+      },
+      "p2": {
+        "approximation_ratio": 0.9567453235853641,
+        "optimum_probability": 0.008758688999586177
+      },
+      "p3": {
+        "approximation_ratio": 0.9603165436998903,
+        "optimum_probability": 0.009672334327294455
+      }
+    },
+    {
+      "instance": 74103,
+      "p1": {
+        "approximation_ratio": 0.9572250618520514,
+        "optimum_probability": 0.008106351593789689
+      },
+      "p2": {
+        "approximation_ratio": 0.9592815173289203,
+        "optimum_probability": 0.008547300123883005
+      },
+      "p3": {
+        "approximation_ratio": 0.9652639718724678,
+        "optimum_probability": 0.009570092680274924
+      }
+    },
+    {
+      "instance": 74104,
+      "p1": {
+        "approximation_ratio": 0.9487503060360353,
+        "optimum_probability": 0.008323929790588241
+      },
+      "p2": {
+        "approximation_ratio": 0.9548987700628035,
+        "optimum_probability": 0.009977623311206862
+      },
+      "p3": {
+        "approximation_ratio": 0.9556137205830397,
+        "optimum_probability": 0.009370706948587213
+      }
+    },
+    {
+      "instance": 74105,
+      "p1": {
+        "approximation_ratio": 0.9568147659721289,
+        "optimum_probability": 0.008068978291828365
+      },
+      "p2": {
+        "approximation_ratio": 0.9602727882232027,
+        "optimum_probability": 0.008712931888242029
+      },
+      "p3": {
+        "approximation_ratio": 0.9706576965398078,
+        "optimum_probability": 0.011016683517268278
+      }
+    },
+    {
+      "instance": 74106,
+      "p1": {
+        "approximation_ratio": 0.951451797160677,
+        "optimum_probability": 0.008400229229429413
+      },
+      "p2": {
+        "approximation_ratio": 0.9542792100521769,
+        "optimum_probability": 0.00819584286489581
+      },
+      "p3": {
+        "approximation_ratio": 0.9566124929466961,
+        "optimum_probability": 0.009703869951290875
+      }
+    },
+    {
+      "instance": 74107,
+      "p1": {
+        "approximation_ratio": 0.9580952448973429,
+        "optimum_probability": 0.008645013821626484
+      },
+      "p2": {
+        "approximation_ratio": 0.9608987219365046,
+        "optimum_probability": 0.009419219462995704
+      },
+      "p3": {
+        "approximation_ratio": 0.9617249808177462,
+        "optimum_probability": 0.009208960902923042
+      }
+    },
+    {
+      "instance": 74108,
+      "p1": {
+        "approximation_ratio": 0.9529702216329868,
+        "optimum_probability": 0.007946225067555561
+      },
+      "p2": {
+        "approximation_ratio": 0.9549124295480137,
+        "optimum_probability": 0.008535889553497437
+      },
+      "p3": {
+        "approximation_ratio": 0.9591768347101065,
+        "optimum_probability": 0.009120171909601243
+      }
+    },
+    {
+      "instance": 74109,
+      "p1": {
+        "approximation_ratio": 0.956290474298488,
+        "optimum_probability": 0.008638528968418432
+      },
+      "p2": {
+        "approximation_ratio": 0.9573217071976821,
+        "optimum_probability": 0.008856318030203574
+      },
+      "p3": {
+        "approximation_ratio": 0.9636740277691583,
+        "optimum_probability": 0.010263837375350277
+      }
+    },
+    {
+      "instance": 74110,
+      "p1": {
+        "approximation_ratio": 0.9550373982109543,
+        "optimum_probability": 0.008502343708273906
+      },
+      "p2": {
+        "approximation_ratio": 0.9607323151492676,
+        "optimum_probability": 0.009779183989627542
+      },
+      "p3": {
+        "approximation_ratio": 0.9632340479072538,
+        "optimum_probability": 0.010068146494526444
+      }
+    },
+    {
+      "instance": 74111,
+      "p1": {
+        "approximation_ratio": 0.9575404202015007,
+        "optimum_probability": 0.00802139727488463
+      },
+      "p2": {
+        "approximation_ratio": 0.9601982008242261,
+        "optimum_probability": 0.00907360719764138
+      },
+      "p3": {
+        "approximation_ratio": 0.9626159484472123,
+        "optimum_probability": 0.009524251688556796
+      }
+    },
+    {
+      "instance": 74112,
+      "p1": {
+        "approximation_ratio": 0.9562552727081114,
+        "optimum_probability": 0.008871256538975301
+      },
+      "p2": {
+        "approximation_ratio": 0.9564622712522286,
+        "optimum_probability": 0.008889201672123752
+      },
+      "p3": {
+        "approximation_ratio": 0.9603254024957593,
+        "optimum_probability": 0.009687885508309398
+      }
+    },
+    {
+      "instance": 74113,
+      "p1": {
+        "approximation_ratio": 0.9486979299954295,
+        "optimum_probability": 0.00848369559843854
+      },
+      "p2": {
+        "approximation_ratio": 0.9536272785833528,
+        "optimum_probability": 0.008506146926820054
+      },
+      "p3": {
+        "approximation_ratio": 0.9522483388136386,
+        "optimum_probability": 0.009253118536211503
+      }
+    },
+    {
+      "instance": 74114,
+      "p1": {
+        "approximation_ratio": 0.9418901635405417,
+        "optimum_probability": 0.007058850381672628
+      },
+      "p2": {
+        "approximation_ratio": 0.950964531783598,
+        "optimum_probability": 0.008455155000409493
+      },
+      "p3": {
+        "approximation_ratio": 0.9559322533408015,
+        "optimum_probability": 0.010896251761634246
+      }
+    },
+    {
+      "instance": 74115,
+      "p1": {
+        "approximation_ratio": 0.9538779600315179,
+        "optimum_probability": 0.008101406564934462
+      },
+      "p2": {
+        "approximation_ratio": 0.959773718971087,
+        "optimum_probability": 0.009174069090918162
+      },
+      "p3": {
+        "approximation_ratio": 0.9639172194157667,
+        "optimum_probability": 0.009538656563789279
+      }
+    },
+    {
+      "instance": 74116,
+      "p1": {
+        "approximation_ratio": 0.9520854176062722,
+        "optimum_probability": 0.008476266588488292
+      },
+      "p2": {
+        "approximation_ratio": 0.9546188264375638,
+        "optimum_probability": 0.008965307182383288
+      },
+      "p3": {
+        "approximation_ratio": 0.9600455689485732,
+        "optimum_probability": 0.010681426225747054
+      }
+    },
+    {
+      "instance": 74117,
+      "p1": {
+        "approximation_ratio": 0.9615704872350412,
+        "optimum_probability": 0.008316195591220267
+      },
+      "p2": {
+        "approximation_ratio": 0.9655418938044744,
+        "optimum_probability": 0.009455024672668507
+      },
+      "p3": {
+        "approximation_ratio": 0.9689113913966375,
+        "optimum_probability": 0.009997824884257246
+      }
+    },
+    {
+      "instance": 74118,
+      "p1": {
+        "approximation_ratio": 0.9611426360276565,
+        "optimum_probability": 0.008847756023362746
+      },
+      "p2": {
+        "approximation_ratio": 0.9643413645010777,
+        "optimum_probability": 0.00940683884435405
+      },
+      "p3": {
+        "approximation_ratio": 0.9670187920696502,
+        "optimum_probability": 0.009838818765340764
+      }
+    },
+    {
+      "instance": 74119,
+      "p1": {
+        "approximation_ratio": 0.9497665479377334,
+        "optimum_probability": 0.008560362531349766
+      },
+      "p2": {
+        "approximation_ratio": 0.9523669256578406,
+        "optimum_probability": 0.009151878947398145
+      },
+      "p3": {
+        "approximation_ratio": 0.9549089164353791,
+        "optimum_probability": 0.008882114047453848
+      }
+    }
+  ],
+  "wall_seconds": 111.25714805704774
+}

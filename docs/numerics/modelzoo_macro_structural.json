@@ -1,0 +1,110 @@
+{
+  "Z-M1": "SUPPORTED",
+  "Z-M2": {
+    "high": 0.8638349533081054,
+    "low": 0.47424817085266113,
+    "mean": 0.6766817569732666,
+    "seeds": 5,
+    "verdict": "SUPPORTED"
+  },
+  "Z-M3": {
+    "high": 0.7954432964324951,
+    "low": 0.2546210289001465,
+    "mean": 0.4639066219329834,
+    "seeds": 5,
+    "verdict": "SUPPORTED"
+  },
+  "economies": {
+    "closed_form": {
+      "advantage_over_vfi": {
+        "high": 0.8638349533081054,
+        "low": 0.47424817085266113,
+        "mean": 0.6766817569732666,
+        "seeds": 5,
+        "verdict": "SUPPORTED"
+      },
+      "median_policy_error": 0.00011081232863664609,
+      "policy_verdict": "SUPPORTED",
+      "rows": [
+        {
+          "deq_log10_euler": -3.2578940391540527,
+          "deq_policy_error": 0.0002505803114771504,
+          "deq_seconds": 20.123204583011102,
+          "seed": 73000
+        },
+        {
+          "deq_log10_euler": -3.640956163406372,
+          "deq_policy_error": 0.00011081232863664609,
+          "deq_seconds": 20.076813409978058,
+          "seed": 73001
+        },
+        {
+          "deq_log10_euler": -3.457387685775757,
+          "deq_policy_error": 0.0001752797884344702,
+          "deq_seconds": 17.964551826007664,
+          "seed": 73002
+        },
+        {
+          "deq_log10_euler": -3.8869998455047607,
+          "deq_policy_error": 5.489470010994618e-05,
+          "deq_seconds": 8.612009688047692,
+          "seed": 73003
+        },
+        {
+          "deq_log10_euler": -3.764047861099243,
+          "deq_policy_error": 8.474572217464782e-05,
+          "deq_seconds": 5.764286819030531,
+          "seed": 73004
+        }
+      ],
+      "vfi_log10_euler": -2.9247753620147705,
+      "vfi_policy_error": 0.0003883090897202467
+    },
+    "general": {
+      "advantage_over_vfi": {
+        "high": 0.7954432964324951,
+        "low": 0.2546210289001465,
+        "mean": 0.4639066219329834,
+        "seeds": 5,
+        "verdict": "SUPPORTED"
+      },
+      "rows": [
+        {
+          "deq_log10_euler": -2.57585072517395,
+          "deq_seconds": 5.907778967986815,
+          "seed": 73000
+        },
+        {
+          "deq_log10_euler": -3.3259778022766113,
+          "deq_seconds": 5.691403197997715,
+          "seed": 73001
+        },
+        {
+          "deq_log10_euler": -2.557293176651001,
+          "deq_seconds": 5.712402843055315,
+          "seed": 73002
+        },
+        {
+          "deq_log10_euler": -2.5870141983032227,
+          "deq_seconds": 5.99996690696571,
+          "seed": 73003
+        },
+        {
+          "deq_log10_euler": -2.418421506881714,
+          "deq_seconds": 9.082111158990301,
+          "seed": 73004
+        }
+      ],
+      "vfi_log10_euler": -2.2290048599243164
+    }
+  },
+  "family": "structural",
+  "seeds": [
+    73000,
+    73001,
+    73002,
+    73003,
+    73004
+  ],
+  "wall_seconds": 109.51629128097557
+}

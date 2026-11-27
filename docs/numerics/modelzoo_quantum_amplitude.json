@@ -1,0 +1,54 @@
+{
+  "Z-Q1": "SUPPORTED",
+  "Z-Q2": "SUPPORTED",
+  "Z-Q3": {
+    "high": 3.305069149526697e-05,
+    "low": 2.8885692228252443e-05,
+    "mean": 3.088026541150286e-05,
+    "seeds": 300,
+    "verdict": "SUPPORTED"
+  },
+  "amplitude": 0.07949651927455624,
+  "family": "amplitude",
+  "rows": [
+    {
+      "calls": 700,
+      "max_power": 3,
+      "rmse_ideal": 0.004473003897148719,
+      "rmse_monte_carlo": 0.010367501121021227,
+      "rmse_noisy": 0.01096810414522024
+    },
+    {
+      "calls": 1360,
+      "max_power": 4,
+      "rmse_ideal": 0.0012208591721155882,
+      "rmse_monte_carlo": 0.007403373469782285,
+      "rmse_noisy": 0.006570523038811878
+    },
+    {
+      "calls": 2660,
+      "max_power": 5,
+      "rmse_ideal": 0.0010708024384711284,
+      "rmse_monte_carlo": 0.005228536942431872,
+      "rmse_noisy": 0.006095657039916306
+    },
+    {
+      "calls": 5240,
+      "max_power": 6,
+      "rmse_ideal": 0.0006602227184407119,
+      "rmse_monte_carlo": 0.003582768672662763,
+      "rmse_noisy": 0.006683061402122311
+    },
+    {
+      "calls": 10380,
+      "max_power": 7,
+      "rmse_ideal": 0.0003770671356539343,
+      "rmse_monte_carlo": 0.002747154943704254,
+      "rmse_noisy": 0.006198961662748172
+    }
+  ],
+  "slope_ideal": -0.8240542685092153,
+  "slope_monte_carlo": -0.5015448474427876,
+  "slope_noisy": -0.16597962074896705,
+  "wall_seconds": 55.34556742897257
+}

@@ -1,0 +1,44 @@
+{
+  "Z-P1": {
+    "ci_high": 0.20685081244831666,
+    "ci_low": -0.2605263948574828,
+    "difference": -0.006554806732750107,
+    "sharpe_first": 0.6313966263149715,
+    "sharpe_second": 0.6379514330477216,
+    "verdict": "INCONCLUSIVE"
+  },
+  "Z-P2": {
+    "ci_high": 0.3768351097928117,
+    "ci_low": -0.06287169153455832,
+    "difference": 0.16209521427279155,
+    "sharpe_first": 0.6313966263149715,
+    "sharpe_second": 0.46930141204217996,
+    "verdict": "INCONCLUSIVE"
+  },
+  "Z-P3": {
+    "ci_high": -0.29059367235671196,
+    "ci_low": -0.9665205065362338,
+    "difference": -0.6278901212551609,
+    "sharpe_first": 0.003506505059810674,
+    "sharpe_second": 0.6313966263149715,
+    "verdict": "CONTRADICTED"
+  },
+  "Z-P4": "SUPPORTED",
+  "Z-P4_worst_gradient_difference": 3.652921520824748e-09,
+  "family": "portfolio",
+  "seeds": [
+    73200,
+    73201,
+    73202,
+    73203,
+    73204
+  ],
+  "sharpe": {
+    "dfl": 0.6313966263149715,
+    "equal_weight": 0.46930141204217996,
+    "min_variance": 0.003506505059810674,
+    "two_stage": 0.6379514330477216
+  },
+  "test_months": 165,
+  "wall_seconds": 37.78045239998028
+}
