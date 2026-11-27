@@ -52,3 +52,63 @@ describe("the atlas page", () => {
     expect(screen.getByText(/deliberately not built, and why/)).toBeInTheDocument();
   });
 });
+
+describe("the atlas controls", () => {
+  it("falls back to the 2D web when the browser has no canvas, and says what the legend means", () => {
+    render(
+      <MemoryRouter>
+        <Atlas />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("group", { name: "Model web" })).toBeInTheDocument(); // the SVG web
+    expect(screen.getByText(/Circle: written in the zoo/)).toBeInTheDocument();
+  });
+
+  it("selects the model named in the URL", () => {
+    render(
+      <MemoryRouter initialEntries={["/atlas?model=deeponet"]}>
+        <Atlas />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("heading", { name: "DeepONet" })).toBeInTheDocument();
+  });
+
+  it("ignores an unknown model in the URL", () => {
+    render(
+      <MemoryRouter initialEntries={["/atlas?model=not-a-model"]}>
+        <Atlas />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("heading", { name: "Fourier Neural Operator" })).toBeInTheDocument();
+  });
+
+  it("lists the families as toggles, with All and None", () => {
+    render(
+      <MemoryRouter>
+        <Atlas />
+      </MemoryRouter>,
+    );
+    const chip = screen.getByRole("button", { name: "operators" });
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(chip);
+    expect(chip).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "None" }));
+    expect(chip).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("has view, label and line controls", () => {
+    render(
+      <MemoryRouter>
+        <Atlas />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("radiogroup", { name: "View" })).toBeInTheDocument();
+    expect(screen.getByRole("radiogroup", { name: "Labels (3D)" })).toBeInTheDocument();
+    for (const name of ["Judged-against lines", "Model relations", "Pipeline flows"]) {
+      expect(screen.getByRole("switch", { name })).toHaveAttribute("aria-checked", "true");
+    }
+  });
+});
+

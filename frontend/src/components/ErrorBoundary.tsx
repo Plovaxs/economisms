@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               fill="none"
               stroke="currentColor"
               strokeWidth={1.75}
-              className="h-6 w-6 text-accent-fuchsia"
+              className="h-6 w-6 text-accent-b"
               aria-hidden="true"
             >
               <path
@@ -76,7 +76,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <button
             type="button"
             onClick={this.reset}
-            className="mt-6 rounded-lg bg-accent-gradient px-4 py-2 text-sm font-medium text-white shadow-glow transition-opacity hover:opacity-90"
+            className="mt-6 rounded-lg bg-accent-gradient px-4 py-2 text-sm font-medium text-on-accent shadow-glow transition-opacity hover:opacity-90"
           >
             Try again
           </button>

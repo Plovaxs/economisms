@@ -217,7 +217,7 @@ class _ChartBase(QWidget):
 
     def _small_font(self, pixels: int = 11, *, bold: bool = False) -> QFont:
         font = QFont(self.font())
-        font.setPixelSize(pixels)
+        font.setPixelSize(max(1, round(pixels * theme.text_scale())))
         font.setBold(bold)
         return font
 

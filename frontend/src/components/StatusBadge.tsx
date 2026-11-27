@@ -5,9 +5,9 @@ interface StatusBadgeProps {
 
 const TONE_CLASSES: Record<StatusBadgeProps["tone"], string> = {
   neutral: "bg-white/10 text-slate-200",
-  good: "bg-emerald-500/15 text-emerald-300 border-emerald-400/30",
-  bad: "bg-rose-500/15 text-rose-300 border-rose-400/30",
-  pending: "bg-amber-500/15 text-amber-300 border-amber-400/30",
+  good: "bg-good/15 text-good border-good/30",
+  bad: "bg-bad/15 text-bad border-bad/30",
+  pending: "bg-warn/15 text-warn border-warn/30",
 };
 
 export function StatusBadge({ label, tone }: StatusBadgeProps) {

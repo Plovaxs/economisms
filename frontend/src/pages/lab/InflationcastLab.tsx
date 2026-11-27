@@ -8,6 +8,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { RunJobPanel } from "../../components/RunJobPanel";
 import { StatusBadge } from "../../components/StatusBadge";
 import { useJobPolling } from "../../hooks/useJobPolling";
+import { useChartTheme } from "../../settings/useSettings";
 
 interface CandidateMetrics {
   mae: number;
@@ -38,6 +39,7 @@ interface InflationcastPayload {
 }
 
 export function InflationcastLab() {
+  const chart = useChartTheme();
   const { state, submit } = useJobPolling("inflationcast");
   const [maxEpochs, setMaxEpochs] = useState(150);
   const [seed, setSeed] = useState(0);
@@ -81,13 +83,13 @@ export function InflationcastLab() {
             <p className="mb-4 text-sm font-medium text-slate-300">MAE by candidate (lower is better)</p>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={bars} layout="vertical" margin={{ left: 24 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis type="number" stroke="#64748b" fontSize={12} />
-                <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={12} width={140} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis type="number" stroke={chart.axis} fontSize={12} />
+                <YAxis dataKey="name" type="category" stroke={chart.axis} fontSize={12} width={140} />
                 <Tooltip
-                  contentStyle={{ background: "#12151c", border: "1px solid rgba(255,255,255,0.1)" }}
+                  contentStyle={{ background: chart.tooltipBackground, border: `1px solid ${chart.tooltipBorder}`, color: chart.ink }}
                 />
-                <Bar dataKey="mae" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="mae" fill={chart.series[0]} radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>

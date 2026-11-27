@@ -6,8 +6,8 @@ interface MetricStatProps {
 
 const TONE_CLASSES: Record<NonNullable<MetricStatProps["tone"]>, string> = {
   default: "text-slate-100",
-  good: "text-emerald-300",
-  bad: "text-rose-300",
+  good: "text-good",
+  bad: "text-bad",
 };
 
 export function MetricStat({ label, value, tone = "default" }: MetricStatProps) {

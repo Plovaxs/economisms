@@ -16,8 +16,9 @@ nothing a person needs to read; axis labels and captions use the secondary ink (
 
 from __future__ import annotations
 
+import re
 import string
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPalette
@@ -131,7 +132,65 @@ DARK = Palette(
     good_text="#0ca30c",
 )
 
+# High contrast: the same hues and categorical series, on pure black or white with hairlines
+# that are as strong as the ink (not the 10% whisper of the standard sets) and an accent that clears
+# 7:1. Chosen by the "high contrast" setting, on top of whichever of light and dark is in force.
+HIGH_CONTRAST_DARK = replace(
+    DARK,
+    name="dark-hc",
+    page="#000000",
+    sidebar="#000000",
+    surface="#000000",
+    raised="#0f0f0f",
+    input_background="#000000",
+    hover="#262626",
+    ink="#ffffff",
+    ink2="#f2f2f2",
+    muted="#cfcfcf",
+    grid="#555555",
+    baseline="#8c8c8c",
+    border=(255, 255, 255, 200),
+    border_strong=(255, 255, 255, 255),
+    accent="#7ab8ff",
+    accent_fill="#0a4db0",
+    accent_fill_hover="#083f91",
+    on_accent="#ffffff",
+    good="#3ddc3d",
+    warning="#ffd23d",
+    serious="#ff9a6a",
+    critical="#ff6b6b",
+    good_text="#5be65b",
+)
+
+HIGH_CONTRAST_LIGHT = replace(
+    LIGHT,
+    name="light-hc",
+    page="#ffffff",
+    sidebar="#ffffff",
+    surface="#ffffff",
+    raised="#f2f2f2",
+    input_background="#ffffff",
+    hover="#e6e6e6",
+    ink="#000000",
+    ink2="#1a1a1a",
+    muted="#404040",
+    grid="#b3b3b3",
+    baseline="#595959",
+    border=(0, 0, 0, 200),
+    border_strong=(0, 0, 0, 255),
+    accent="#0b4fc0",
+    accent_fill="#0b3fa0",
+    accent_fill_hover="#082f7a",
+    on_accent="#ffffff",
+    good="#0a7a0a",
+    warning="#9a6a00",
+    serious="#b34a1a",
+    critical="#a80000",
+    good_text="#005a00",
+)
+
 _current = DARK
+_text_scale = 1.0
 
 
 def current() -> Palette:
@@ -139,13 +198,24 @@ def current() -> Palette:
     return _current
 
 
-def palette_for(mode: str, app: QApplication | None = None) -> Palette:
+def text_scale() -> float:
+    """The text-size factor in force (1.0 is the designed size); painted text reads it too."""
+    return _text_scale
+
+
+def palette_for(
+    mode: str, app: QApplication | None = None, *, high_contrast: bool = False
+) -> Palette:
     if mode == "dark":
-        return DARK
-    if mode == "light":
-        return LIGHT
-    scheme = (app or QApplication.instance()).styleHints().colorScheme()  # type: ignore[union-attr]
-    return LIGHT if scheme == Qt.ColorScheme.Light else DARK
+        light = False
+    elif mode == "light":
+        light = True
+    else:
+        scheme = (app or QApplication.instance()).styleHints().colorScheme()  # type: ignore[union-attr]
+        light = scheme == Qt.ColorScheme.Light
+    if high_contrast:
+        return HIGH_CONTRAST_LIGHT if light else HIGH_CONTRAST_DARK
+    return LIGHT if light else DARK
 
 
 def _rgba(value: tuple[int, int, int, int]) -> str:
@@ -220,10 +290,17 @@ QComboBox::drop-down { border: none; width: 22px; }
 QComboBox QAbstractItemView { background: $surface; color: $ink; border: 1px solid $baseline;
   selection-background-color: $accent_fill; selection-color: $on_accent; outline: none; }
 QCheckBox { spacing: 8px; }
-QCheckBox::indicator { width: 16px; height: 16px; border: 1px solid $border_strong;
+QCheckBox::indicator { width: 16px; height: 16px; border: 2px solid $ink2;
   border-radius: 4px; background: $input_background; }
-QCheckBox::indicator:checked { background: $accent_fill; border: 1px solid $accent_fill; }
+QCheckBox::indicator:checked { background: $accent_fill; border: 2px solid $accent; }
 QCheckBox:focus { color: $ink; }
+QRadioButton { spacing: 8px; }
+QRadioButton::indicator { width: 16px; height: 16px; border: 2px solid $ink2; border-radius: 9px;
+  background: $input_background; }
+QRadioButton::indicator:checked { border: 2px solid $accent;
+  background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
+  stop:0 $accent, stop:0.5 $accent, stop:0.56 $input_background, stop:1 $input_background); }
+QRadioButton:focus { color: $ink; }
 
 QTabWidget::pane { border: none; border-top: 1px solid $border; }
 QTabBar { background: transparent; }
@@ -285,7 +362,7 @@ QMenu::indicator { left: 8px; width: 14px; height: 14px; }
 )
 
 
-def stylesheet(palette: Palette) -> str:
+def stylesheet(palette: Palette, scale: float = 1.0) -> str:
     wash = {
         "neutral": palette.color(palette.ink2, 0.14),
         "accent": palette.color(palette.accent, 0.20),
@@ -298,7 +375,12 @@ def stylesheet(palette: Palette) -> str:
     def css(color: QColor) -> str:
         return f"rgba({color.red()},{color.green()},{color.blue()},{color.alphaF():.3f})"
 
-    return _STYLE.substitute(
+    critical_text = (
+        palette.critical
+        if palette.name == "light-hc"
+        else "#d03b3b" if palette.name == "light" else "#e66767"
+    )
+    sheet = _STYLE.substitute(
         ink=palette.ink,
         ink2=palette.ink2,
         muted=palette.muted,
@@ -317,7 +399,7 @@ def stylesheet(palette: Palette) -> str:
         accent_fill_hover=palette.accent_fill_hover,
         on_accent=palette.on_accent,
         critical=palette.critical,
-        critical_text="#d03b3b" if palette.name == "light" else "#e66767",
+        critical_text=critical_text,
         wash_neutral=css(wash["neutral"]),
         wash_accent=css(wash["accent"]),
         wash_good=css(wash["good"]),
@@ -325,6 +407,13 @@ def stylesheet(palette: Palette) -> str:
         wash_serious=css(wash["serious"]),
         wash_bad=css(wash["bad"]),
     )
+    if scale == 1.0:
+        return sheet
+    # every font size in the sheet is in pixels: scale them together
+    def bigger(match: re.Match[str]) -> str:
+        return f"font-size: {round(int(match.group(1)) * scale)}px"
+
+    return re.sub(r"font-size: (\d+)px", bigger, sheet)
 
 
 def qt_palette(palette: Palette) -> QPalette:
@@ -365,10 +454,13 @@ def qt_palette(palette: Palette) -> QPalette:
     return result
 
 
-def apply_theme(app: QApplication, mode: str = "system") -> Palette:
+def apply_theme(
+    app: QApplication, mode: str = "system", *, high_contrast: bool = False, scale: float = 1.0
+) -> Palette:
     """Style the whole application; returns the palette now in force."""
-    global _current
-    _current = palette_for(mode, app)
+    global _current, _text_scale
+    _current = palette_for(mode, app, high_contrast=high_contrast)
+    _text_scale = scale
     # Each call re-polishes every widget that exists, which is slow once there are many; and they
     # change nothing if the style, the palette and the sheet are already the ones asked for.
     if app.style().objectName().lower() != "fusion":
@@ -376,7 +468,7 @@ def apply_theme(app: QApplication, mode: str = "system") -> Palette:
     colors = qt_palette(_current)
     if app.palette() != colors:
         app.setPalette(colors)
-    sheet = stylesheet(_current)
+    sheet = stylesheet(_current, scale)
     if app.styleSheet() != sheet:
         app.setStyleSheet(sheet)
     return _current

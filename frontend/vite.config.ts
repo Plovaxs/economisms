@@ -35,5 +35,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/setupTests.ts"],
+    // The stylesheet is read as text by a test that holds its first-paint defaults to the theme engine.
+    css: { include: [/styles\/tokens\.css/] },
   },
 });

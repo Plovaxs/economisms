@@ -687,8 +687,10 @@ def test_the_screenshot_command_renders_every_page_for_real(qapp: Any, tmp_path:
         "explorers-pricing",
         "findings",
         "atlas",
+        "atlas-2d",
         "history",
         "system",
+        "settings",
     ]
     from PySide6.QtGui import QImage
 

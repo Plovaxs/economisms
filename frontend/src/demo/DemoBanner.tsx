@@ -15,7 +15,7 @@ export function DemoBanner() {
   return (
     <div
       role="note"
-      className="mb-6 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
+      className="mb-6 rounded-xl border border-warn/30 bg-warn/10 px-4 py-3 text-sm text-warn"
     >
       <strong className="font-semibold">DEMO.</strong> No backend runs here. Every number is a real
       response recorded from the Python backend

@@ -7,6 +7,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { RunJobPanel } from "../../components/RunJobPanel";
 import { StatusBadge } from "../../components/StatusBadge";
 import { useJobPolling } from "../../hooks/useJobPolling";
+import { useChartTheme } from "../../settings/useSettings";
 
 interface SeedOutcome {
   seed: number;
@@ -22,6 +23,7 @@ interface MarlPayload {
 }
 
 export function MarlLab() {
+  const chart = useChartTheme();
   const { state, submit } = useJobPolling("marl");
   const [seed, setSeed] = useState(0);
   const [nEpochs, setNEpochs] = useState(30);
@@ -65,13 +67,13 @@ export function MarlLab() {
             <p className="mb-4 text-sm font-medium text-slate-300">Household utility: single-agent vs. co-learning</p>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={bars}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="seed" stroke="#64748b" fontSize={12} label={{ value: "seed", position: "insideBottom", offset: -5 }} />
-                <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#12151c", border: "1px solid rgba(255,255,255,0.1)" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="seed" stroke={chart.axis} fontSize={12} label={{ value: "seed", position: "insideBottom", offset: -5 }} />
+                <YAxis stroke={chart.axis} fontSize={12} />
+                <Tooltip contentStyle={{ background: chart.tooltipBackground, border: `1px solid ${chart.tooltipBorder}`, color: chart.ink }} />
                 <Legend />
-                <Bar dataKey="single-agent" fill="#64748b" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="co-learning" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="single-agent" fill={chart.series[3]} radius={[6, 6, 0, 0]} />
+                <Bar dataKey="co-learning" fill={chart.series[0]} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>

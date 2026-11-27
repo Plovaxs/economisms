@@ -4,6 +4,7 @@ import { TokenGate } from "./auth/TokenGate";
 import { AppShell } from "./components/AppShell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Atlas } from "./pages/Atlas";
+import { Settings } from "./pages/Settings";
 import { AuditTrail } from "./pages/AuditTrail";
 import { BalanceSheets } from "./pages/BalanceSheets";
 import { EconomyExplorer } from "./pages/EconomyExplorer";
@@ -40,6 +41,7 @@ function AppRoutes() {
         <Route path="/validation-issues" element={<ValidationIssues />} />
         <Route path="/model-usage" element={<ModelUsage />} />
         <Route path="/atlas" element={<Atlas />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/lab/qmacro" element={<QMacroLab />} />
         <Route path="/lab/recessionnet" element={<RecessionNetLab />} />
         <Route path="/lab/inflationcast" element={<InflationcastLab />} />

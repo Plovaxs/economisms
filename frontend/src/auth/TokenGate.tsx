@@ -51,7 +51,7 @@ export function TokenGate({ children }: TokenGateProps) {
           ECONOSIM
         </h1>
         {expired && (
-          <p className="mt-3 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-300">
+          <p className="mt-3 rounded-lg border border-warn/30 bg-warn/10 px-3 py-2 text-sm text-warn">
             Your token stopped working -- probably because a backend process
             restarted and issued a new one. Paste the current token (see its
             terminal output, or <code className="rounded bg-white/10 px-1">cat /tmp/econosim-web/token</code>).
@@ -69,11 +69,11 @@ export function TokenGate({ children }: TokenGateProps) {
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Bearer token"
             autoFocus
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-accent-violet focus:outline-none"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-accent-a focus:outline-none"
           />
           <button
             type="submit"
-            className="rounded-xl bg-accent-gradient px-4 py-2.5 text-sm font-medium text-slate-950 transition-opacity hover:opacity-90"
+            className="rounded-xl bg-accent-gradient px-4 py-2.5 text-sm font-medium text-on-accent transition-opacity hover:opacity-90"
           >
             Continue
           </button>

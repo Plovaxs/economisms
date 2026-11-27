@@ -2,32 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* ---------------------------------------------------------------------------------------------
+   Defaults: the Aurora theme at standard settings, so the very first paint is correct. The theme
+   engine (src/settings) overwrites every colour variable and sets data-* attributes on <html>; the
+   rules below key off those attributes. Nothing here is inline style, so the gateway's
+   `style-src 'self'` Content-Security-Policy is satisfied.
+   --------------------------------------------------------------------------------------------- */
+:root {
+  --c-base: 10 11 16;
+  --c-elevated: 18 21 28;
+  --c-panel: 14 17 23;
+  --overlay: 255 255 255;
+  --accent-a: 139 92 246;
+  --accent-b: 217 70 239;
+  --accent-c: 34 211 238;
+  --on-accent: 0 0 0;
+  --good: 110 231 183;
+  --bad: 253 164 175;
+  --warn: 252 211 77;
+  --shadow-ink: 0 0 0;
+  --slate-50: 241 245 249;
+  --slate-100: 232 237 243;
+  --slate-200: 213 220 230;
+  --slate-300: 190 200 213;
+  --slate-400: 148 163 184;
+  --slate-500: 128 143 166;
+  --slate-600: 75 84 99;
+  --slate-700: 45 51 61;
+  --slate-800: 42 44 49;
+  --slate-900: 28 30 35;
+  --slate-950: 10 11 16;
+  --r: 1;
+  --gs: 1;
+  --ds: 1;
+  --line: 1.5;
+  color-scheme: dark;
 }
 
 html {
+  font-size: 100%;
   font-family: "Inter", system-ui, sans-serif;
+  scrollbar-color: rgb(var(--slate-600)) transparent;
 }
+html[data-font-scale="0.85"] { font-size: 85%; }
+html[data-font-scale="1.15"] { font-size: 115%; }
+html[data-font-scale="1.3"] { font-size: 130%; }
+html[data-font-scale="1.5"] { font-size: 150%; }
+
+html[data-font="mono"] { font-family: "JetBrains Mono", ui-monospace, monospace; }
+html[data-font="system"] { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+html[data-radius="sharp"] { --r: 0; }
+html[data-radius="round"] { --r: 1.6; }
+html[data-gaps="tight"] { --gs: 0.55; }
+html[data-gaps="wide"] { --gs: 1.5; }
+html[data-density="compact"] { --ds: 0.6; }
 
 body {
   position: relative;
   min-height: 100vh;
-  background: #0a0b10;
+  background: rgb(var(--c-base));
+  color: rgb(var(--slate-100));
+  line-height: var(--line);
   overflow-x: hidden;
 }
+html[data-spacing="relaxed"] body { --line: 1.7; }
+html[data-spacing="loose"] body {
+  --line: 1.95;
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
 
-/* The Hyprland/omarchy-rice ambient glow: a few large, soft, slowly
-   drifting color blobs behind the glass panels -- fixed so they never
-   scroll with content, and far enough below z-index 0 that every
-   real page element still sits on top. */
+/* The Hyprland/omarchy-rice ambient glow: large soft colour blobs behind the glass panels, fixed so
+   they never scroll, drawn from the theme's own accent colours. Off for high contrast, reduced
+   motion, or when switched off in the settings. */
 body::before,
 body::after {
   content: "";
@@ -35,71 +83,115 @@ body::after {
   z-index: -1;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.35;
+  opacity: 0.32;
   pointer-events: none;
 }
-
 body::before {
   top: -10%;
   left: -10%;
   width: 46vw;
   height: 46vw;
-  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  background: radial-gradient(circle, rgb(var(--accent-a)) 0%, transparent 70%);
   animation: aurora-drift-a 26s ease-in-out infinite alternate;
 }
-
 body::after {
   bottom: -15%;
   right: -10%;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
+  background: radial-gradient(circle, rgb(var(--accent-c)) 0%, transparent 70%);
   animation: aurora-drift-b 32s ease-in-out infinite alternate;
 }
+html[data-ambient="off"] body::before,
+html[data-ambient="off"] body::after { display: none; }
 
 @keyframes aurora-drift-a {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(6vw, 4vh) scale(1.15);
-  }
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(6vw, 4vh) scale(1.15); }
 }
-
 @keyframes aurora-drift-b {
-  0% {
-    transform: translate(0, 0) scale(1);
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-5vw, -6vh) scale(1.1); }
+}
+
+::selection { background: rgb(var(--accent-a) / 0.35); }
+
+/* Motion: the operating system's preference, and the in-app override, both end here. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) *,
+  html:not([data-motion="full"]) *::before,
+  html:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  100% {
-    transform: translate(-5vw, -6vh) scale(1.1);
-  }
+}
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
-::selection {
-  background: rgba(139, 92, 246, 0.35);
+/* Focus: always visible to the keyboard; "strong" is a thick double ring. */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent-c));
+  outline-offset: 2px;
+}
+html[data-focus="strong"] :focus-visible {
+  outline: 4px solid rgb(var(--accent-c));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 7px rgb(var(--c-base));
 }
 
-/* A thin, glassy scrollbar instead of the platform default -- most
-   Hyprland rice screenshots never show a chunky native scrollbar. */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+/* Glass panels (GlassCard and the shell). "reduced" drops the blur and firms up the tint, "solid"
+   makes them opaque, and high contrast adds a hard border. */
+html[data-glass="reduced"] .glass { backdrop-filter: none; background: rgb(var(--c-panel) / 0.86); }
+html[data-glass="solid"] .glass,
+html[data-glass="solid"] .shell-panel {
+  backdrop-filter: none;
+  background: rgb(var(--c-panel));
+  border-color: rgb(var(--overlay) / 0.28);
+}
+html[data-contrast="high"] .glass,
+html[data-contrast="high"] .shell-panel { border: 2px solid rgb(var(--slate-50) / 0.85); box-shadow: none; }
+html[data-contrast="high"] .glass::before { display: none; }
+
+/* Links and targets. */
+html[data-links="underline"] a { text-decoration: underline; text-underline-offset: 3px; }
+html[data-targets="large"] button,
+html[data-targets="large"] input,
+html[data-targets="large"] select,
+html[data-targets="large"] summary,
+html[data-targets="large"] nav a,
+html[data-targets="large"] [role="button"]:not(g):not(circle) {
+  min-height: 44px;
+}
+html[data-targets="large"] button,
+html[data-targets="large"] nav a { min-width: 44px; }
+
+/* Card tilt: a small 3-D lean toward the pointer (only when switched on and motion is allowed). */
+.tilt-layer { transition: transform 0.12s ease-out; transform-style: preserve-3d; }
+html[data-tilt="on"] .tilt-layer {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
 }
 
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Skip link: invisible until the keyboard reaches it. */
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -64px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgb(var(--c-elevated));
+  color: rgb(var(--slate-50));
+  border: 2px solid rgb(var(--accent-c));
+  transition: top 0.15s;
 }
+.skip-link:focus { top: 12px; }
 
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.3);
-  border-radius: 999px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.5);
-}
+.sr-only-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

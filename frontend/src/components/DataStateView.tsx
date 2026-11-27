@@ -19,7 +19,7 @@ export function DataStateView<T>({
   }
   if (state.phase === "error") {
     return (
-      <p className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+      <p className="rounded-xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
         {state.message}
       </p>
     );

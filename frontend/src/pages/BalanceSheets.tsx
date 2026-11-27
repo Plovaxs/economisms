@@ -48,7 +48,7 @@ export function BalanceSheets() {
           <input
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
-            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-violet focus:outline-none"
+            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-a focus:outline-none"
           />
         </label>
       </GlassCard>

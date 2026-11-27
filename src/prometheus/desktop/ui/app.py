@@ -219,12 +219,17 @@ def screenshots(out_dir: Path, *, theme: str = "system") -> int:
                 window.findings.select("finding:18")
             shot("findings")
             window.show_page("atlas")
+            window.atlas.view3d.configure(auto_rotate=False, reduce_motion=False, labels="selected")
             window.atlas.select("fno")
             shot("atlas")
+            window.atlas.show_view("2d")
+            shot("atlas-2d")
             window.show_page("history")
             shot("history")
             window.show_page("system")
             shot("system")
+            window.show_page("settings")
+            shot("settings")
         finally:
             dispose(window)
     for path in written:

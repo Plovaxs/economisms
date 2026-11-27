@@ -42,7 +42,7 @@ export function ModelUsage() {
             <input
               value={modelId}
               onChange={(e) => setModelId(e.target.value)}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-violet focus:outline-none"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-a focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -50,12 +50,12 @@ export function ModelUsage() {
             <input
               value={application}
               onChange={(e) => setApplication(e.target.value)}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-violet focus:outline-none"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-a focus:outline-none"
             />
           </label>
           <button
             onClick={() => void check()}
-            className="rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-medium text-slate-950 hover:opacity-90"
+            className="rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-medium text-on-accent hover:opacity-90"
           >
             Check
           </button>
@@ -69,7 +69,7 @@ export function ModelUsage() {
           </div>
         )}
         {error && (
-          <p className="mt-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+          <p className="mt-4 rounded-xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
             {error}
           </p>
         )}

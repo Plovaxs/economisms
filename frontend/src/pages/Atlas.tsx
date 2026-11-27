@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import graphJson from "../atlas/graph.json";
 import {
@@ -14,7 +15,11 @@ import {
 } from "../atlas/web";
 import { GlassCard } from "../components/GlassCard";
 import { PageHeader } from "../components/PageHeader";
+import { Segmented, Switch } from "../components/controls";
 import { StatusBadge } from "../components/StatusBadge";
+import { hex } from "../settings/contrast";
+import { useSettings } from "../settings/useSettings";
+import { Atlas3D, type Filters } from "../three/Atlas3D";
 
 // The model zoo as a web. `../atlas/graph.json` is generated from the Python registry
 // (`econosim modelzoo graph`) and a Python test fails if it goes stale, so every edge drawn here is
@@ -52,8 +57,42 @@ export function Atlas() {
     () => GRAPH.edges.filter((e) => EDGE_KINDS.includes(e.kind) && positions.has(e.source) && positions.has(e.target)),
     [positions],
   );
-  const [selected, setSelected] = useState<string>("fno");
+  const { settings, update, resolved } = useSettings();
+  const [params, setParams] = useSearchParams();
+  const fromUrl = params.get("model");
+  const known = useMemo(() => new Set(GRAPH.nodes.map((n) => n.id)), []);
+  const [selected, setSelectedState] = useState<string>(fromUrl && known.has(fromUrl) ? fromUrl : "fno");
   const [hover, setHover] = useState<string | null>(null);
+  const [view, setView] = useState<"3d" | "2d">("3d");
+  const [unsupported, setUnsupported] = useState(false);
+  const [filters, setFilters] = useState<Filters>({ baselines: true, relations: true, feeds: true });
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set());
+  const [autoRotate, setAutoRotate] = useState(settings.autoRotate);
+
+  // a link such as /atlas?model=fno (from the command palette) selects that model
+  useEffect(() => {
+    if (fromUrl && known.has(fromUrl)) setSelectedState(fromUrl);
+  }, [fromUrl, known]);
+  const setSelected = useCallback(
+    (id: string) => {
+      setSelectedState(id);
+      setParams({ model: id }, { replace: true });
+    },
+    [setParams],
+  );
+  useEffect(() => setAutoRotate(settings.autoRotate), [settings.autoRotate]);
+
+  const families = useMemo(
+    () => [...new Set(GRAPH.nodes.filter((n) => n.kind === "model" && n.status !== "not_built").map((n) => n.family))].sort(),
+    [],
+  );
+  const show3d = view === "3d" && settings.depth !== "off" && !unsupported;
+  const theme = resolved.theme;
+  const colours = useMemo(
+    () => ({ bg: hex(theme.bg), surface: hex(theme.surface), ink: hex(theme.fg), muted: hex(theme.muted), a: hex(theme.accents[0]), b: hex(theme.accents[1]), c: hex(theme.accents[2]) }),
+    [theme],
+  );
+  const onUnsupported = useCallback(() => setUnsupported(true), []);
   const card = cardFor(GRAPH, selected);
   const notBuilt = GRAPH.nodes.filter((n) => n.kind === "not_built");
   const models = GRAPH.nodes.filter((n) => n.kind === "model" || n.kind === "not_built");
@@ -82,8 +121,28 @@ export function Atlas() {
         {verdicts.length} hypotheses recorded: {verdictCount("SUPPORTED")} supported,{" "}
         {verdictCount("INCONCLUSIVE")} inconclusive, {verdictCount("CONTRADICTED")} contradicted.
       </p>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <GlassCard className="p-3">
+          {show3d && (
+            <Atlas3D
+              graph={GRAPH}
+              selected={selected}
+              onSelect={setSelected}
+              colours={colours}
+              autoRotate={autoRotate}
+              onAutoRotate={(on) => {
+                setAutoRotate(on);
+                update({ autoRotate: on });
+              }}
+              labels={settings.labels3d}
+              quality={settings.depth === "low" ? "low" : "auto"}
+              reducedMotion={resolved.reducedMotion}
+              filters={filters}
+              hiddenFamilies={hidden}
+              onUnsupported={onUnsupported}
+            />
+          )}
+          {!show3d && (
           <svg
             viewBox={`0 0 ${SIZE} ${SIZE}`}
             role="group"
@@ -171,9 +230,11 @@ export function Atlas() {
               );
             })}
           </svg>
-          <p className="px-2 pb-1 text-xs text-slate-400">
+          )}
+          <p className="px-2 pb-1 pt-2 text-xs text-slate-400">
             Circle: written in the zoo. Square: already in the repository. Diamond: baseline. Ring:
-            pipeline. Dotted: judged against. Heavy line: feeds. Arrow keys move between models.
+            pipeline. Dotted: judged against. Heavy line: feeds.{" "}
+            {show3d ? "Drag to rotate, scroll to zoom; keys: arrows, + and -, 0, [ and ]." : "Arrow keys move between models."}
           </p>
         </GlassCard>
         <div className="flex flex-col gap-4">
@@ -212,6 +273,69 @@ export function Atlas() {
               )}
             </GlassCard>
           )}
+          <GlassCard className="p-5">
+            <h2 className="mb-4 text-base font-semibold text-slate-50">View options</h2>
+            <div className="flex flex-col gap-5">
+              <Segmented
+                label="View"
+                value={show3d ? "3d" : "2d"}
+                options={[
+                  { value: "3d", label: "3D", hint: settings.depth === "off" ? "3D views are off in the settings" : unsupported ? "This browser cannot draw it" : undefined },
+                  { value: "2d", label: "2D" },
+                ]}
+                onChange={(v) => setView(v)}
+              />
+              <Segmented
+                label="Labels (3D)"
+                value={settings.labels3d}
+                options={[
+                  { value: "selected", label: "Selected" },
+                  { value: "all", label: "All" },
+                  { value: "none", label: "None" },
+                ]}
+                onChange={(v) => update({ labels3d: v })}
+              />
+              <div className="flex flex-col gap-3">
+                <Switch label="Judged-against lines" checked={filters.baselines} onChange={(v) => setFilters({ ...filters, baselines: v })} />
+                <Switch label="Model relations" checked={filters.relations} onChange={(v) => setFilters({ ...filters, relations: v })} />
+                <Switch label="Pipeline flows" checked={filters.feeds} onChange={(v) => setFilters({ ...filters, feeds: v })} />
+              </div>
+              <fieldset className="flex flex-col gap-2">
+                <legend className="text-sm font-medium text-slate-200">Families shown</legend>
+                <div className="flex flex-wrap gap-1.5">
+                  {families.map((f) => {
+                    const on = !hidden.has(f);
+                    return (
+                      <button
+                        key={f}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => {
+                          const next = new Set(hidden);
+                          if (on) next.add(f);
+                          else next.delete(f);
+                          setHidden(next);
+                        }}
+                        className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                          on ? "border-accent-a bg-accent-a/20 text-slate-50" : "border-white/10 text-slate-400 hover:bg-white/10"
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex gap-3 text-xs">
+                  <button type="button" className="text-accent-c underline" onClick={() => setHidden(new Set())}>
+                    All
+                  </button>
+                  <button type="button" className="text-accent-c underline" onClick={() => setHidden(new Set(families))}>
+                    None
+                  </button>
+                </div>
+              </fieldset>
+            </div>
+          </GlassCard>
           <GlassCard className="p-5">
             <details>
               <summary className="cursor-pointer text-sm font-medium text-slate-200">

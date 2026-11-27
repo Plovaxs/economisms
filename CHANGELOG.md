@@ -16,6 +16,17 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Interface overhaul: themes, accessibility settings, a command palette and an interactive 3D model web.** Web: twelve
+  omarchy-style themes driven by CSS variables (every one held to WCAG contrast in 125 tests, and the stylesheet's first-paint
+  defaults checked against the engine), a Settings page (text size, typeface, line spacing, motion, panel transparency,
+  contrast, colour-blind-safe charts, focus ring, 44 px targets, radius, gaps, density, sidebar side, 3D quality; export,
+  import, reset), a waybar-style status bar with workspaces (Alt 1 to Alt 5), a command palette (Ctrl K) and a shortcuts dialog,
+  a skip link and landmarks, and the Atlas in 3D (a dependency-free canvas engine: orbit with inertia, zoom, picking, pipeline
+  flow, keyboard control, fallback to the 2D web). Desktop: a Settings page (theme, high contrast, text size, reduced
+  motion, Atlas options; saved privately), two high-contrast palettes, text scaling that includes the charts, and the same
+  3D Atlas. Verified in headless Firefox through the gateway with its real Content-Security-Policy; no assistive
+  technology was used and nothing here is a conformance claim (`docs/INTERFACE_AND_ACCESSIBILITY.md`). All screenshots
+  were retaken.
 - **Model zoo (Findings 30 to 33).** New package `prometheus.modelzoo`: small from-scratch implementations of neural operators (FNO, DeepONet), continuous-dynamics models (Neural ODE and CDE, HNN, SympNet), mesh-free PDE solvers (DGM, Deep Ritz, Deep Kolmogorov), seven deep forecasters (N-BEATS, N-HiTS, PatchTST, DeepAR, TFT-lite, S4D, Mamba-style SSM), deep equilibrium nets, a differentiable QP layer with decision-focused learning, a graph network for shock propagation, double ML, DeepIV, DeepSurv, quantum algorithms on a state-vector simulator (amplitude estimation, QAOA, VQE, a quantum reservoir) and tensor trains. Each family was judged against an exact answer or a classical method with hypotheses written and committed before the run; 52 hypotheses (33 supported, 13 inconclusive, 6 contradicted) recorded in `docs/numerics/modelzoo_*.json`. A registry of the 106 requested models (28 implemented, 6 already present, 72 not built, each with its reason) and a graph whose edges are validated against the code and the records, two pipelines in which one model feeds the next (Finding 34), and `econosim modelzoo`, an *Atlas* page in the desktop app and a `/atlas` page in the web app. Ideal simulators only for the quantum part.
 - **README rebuilt around screenshots.** A banner and a hero image, a tour of every desktop page and every web page
   (sidebar, the seven labs and the eleven dashboard views, each with a caption that states only what the picture shows),

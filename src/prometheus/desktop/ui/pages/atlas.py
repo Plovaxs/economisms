@@ -29,17 +29,22 @@ from PySide6.QtGui import (
     QPolygonF,
 )
 from PySide6.QtWidgets import (
+    QButtonGroup,
     QComboBox,
     QHBoxLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QSizePolicy,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
+from prometheus.desktop.settings import DesktopSettings
 from prometheus.desktop.ui import theme
+from prometheus.desktop.ui.pages.atlas3d import Atlas3DView
 from prometheus.desktop.ui.pages.base import PageBase
 from prometheus.desktop.ui.pages.findings import SafeBrowser
 from prometheus.desktop.ui.widgets import make_label, plain_tooltip
@@ -333,6 +338,18 @@ class AtlasPage(PageBase):
         self.verdicts = zoo_graph.recorded_verdicts()
         self.entries = {e.id: e for e in ENTRIES}
         self.view = AtlasView(self.graph)
+        self.view3d = Atlas3DView(self.graph)
+        self.stack = QStackedWidget()
+        self.stack.addWidget(self.view3d)
+        self.stack.addWidget(self.view)
+        self.views = QButtonGroup(self)
+        self.button3d = QPushButton("3D")
+        self.button2d = QPushButton("2D")
+        for index, button in enumerate((self.button3d, self.button2d)):
+            button.setCheckable(True)
+            button.setAccessibleName(f"{button.text()} view")
+            self.views.addButton(button, index)
+        self.button3d.setChecked(True)
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search the models")
         self.search.setClearButtonEnabled(True)
@@ -363,8 +380,14 @@ class AtlasPage(PageBase):
         holder = QWidget()
         holder.setFixedWidth(300)
         holder.setLayout(left)
+        switch = QHBoxLayout()
+        switch.addWidget(make_label("View", "caption"))
+        switch.addWidget(self.button3d)
+        switch.addWidget(self.button2d)
+        switch.addStretch(1)
         middle = QVBoxLayout()
-        middle.addWidget(self.view, 6)
+        middle.addLayout(switch)
+        middle.addWidget(self.stack, 6)
         middle.addWidget(make_label(self._legend(), "caption"))
         self.card.setMinimumHeight(110)
         middle.addWidget(self.card, 2)
@@ -378,6 +401,8 @@ class AtlasPage(PageBase):
         self.status.currentIndexChanged.connect(self._fill_list)
         self.list.currentItemChanged.connect(self._list_changed)
         self.view.selected.connect(self._view_selected)
+        self.view3d.selected.connect(self._view_selected)
+        self.views.idClicked.connect(self._view_chosen)
         self.card.setMarkdown(self.summary_text())
 
     def summary_text(self) -> str:
@@ -420,15 +445,44 @@ class AtlasPage(PageBase):
         self.list.blockSignals(False)
         self.count.setText(f"{shown} models shown")
 
+    def apply_settings(self, settings: DesktopSettings) -> None:
+        """The person's settings: which view opens, whether the 3D web turns, which labels show."""
+        self.view3d.configure(
+            auto_rotate=settings.auto_rotate,
+            reduce_motion=settings.reduce_motion,
+            labels=settings.labels_3d,
+        )
+        self.show_view(settings.atlas_view)
+
+    def show_view(self, name: str) -> None:
+        three = name == "3d"
+        self.stack.setCurrentWidget(self.view3d if three else self.view)
+        (self.button3d if three else self.button2d).setChecked(True)
+
+    def _view_chosen(self, index: int) -> None:
+        self.show_view("3d" if index == 0 else "2d")
+
+    def current_view(self) -> str:
+        return "3d" if self.stack.currentWidget() is self.view3d else "2d"
+
     def _list_changed(self, current: QListWidgetItem | None) -> None:
         if current is None:
             return
         entry_id = str(current.data(Qt.ItemDataRole.UserRole))
         self.view.current = entry_id if entry_id in self.view.by_id else None
+        self.view3d.current = entry_id if entry_id in self.view3d.nodes else None
         self.view.update()
+        self.view3d.update()
         self._show_card(entry_id)
 
     def _view_selected(self, node_id: str) -> None:
+        # keep the two drawings agreeing about what is selected
+        if self.view.current != node_id and node_id in self.view.by_id:
+            self.view.current = node_id
+            self.view.update()
+        if self.view3d.current != node_id and node_id in self.view3d.nodes:
+            self.view3d.current = node_id
+            self.view3d.update()
         self._show_card(node_id)
         for row in range(self.list.count()):
             if self.list.item(row).data(Qt.ItemDataRole.UserRole) == node_id:
@@ -441,6 +495,7 @@ class AtlasPage(PageBase):
         """Select a model by id (from outside, and from the tests)."""
         if entry_id in self.view.by_id:
             self.view.select(entry_id)
+            self.view3d.select(entry_id)
         else:
             self._show_card(entry_id)
 

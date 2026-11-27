@@ -6,6 +6,7 @@ import { MetricStat } from "../../components/MetricStat";
 import { RunJobPanel } from "../../components/RunJobPanel";
 import { StatusBadge } from "../../components/StatusBadge";
 import type { LabState } from "../../hooks/useJobPolling";
+import { useChartTheme } from "../../settings/useSettings";
 
 // Shared envelope across qmacro_run.py::_summary_payload and
 // recessionnet_run.py::summary_payload: both already produce
@@ -44,6 +45,7 @@ export function BenchmarkLabView({
   metricField,
   metricLabel,
 }: BenchmarkLabViewProps) {
+  const chart = useChartTheme();
   const payload =
     state.phase === "done" ? (state.artifact[payloadKey] as BenchmarkPayload | undefined) : undefined;
   const bars = payload
@@ -61,11 +63,11 @@ export function BenchmarkLabView({
             </p>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={bars} layout="vertical" margin={{ left: 24 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis type="number" stroke="#64748b" fontSize={12} />
-                <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={12} width={160} />
-                <Tooltip contentStyle={{ background: "#12151c", border: "1px solid rgba(255,255,255,0.1)" }} />
-                <Bar dataKey="value" fill="#22d3ee" radius={[0, 6, 6, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis type="number" stroke={chart.axis} fontSize={12} />
+                <YAxis dataKey="name" type="category" stroke={chart.axis} fontSize={12} width={160} />
+                <Tooltip contentStyle={{ background: chart.tooltipBackground, border: `1px solid ${chart.tooltipBorder}`, color: chart.ink }} />
+                <Bar dataKey="value" fill={chart.series[1]} radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>

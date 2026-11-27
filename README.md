@@ -49,6 +49,7 @@ and a web app, both showing live computed output rather than mock-ups.
 | **Data** | 29 committed data snapshots, each verified against a SHA-256 manifest every time it is read |
 | **Evidence** | 361 / 374 blueprint items tied to a passing test; 5,446 tests passed in CI (Python 3.11 to 3.14) |
 | **Front doors** | native Qt desktop app, React web app (with a no-install demo edition), the `econosim` CLI |
+| **Make it yours** | twelve themes, a command palette (`Ctrl K`), a waybar-style status bar, an interactive 3D model web, and settings for text size, contrast, motion, colour-blind-safe charts and click targets, in both front doors ([what is checked and what is not](./docs/INTERFACE_AND_ACCESSIBILITY.md)) |
 
 ## Screenshots
 
@@ -59,7 +60,7 @@ The web demo shows responses recorded from the real backend at default settings 
 
 ### Desktop application
 
-Seven pages in the sidebar: **Overview**, **Labs**, **Explorers**, **Findings**, **Atlas**, **History**, **System**.
+Eight pages in the sidebar: **Overview**, **Labs**, **Explorers**, **Findings**, **Atlas**, **History**, **System**, **Settings**.
 Dark by default; it follows your desktop's light or dark setting live, or you can pick one.
 
 <table>
@@ -84,6 +85,10 @@ Dark by default; it follows your desktop's light or dark setting live, or you ca
 <td width="50%"><img src="./docs/images/desktop/system.png" alt="Desktop System page showing the standing of the project"><br><sub><b>System.</b> What this software may be used for, the open findings against the gate, whether the installation matches the one the results came from, and where your work is kept.</sub></td>
 </tr>
 <tr>
+<td width="50%"><img src="./docs/images/desktop/settings.png" alt="Desktop Settings page"><br><sub><b>Settings.</b> Theme, a high-contrast variant, text size from 85% to 150% (charts included), reduced motion, and how the Atlas opens. Every change applies at once and is saved to a private file in the state directory.</sub></td>
+<td width="50%"><img src="./docs/images/desktop/atlas-2d.png" alt="Desktop Atlas page in the 2D view"><br><sub><b>Atlas, 2D.</b> The same graph on rings, for when you would rather not rotate anything. The 3D web turns with the mouse, the wheel and the keyboard.</sub></td>
+</tr>
+<tr>
 <td width="50%"><img src="./docs/images/desktop/overview-light.png" alt="Desktop Overview page in the light theme"><br><sub><b>Light theme.</b> The same Overview in the light theme.</sub></td>
 <td width="50%"><img src="./docs/images/desktop/explorers-market-paths-light.png" alt="Desktop market-paths explorer in the light theme"><br><sub><b>Light theme, chart.</b> Chart colours were checked for colour-vision-deficiency separation in both themes.</sub></td>
 </tr>
@@ -93,7 +98,7 @@ Dark by default; it follows your desktop's light or dark setting live, or you ca
 
 <table>
 <tr>
-<td width="18%" valign="top"><img src="./docs/images/web/sidebar.png" alt="The web app's sidebar: eleven dashboard views and seven deep-learning labs"><br><sub><b>Sidebar.</b> Eleven dashboard views, the seven deep-learning labs, then the model-zoo Atlas.</sub></td>
+<td width="18%" valign="top"><img src="./docs/images/web/sidebar.png" alt="The web app's sidebar: eleven dashboard views and seven deep-learning labs"><br><sub><b>Sidebar.</b> Eleven dashboard views, the seven deep-learning labs, the model-zoo Atlas and Settings. Above it, a status bar with five workspaces (Alt 1 to Alt 5), the gate state, the theme and the command palette.</sub></td>
 <td valign="top"><img src="./docs/images/web/overview.png" alt="Web app overview page with the demo banner"><br><sub><b>Overview.</b> The demo edition says, in a banner on every page, that its numbers are recorded real responses at default settings. Eleven views and seven engines.</sub></td>
 </tr>
 </table>
@@ -150,6 +155,32 @@ result with its verdict. In this demo recording the more complex model does not 
 <tr>
 <td width="50%"><img src="./docs/images/web/validation-issues.png" alt="Validation issues"><br><sub><b>Validation issues.</b> The tracked findings log, with severity, owner and disposition.</sub></td>
 <td width="50%"><img src="./docs/images/web/model-usage.png" alt="Model usage"><br><sub><b>Model usage.</b> Check whether a model is authorised for a given application.</sub></td>
+</tr>
+</table>
+
+### Make it yours
+
+A command palette over every page, theme, switch and model; twelve themes in the spirit of the omarchy and
+Hyprland rices (each one held to WCAG contrast in the tests); and an interactive 3D model web. Everything is
+in the **Settings** page and keyboard-reachable. [docs/INTERFACE_AND_ACCESSIBILITY.md](./docs/INTERFACE_AND_ACCESSIBILITY.md)
+says what is verified, and what is not (no screen reader was used, and nothing here is a conformance claim).
+
+<table>
+<tr>
+<td width="50%"><img src="./docs/images/web/atlas-3d.png" alt="The 3D model web: spheres, the selected model highlighted, pipeline flows as moving dots"><br><sub><b>3D model web.</b> Drag to orbit (it coasts), scroll or pinch to zoom, click to select, arrow keys rotate, <code>[</code> and <code>]</code> step through models. Lines show what each model was judged against; dots flow along the pipelines. No dependency: a hand-written canvas engine.</sub></td>
+<td width="50%"><img src="./docs/images/web/settings.png" alt="The Settings page with twelve theme cards and groups of switches"><br><sub><b>Settings.</b> Twelve themes with a palette preview, text size, typeface, line spacing, motion, panel transparency, contrast, colour-blind-safe charts, focus ring, 44 px targets, layout, 3D quality, export and import.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="./docs/images/web/palette.png" alt="The command palette open, filtered to a theme"><br><sub><b>Command palette</b> (<code>Ctrl K</code>). Pages, themes, accessibility switches and every model of the zoo, with fuzzy search.</sub></td>
+<td width="50%"><img src="./docs/images/web/shortcuts.png" alt="The keyboard shortcuts dialog"><br><sub><b>Shortcuts</b> (<code>?</code>). <code>Alt 1</code> to <code>Alt 5</code> switch workspace, <code>Alt T</code> the theme, <code>Alt M</code> motion.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="./docs/images/web/theme-catppuccin-latte.png" alt="The Catppuccin Latte light theme"><br><sub><b>Light.</b> Catppuccin Latte. The glass panels tint with the ink on light themes.</sub></td>
+<td width="50%"><img src="./docs/images/web/theme-gruvbox.png" alt="The Gruvbox theme"><br><sub><b>Gruvbox.</b> One of twelve; the others are Aurora, Tokyo Night, Catppuccin Mocha, Rosé Pine, Nord, Kanagawa, Everforest, Matte Black and two high-contrast sets.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="./docs/images/web/theme-tokyo-night.png" alt="The Tokyo Night theme"><br><sub><b>Tokyo Night.</b></sub></td>
+<td width="50%"><img src="./docs/images/web/access-large-text.png" alt="Large text, the high-contrast light palette and a strong focus ring"><br><sub><b>Accessibility.</b> 130% text, the high-contrast palette, hard borders, large targets and a strong focus ring, all together.</sub></td>
 </tr>
 </table>
 
@@ -223,7 +254,7 @@ a specification alone, and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **5,446 passed, 16 skipped** (5,462 tests; the count in the green CI run of commit `bdda35b`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **35 / 35** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **5,446 passed, 16 skipped** (5,462 tests; the count in the green CI run of commit `bdda35b`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **251 / 251** passing (`frontend/`'s separate Vitest suite) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | ledger entries through PR-231, each independently verified |
 
@@ -358,7 +389,7 @@ econosim desktop --screenshots docs/shots    # render every page to PNG with no 
   checks, the 29 verified data files and where your work is kept (`$ECONOSIM_HOME`, else
   `~/.local/share/econosim`, created `0700`).
 - **Menu bar and settings.** *File*: open the folder where your work is kept, Quit (Ctrl+Q). *View*: the
-  pages (Ctrl+1 to Ctrl+7) and the colour theme: `system` follows your desktop's light/dark setting
+  pages (Ctrl+1 to Ctrl+8) and the colour theme: `system` follows your desktop's light/dark setting
   live, or choose dark or light. *Help*: About, which states the version, the gate decision and the
   disclaimer. Anything uncaught is written to `errors.log` in the state directory (a program started from
   a menu has no terminal), and the status bar says so.
@@ -407,6 +438,10 @@ python -m prometheus.dashboard serve --demo   # only the research dashboard (or:
   whole-repository test refuse secrets (see [SECURITY.md](./SECURITY.md)).
 - `/dashboard/inflationcast` benchmarks five real CPI-nowcasting candidates live against real BLS and
   Kaggle data.
+- **Interface.** A status bar with workspaces, a command palette (`Ctrl K`), twelve themes, a Settings page
+  (text size, contrast, motion, colour-blind-safe charts, large targets, layout) and an interactive 3D model
+  web, with no new dependency and nothing that the gateway's Content-Security-Policy would refuse; see
+  [docs/INTERFACE_AND_ACCESSIBILITY.md](./docs/INTERFACE_AND_ACCESSIBILITY.md).
 
 None of this changes the project's NO-GO gate for live trading.
 
@@ -576,6 +611,7 @@ subsystems that need no extra dependency still work on a base install that never
 | See an external technical audit answered item by item | [docs/audit/REGISTER.md](./docs/audit/REGISTER.md) |
 | Know what comes next, and what will not | [docs/ROADMAP.md](./docs/ROADMAP.md) |
 | Deploy the web stack | [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md), [docs/OPERATIONS_RUNBOOK.md](./docs/OPERATIONS_RUNBOOK.md) |
+| See what can be changed in the interface, and what accessibility was and was not checked | [docs/INTERFACE_AND_ACCESSIBILITY.md](./docs/INTERFACE_AND_ACCESSIBILITY.md) |
 | Understand the security posture | [SECURITY.md](./SECURITY.md), [docs/THREAT_MODEL.md](./docs/THREAT_MODEL.md) |
 | See the data and where it came from | [docs/DATA_DICTIONARY.md](./docs/DATA_DICTIONARY.md), [docs/LICENSE_INVENTORY.md](./docs/LICENSE_INVENTORY.md) |
 

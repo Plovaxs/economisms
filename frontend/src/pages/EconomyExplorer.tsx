@@ -7,6 +7,7 @@ import { NumberField } from "../components/NumberField";
 import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/StatusBadge";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { useChartTheme } from "../settings/useSettings";
 
 interface EconomyStepRow {
   step: number;
@@ -20,6 +21,7 @@ interface EconomyExplorerPayload {
 }
 
 export function EconomyExplorer() {
+  const chart = useChartTheme();
   const [nSteps, setNSteps] = useState(6);
   const [seed, setSeed] = useState(0);
   const state = useDashboardData<EconomyExplorerPayload>(
@@ -48,11 +50,11 @@ export function EconomyExplorer() {
             <p className="mb-4 text-sm font-medium text-slate-300">Aggregate ledger balance by step</p>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={data.steps}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="step" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#12151c", border: "1px solid rgba(255,255,255,0.1)" }} />
-                <Line type="monotone" dataKey="ledger_total_usd" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="step" stroke={chart.axis} fontSize={12} />
+                <YAxis stroke={chart.axis} fontSize={12} />
+                <Tooltip contentStyle={{ background: chart.tooltipBackground, border: `1px solid ${chart.tooltipBorder}`, color: chart.ink }} />
+                <Line type="monotone" dataKey="ledger_total_usd" stroke={chart.series[0]} strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </GlassCard>

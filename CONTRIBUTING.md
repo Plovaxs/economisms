@@ -61,7 +61,7 @@ skipping them. To look at what you changed, `econosim desktop --screenshots out/
 PNG with no display; the desktop images in `docs/images/desktop/` are from that command (add `--theme light`
 for the light ones) and should be regenerated when the look changes. The web images in `docs/images/web/` come from
 the demo edition photographed in a real headless Firefox by `tools/capture_web_screenshots.py` (its docstring says what
-to start first: a served demo build and `geckodriver`); `docs/images/hero.png` and `banner.svg` are composed from them. Charts are drawn by `desktop/ui/charts.py` against a validated palette
+to start first: a served demo build and `geckodriver`; `--extras` also takes the palette, the 3D web, themes and the accessibility states); `docs/images/hero.png` and `banner.svg` are composed from them. Charts are drawn by `desktop/ui/charts.py` against a validated palette
 (`desktop/ui/theme.py`): do not add a colour by eye -- run the palette validator in both modes, and keep
 the rules the module's docstring lists (thin marks, a legend for two or more series, a table view behind
 every chart, text that never wears a series colour). Anything that shows text from a result must show it

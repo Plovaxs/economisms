@@ -41,9 +41,11 @@ from PySide6.QtWidgets import (
 )
 
 from prometheus.desktop import health
+from prometheus.desktop import settings as settings_store
 from prometheus.desktop.findings import FindingsDocument
 from prometheus.desktop.runner import WorkerLoop
 from prometheus.desktop.session import JobSummary, LocalSession
+from prometheus.desktop.settings import DesktopSettings
 from prometheus.desktop.ui import theme
 from prometheus.desktop.ui.pages.atlas import AtlasPage
 from prometheus.desktop.ui.pages.base import PageBase
@@ -52,6 +54,7 @@ from prometheus.desktop.ui.pages.findings import FindingsPage
 from prometheus.desktop.ui.pages.history import HistoryPage
 from prometheus.desktop.ui.pages.labs import LabsPage, format_elapsed
 from prometheus.desktop.ui.pages.overview import OverviewPage
+from prometheus.desktop.ui.pages.settings import SettingsPage
 from prometheus.desktop.ui.pages.system import SystemPage
 from prometheus.desktop.ui.widgets import Badge, ChartCard, make_label
 from prometheus.evidence.constants import SIMULATION_DISCLAIMER
@@ -64,6 +67,7 @@ PAGES = (
     ("atlas", "Atlas"),
     ("history", "History"),
     ("system", "System"),
+    ("settings", "Settings"),
 )
 BUSY_MS = 300
 MINIMUM_SIZE = (960, 600)
@@ -83,12 +87,18 @@ class MainWindow(QMainWindow):
         state_dir: Path,
         runner: WorkerLoop | None = None,
         theme_mode: str = "system",
+        settings: DesktopSettings | None = None,
         confirm_close: bool = True,
         findings_document: FindingsDocument | None = None,
     ) -> None:
         super().__init__()
         self.session, self.runner = session, runner
-        self.theme_mode = theme_mode
+        # saved settings, unless the caller chose a theme on the command line (that wins, unsaved)
+        loaded = settings if settings is not None else settings_store.load(state_dir)
+        if settings is None and theme_mode != "system":
+            loaded = loaded.with_changes(theme=theme_mode)
+        self.settings = loaded
+        self.theme_mode = loaded.theme
         self._confirm_close = confirm_close
         self._summaries: tuple[JobSummary, ...] = ()
         self._closed = False
@@ -118,6 +128,7 @@ class MainWindow(QMainWindow):
         self.atlas = AtlasPage()
         self.history = HistoryPage(session)
         self.system = SystemPage(session, state_dir)
+        self.settings_page = SettingsPage(self.settings, state_dir)
         for key, page in (
             ("overview", self.overview),
             ("labs", self.labs),
@@ -126,6 +137,7 @@ class MainWindow(QMainWindow):
             ("atlas", self.atlas),
             ("history", self.history),
             ("system", self.system),
+            ("settings", self.settings_page),
         ):
             self.pages[key] = page
             self.stack.addWidget(page)
@@ -138,11 +150,13 @@ class MainWindow(QMainWindow):
         self.history.openResult.connect(self.open_result)
         self.history.rerun.connect(self.rerun)
         self.system.themeRequested.connect(self.set_theme)
-        self.system.set_theme_selection(theme_mode)
+        self.settings_page.changed.connect(self.apply_settings)
+        self.system.set_theme_selection(self.theme_mode)
         self.nav.currentRowChanged.connect(self._nav_changed)
         self.state_dir = state_dir
         self._build_menus()
         self.errorLogged.connect(self._show_internal_error)
+        self.apply_settings(self.settings, persist=False)
         QGuiApplication.styleHints().colorSchemeChanged.connect(self._system_scheme_changed)
 
         self.timer = QTimer(self)
@@ -395,22 +409,36 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ appearance
 
     def set_theme(self, mode: str) -> None:
+        self.apply_settings(self.settings.with_changes(theme=mode))
+
+    def apply_settings(self, settings: object, *, persist: bool = True) -> None:
+        """Put `settings` into effect everywhere (theme, contrast, text size, motion, the Atlas)
+        and, unless asked not to, save them."""
+        if not isinstance(settings, DesktopSettings):
+            return
         app = QApplication.instance()
         if not isinstance(app, QApplication):
             return
-        self.theme_mode = mode
-        theme.apply_theme(app, mode)
-        if mode in self.theme_actions:
-            self.theme_actions[mode].setChecked(True)
+        self.settings = settings
+        self.theme_mode = settings.theme
+        theme.apply_theme(
+            app, settings.theme, high_contrast=settings.high_contrast, scale=settings.text_scale
+        )
+        if settings.theme in self.theme_actions:
+            self.theme_actions[settings.theme].setChecked(True)
         for card in self.findChildren(ChartCard):
             card.retheme()
-        self.system.set_theme_selection(mode)
+        self.system.set_theme_selection(settings.theme)
+        self.settings_page.show_settings(settings)
+        self.atlas.apply_settings(settings)
+        if persist:
+            settings_store.save(self.state_dir, settings)
         self.update()
 
     def _system_scheme_changed(self, *_: object) -> None:
         """The operating system switched between light and dark: follow it, if that is the mode."""
         if self.theme_mode == "system":
-            self.set_theme("system")
+            self.apply_settings(self.settings, persist=False)
 
     def _show_internal_error(self, summary: str) -> None:
         self._internal_error = summary

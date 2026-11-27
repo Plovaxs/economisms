@@ -6,6 +6,7 @@ import { NumberField } from "../../components/NumberField";
 import { PageHeader } from "../../components/PageHeader";
 import { RunJobPanel } from "../../components/RunJobPanel";
 import { useJobPolling } from "../../hooks/useJobPolling";
+import { useChartTheme } from "../../settings/useSettings";
 
 interface ComputeCostRow {
   method: string;
@@ -20,6 +21,7 @@ interface PdeSolverPayload {
 }
 
 export function PdeSolverLab() {
+  const chart = useChartTheme();
   const { state, submit } = useJobPolling("pde_solver");
   const [strike, setStrike] = useState(100);
   const [volatility, setVolatility] = useState(0.2);
@@ -59,11 +61,11 @@ export function PdeSolverLab() {
             <p className="mb-4 text-sm font-medium text-slate-300">Wall-clock cost by method</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={payload.rows}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="method" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#12151c", border: "1px solid rgba(255,255,255,0.1)" }} />
-                <Bar dataKey="wall_seconds" fill="#8b5cf6" radius={[6, 6, 0, 0]} name="wall seconds" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="method" stroke={chart.axis} fontSize={12} />
+                <YAxis stroke={chart.axis} fontSize={12} />
+                <Tooltip contentStyle={{ background: chart.tooltipBackground, border: `1px solid ${chart.tooltipBorder}`, color: chart.ink }} />
+                <Bar dataKey="wall_seconds" fill={chart.series[0]} radius={[6, 6, 0, 0]} name="wall seconds" />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>

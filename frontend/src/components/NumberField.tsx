@@ -16,7 +16,7 @@ export function NumberField({ label, value, onChange, step = 1, min }: NumberFie
         step={step}
         min={min}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-violet focus:outline-none"
+        className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-100 focus:border-accent-a focus:outline-none"
       />
     </label>
   );

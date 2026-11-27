@@ -21,7 +21,7 @@ export function RunJobPanel({ state, onRun, configFields, runLabel = "Run" }: Ru
         <button
           onClick={onRun}
           disabled={busy}
-          className="shrink-0 rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-medium text-slate-950 transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="shrink-0 rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-medium text-on-accent transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           {busy ? "Running..." : runLabel}
         </button>
@@ -34,7 +34,7 @@ export function RunJobPanel({ state, onRun, configFields, runLabel = "Run" }: Ru
       )}
       {busy && <LoadingPulse label="Training a real model on real data..." />}
       {state.phase === "error" && (
-        <p className="mt-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+        <p className="mt-4 rounded-xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
           {state.message}
         </p>
       )}
