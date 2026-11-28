@@ -47,7 +47,7 @@ and a web app, both showing live computed output rather than mock-ups.
 | **Labs** | 16 runnable studies: forecasting, models and solvers, simulations, hedging studies |
 | **Explorers** | 8 live views: economy, market paths, option pricing, hedge ratios, portfolio risk, shock transmission, experiment comparison, validation issues |
 | **Data** | 29 committed data snapshots, each verified against a SHA-256 manifest every time it is read |
-| **Evidence** | 361 / 374 blueprint items tied to a passing test; 5,446 tests passed in CI (Python 3.11 to 3.14) |
+| **Evidence** | 361 / 374 blueprint items tied to a passing test; 5,488 tests passed in CI (Python 3.11 to 3.14) |
 | **Front doors** | native Qt desktop app, React web app (with a no-install demo edition), the `econosim` CLI |
 | **Make it yours** | twelve themes, a command palette (`Ctrl K`), a waybar-style status bar, an interactive 3D model web, and settings for text size, contrast, motion, colour-blind-safe charts and click targets, in both front doors ([what is checked and what is not](./docs/INTERFACE_AND_ACCESSIBILITY.md)) |
 
@@ -254,7 +254,7 @@ a specification alone, and every PR states plainly what it does *not* cover.
 |---|---|
 | Blueprint items evidenced | **361 / 374** (96.5%) across 29 categories |
 | Categories at 100% | API, AUD, CIQ, DOC, DRI, ECO, EXP, GOV, HDG, LCH, LED, MAR, MLO, NSD, OPS, OPT, PDE, PRI, REL, RISK, SDE, UIX, VAL |
-| Test suite | **5,446 passed, 16 skipped** (5,462 tests; the count in the green CI run of commit `bdda35b`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **251 / 251** passing (`frontend/`'s separate Vitest suite) |
+| Test suite | **5,488 passed, 16 skipped** (5,504 tests; the count in the green CI run of commit `5f3ff11`, Python 3.11 to 3.14, `uv run pytest -q`; four of the skips need `desktop-file-utils` or the full git history, which the CI image lacks, and 12 more are skipped by design); **356 / 356** passing (`frontend/`'s separate Vitest suite, run locally on the working tree before the commit) |
 | Lint & types | `ruff` clean, `mypy --strict` clean |
 | Pull requests | ledger entries through PR-231, each independently verified |
 

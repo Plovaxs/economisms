@@ -101,7 +101,7 @@ export function CommandPalette({ open, onClose, commands }: Props) {
               onMouseMove={() => setActive(index)}
               onClick={() => run(c)}
               className={`flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm ${
-                index === active ? "bg-accent-a/25 text-slate-50" : "text-slate-300"
+                index === active ? "bg-accent-a/10 text-slate-50 ring-1 ring-inset ring-accent-a/60" : "text-slate-300"
               }`}
             >
               <span>

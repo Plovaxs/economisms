@@ -33,8 +33,3 @@ export function cssTriplet(c: Rgb): string {
 export function hex(c: Rgb): string {
   return `#${c.map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, "0")).join("")}`;
 }
-
-/** The colour (of the two candidates) with the higher contrast against `background`. */
-export function bestInk(background: Rgb, light: Rgb, dark: Rgb): Rgb {
-  return contrastRatio(background, light) >= contrastRatio(background, dark) ? light : dark;
-}

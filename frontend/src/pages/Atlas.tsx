@@ -317,7 +317,7 @@ export function Atlas() {
                           setHidden(next);
                         }}
                         className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
-                          on ? "border-accent-a bg-accent-a/20 text-slate-50" : "border-white/10 text-slate-400 hover:bg-white/10"
+                          on ? "border-accent-a bg-accent-a/10 text-slate-50 ring-1 ring-inset ring-accent-a/60" : "border-white/10 text-slate-400 hover:bg-white/10 hover:text-slate-50"
                         }`}
                       >
                         {f}
@@ -326,10 +326,10 @@ export function Atlas() {
                   })}
                 </div>
                 <div className="flex gap-3 text-xs">
-                  <button type="button" className="text-accent-c underline" onClick={() => setHidden(new Set())}>
+                  <button type="button" className="text-slate-100 underline decoration-accent-c decoration-2 underline-offset-4" onClick={() => setHidden(new Set())}>
                     All
                   </button>
-                  <button type="button" className="text-accent-c underline" onClick={() => setHidden(new Set(families))}>
+                  <button type="button" className="text-slate-100 underline decoration-accent-c decoration-2 underline-offset-4" onClick={() => setHidden(new Set(families))}>
                     None
                   </button>
                 </div>

@@ -202,3 +202,28 @@ def test_saving_into_a_directory_that_does_not_exist_makes_it_private(tmp_path: 
     state = tmp_path / "made" / "by" / "settings"
     assert s.save(state, s.DEFAULTS) is True
     assert stat.S_IMODE(os.stat(state).st_mode) == 0o700  # the session refuses anything looser
+
+
+def test_the_python_engine_agrees_with_the_browser_engine() -> None:
+    """`frontend/src/atlas/layout.parity.json` was written by the TypeScript engine; the same file
+    is checked in `engine.test.ts`, so neither implementation can drift without a test failing."""
+    path = Path(__file__).resolve().parents[2] / "frontend" / "src" / "atlas" / "layout.parity.json"
+    recorded = json.loads(path.read_text())
+    graph = zoo_graph.build_graph()
+    layout = o.layout_web3(graph.nodes, graph.edges)
+    assert set(layout) == set(recorded["layout"])
+    for node_id, position in layout.items():
+        for got, want in zip(position, recorded["layout"][node_id], strict=True):
+            assert got == pytest.approx(want, abs=1e-6), node_id
+    assert len(recorded["projections"]) > 20
+    for row in recorded["projections"]:
+        cam = row["camera"]
+        camera = o.Orbit(yaw=cam["yaw"], pitch=cam["pitch"], distance=cam["distance"])
+        point = tuple(row["point"])
+        turned = o.rotate(point, camera.yaw, camera.pitch)
+        for got, want in zip(turned, row["rotated"], strict=True):
+            assert got == pytest.approx(want, abs=1e-6)
+        q = o.project(point, camera, row["view"]["width"], row["view"]["height"])
+        for key in ("x", "y", "scale", "depth"):
+            assert getattr(q, key) == pytest.approx(row[key], abs=1e-6), key
+        assert q.visible is row["visible"]

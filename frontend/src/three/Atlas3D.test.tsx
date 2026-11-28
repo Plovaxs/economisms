@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import graphJson from "../atlas/graph.json";
 import type { AtlasGraph } from "../atlas/web";
 import { Atlas3D, type Filters } from "./Atlas3D";
+import { DEFAULT_ORBIT, layoutWeb3, project } from "./engine";
 
 const GRAPH = graphJson as unknown as AtlasGraph;
 const COLOURS = { bg: "#111111", surface: "#222222", ink: "#ffffff", muted: "#999999", a: "#8b5cf6", b: "#d946ef", c: "#22d3ee" };
@@ -30,10 +31,22 @@ function recordingContext() {
   return { ctx: ctx as unknown as CanvasRenderingContext2D, calls };
 }
 
+// jsdom (as configured here) has no PointerEvent, so Testing Library would send a bare Event with no
+// coordinates and no pointer id: a "click at x, y" would silently be a click at nowhere. A MouseEvent
+// that also carries `pointerId` is all the component reads.
+class PointerEventShim extends MouseEvent {
+  readonly pointerId: number;
+  constructor(type: string, init: MouseEventInit & { pointerId?: number } = {}) {
+    super(type, init);
+    this.pointerId = init.pointerId ?? 1;
+  }
+}
+
 const original = HTMLCanvasElement.prototype.getContext;
 let raf: FrameRequestCallback[] = [];
 
 beforeEach(() => {
+  vi.stubGlobal("PointerEvent", PointerEventShim);
   raf = [];
   vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
     raf.push(cb);
@@ -43,6 +56,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   HTMLCanvasElement.prototype.getContext = original;
   vi.restoreAllMocks();
 });
@@ -190,5 +204,57 @@ describe("Atlas3D with a canvas", () => {
     fireEvent.pointerMove(view, { pointerId: 2, clientX: 160, clientY: 120 });
     fireEvent.pointerUp(view, { pointerId: 2, clientX: 160, clientY: 120 });
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  // jsdom has no layout, so the canvas is the 240 x 240 minimum the component falls back to, and with
+  // auto-rotation off the camera stays at its default: the screen position of every model is known.
+  function nearestModel() {
+    const kinds = new Map(GRAPH.nodes.map((n) => [n.id, n]));
+    const placed = layoutWeb3(GRAPH.nodes, GRAPH.edges)
+      .filter((p) => kinds.get(p.id)?.kind === "model")
+      .map((p) => ({ id: p.id, family: kinds.get(p.id)?.family as string, q: project(p.position, DEFAULT_ORBIT, { width: 240, height: 240 }) }))
+      .sort((a, b) => a.q.depth - b.q.depth);
+    return placed[0];
+  }
+
+  it("selects the model drawn under the pointer when it is clicked", () => {
+    const { ctx } = recordingContext();
+    HTMLCanvasElement.prototype.getContext = (() => ctx) as unknown as HTMLCanvasElement["getContext"];
+    const target = nearestModel();
+    const { onSelect } = renderView({ autoRotate: false, selected: "none-selected" });
+    tick();
+    const view = screen.getByTestId("atlas-3d");
+    fireEvent.pointerDown(view, { pointerId: 1, clientX: target.q.x, clientY: target.q.y });
+    fireEvent.pointerUp(view, { pointerId: 1, clientX: target.q.x, clientY: target.q.y });
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith(target.id);
+  });
+
+  it("does not select when the press was a drag, even one that ends on a model", () => {
+    const { ctx } = recordingContext();
+    HTMLCanvasElement.prototype.getContext = (() => ctx) as unknown as HTMLCanvasElement["getContext"];
+    const target = nearestModel();
+    const { onSelect } = renderView({ autoRotate: false, selected: "none-selected" });
+    tick();
+    const view = screen.getByTestId("atlas-3d");
+    const at = { clientX: target.q.x, clientY: target.q.y };
+    fireEvent.pointerDown(view, { pointerId: 1, ...at });
+    // away and back: the pointer travels 40 px (past the click tolerance) and is released on the model
+    fireEvent.pointerMove(view, { pointerId: 1, clientX: target.q.x + 20, clientY: target.q.y });
+    fireEvent.pointerMove(view, { pointerId: 1, ...at });
+    fireEvent.pointerUp(view, { pointerId: 1, ...at });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("does not select a model whose family is hidden", () => {
+    const { ctx } = recordingContext();
+    HTMLCanvasElement.prototype.getContext = (() => ctx) as unknown as HTMLCanvasElement["getContext"];
+    const target = nearestModel();
+    const { onSelect } = renderView({ autoRotate: false, selected: "none-selected", hiddenFamilies: new Set([target.family]) });
+    tick();
+    const view = screen.getByTestId("atlas-3d");
+    fireEvent.pointerDown(view, { pointerId: 1, clientX: target.q.x, clientY: target.q.y });
+    fireEvent.pointerUp(view, { pointerId: 1, clientX: target.q.x, clientY: target.q.y });
+    expect(onSelect).not.toHaveBeenCalledWith(target.id);
   });
 });

@@ -50,7 +50,7 @@ function ThemeCard({ theme, selected, onSelect }: { theme: ThemeDef; selected: b
       aria-checked={selected}
       onClick={onSelect}
       className={`flex flex-col gap-2 rounded-xl border p-3 text-left transition-colors ${
-        selected ? "border-accent-a bg-accent-a/15" : "border-white/10 bg-white/5 hover:bg-white/10"
+        selected ? "border-accent-a bg-accent-a/10 ring-1 ring-inset ring-accent-a/60" : "border-white/10 bg-white/5 hover:bg-white/10"
       }`}
     >
       <span
@@ -63,7 +63,7 @@ function ThemeCard({ theme, selected, onSelect }: { theme: ThemeDef; selected: b
         ))}
       </span>
       <span className="text-sm font-medium text-slate-100">{theme.name}</span>
-      <span className="text-xs text-slate-400">{theme.scheme === "dark" ? "Dark" : "Light"}</span>
+      <span className={`text-xs ${selected ? "text-slate-100" : "text-slate-400"}`}>{theme.scheme === "dark" ? "Dark" : "Light"}</span>
     </button>
   );
 }
@@ -111,11 +111,11 @@ export function Settings() {
             aria-checked={settings.theme === "system"}
             onClick={() => update({ theme: "system" })}
             className={`flex flex-col justify-center gap-1 rounded-xl border p-3 text-left ${
-              settings.theme === "system" ? "border-accent-a bg-accent-a/15" : "border-white/10 bg-white/5 hover:bg-white/10"
+              settings.theme === "system" ? "border-accent-a bg-accent-a/10 ring-1 ring-inset ring-accent-a/60" : "border-white/10 bg-white/5 hover:bg-white/10"
             }`}
           >
             <span className="text-sm font-medium text-slate-100">Follow the system</span>
-            <span className="text-xs text-slate-400">Now: {systemName}</span>
+            <span className={`text-xs ${settings.theme === "system" ? "text-slate-100" : "text-slate-400"}`}>Now: {systemName}</span>
           </button>
           {THEMES.map((t) => (
             <ThemeCard key={t.id} theme={t} selected={settings.theme === t.id} onSelect={() => update({ theme: t.id })} />

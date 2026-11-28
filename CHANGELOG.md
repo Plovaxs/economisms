@@ -16,6 +16,16 @@ semantic-version history that never happened before `0.2.0`. Newest first.
 
 ## [Unreleased]
 
+- **Accuracy and quality audit of the interface.** A new reproducible tool, `tools/audit_web_pages.py`, drives headless
+  Firefox through the gateway and measures every text element's real contrast, plus accessible names, ids, heading levels
+  and landmarks, for 15 pages in all 12 themes (13,788 text elements; the last run found nothing under 4.5:1). Its first
+  run found real failures the unit tests had not modelled, now fixed: dim workspace digits, tinted chips and nested cards
+  lighter than the modelled surfaces. 29 colour values across ten themes were adjusted (Everforest also moves to its hard-contrast
+  background), selected and active surfaces use a 10% accent tint with a ring, and the theme tests now cover seven stacked
+  surfaces plus hover, chip and selected states (221 tests), with three source guards on the markup. The 3D view's pointer tests had
+  been sending events without coordinates; they now click a model for real (a drag, or a hidden family, does not select),
+  and a shared fixture holds the TypeScript and Python 3D engines to the same layout and projection. Desktop: a one-off
+  `--theme` is no longer saved by changing an unrelated setting. Screenshots retaken.
 - **Interface overhaul: themes, accessibility settings, a command palette and an interactive 3D model web.** Web: twelve
   omarchy-style themes driven by CSS variables (every one held to WCAG contrast in 125 tests, and the stylesheet's first-paint
   defaults checked against the engine), a Settings page (text size, typeface, line spacing, motion, panel transparency,

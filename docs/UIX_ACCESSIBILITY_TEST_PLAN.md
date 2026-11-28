@@ -2,6 +2,11 @@
 
 Acceptance wording: "Keyboard navigation and contrast review passes."
 
+> **Scope.** This plan is about the server-rendered dashboard (`dashboard/html.py`). The React web app
+> and the desktop application are covered separately, with their own computed contrast tests and a
+> real-browser audit, in [INTERFACE_AND_ACCESSIBILITY.md](INTERFACE_AND_ACCESSIBILITY.md), which also lists
+> what has not been checked there. Nothing in that document changes the status of the items below.
+
 This sandboxed environment has no real browser, no screen reader, and
 no visual rendering tool. What follows is split explicitly into what
 is already checked automatically (real code, real tests, run on every

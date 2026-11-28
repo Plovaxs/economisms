@@ -192,6 +192,32 @@ def test_saved_settings_are_loaded_the_next_time_and_the_command_line_theme_wins
         theme.apply_theme(qapp, "dark")
 
 
+def test_a_command_line_theme_is_not_saved_by_changing_something_else(
+    qapp: Any, tmp_path: Path
+) -> None:
+    state = tmp_path / "state"
+    store.save(state, store.DEFAULTS.with_changes(theme="light"))
+    win = MainWindow(LocalSession(state), state_dir=state, confirm_close=False, theme_mode="dark")
+    try:
+        assert win.settings.theme == "dark"
+        page = win.settings_page
+        page._checks["reduce_motion"].click()  # an unrelated change is saved ...
+        saved = store.load(state)
+        assert saved.reduce_motion is True
+        assert saved.theme == "light"  # ... but not the one-off theme from the command line
+        assert win.settings.theme == "dark"  # which still holds for this run
+        page._groups["theme"].button(page._options["theme"].index("dark")).click()
+        page._groups["theme"].button(page._options["theme"].index("light")).click()
+        assert store.load(state).theme == "light" and win.settings.theme == "light"
+        page._groups["theme"].button(page._options["theme"].index("dark")).click()
+        assert store.load(state).theme == "dark"  # a theme the person picks is saved
+    finally:
+        win.shutdown()
+        win.deleteLater()
+        support.settle()
+        theme.apply_theme(qapp, "dark")
+
+
 def test_the_theme_menu_still_works_and_saves(window: MainWindow, tmp_path: Path) -> None:
     window.set_theme("light")
     assert window.settings.theme == "light" and store.load(tmp_path / "state").theme == "light"

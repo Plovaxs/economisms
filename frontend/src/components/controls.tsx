@@ -57,8 +57,8 @@ export function Segmented<T extends string | number>({ label, value, options, on
               onKeyDown={(e) => onKeyDown(e, index)}
               className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
                 on
-                  ? "border-accent-a bg-accent-a/20 text-slate-50"
-                  : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                  ? "border-accent-a bg-accent-a/10 text-slate-50 ring-1 ring-inset ring-accent-a/60"
+                  : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-slate-50"
               }`}
             >
               {o.label}

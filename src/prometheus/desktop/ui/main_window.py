@@ -93,10 +93,15 @@ class MainWindow(QMainWindow):
     ) -> None:
         super().__init__()
         self.session, self.runner = session, runner
-        # saved settings, unless the caller chose a theme on the command line (that wins, unsaved)
-        loaded = settings if settings is not None else settings_store.load(state_dir)
+        # saved settings, unless the caller chose a theme on the command line: that wins for this
+        # run and is never written to the settings file unless the person picks a theme themselves
+        saved = settings if settings is not None else settings_store.load(state_dir)
+        loaded = saved
+        self._theme_override: str | None = None
         if settings is None and theme_mode != "system":
-            loaded = loaded.with_changes(theme=theme_mode)
+            loaded = saved.with_changes(theme=theme_mode)
+            self._theme_override = theme_mode
+        self._theme_on_disk = saved.theme
         self.settings = loaded
         self.theme_mode = loaded.theme
         self._confirm_close = confirm_close
@@ -419,7 +424,7 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if not isinstance(app, QApplication):
             return
-        self.settings = settings
+        previous, self.settings = self.settings, settings
         self.theme_mode = settings.theme
         theme.apply_theme(
             app, settings.theme, high_contrast=settings.high_contrast, scale=settings.text_scale
@@ -432,7 +437,15 @@ class MainWindow(QMainWindow):
         self.settings_page.show_settings(settings)
         self.atlas.apply_settings(settings)
         if persist:
-            settings_store.save(self.state_dir, settings)
+            to_save = settings
+            if self._theme_override is not None:
+                if settings.theme == previous.theme:
+                    # another setting changed: keep the theme that was saved, not the override
+                    to_save = settings.with_changes(theme=self._theme_on_disk)
+                else:
+                    self._theme_override = None  # a theme was chosen: that is now the saved one
+            self._theme_on_disk = to_save.theme
+            settings_store.save(self.state_dir, to_save)
         self.update()
 
     def _system_scheme_changed(self, *_: object) -> None:

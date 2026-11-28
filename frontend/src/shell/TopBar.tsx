@@ -42,10 +42,10 @@ export function TopBar({ workspace, title, onPalette }: Props) {
             className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm transition-colors ${
               workspace === w.id
                 ? "bg-accent-gradient font-medium text-on-accent"
-                : "text-slate-300 hover:bg-white/10"
+                : "text-slate-300 hover:bg-white/10 hover:text-slate-50"
             }`}
           >
-            <span className="font-mono text-xs opacity-70">{w.key}</span>
+            <span className="font-mono text-xs">{w.key}</span>
             <span className="hidden sm:inline">{w.label}</span>
           </NavLink>
         ))}

@@ -42,19 +42,41 @@ pipelines are not drawn; with 3D set to off, or in a browser without canvas, the
 A **Settings** page (the eighth, `Ctrl 8`) with the colour theme (follow the system, dark, light), a
 high-contrast variant of either, text size 85% to 150% (the whole application, charts included), reduced
 motion, and how the Atlas opens (3D or 2D, turning or still, which labels). Settings are saved to
-`settings.json` in the state directory (mode `0600`, in a `0700` directory, written atomically); a
-`--theme` given on the command line wins for that run and is not saved over them. The Atlas has the same 3D
+`settings.json` in the state directory (mode `0600`, in a `0700` directory, written atomically). A
+`--theme dark` or `--theme light` given on the command line wins for that run: it is not written to the
+file, not even when you change some other setting meanwhile, and it is saved only if you pick a theme on the
+Settings page yourself (`--theme system`, the default, means "use the saved one"). The Atlas has the same 3D
 web as the browser, in the same engine ported to Python (`desktop/orbit3d.py`).
 
 ## What is held to account
 
-* **Contrast is computed, not eyeballed.** For each of the twelve web themes the tests check WCAG 2.x contrast:
-  every text colour at least 4.5:1 on the page, panel and raised surfaces; the status colours as text on all
-  three; the text that sits on the accent gradient at 4.5:1 on *all three* gradient stops; the accent stops
-  3:1 against the page as non-text marks; and that the colour-vision-safe chart series are 3:1 visible. The
-  stylesheet's first-paint defaults are compared with the engine's Aurora theme so there is no flash. The
-  desktop's two high-contrast palettes are held to 7:1 for text, 7:1 for text on the accent, 4.5:1 for the
-  accent and the status text, and strong hairlines.
+* **Contrast is computed, not eyeballed, on the surfaces the components really paint.** For each of the
+  twelve web themes the tests check WCAG 2.x contrast: the text scale (`slate-50` to `slate-500`) at 4.5:1
+  on seven surfaces (the page, the main panel, the opaque panel, the raised surface, a glass card, a field
+  inside a card, and a card in the "solid panels" setting, each built the way the browser stacks the
+  translucent layers); the brighter stops on a hovered row and on a neutral chip, and on a selected option
+  (the accent at 10% over a card, for each of the three accents); the status colours as text on all of
+  those and on their own 10% tinted chips; the text on the accent gradient at 4.5:1 on *all three*
+  gradient stops; the accent stops 3:1 against the page as non-text marks; and that the colour-vision-safe
+  chart series are 3:1 visible. The stylesheet's first-paint defaults are compared with the engine's
+  Aurora theme so there is no flash. The desktop's two high-contrast palettes are held to 7:1 for text,
+  7:1 for text on the accent, 4.5:1 for the accent and the status text, and strong hairlines.
+* **The markup cannot quietly undo that arithmetic.** Three source guards fail the Vitest run if a
+  component dims text with an opacity utility, tints a selected or active surface with the accent at more
+  than 10%, or sets words in an accent colour (accents are only measured as 3:1 marks). Where a hover
+  changes the surface, the dimmer text brightens on hover instead.
+* **A real-browser audit of the pages, in every theme.** `tools/audit_web_pages.py` drives headless
+  Firefox through this project's own gateway (real Content-Security-Policy) and, for each page in each
+  theme, measures the contrast of every text element from the browser's computed colours, and checks
+  accessible names, duplicate ids, heading levels, a single `<h1>` and the landmark regions. The last run
+  covered 15 pages in all 12 themes (13,788 text elements measured, none under 4.5:1, or 3:1 for large
+  text, no unnamed control, no duplicate id, no skipped heading level). It is a reproducible check of
+  those pages as rendered with default settings, not a conformance claim: it skips text over gradients, 756
+  elements in that run (the gradient pill is held by the unit test above instead), and does not see hover
+  and focus states, closed dialogs, error and loading states, or large text and the other settings.
+  Its first run found real problems that the unit tests had missed (dim digits on inactive workspace
+  pills, tinted chips and nested cards that were lighter than the surfaces the tests modelled); they are
+  fixed, and the unit tests now model those surfaces.
 * **Keyboard and structure.** Tests drive the settings controls (radio groups with one tab stop and arrow keys,
   switches), the palette (a modal combobox with `aria-activedescendant`, Escape, focus returned, Tab kept inside)
   and the shell (skip link, landmarks, a named main region, the page announced after navigation) through
@@ -65,7 +87,11 @@ web as the browser, in the same engine ported to Python (`desktop/orbit3d.py`).
   high-contrast palette applied. Themes are applied through the CSS object model, which that policy allows;
   nothing is inline style or inline script.
 * **The 3D maths** (vectors, rotation, projection, depth order, picking, inertia, the layout) is pure code with
-  its own tests, in TypeScript and again in Python.
+  its own tests, in TypeScript and again in Python. The two implementations are held to one recorded file
+  (`frontend/src/atlas/layout.parity.json`: the layout of all 59 drawn nodes and 24 projections, written by the
+  TypeScript engine and checked by both test suites to 1e-6), so neither can drift unnoticed. A click on a
+  model in the 3D view is tested end to end (the pointer position over a model's projected disc selects it;
+  a drag that ends on a model, or a click on a hidden family, does not).
 
 ## What has not been checked
 

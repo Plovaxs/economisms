@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import graphJson from "../atlas/graph.json";
+import parity from "../atlas/layout.parity.json";
 import type { AtlasGraph } from "../atlas/web";
 import {
   AUTO_ROTATE_SPEED,
@@ -216,5 +217,33 @@ describe("small helpers", () => {
     expect(Math.abs(corner.y)).toBe(6);
     expect(tiltFor(500, -500, 100, 100, 6).y).toBe(6); // clamped
     expect(tiltFor(10, 10, 0, 0)).toEqual({ x: 0, y: 0 });
+  });
+});
+
+// The same numbers are held by tests/unit/test_desktop_settings.py against the Python port
+// (desktop/orbit3d.py), so the browser and the desktop application draw the same web.
+describe("agreement with the shared parity fixture", () => {
+  const tolerance = 1e-6;
+  it("lays the graph out exactly as recorded", () => {
+    const placed = layoutWeb3(GRAPH.nodes, GRAPH.edges);
+    expect(placed.map((p) => p.id).sort()).toEqual(Object.keys(parity.layout).sort());
+    for (const p of placed) {
+      const want = (parity.layout as Record<string, number[]>)[p.id];
+      p.position.forEach((value, axis) => expect(Math.abs(value - want[axis]), `${p.id}[${axis}]`).toBeLessThan(tolerance));
+    }
+  });
+
+  it("rotates and projects the recorded points exactly as recorded", () => {
+    expect(parity.projections.length).toBeGreaterThan(20);
+    for (const row of parity.projections) {
+      const point = row.point as unknown as Vec3;
+      const at = rotate(point, row.camera.yaw, row.camera.pitch);
+      at.forEach((value, axis) => expect(Math.abs(value - row.rotated[axis])).toBeLessThan(tolerance));
+      const q = project(point, row.camera, row.view);
+      for (const key of ["x", "y", "scale", "depth"] as const) {
+        expect(Math.abs(q[key] - row[key]), key).toBeLessThan(tolerance);
+      }
+      expect(q.visible).toBe(row.visible);
+    }
   });
 });

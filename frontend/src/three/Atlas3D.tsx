@@ -503,7 +503,7 @@ export function Atlas3D({
           title={reducedMotion ? "Motion is reduced in the settings" : "Auto-rotate"}
           onClick={() => onAutoRotate(!autoRotate)}
           className={`h-9 w-9 rounded-lg border text-base leading-none disabled:opacity-40 ${
-            autoRotate && !reducedMotion ? "border-accent-c bg-accent-c/25 text-slate-50" : "border-white/15 bg-base-elevated/80 text-slate-100 hover:bg-white/15"
+            autoRotate && !reducedMotion ? "border-accent-c bg-accent-c/10 text-slate-50 ring-1 ring-inset ring-accent-c/60" : "border-white/15 bg-base-elevated/80 text-slate-100 hover:bg-white/15"
           }`}
         >
           ↻

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { contrastRatio, mix } from "./contrast";
+import { type Rgb, contrastRatio, mix } from "./contrast";
 import {
   CVD_SAFE,
   THEMES,
@@ -30,10 +30,29 @@ describe("contrast arithmetic", () => {
   });
 });
 
+/** `top` painted over `bottom` at `alpha`, the way the browser composites a translucent layer. */
+function over(top: Rgb, bottom: Rgb, alpha: number): Rgb {
+  return mix(bottom, top, alpha);
+}
+
 describe.each(THEMES.map((t) => [t.id, t] as const))("theme %s", (_id, theme) => {
   const scale = slateScale(theme);
   const panel = mix(theme.bg, theme.surface, 0.55);
-  const surfaces = { page: theme.bg, panel, raised: theme.surface };
+  // The flat surfaces, then the ones the components actually stack on them. In the default glass mode
+  // the page gets the main panel (overlay at 2%), a card is one more layer (5%) and a field or table
+  // head inside a card another. In "solid" mode a card is the opaque panel and a field in it 5% above.
+  const main = over(theme.overlay, theme.bg, 0.02);
+  const card = over(theme.overlay, main, 0.05);
+  const nested = over(theme.overlay, card, 0.05);
+  const solidCard = over(theme.overlay, panel, 0.05);
+  const surfaces = { page: theme.bg, main, panel, raised: theme.surface, card, nested, solidCard };
+  // A hovered row (a card with the overlay at 10%) and a neutral chip (10% over the main panel). Text
+  // that sits on them is the brighter part of the scale; the dim stops brighten on hover instead
+  // (see Atlas.tsx), so they are not asked to read on a hovered surface.
+  const transient = { hover: over(theme.overlay, card, 0.1), chip: over(theme.overlay, main, 0.1) };
+  // a selected or active option is the card with the accent at 10% (sourceGuards.test.ts holds the
+  // markup to that, since a stronger tint takes the contrast away from the text on it)
+  const selected = theme.accents.map((a) => over(a, card, 0.1));
 
   it.each(Object.entries(surfaces))("reads at 4.5:1 or better on the %s surface", (_n, surface) => {
     for (const stop of [50, 100, 200, 300, 400, 500]) {
@@ -41,10 +60,36 @@ describe.each(THEMES.map((t) => [t.id, t] as const))("theme %s", (_id, theme) =>
     }
   });
 
+  it.each(Object.entries(transient))("reads at 4.5:1 or better on a %s surface, from the brightest stop to slate-200", (_n, surface) => {
+    for (const stop of [50, 100, 200]) {
+      expect(contrastRatio(scale[stop], surface), `slate-${stop}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("keeps the brighter text stops readable on a selected option, whichever accent tints it", () => {
+    for (const surface of selected) {
+      for (const stop of [50, 100]) {
+        expect(contrastRatio(scale[stop], surface), `slate-${stop}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
   it("keeps the status colours readable as text on every surface", () => {
     for (const surface of Object.values(surfaces)) {
       for (const colour of [theme.good, theme.bad, theme.warn]) {
         expect(contrastRatio(colour, surface)).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("keeps the status colours readable on their own 10% tinted chips, on a card, a field in it and a solid card", () => {
+    for (const colour of [theme.good, theme.bad, theme.warn]) {
+      for (const [base, alpha] of [
+        [card, 0.1],
+        [nested, 0.1],
+        [solidCard, 0.1],
+      ] as const) {
+        expect(contrastRatio(colour, over(colour, base, alpha)), `${colour} at ${alpha}`).toBeGreaterThanOrEqual(4.5);
       }
     }
   });
